@@ -1,0 +1,1221 @@
+<?php
+declare(strict_types=1);
+
+namespace WeaveStudios\FuneralNotices\Modules;
+
+/**
+ * Layouts Module
+ * 
+ * Professional responsive layouts and grid systems management.
+ * Handles template selection, card styles, responsive settings,
+ * and layout-specific configurations.
+ * 
+ * @since 2.0.0
+ */
+class LayoutsModule extends BaseModule {
+    
+    protected array $default_settings = [
+        'enable_archive_templates' => false,
+        'default_archive_layout' => 'modern',
+        'default_single_layout' => 'elegant',
+        'default_card_style' => 'standard',
+        'responsive_breakpoints' => [
+            'mobile' => 768,
+            'tablet' => 1024,
+            'desktop' => 1200
+        ],
+        'grid_settings' => [
+            'mobile_columns' => 1,
+            'tablet_columns' => 2,
+            'desktop_columns' => 3
+        ],
+        'card_spacing' => 20,
+        'image_aspect_ratio' => '4:3',
+        'show_layout_previews' => true,
+        'enable_hover_effects' => true,
+        'enable_animations' => true,
+        'enable_layout_switching' => false
+    ];
+    
+    private array $available_card_layouts = [
+        'firehawk' => [
+            'name' => 'Firehawk Compatible',
+            'description' => 'Grid layout matching Firehawk CRM styling standards',
+            'features' => ['CRM Integration', 'Professional Grid', 'Firehawk Styling'],
+            'template' => 'firehawk',
+            'css_file' => 'firehawk-compat.css',
+            'preview_image' => 'firehawk-preview.jpg'
+        ],
+        'modern' => [
+            'name' => 'Modern Memorial Grid',
+            'description' => 'Clean, contemporary funeral notice cards with modern styling',
+            'features' => ['Responsive Grid', 'Modern Design', 'Card Hover Effects', 'Mobile Optimized'],
+            'template' => 'modern-grid',
+            'css_file' => 'layouts/modern-grid.css',
+            'preview_image' => 'modern-preview.jpg'
+        ],
+        'elegant' => [
+            'name' => 'Elegant Funeral Grid',
+            'description' => 'Formal, traditional memorial styling with sophisticated design',
+            'features' => ['Traditional Styling', 'Formal Design', 'Portrait Focus', 'Elegant Typography'],
+            'template' => 'elegant-grid',
+            'css_file' => 'layouts/elegant-grid.css',
+            'preview_image' => 'elegant-preview.jpg'
+        ],
+        'gallery' => [
+            'name' => 'Memorial Photo Gallery',
+            'description' => 'Photo-focused tribute layout emphasizing memorial images',
+            'features' => ['Photo Focus', 'Gallery View', 'Image Lightbox', 'Memorial Focus'],
+            'template' => 'gallery-grid',
+            'css_file' => 'layouts/gallery-grid.css',
+            'preview_image' => 'gallery-preview.jpg'
+        ],
+        'minimal' => [
+            'name' => 'Simple Memorial List',
+            'description' => 'Clean, minimal list layout for understated presentation',
+            'features' => ['Minimal Design', 'List View', 'Clean Typography', 'Fast Loading'],
+            'template' => 'minimal',
+            'css_file' => 'layouts/minimal.css',
+            'preview_image' => 'minimal-preview.jpg'
+        ]
+    ];
+
+    private array $available_single_templates = [
+        'current' => [
+            'name' => 'Current/Default Layout',
+            'description' => 'Clean, responsive single page layout suitable for most funeral homes',
+            'features' => ['Responsive Design', 'Clean Layout', 'Easy to Read', 'Default Choice'],
+            'template_file' => 'current/single.php',
+            'css_file' => 'current.css'
+        ],
+        'firehawk' => [
+            'name' => 'Firehawk Layout',
+            'description' => 'Professional CRM-style layout matching Firehawk standards',
+            'features' => ['CRM Integration', 'Professional Design', 'Action Buttons Row', 'Registration Forms'],
+            'template_file' => 'firehawk/single.php',
+            'css_file' => 'firehawk.css'
+        ],
+        'elegant' => [
+            'name' => 'Elegant Layout',
+            'description' => 'Refined memorial styling with sophisticated typography and formal presentation',
+            'features' => ['Formal Design', 'Traditional Styling', 'Elegant Typography', 'Memorial Focus'],
+            'template_file' => 'elegant/single.php',
+            'css_file' => 'elegant.css'
+        ]
+    ];
+
+    private array $card_styles = [
+        'standard' => [
+            'name' => 'Standard Card',
+            'description' => 'Default card style with subtle borders and padding',
+            'css_class' => 'wfn-card-standard'
+        ],
+        'elevated' => [
+            'name' => 'Elevated Card',
+            'description' => 'Raised card with shadow for depth and emphasis',
+            'css_class' => 'wfn-card-elevated'
+        ],
+        'outlined' => [
+            'name' => 'Outlined Card',
+            'description' => 'Clean card with border outline, no shadow',
+            'css_class' => 'wfn-card-outlined'
+        ],
+        'minimal' => [
+            'name' => 'Minimal Card',
+            'description' => 'Borderless card with minimal styling',
+            'css_class' => 'wfn-card-minimal'
+        ]
+    ];
+    
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        error_log('LayoutsModule: Constructor called');
+        parent::__construct(
+            'layouts',
+            'Modern Layouts',
+            'Professional responsive layouts and grid systems management',
+            '2.0.1'
+        );
+        error_log('LayoutsModule: Constructor completed');
+    }
+    
+    /**
+     * Initialize the module
+     */
+    public function init(): void {
+        parent::init();
+    }
+    
+    /**
+     * Initialize frontend functionality
+     */
+    protected function init_frontend(): void {
+        // Enqueue layout-specific assets
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_layout_assets']);
+        
+        // Add layout body classes
+        add_filter('body_class', [$this, 'add_layout_body_classes']);
+        
+        // Register layout template filters
+        add_filter('wfn_available_layouts', [$this, 'filter_available_layouts']);
+        add_filter('wfn_layout_settings', [$this, 'get_layout_settings']);
+        
+        // Sync archive layout setting with WordPress option
+        add_action('init', [$this, 'sync_archive_layout_setting']);
+    }
+    
+    /**
+     * Get module features
+     */
+    public function get_features(): array {
+        return [
+            '5 Professional Layout Options',
+            '4 Card Style Variants (Standard, Elevated, Outlined, Minimal)',
+            'Responsive Grid System (3-4 columns)',
+            'Mobile-Optimized Design',
+            'Template Preview System',
+            'Layout-Specific Settings',
+            'CSS Asset Management',
+            'Hover Effects & Animations'
+        ];
+    }
+    
+    /**
+     * Enqueue layout-specific assets
+     */
+    public function enqueue_layout_assets(): void {
+        if (!$this->is_enabled()) {
+            return;
+        }
+        
+        $settings = $this->get_settings();
+        
+        // Enqueue shared base styles
+        wp_enqueue_style(
+            'wfn-layouts-base',
+            WFN_PLUGIN_URL . 'assets/css/layouts/shared-base.css',
+            [],
+            $this->get_version()
+        );
+        
+        // Register all card layout styles (loaded on demand)
+        foreach ($this->available_card_layouts as $layout_id => $layout) {
+            wp_register_style(
+                'wfn-layout-' . $layout_id,
+                WFN_PLUGIN_URL . 'assets/css/' . $layout['css_file'],
+                ['wfn-layouts-base'],
+                $this->get_version()
+            );
+        }
+        
+        // Enqueue layout management script
+        wp_enqueue_script(
+            'wfn-layouts',
+            WFN_PLUGIN_URL . 'assets/js/frontend/layouts.js',
+            ['jquery'],
+            $this->get_version(),
+            true
+        );
+        
+        // Pass settings to JavaScript
+        wp_localize_script('wfn-layouts', 'wfnLayouts', [
+            'settings' => $settings,
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wfn_layouts_nonce')
+        ]);
+    }
+    
+    /**
+     * Add layout body classes
+     */
+    public function add_layout_body_classes(array $classes): array {
+        if (!$this->is_enabled()) {
+            return $classes;
+        }
+        
+        $settings = $this->get_settings();
+        
+        // Add layout-specific classes
+        $classes[] = 'wfn-layouts-enabled';
+        $classes[] = 'wfn-card-' . $settings['default_card_style'];
+        
+        if ($settings['enable_hover_effects']) {
+            $classes[] = 'wfn-hover-effects';
+        }
+        
+        if ($settings['enable_animations']) {
+            $classes[] = 'wfn-animations-enabled';
+        }
+        
+        return $classes;
+    }
+    
+    /**
+     * Filter available layouts
+     */
+    public function filter_available_layouts(array $layouts): array {
+        if (!$this->is_enabled()) {
+            return $layouts;
+        }
+
+        return $this->available_card_layouts;
+    }
+    
+    /**
+     * Get layout settings for templates
+     */
+    public function get_layout_settings(): array {
+        return $this->get_settings();
+    }
+    
+    /**
+     * Sync layout settings with WordPress options
+     */
+    public function sync_archive_layout_setting(): void {
+        if (!$this->is_enabled()) {
+            return;
+        }
+        
+        $settings = $this->get_settings();
+        
+        // Always sync single layout setting (independent of archive templates)
+        $current_single_wp_option = get_option('wfn_single_display_mode', 'current');
+        if ($current_single_wp_option !== $settings['default_single_layout']) {
+            update_option('wfn_single_display_mode', $settings['default_single_layout']);
+        }
+        
+        // Only sync archive templates if enabled
+        if ($settings['enable_archive_templates']) {
+            $current_wp_option = get_option('wfn_archive_display_mode', '');
+            
+            // Only update if different to avoid unnecessary writes
+            if ($current_wp_option !== $settings['default_archive_layout']) {
+                update_option('wfn_archive_display_mode', $settings['default_archive_layout']);
+            }
+        } else {
+            // Clear the option if archive templates are disabled
+            delete_option('wfn_archive_display_mode');
+        }
+    }
+    
+    /**
+     * Render module admin content
+     */
+    protected function render_module_admin_content(): void {
+        error_log('LayoutsModule: render_module_admin_content called');
+        $settings = $this->get_settings();
+        
+        // Debug: Force default values if missing
+        $settings = array_merge($this->default_settings, $settings);
+        
+        // Debug output
+        error_log('LayoutsModule settings: ' . print_r($settings, true));
+        error_log('LayoutsModule: About to render HTML');
+        ?>
+        <form method="post" action="">
+            <?php $this->render_nonce_field(); ?>
+            
+            <div class="wfn-layouts-admin">
+                <div class="wfn-admin-tabs">
+                    <nav class="nav-tab-wrapper">
+                        <a href="#card-layouts" class="nav-tab nav-tab-active">Card Layouts</a>
+                        <a href="#single-templates" class="nav-tab">Single Post Templates</a>
+                        <a href="#grid" class="nav-tab">Grid Settings</a>
+                        <a href="#advanced" class="nav-tab">Advanced</a>
+                    </nav>
+                    
+                    <!-- Card Layouts Tab -->
+                    <div id="card-layouts" class="tab-content active">
+                        <h3>Card Layouts</h3>
+                        <p>Choose from professional card layout options for shortcodes and archive pages. These control how funeral notice cards appear in grids.</p>
+                        
+                        <div class="wfn-shortcode-example">
+                            <strong>Shortcode Usage:</strong>
+                            <code>[funeral_notices layout="modern" columns="3"]</code>
+                            <span class="wfn-shortcode-note">Replace "modern" with any layout ID from the cards below</span>
+                        </div>
+                        
+                        <div class="wfn-layouts-grid">
+                            <?php foreach ($this->available_card_layouts as $layout_id => $layout): ?>
+                                <div class="wfn-layout-card">
+                                    <div class="wfn-layout-preview">
+                                        <img src="<?php echo esc_url(WFN_PLUGIN_URL . 'assets/images/previews/' . $layout['preview_image']); ?>"
+                                             alt="<?php echo esc_attr($layout['name']); ?> Preview" 
+                                             onerror="this.style.display='none'">
+                                    </div>
+                                    
+                                    <div class="wfn-layout-info">
+                                        <div class="wfn-layout-header">
+                                            <h4><?php echo esc_html($layout['name']); ?></h4>
+                                            <div class="wfn-layout-id">
+                                                <strong>Shortcode ID:</strong> <code><?php echo esc_html($layout_id); ?></code>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="wfn-layout-description">
+                                            <?php echo esc_html($layout['description']); ?>
+                                        </p>
+                                        
+                                        <div class="wfn-layout-features">
+                                            <?php foreach ($layout['features'] as $feature): ?>
+                                                <span class="wfn-feature-tag"><?php echo esc_html($feature); ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- Single Post Templates Tab -->
+                    <div id="single-templates" class="tab-content">
+                        <h3>Single Post Templates</h3>
+                        <p>Choose the template for individual funeral notice pages. These control the layout and styling of single funeral notice posts.</p>
+
+                        <div class="wfn-form-group">
+                            <label for="default_single_layout">Default Single Post Template</label>
+                            <select name="wfn_module_settings[default_single_layout]" id="default_single_layout">
+                                <?php foreach ($this->available_single_templates as $layout_id => $layout): ?>
+                                    <option value="<?php echo esc_attr($layout_id); ?>"
+                                            <?php selected($settings['default_single_layout'], $layout_id); ?>>
+                                        <?php echo esc_html($layout['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="wfn-form-description">Template used for individual funeral notice pages.</p>
+                        </div>
+
+                        <div class="wfn-single-templates-grid">
+                            <?php foreach ($this->available_single_templates as $template_id => $template): ?>
+                                <div class="wfn-template-card">
+                                    <div class="wfn-template-info">
+                                        <div class="wfn-template-header">
+                                            <h4><?php echo esc_html($template['name']); ?></h4>
+                                            <div class="wfn-template-id">
+                                                <strong>Template ID:</strong> <code><?php echo esc_html($template_id); ?></code>
+                                            </div>
+                                        </div>
+
+                                        <p class="wfn-template-description">
+                                            <?php echo esc_html($template['description']); ?>
+                                        </p>
+
+                                        <div class="wfn-template-features">
+                                            <?php foreach ($template['features'] as $feature): ?>
+                                                <span class="wfn-feature-tag"><?php echo esc_html($feature); ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+
+                                        <div class="wfn-template-files">
+                                            <div class="wfn-file-info">
+                                                <strong>Template:</strong> <code><?php echo esc_html($template['template_file']); ?></code>
+                                            </div>
+                                            <div class="wfn-file-info">
+                                                <strong>CSS:</strong> <code><?php echo esc_html($template['css_file']); ?></code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- Grid Settings Tab -->
+                    <div id="grid" class="tab-content">
+                        <h3>Grid Settings</h3>
+                        
+                        <!-- DEBUG: Archive controls should show here. Enable value: <?php echo $settings['enable_archive_templates'] ? 'true' : 'false'; ?> -->
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_archive_templates]"
+                                       id="enable_archive_templates"
+                                       value="1"
+                                       <?php checked($settings['enable_archive_templates']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Archive Page Templates</span>
+                            </label>
+                            <p class="wfn-form-description">Enable plugin templates for the main funeral notices archive page. Disable if using Beaver Themer or custom theme templates.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group wfn-archive-dependent" style="<?php echo $settings['enable_archive_templates'] ? '' : 'display:none;opacity:0.5;'; ?>">
+                            <label for="default_archive_layout">Default Archive Layout</label>
+                            <select name="wfn_module_settings[default_archive_layout]" id="default_archive_layout" <?php disabled(!$settings['enable_archive_templates']); ?>>
+                                <?php foreach ($this->available_card_layouts as $layout_id => $layout): ?>
+                                    <option value="<?php echo esc_attr($layout_id); ?>"
+                                            <?php selected($settings['default_archive_layout'], $layout_id); ?>>
+                                        <?php echo esc_html($layout['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="wfn-form-description">Layout used for the main funeral notices archive page when archive templates are enabled.</p>
+                        </div>
+
+                        <div class="wfn-form-group">
+                            <label for="card_spacing">Card Spacing (px)</label>
+                            <input type="number" 
+                                   name="wfn_module_settings[card_spacing]" 
+                                   id="card_spacing" 
+                                   value="<?php echo esc_attr($settings['card_spacing']); ?>" 
+                                   min="0" 
+                                   max="50">
+                            <p class="wfn-form-description">Space between funeral notice cards in pixels.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="image_aspect_ratio">Image Aspect Ratio</label>
+                            <select name="wfn_module_settings[image_aspect_ratio]" id="image_aspect_ratio">
+                                <option value="1:1" <?php selected($settings['image_aspect_ratio'], '1:1'); ?>>1:1 (Square)</option>
+                                <option value="4:3" <?php selected($settings['image_aspect_ratio'], '4:3'); ?>>4:3 (Standard)</option>
+                                <option value="16:9" <?php selected($settings['image_aspect_ratio'], '16:9'); ?>>16:9 (Widescreen)</option>
+                                <option value="3:4" <?php selected($settings['image_aspect_ratio'], '3:4'); ?>>3:4 (Portrait)</option>
+                            </select>
+                            <p class="wfn-form-description">Aspect ratio for featured images in cards.</p>
+                        </div>
+                        
+                        <h4>Responsive Breakpoints</h4>
+                        <div class="wfn-breakpoints-grid">
+                            <div class="wfn-form-group">
+                                <label for="mobile_breakpoint">Mobile Breakpoint (px)</label>
+                                <input type="number" 
+                                       name="wfn_module_settings[responsive_breakpoints][mobile]" 
+                                       id="mobile_breakpoint" 
+                                       value="<?php echo esc_attr($settings['responsive_breakpoints']['mobile']); ?>" 
+                                       min="320" 
+                                       max="1024">
+                            </div>
+                            
+                            <div class="wfn-form-group">
+                                <label for="tablet_breakpoint">Tablet Breakpoint (px)</label>
+                                <input type="number" 
+                                       name="wfn_module_settings[responsive_breakpoints][tablet]" 
+                                       id="tablet_breakpoint" 
+                                       value="<?php echo esc_attr($settings['responsive_breakpoints']['tablet']); ?>" 
+                                       min="768" 
+                                       max="1200">
+                            </div>
+                            
+                            <div class="wfn-form-group">
+                                <label for="desktop_breakpoint">Desktop Breakpoint (px)</label>
+                                <input type="number" 
+                                       name="wfn_module_settings[responsive_breakpoints][desktop]" 
+                                       id="desktop_breakpoint" 
+                                       value="<?php echo esc_attr($settings['responsive_breakpoints']['desktop']); ?>" 
+                                       min="1024" 
+                                       max="1920">
+                            </div>
+                        </div>
+                        
+                        <h4>Grid Columns</h4>
+                        <div class="wfn-breakpoints-grid">
+                            <div class="wfn-form-group">
+                                <label for="mobile_columns">Mobile Columns</label>
+                                <select name="wfn_module_settings[grid_settings][mobile_columns]" id="mobile_columns">
+                                    <option value="1" <?php selected($settings['grid_settings']['mobile_columns'], 1); ?>>1 Column</option>
+                                    <option value="2" <?php selected($settings['grid_settings']['mobile_columns'], 2); ?>>2 Columns</option>
+                                </select>
+                            </div>
+                            
+                            <div class="wfn-form-group">
+                                <label for="tablet_columns">Tablet Columns</label>
+                                <select name="wfn_module_settings[grid_settings][tablet_columns]" id="tablet_columns">
+                                    <option value="1" <?php selected($settings['grid_settings']['tablet_columns'], 1); ?>>1 Column</option>
+                                    <option value="2" <?php selected($settings['grid_settings']['tablet_columns'], 2); ?>>2 Columns</option>
+                                    <option value="3" <?php selected($settings['grid_settings']['tablet_columns'], 3); ?>>3 Columns</option>
+                                </select>
+                            </div>
+                            
+                            <div class="wfn-form-group">
+                                <label for="desktop_columns">Desktop Columns</label>
+                                <select name="wfn_module_settings[grid_settings][desktop_columns]" id="desktop_columns">
+                                    <option value="2" <?php selected($settings['grid_settings']['desktop_columns'], 2); ?>>2 Columns</option>
+                                    <option value="3" <?php selected($settings['grid_settings']['desktop_columns'], 3); ?>>3 Columns</option>
+                                    <option value="4" <?php selected($settings['grid_settings']['desktop_columns'], 4); ?>>4 Columns</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Styles Tab -->
+                    <div id="cards" class="tab-content">
+                        <h3>Card Styles</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label for="default_card_style">Default Card Style</label>
+                            <select name="wfn_module_settings[default_card_style]" id="default_card_style">
+                                <?php foreach ($this->card_styles as $style_id => $style): ?>
+                                    <option value="<?php echo esc_attr($style_id); ?>" 
+                                            <?php selected($settings['default_card_style'], $style_id); ?>>
+                                        <?php echo esc_html($style['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="wfn-form-description">Default card style when none is specified in shortcode.</p>
+                        </div>
+                        
+                        <div class="wfn-card-styles-preview">
+                            <?php foreach ($this->card_styles as $style_id => $style): ?>
+                                <div class="wfn-card-style-demo">
+                                    <div class="wfn-card-preview-large <?php echo esc_attr($style['css_class']); ?>">
+                                        <div class="wfn-card-image"></div>
+                                        <div class="wfn-card-content">
+                                            <h4>John Smith</h4>
+                                            <p>January 15, 2025</p>
+                                            <p class="wfn-card-date">Service: 10:00 AM</p>
+                                        </div>
+                                    </div>
+                                    <div class="wfn-card-style-info">
+                                        <h4><?php echo esc_html($style['name']); ?></h4>
+                                        <p><?php echo esc_html($style['description']); ?></p>
+                                        <code class="wfn-style-code">card_style="<?php echo esc_html($style_id); ?>"</code>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Tab -->
+                    <div id="advanced" class="tab-content">
+                        <h3>Advanced Layout Options</h3>
+                        <p class="wfn-tab-description">Visual enhancement and layout behavior options. For performance settings like lazy loading and optimization, use the Performance module.</p>
+                        
+                        <div class="wfn-advanced-grid">
+                            <div class="wfn-advanced-section">
+                                <h4>👁️ Visual Enhancements</h4>
+                                <div class="wfn-form-group">
+                                    <label class="wfn-toggle-switch">
+                                        <input type="checkbox"
+                                               name="wfn_module_settings[show_layout_previews]"
+                                               id="show_layout_previews"
+                                               value="1"
+                                               <?php checked($settings['show_layout_previews']); ?>>
+                                        <span class="wfn-toggle-slider"></span>
+                                        <span class="wfn-toggle-label">Show Layout Previews</span>
+                                    </label>
+                                    <p class="wfn-form-description">Display preview images for layouts in admin interface.</p>
+                                </div>
+                                
+                                <div class="wfn-form-group">
+                                    <label class="wfn-toggle-switch">
+                                        <input type="checkbox"
+                                               name="wfn_module_settings[enable_hover_effects]"
+                                               id="enable_hover_effects"
+                                               value="1"
+                                               <?php checked($settings['enable_hover_effects']); ?>>
+                                        <span class="wfn-toggle-slider"></span>
+                                        <span class="wfn-toggle-label">Enable Hover Effects</span>
+                                    </label>
+                                    <p class="wfn-form-description">Add subtle hover effects to funeral notice cards.</p>
+                                </div>
+                                
+                                <div class="wfn-form-group">
+                                    <label class="wfn-toggle-switch">
+                                        <input type="checkbox"
+                                               name="wfn_module_settings[enable_animations]"
+                                               id="enable_animations"
+                                               value="1"
+                                               <?php checked($settings['enable_animations']); ?>>
+                                        <span class="wfn-toggle-slider"></span>
+                                        <span class="wfn-toggle-label">Enable Animations</span>
+                                    </label>
+                                    <p class="wfn-form-description">Add smooth transitions and animations to layouts.</p>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="wfn-advanced-section">
+                                <h4>🔧 Layout Features</h4>
+                                <div class="wfn-form-group">
+                                    <label class="wfn-toggle-switch">
+                                        <input type="checkbox"
+                                               name="wfn_module_settings[enable_layout_switching]"
+                                               id="enable_layout_switching"
+                                               value="1"
+                                               <?php checked($settings['enable_layout_switching']); ?>>
+                                        <span class="wfn-toggle-slider"></span>
+                                        <span class="wfn-toggle-label">Enable Layout Switching</span>
+                                    </label>
+                                    <p class="wfn-form-description">Allow users to switch between layouts on the frontend.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <?php $this->render_submit_button(); ?>
+        </form>
+        
+        <style>
+            /* Override base module background */
+            .wfn-module-content {
+                background: transparent !important;
+            }
+            
+            .wfn-layouts-admin {
+                margin-top: 20px;
+            }
+            
+            .wfn-admin-tabs {
+                background: transparent;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            
+            .nav-tab-wrapper {
+                margin-bottom: 0;
+                border-bottom: none;
+                background: transparent;
+                padding-left: 0;
+            }
+            
+            .nav-tab {
+                margin-bottom: -1px;
+                border-bottom: none;
+                background: #e2e8f0;
+                border: 1px solid #cbd5e1;
+                border-radius: 12px 12px 0 0;
+                margin-right: 4px;
+                margin-left: 0;
+                padding-left: 16px;
+                color: #64748b;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .nav-tab:first-child {
+                margin-left: 0;
+            }
+            
+            .nav-tab:hover {
+                background: #f1f5f9;
+                color: #475569;
+            }
+            
+            .nav-tab.nav-tab-active {
+                background: #f8fafc;
+                color: #334155;
+                border-color: #cbd5e1;
+                border-bottom-color: #f8fafc;
+                font-weight: 600;
+                z-index: 2;
+            }
+            
+            .tab-content {
+                display: none;
+                padding: 24px;
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                position: relative;
+                z-index: 1;
+            }
+            
+            .tab-content.active {
+                display: block;
+                border-top-left-radius: 0;
+            }
+            
+            
+            .tab-content h3 {
+                margin-top: 0;
+                margin-bottom: 15px;
+                color: #333;
+                font-size: 18px;
+            }
+            
+            .wfn-layouts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+            
+            .wfn-layout-card {
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                overflow: hidden;
+                background: #fff;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            }
+            
+            .wfn-layout-card:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+            
+            .wfn-layout-preview {
+                height: 150px;
+                background: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            
+            .wfn-layout-preview img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: cover;
+            }
+            
+            .wfn-layout-info {
+                padding: 15px;
+            }
+            
+            .wfn-layout-header {
+                margin-bottom: 10px;
+            }
+            
+            .wfn-layout-header input {
+                margin-right: 8px;
+            }
+            
+            .wfn-layout-description {
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .wfn-layout-features {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .wfn-feature-tag {
+                background: #e3f2fd;
+                color: #1976d2;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            
+            .wfn-breakpoints-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-top: 15px;
+            }
+            
+            .wfn-card-styles-preview {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .wfn-card-style-demo {
+                text-align: center;
+            }
+            
+            .wfn-card-preview {
+                width: 200px;
+                margin: 0 auto 15px;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #fff;
+            }
+            
+            .wfn-card-preview-large {
+                width: 280px;
+                margin: 0 auto 15px;
+                border-radius: 12px;
+                overflow: hidden;
+                background: #fff;
+            }
+            
+            .wfn-card-standard {
+                border: 1px solid #ddd;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .wfn-card-elevated {
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            
+            .wfn-card-outlined {
+                border: 2px solid #ddd;
+                box-shadow: none;
+            }
+            
+            .wfn-card-minimal {
+                border: none;
+                box-shadow: none;
+                background: #f9f9f9;
+            }
+            
+            .wfn-card-image {
+                height: 120px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            
+            .wfn-card-preview-large .wfn-card-image {
+                height: 160px;
+            }
+            
+            .wfn-card-content {
+                padding: 15px;
+            }
+            
+            .wfn-card-content h4 {
+                margin: 0 0 5px 0;
+                font-size: 16px;
+            }
+            
+            .wfn-card-content p {
+                margin: 0 0 5px 0;
+                color: #666;
+                font-size: 14px;
+            }
+            
+            .wfn-card-date {
+                color: #888 !important;
+                font-size: 12px !important;
+            }
+            
+            .wfn-card-style-info h4 {
+                margin-bottom: 5px;
+            }
+            
+            .wfn-card-style-info p {
+                color: #666;
+                font-size: 13px;
+            }
+            
+            .wfn-tab-description {
+                background: #f8fafc;
+                border-left: 4px solid #667eea;
+                border-radius: 0 8px 8px 0;
+                padding: 16px 20px;
+                margin-bottom: 24px;
+                font-size: 14px;
+                color: #475569;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            
+            .wfn-shortcode-example {
+                background: #f0f6fc;
+                border: 1px solid #c9def7;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 24px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            
+            .wfn-shortcode-example strong {
+                color: #0969da;
+                display: block;
+                margin-bottom: 8px;
+            }
+            
+            .wfn-shortcode-example code {
+                background: #fff;
+                border: 1px solid #d1d9e0;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-family: 'Courier New', monospace;
+                font-size: 13px;
+                display: inline-block;
+                margin-right: 12px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+            
+            .wfn-shortcode-note {
+                color: #656d76;
+                font-size: 12px;
+                font-style: italic;
+            }
+            
+            .wfn-layout-id {
+                margin-top: 8px;
+                padding: 8px 12px;
+                background: #f0f6fc;
+                border-radius: 8px;
+                border: 1px solid #c9def7;
+            }
+            
+            .wfn-layout-id code {
+                background: #fff;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                color: #0969da;
+            }
+            
+            .wfn-style-code {
+                display: inline-block;
+                background: #f6f8fa;
+                border: 1px solid #d1d9e0;
+                border-radius: 6px;
+                padding: 6px 10px;
+                font-family: 'Courier New', monospace;
+                font-size: 11px;
+                color: #24292f;
+                margin-top: 8px;
+            }
+            
+            .wfn-advanced-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 15px;
+            }
+            
+            .wfn-advanced-section {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            }
+            
+            .wfn-advanced-section h4 {
+                margin: 0 0 15px 0;
+                color: #2c3e50;
+                font-size: 16px;
+                font-weight: 600;
+            }
+            
+            /* Form Group Styling */
+            .wfn-form-group {
+                margin-bottom: 20px;
+            }
+            
+            .wfn-form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #374151;
+            }
+            
+            .wfn-form-group select,
+            .wfn-form-group input[type="number"] {
+                width: 100%;
+                max-width: 300px;
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 14px;
+                transition: border-color 0.3s ease;
+            }
+            
+            .wfn-form-group select:focus,
+            .wfn-form-group input[type="number"]:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+            
+            .wfn-form-description {
+                margin-top: 6px;
+                font-size: 13px;
+                color: #6b7280;
+                line-height: 1.4;
+            }
+            
+            /* Toggle Switch Styling - Now handled by dashboard.css */
+            
+            /* Improved form button styling */
+            .wfn-admin-tabs + .submit {
+                background: #f8fafc;
+                border-top: 1px solid #e2e8f0;
+                margin: 0 -24px -24px -24px;
+                padding: 20px 24px;
+                border-radius: 0 0 12px 12px;
+                text-align: left;
+            }
+            
+            .submit .button-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: #fff;
+                padding: 12px 24px;
+                font-size: 14px;
+                font-weight: 600;
+                border-radius: 8px;
+                margin-right: 12px;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            
+            .submit .button-primary:hover {
+                background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+            .submit .button-secondary {
+                background: #e2e8f0;
+                border: 1px solid #cbd5e1;
+                color: #475569;
+                padding: 12px 24px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            
+            .submit .button-secondary:hover {
+                background: #cbd5e1;
+                border-color: #94a3b8;
+                color: #334155;
+                transform: translateY(-1px);
+            }
+        </style>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const tabs = document.querySelectorAll('.nav-tab');
+                const contents = document.querySelectorAll('.tab-content');
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        tabs.forEach(t => t.classList.remove('nav-tab-active'));
+                        contents.forEach(c => c.classList.remove('active'));
+                        
+                        this.classList.add('nav-tab-active');
+                        
+                        const target = this.getAttribute('href').substring(1);
+                        document.getElementById(target).classList.add('active');
+                    });
+                });
+                
+                // Card style preview functionality
+                const cardStyleSelect = document.getElementById('default_card_style');
+                if (cardStyleSelect) {
+                    cardStyleSelect.addEventListener('change', function() {
+                        const selectedStyle = this.value;
+                        const previews = document.querySelectorAll('.wfn-card-preview, .wfn-card-preview-large');
+                        
+                        previews.forEach(preview => {
+                            // Remove all style classes
+                            preview.classList.remove('wfn-card-standard', 'wfn-card-elevated', 'wfn-card-outlined', 'wfn-card-minimal');
+                            // Add the selected style class
+                            preview.classList.add('wfn-card-' + selectedStyle);
+                        });
+                    });
+                }
+                
+                // Archive templates toggle functionality
+                const archiveToggle = document.getElementById('enable_archive_templates');
+                if (archiveToggle) {
+                    archiveToggle.addEventListener('change', function() {
+                        const dependentElements = document.querySelectorAll('.wfn-archive-dependent');
+                        const archiveSelect = document.getElementById('default_archive_layout');
+                        
+                        dependentElements.forEach(element => {
+                            if (this.checked) {
+                                element.style.display = '';
+                                element.style.opacity = '1';
+                                if (archiveSelect) archiveSelect.disabled = false;
+                            } else {
+                                element.style.display = 'none';
+                                element.style.opacity = '0.5';
+                                if (archiveSelect) archiveSelect.disabled = true;
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
+        <?php
+    }
+    
+    /**
+     * Handle form submission
+     */
+    public function handle_form_submission(): bool {
+        $result = parent::handle_form_submission();
+        
+        // Sync archive layout setting after saving
+        if ($result) {
+            $this->sync_archive_layout_setting();
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Sanitize settings with specific validation
+     */
+    protected function sanitize_settings(array $settings): array {
+        $sanitized = [];
+        
+        
+        // Archive templates enable/disable
+        $sanitized['enable_archive_templates'] = !empty($settings['enable_archive_templates']);
+        
+        // Archive layout validation
+        $valid_card_layouts = array_keys($this->available_card_layouts);
+        $sanitized['default_archive_layout'] = in_array($settings['default_archive_layout'] ?? '', $valid_card_layouts)
+            ? $settings['default_archive_layout']
+            : 'modern';
+
+        // Single layout validation
+        $valid_single_templates = array_keys($this->available_single_templates);
+        $sanitized['default_single_layout'] = in_array($settings['default_single_layout'] ?? '', $valid_single_templates)
+            ? $settings['default_single_layout']
+            : 'current';
+        
+        // Card style validation
+        $valid_card_styles = array_keys($this->card_styles);
+        $sanitized['default_card_style'] = in_array($settings['default_card_style'] ?? '', $valid_card_styles) 
+            ? $settings['default_card_style'] 
+            : 'standard';
+        
+        // Numeric validations
+        $sanitized['card_spacing'] = max(0, min(50, (int) ($settings['card_spacing'] ?? 20)));
+        
+        // Responsive breakpoints
+        $sanitized['responsive_breakpoints'] = [
+            'mobile' => max(320, min(1024, (int) ($settings['responsive_breakpoints']['mobile'] ?? 768))),
+            'tablet' => max(768, min(1200, (int) ($settings['responsive_breakpoints']['tablet'] ?? 1024))),
+            'desktop' => max(1024, min(1920, (int) ($settings['responsive_breakpoints']['desktop'] ?? 1200)))
+        ];
+        
+        // Grid settings
+        $sanitized['grid_settings'] = [
+            'mobile_columns' => in_array((int) ($settings['grid_settings']['mobile_columns'] ?? 1), [1, 2]) 
+                ? (int) $settings['grid_settings']['mobile_columns'] 
+                : 1,
+            'tablet_columns' => in_array((int) ($settings['grid_settings']['tablet_columns'] ?? 2), [1, 2, 3]) 
+                ? (int) $settings['grid_settings']['tablet_columns'] 
+                : 2,
+            'desktop_columns' => in_array((int) ($settings['grid_settings']['desktop_columns'] ?? 3), [2, 3, 4]) 
+                ? (int) $settings['grid_settings']['desktop_columns'] 
+                : 3
+        ];
+        
+        // Image aspect ratio
+        $valid_ratios = ['1:1', '4:3', '16:9', '3:4'];
+        $sanitized['image_aspect_ratio'] = in_array($settings['image_aspect_ratio'] ?? '', $valid_ratios) 
+            ? $settings['image_aspect_ratio'] 
+            : '4:3';
+        
+        // Boolean settings
+        $boolean_settings = [
+            'show_layout_previews', 'enable_hover_effects', 'enable_animations',
+            'enable_layout_switching'
+        ];
+        
+        foreach ($boolean_settings as $setting) {
+            $sanitized[$setting] = !empty($settings[$setting]);
+        }
+        
+        return $sanitized;
+    }
+}

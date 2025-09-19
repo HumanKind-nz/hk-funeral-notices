@@ -1,0 +1,685 @@
+/**
+ * Weave Funeral Notices - Modern Display Mode
+ * Clean, contemporary funeral notice styling
+ * DEBUG: Modern CSS loaded successfully!
+ * 
+ * @since 2.0.0
+ */
+
+/* Modern grid layout */
+.wfn-modern-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Grid column definitions */
+.wfn-modern-grid.wfn-cols-1 { grid-template-columns: 1fr; }
+.wfn-modern-grid.wfn-cols-2 { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+.wfn-modern-grid.wfn-cols-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.wfn-modern-grid.wfn-cols-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+/* Modern funeral card */
+.wfn-funeral-card {
+    background: var(--wfn-color-card-background, #ffffff);
+    border-radius: var(--wfn-border-radius, 12px);
+    box-shadow: var(--wfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
+    overflow: hidden;
+    transition: transform var(--wfn-transition-speed, 0.3s) ease, box-shadow var(--wfn-transition-speed, 0.3s) ease;
+    border: var(--wfn-border-width, 1px) solid var(--wfn-color-border, rgba(0, 0, 0, 0.06));
+}
+
+.wfn-funeral-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Card image */
+.wfn-card-image {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: var(--wfn-color-row-alternate, #f5f7fa);
+}
+
+.wfn-card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 20% !important; /* Focus on upper portion for better face positioning */
+    transition: transform 0.3s ease !important;
+}
+
+.wfn-funeral-card:hover .wfn-card-image img {
+    transform: scale(1.05);
+}
+
+/* Card content */
+.wfn-card-content {
+    padding: var(--wfn-card-padding, 1.5rem);
+}
+
+.wfn-card-title {
+    font-size: var(--wfn-heading-size, 1.25rem);
+    font-weight: 600;
+    color: var(--wfn-color-text-primary, #2d3748);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    font-family: var(--wfn-font-heading, inherit);
+}
+
+.wfn-card-dates {
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: var(--wfn-color-text-secondary, #718096);
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-card-excerpt {
+    font-size: var(--wfn-text-size, 0.95rem);
+    line-height: 1.5;
+    color: var(--wfn-color-text-primary, #4a5568);
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-card-more {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--wfn-text-size, 0.9rem);
+    font-weight: 600;
+    color: var(--wfn-color-primary, #3182ce);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color var(--wfn-transition-speed, 0.2s) ease;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-card-more:after {
+    content: '→';
+    margin-left: 0.5rem;
+    transition: transform var(--wfn-transition-speed, 0.2s) ease;
+}
+
+.wfn-funeral-card:hover .wfn-card-more {
+    color: var(--wfn-color-accent, #2c5282);
+}
+
+.wfn-funeral-card:hover .wfn-card-more:after {
+    transform: translateX(4px);
+}
+
+/* Link styling */
+.wfn-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.wfn-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .wfn-modern-grid {
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .wfn-card-image {
+        height: 200px;
+    }
+    
+    .wfn-card-content {
+        padding: 1.25rem;
+    }
+    
+    .wfn-card-title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-modern-grid {
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .wfn-card-image {
+        height: 180px;
+    }
+    
+    .wfn-card-content {
+        padding: 1rem;
+    }
+    
+    .wfn-card-title {
+        font-size: 1rem;
+    }
+    
+    .wfn-card-dates {
+        font-size: 0.85rem;
+    }
+    
+    .wfn-card-excerpt {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 2;
+    }
+}
+
+/* Dark mode support - now handled by StylingModule CSS variables */
+/* Legacy dark mode support maintained for compatibility */
+@media (prefers-color-scheme: dark) {
+    .wfn-funeral-card {
+        background: var(--wfn-color-card-background, #2d3748);
+        border-color: var(--wfn-color-border, rgba(255, 255, 255, 0.1));
+    }
+    
+    .wfn-card-title {
+        color: var(--wfn-color-text-primary, #f7fafc);
+    }
+    
+    .wfn-card-dates {
+        color: var(--wfn-color-text-secondary, #a0aec0);
+    }
+    
+    .wfn-card-excerpt {
+        color: var(--wfn-color-text-primary, #cbd5e0);
+    }
+    
+    .wfn-card-more {
+        color: var(--wfn-color-primary, #63b3ed);
+    }
+    
+    .wfn-funeral-card:hover .wfn-card-more {
+        color: var(--wfn-color-accent, #90cdf4);
+    }
+}
+
+/* Focus states for accessibility */
+.wfn-card-link:focus {
+    outline: 2px solid #3182ce;
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+
+/* Print styles */
+@media print {
+    .wfn-funeral-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .wfn-card-image {
+        height: 150px;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .wfn-card-more:after {
+        display: none;
+    }
+}
+
+/* ============================================
+   MODERN SINGLE PAGE STYLING
+   ============================================ */
+
+.wfn-modern-single {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+}
+
+.wfn-modern-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Hero Section */
+.wfn-modern-hero {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    align-items: flex-start;
+}
+
+.wfn-modern-image {
+    flex-shrink: 0;
+    width: 200px;
+}
+
+.wfn-modern-portrait {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.wfn-modern-details {
+    flex-grow: 1;
+}
+
+.wfn-modern-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.wfn-modern-years {
+    font-size: 1.25rem;
+    color: #718096;
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+}
+
+.wfn-modern-intro {
+    font-size: 1.125rem;
+    color: #4a5568;
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Section Styling */
+.wfn-modern-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Service Information */
+.wfn-modern-service {
+    margin-bottom: 3rem;
+}
+
+.wfn-modern-service-details {
+    display: grid;
+    gap: 1rem;
+}
+
+.wfn-modern-detail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.wfn-modern-label {
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 80px;
+}
+
+.wfn-modern-value {
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+/* Content Section */
+.wfn-modern-content {
+    margin-bottom: 3rem;
+}
+
+.wfn-modern-notice {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #4a5568;
+}
+
+.wfn-modern-notice p {
+    margin-bottom: 1.5rem;
+}
+
+/* Streaming Section */
+.wfn-modern-streaming {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 3rem;
+    border: 1px solid #e2e8f0;
+}
+
+.wfn-modern-stream-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Location Section */
+.wfn-modern-location {
+    margin-bottom: 3rem;
+}
+
+.wfn-modern-venue {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+.wfn-modern-address-line {
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+    font-size: 1.05rem;
+}
+
+/* Actions Section */
+.wfn-modern-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.wfn-modern-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #3182ce;
+    color: white;
+    border: 2px solid #3182ce;
+}
+
+.wfn-modern-button:hover {
+    background: #2c5282;
+    border-color: #2c5282;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
+.wfn-modern-button-secondary {
+    background: transparent;
+    color: #3182ce;
+}
+
+.wfn-modern-button-secondary:hover {
+    background: #3182ce;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wfn-modern-hero {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .wfn-modern-image {
+        width: 150px;
+    }
+    
+    .wfn-modern-portrait {
+        height: 150px;
+    }
+    
+    .wfn-modern-name {
+        font-size: 2rem;
+    }
+    
+    .wfn-modern-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .wfn-modern-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Video Embed Styling */
+.wfn-video-embed {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 1rem auto;
+    height: 800px;
+    position: relative;
+}
+
+.wfn-video-embed iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.wfn-modern-stream-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.wfn-streaming-actions {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.wfn-view-external {
+    background: #f7fafc !important;
+    color: #4a5568 !important;
+    border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.wfn-view-external:hover {
+    background: #edf2f7 !important;
+    color: #2d3748 !important;
+}
+
+.wfn-streaming-note {
+    text-align: center;
+    font-style: italic;
+    color: #718096;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Service Documents Styling */
+.wfn-service-documents {
+    margin: 2rem 0;
+}
+
+.wfn-service-documents .wfn-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.wfn-documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.wfn-document-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.wfn-document-item:hover {
+    background: #edf2f7;
+}
+
+.wfn-document-info {
+    flex: 1;
+}
+
+.wfn-document-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.25rem 0;
+}
+
+.wfn-document-description {
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 0;
+}
+
+.wfn-document-filename {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin: 0;
+    font-family: monospace;
+}
+
+.wfn-download-button {
+    background: #3182ce;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    margin-left: 1rem;
+}
+
+.wfn-download-button:hover {
+    background: #2c5282;
+    color: white;
+    text-decoration: none;
+}
+
+/* Mobile responsiveness for video and documents */
+@media (max-width: 768px) {
+    .wfn-video-embed {
+        height: 600px;
+        max-width: 100%;
+    }
+    
+    .wfn-document-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .wfn-download-button {
+        margin-left: 0;
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-video-embed {
+        height: 400px;
+    }
+    
+    .wfn-documents-list {
+        gap: 0.75rem;
+    }
+    
+    .wfn-document-item {
+        padding: 0.75rem;
+    }
+}
+
+/* ============================================
+   PAGINATION STYLING
+   ============================================ */
+
+.wfn-pagination {
+    margin: 3rem 0 2rem 0;
+    text-align: center;
+}
+
+.wfn-pagination ul {
+    display: inline-flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.wfn-pagination li {
+    margin: 0;
+}
+
+.wfn-pagination a,
+.wfn-pagination span {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #4a5568;
+    background: #ffffff;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 44px;
+    text-align: center;
+}
+
+.wfn-pagination a:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+    text-decoration: none;
+}
+
+.wfn-pagination span.current {
+    background: var(--wfn-primary-button-bg, #3182ce);
+    color: var(--wfn-primary-button-text, #ffffff);
+    border-color: var(--wfn-primary-button-bg, #3182ce);
+}
+
+.wfn-pagination .prev,
+.wfn-pagination .next {
+    font-weight: 600;
+}
+
+/* Responsive pagination */
+@media (max-width: 480px) {
+    .wfn-pagination a,
+    .wfn-pagination span {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        min-width: 40px;
+    }
+    
+    .wfn-pagination ul {
+        gap: 0.25rem;
+    }
+} 

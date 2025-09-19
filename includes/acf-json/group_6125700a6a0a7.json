@@ -1,0 +1,1336 @@
+{
+    "key": "group_6125700a6a0a7",
+    "title": "Weave Funeral Notices Plugin",
+    "fields": [
+        {
+            "key": "field_63242366e43b8",
+            "label": "Personal Details",
+            "name": "wfn_person_group",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Help: <a href=\"https:\/\/support.invo.care\/article\/how-to-add-a-new-funeral\/\" target=\"_blank\">How to Add a New Funeral<\/a><br\/><br\/>\r\n<a href=\"#TB_inline?&width=800height=600&inlineId=personal-details\" class=\"thickbox\">View Video Instructions<\/a>\r\n<div id=\"personal-details\" style=\"display:none;\">\r\n    <div style=\"position: relative; padding-top: 64.28571428571429%;\"><iframe src=\"https:\/\/iframe.mediadelivery.net\/embed\/109791\/489032c7-84d0-4f00-9453-520cef2998cb?autoplay=false\" loading=\"lazy\" style=\"border: none; position: absolute; top: 0; height: 100%; width: 100%;\" allow=\"accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;\" allowfullscreen=\"true\"><\/iframe><\/div>\r\n<\/div>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 0,
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "instruction_placement": "",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_63263140fd13f",
+                    "label": "(Column 6\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "6\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_6323f7188562f",
+                    "label": "First Name(s)",
+                    "name": "firstname",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Also add title if needed, eg Dr, Captain",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "names",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "required_message": "First name or initial is required",
+                    "maxlength": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6463d6e00992a",
+                    "label": "(Column 6\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "6\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "acfe_permissions": "",
+                    "instruction_placement": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_6323f74d85630",
+                    "label": "Last Name",
+                    "name": "lastname",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Lastname",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "names",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "required_message": "Last name is required",
+                    "maxlength": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6463d7aa832ce",
+                    "label": "(Column Endpoint)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "endpoint": 1,
+                    "border_endpoint": [
+                        "endpoint"
+                    ],
+                    "acfe_permissions": "",
+                    "instruction_placement": "",
+                    "columns": "6\/12",
+                    "border": ""
+                },
+                {
+                    "key": "field_6463d6bc09929",
+                    "label": "(Column 3\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "3\/12",
+                    "endpoint": 0,
+                    "border": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_6129e315ead11",
+                    "label": "Birth Year",
+                    "name": "birth_year",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "birthyear",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "min": 1910,
+                    "max": 2030,
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "placeholder": "",
+                    "step": 1,
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6463d721c293a",
+                    "label": "(Column 3\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "3\/12",
+                    "endpoint": 0,
+                    "border": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_63262f90823e3",
+                    "label": "Current Year",
+                    "name": "death_year",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "choices": {
+                        "2021": "2021",
+                        "2022": "2022",
+                        "2023": "2023",
+                        "2024": "2024",
+                        "2025": "2025",
+                        "2026": "2026",
+                        "2027": "2027"
+                    },
+                    "default_value": 2025,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "max": "",
+                    "prepend": "",
+                    "append": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_null": 0,
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "allow_custom": 0,
+                    "search_placeholder": "",
+                    "min": ""
+                },
+                {
+                    "key": "field_6463d2c2537a7",
+                    "label": "(Column Endpoint)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "endpoint": 1,
+                    "border_endpoint": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "columns": "6\/12",
+                    "border": ""
+                },
+                {
+                    "key": "field_6463da1090516",
+                    "label": "(Column 12\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "12\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "column",
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_63263173fd141",
+                    "label": "Date field instructions",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "message",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "all",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "message": "Dates will be shown below the name eg \"1960 - 2022\". \r\nNote: This can be left blank for no dates.",
+                    "new_lines": "br",
+                    "esc_html": 0,
+                    "acfe_settings": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_6463da5abbab1",
+                    "label": "(Column Endpoint)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "endpoint": 1,
+                    "border_endpoint": [
+                        "endpoint"
+                    ],
+                    "acfe_permissions": "",
+                    "instruction_placement": "",
+                    "columns": "6\/12",
+                    "border": ""
+                },
+                {
+                    "key": "field_63263161fd140",
+                    "label": "(Column 6\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "6\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_6459d56ac9a67",
+                    "label": "Person's Image",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_post_field",
+                    "instructions": "If no image is added the default fallback image will be displayed. <br>This fallback image is selected from the <a href=\"\/wp-admin\/edit.php?post_type=funeral-notice&page=funeral-notice-settings\" target=\"_blank\">settings<\/a> page",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "field_type": "featured_image",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "above_field",
+                    "acfe_permissions": ""
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_643f225a145e0",
+            "label": "Newspaper Notice",
+            "name": "wfn_notice_group",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "<a href=\"#TB_inline?&width=800height=600&inlineId=newspaper-notice\" class=\"thickbox\">View Video Instructions<\/a>\r\n<div id=\"newspaper-notice\" style=\"display:none;\">\r\n<div style=\"position: relative; padding-top: 64.28571428571429%;\"><iframe src=\"https:\/\/iframe.mediadelivery.net\/embed\/109791\/598eb42c-8401-467e-9b9c-720b92479492?autoplay=false\" loading=\"lazy\" style=\"border: none; position: absolute; top: 0; height: 100%; width: 100%;\" allow=\"accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;\" allowfullscreen=\"true\"><\/iframe><\/div>\r\n<\/div>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 0,
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "instruction_placement": "label",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_6462edb4cb47c",
+                    "label": "Newspaper Notice",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_post_field",
+                    "instructions": "Copy & Paste the funeral notice here.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "field_type": "content",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "above_field",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_643f22b4145e1",
+                    "label": "Hide the Intro Title",
+                    "name": "hide_intro_copy",
+                    "aria-label": "",
+                    "type": "checkbox",
+                    "instructions": "Un-checking this hides the intro \"Please join us in celebrating .......\"",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "choices": {
+                        "yes": "Hide the intro title \"Please join us in celebrating .....\" on the page."
+                    },
+                    "default_value": [],
+                    "return_format": "value",
+                    "min": "",
+                    "max": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_custom": 0,
+                    "instruction_placement": "above_field",
+                    "acfe_permissions": "",
+                    "layout": "vertical",
+                    "toggle": 0,
+                    "save_custom": 0,
+                    "custom_choice_button_text": "Add new choice"
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_63242ecaee8be",
+            "label": "Funeral Date \/ Time",
+            "name": "wfn_details_group",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Enter the Funeral Details",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 0,
+            "hide_admin": 0,
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "instruction_placement": "",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_63bf7390fd016",
+                    "label": "(Column 4\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "4\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_63254b272f79c",
+                    "label": "Funeral Date",
+                    "name": "funeral_date",
+                    "aria-label": "",
+                    "type": "date_picker",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "hide_admin": 0,
+                    "display_format": "D jS F Y",
+                    "return_format": "D jS F Y",
+                    "first_day": 1,
+                    "placeholder": "",
+                    "min_date": "",
+                    "max_date": "",
+                    "no_weekends": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "required_message": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_63bf73aefd017",
+                    "label": "(Column 4\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "4\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_63254ae62f79b",
+                    "label": "Funeral Time",
+                    "name": "funeral_time",
+                    "aria-label": "",
+                    "type": "time_picker",
+                    "instructions": "* this may be left blank",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": "fn_time"
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "hide_admin": 0,
+                    "display_format": "g:i a",
+                    "return_format": "g:i a",
+                    "placeholder": "",
+                    "min_time": "07:00",
+                    "max_time": "22:00",
+                    "min_hour": "",
+                    "max_hour": "",
+                    "min_min": "",
+                    "max_min": "",
+                    "min_sec": "",
+                    "max_sec": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "field",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_63bf73bafd018",
+                    "label": "(Column Endpoint)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "hide_admin": 0,
+                    "endpoint": 1,
+                    "border_endpoint": [
+                        "endpoint"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "columns": "6\/12",
+                    "border": ""
+                },
+                {
+                    "key": "field_63c4d1796ab6a",
+                    "label": "(Column 4\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "columns": "4\/12",
+                    "endpoint": 0,
+                    "border": [
+                        "fields"
+                    ],
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "border_endpoint": [
+                        "endpoint"
+                    ]
+                },
+                {
+                    "key": "field_63c4d1126ab69",
+                    "label": "Hide the Date\/Time from the public",
+                    "name": "hide_time",
+                    "aria-label": "",
+                    "type": "checkbox",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "all",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "choices": {
+                        "hide": "Hide the funeral Date\/Time from the public"
+                    },
+                    "default_value": [],
+                    "return_format": "value",
+                    "min": "",
+                    "max": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_custom": 0,
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "layout": "vertical",
+                    "toggle": 0,
+                    "save_custom": 0,
+                    "custom_choice_button_text": "Add new choice"
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_63bf6e832c855",
+            "label": "Funeral Location",
+            "name": "wfn_location_group",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Select the Funeral Location.\r\n<a href=\"#TB_inline?&width=800height=600&inlineId=funeral-location\" class=\"thickbox\">View Video Instructions<\/a>\r\n<div id=\"funeral-location\" style=\"display:none;\">\r\n<div style=\"position: relative; padding-top: 70.2127659574468%;\"><iframe src=\"https:\/\/iframe.mediadelivery.net\/embed\/109791\/01033e16-1d61-48b5-b3ac-18ffb45ecf54?autoplay=false\" loading=\"lazy\" style=\"border: none; position: absolute; top: 0; height: 100%; width: 100%;\" allow=\"accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;\" allowfullscreen=\"true\"><\/iframe><\/div>\r\n<\/div>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 0,
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "instruction_placement": "",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_63bf6e832c859",
+                    "label": "Funeral Location",
+                    "name": "location",
+                    "aria-label": "",
+                    "type": "taxonomy",
+                    "instructions": "This can be left blank and you can add an off-site location address below.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "40",
+                        "class": "",
+                        "id": "locations"
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "taxonomy": "funeral-location",
+                    "add_term": 0,
+                    "save_terms": 1,
+                    "load_terms": 1,
+                    "return_format": "id",
+                    "field_type": "radio",
+                    "max": "",
+                    "allow_null": 1,
+                    "acfe_bidirectional": {
+                        "acfe_bidirectional_enabled": "0"
+                    },
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "multiple": 0,
+                    "min": "",
+                    "bidirectional_target": []
+                },
+                {
+                    "key": "field_64386a3b528aa",
+                    "label": "Funeral is being held at another location?",
+                    "name": "is_at_another_location",
+                    "aria-label": "",
+                    "type": "checkbox",
+                    "instructions": "When checked, search for the place or address below",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "60",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "choices": {
+                        "yes": "Yes"
+                    },
+                    "default_value": [],
+                    "return_format": "value",
+                    "min": "",
+                    "max": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_custom": 0,
+                    "instruction_placement": "label",
+                    "acfe_permissions": "",
+                    "layout": "horizontal",
+                    "toggle": 0,
+                    "save_custom": 0,
+                    "custom_choice_button_text": "Add new choice"
+                },
+                {
+                    "key": "field_63bf6e832c85a",
+                    "label": "Add an alternate locaton and address",
+                    "name": "other_funeral_address",
+                    "aria-label": "",
+                    "type": "google_map",
+                    "instructions": "Search for the place name or address",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64386a3b528aa",
+                                "operator": "==",
+                                "value": "yes"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "center_lat": "-37.6884265",
+                    "center_lng": "176.1396376",
+                    "height": 300,
+                    "acfe_google_map_zooms": {
+                        "zoom": "16",
+                        "min_zoom": "10",
+                        "max_zoom": "20"
+                    },
+                    "acfe_google_map_marker_icon": "",
+                    "acfe_google_map_marker_width": 50,
+                    "acfe_google_map_type": "roadmap",
+                    "acfe_google_map_disable_ui": 0,
+                    "acfe_google_map_disable_zoom_control": 0,
+                    "acfe_google_map_disable_map_type": 1,
+                    "acfe_google_map_disable_fullscreen": 1,
+                    "acfe_google_map_disable_streetview": 0,
+                    "acfe_google_map_style": "",
+                    "acfe_google_map_key": "AIzaSyB5mmP3SZYjAuHgDTs5OthIBA7rVK1GWVk",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "above_field",
+                    "acfe_permissions": "",
+                    "zoom": "16",
+                    "acfe_google_map_marker_height": 50
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_63bf676de1c20",
+            "label": "Service Sheet",
+            "name": "wfn_service_sheet",
+            "aria-label": "",
+            "type": "file",
+            "instructions": "Attach Service Sheet PDF for download",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 0,
+            "uploader": "basic",
+            "return_format": "url",
+            "preview_style": "default",
+            "upload_folder": "service-sheets\/",
+            "button_label": "Add PDF",
+            "stylised_button": 1,
+            "file_count": 0,
+            "multiple": 0,
+            "max": "",
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "min_size": "",
+            "max_size": 10,
+            "mime_types": "pdf,rtf,jpg,png",
+            "instruction_placement": "above_field",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1,
+            "library": "all",
+            "placeholder": "Select",
+            "min": ""
+        },
+        {
+            "key": "field_63242eaaee8bd",
+            "label": "Streaming Details",
+            "name": "wfn_streaming_group",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "<a href=\"#TB_inline?&width=800height=600&inlineId=funeral-streaming\" class=\"thickbox\">View Video Instructions<\/a>\r\n<div id=\"funeral-streaming\" style=\"display:none;\">\r\n<div style=\"position: relative; padding-top: 70.2127659574468%;\"><iframe src=\"https:\/\/iframe.mediadelivery.net\/embed\/109791\/e9e351e7-1ed0-4525-b6b7-5b2f79d5d2c8?autoplay=false\" loading=\"lazy\" style=\"border: none; position: absolute; top: 0; height: 100%; width: 100%;\" allow=\"accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;\" allowfullscreen=\"true\"><\/iframe><\/div>\r\n<\/div>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "hide_field": "",
+            "hide_label": "",
+            "hide_instructions": "",
+            "hide_required": "",
+            "relevanssi_exclude": 1,
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "instruction_placement": "",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_6189fc125d715",
+                    "label": "Streaming Information",
+                    "name": "has_streaming",
+                    "aria-label": "",
+                    "type": "radio",
+                    "instructions": "This can be added anytime",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 1,
+                    "choices": {
+                        "## No Streaming Link": "## No Streaming Link",
+                        "none": "No Streaming",
+                        "## Streaming Information": "## Streaming Information",
+                        "streaming": "It has Streaming. Add streaming Information below &darr;",
+                        "## Private": "## Private",
+                        "private": "Private - People can request details\/access via a web form."
+                    },
+                    "default_value": "none",
+                    "return_format": "value",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_null": 0,
+                    "other_choice": 0,
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "layout": "vertical",
+                    "save_other_choice": 0
+                },
+                {
+                    "key": "field_63c4517654618",
+                    "label": "Streaming Service",
+                    "name": "streaming_service",
+                    "aria-label": "",
+                    "type": "acfe_image_selector",
+                    "instructions": "Select the Streaming Service then add your link below &darr;",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_6189fc125d715",
+                                "operator": "==",
+                                "value": "private"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_6189fc125d715",
+                                "operator": "==",
+                                "value": "streaming"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "98",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "choices": {
+                        "oneroom": "\/wp-content\/plugins\/weave-funeral-notices\/public\/images\/OneRoom-icon.svg",
+                        "youtube": "\/wp-content\/plugins\/weave-funeral-notices\/public\/images\/YouTube-icon.svg",
+                        "vimeo": "\/wp-content\/plugins\/weave-funeral-notices\/public\/images\/Vimeo-icon.svg",
+                        "vimeo-pro": "\/wp-content\/plugins\/weave-funeral-notices\/public\/images\/vimeo-pro-icon.svg",
+                        "other": "\/wp-content\/plugins\/weave-funeral-notices\/public\/images\/Other-icon.svg"
+                    },
+                    "default_value": "oneroom",
+                    "image_size": "thumbnail",
+                    "width": 100,
+                    "height": 120,
+                    "border": 2,
+                    "return_format": "value",
+                    "allow_null": 1,
+                    "multiple": 0,
+                    "max": "",
+                    "layout": "horizontal",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "min": ""
+                },
+                {
+                    "key": "field_6189fcab5d716",
+                    "label": "Public Streaming Link",
+                    "name": "public_streaming_link",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "Add share link from Youtube, Vimeo or somewhere else",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "youtube"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "vimeo"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "other"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "vimeo-pro"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_63bf682ce1c21",
+                    "label": "OneRoom Code",
+                    "name": "oneroom_code",
+                    "aria-label": "",
+                    "type": "acfe_code_editor",
+                    "instructions": "Past your OneRoom iframe Code here.<br>\r\nIf you are not using the newer OneRoom integration, change the <a href=\"\/wp-admin\/edit.php?post_type=funeral-notice&page=funeral-notice-settings\" target=\"_blank\">settings<\/a> to enable the regular OneRoom links.",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "oneroom"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 1,
+                    "default_value": "",
+                    "placeholder": "paste OneRoom code here",
+                    "mode": "text\/html",
+                    "lines": 1,
+                    "indent_unit": 4,
+                    "maxlength": "",
+                    "rows": 3,
+                    "max_rows": 5,
+                    "return_format": [],
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "above_field",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_64d8324340181",
+                    "label": "OneRoom Streaming Link (traditional)",
+                    "name": "oneroom_streaming_link",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "OneRoom url link only",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_63c4517654618",
+                                "operator": "==",
+                                "value": "oneroom"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "hide_field": "",
+                    "hide_label": "",
+                    "hide_instructions": "",
+                    "hide_required": "",
+                    "relevanssi_exclude": 0,
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "instruction_placement": "",
+                    "acfe_permissions": "",
+                    "placeholder": ""
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "funeral-notice"
+            }
+        ]
+    ],
+    "menu_order": -10,
+    "position": "acf_after_title",
+    "style": "seamless",
+    "label_placement": "left",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "author",
+        "block_editor",
+        "categories",
+        "comments",
+        "discussion",
+        "excerpt",
+        "format",
+        "page_attributes",
+        "permalink",
+        "post_status",
+        "visibility",
+        "preview",
+        "revisions",
+        "send-trackbacks",
+        "slug",
+        "tags",
+        "title"
+    ],
+    "active": true,
+    "description": "Weave Funeral Notices",
+    "show_in_rest": 0,
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 1,
+    "acfe_display_title": "Funeral Information",
+    "acfe_permissions": [
+        "administrator",
+        "funeral"
+    ],
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1737949387
+}

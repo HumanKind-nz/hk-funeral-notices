@@ -1,0 +1,151 @@
+/**
+ * Enhancement Suite - Modern Grid Layout CSS
+ * Native WFN version with CSS variables for color scheme support
+ */
+
+.wfn-enhancement-modern-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Column layouts */
+.wfn-enhancement-modern-grid.wfn-cols-1 { grid-template-columns: 1fr; }
+.wfn-enhancement-modern-grid.wfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.wfn-enhancement-modern-grid.wfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.wfn-enhancement-modern-grid.wfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Card styling */
+.wfn-enhancement-modern-card {
+    background: var(--wfn-color-card-background, #ffffff);
+    border: 1px solid var(--wfn-color-border, #e9ecef);
+    border-radius: var(--wfn-border-radius, 12px);
+    overflow: hidden;
+    transition: all var(--wfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--wfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-enhancement-modern-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.wfn-enhancement-modern-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-enhancement-modern-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Image styling */
+.wfn-enhancement-modern-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+}
+
+.wfn-enhancement-modern-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 20% !important; /* Focus on upper portion for better face positioning */
+    transition: transform 0.3s ease !important;
+}
+
+.wfn-enhancement-modern-card:hover .wfn-enhancement-modern-image img {
+    transform: scale(1.05);
+}
+
+/* Content styling */
+.wfn-enhancement-modern-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-enhancement-modern-title {
+    font-size: var(--wfn-heading-size, 1.25rem);
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    color: var(--wfn-color-text-primary, #2c3e50);
+    line-height: 1.3;
+    font-family: var(--wfn-font-heading, inherit);
+}
+
+.wfn-enhancement-modern-dates {
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: var(--wfn-color-text-secondary, #6c757d);
+    margin: 0 0 1rem 0;
+    font-style: italic;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-enhancement-modern-service {
+    font-size: var(--wfn-text-size, 0.85rem);
+    color: var(--wfn-color-text-secondary, #495057);
+    margin: 0 0 1rem 0;
+    padding: var(--wfn-card-padding, 0.75rem);
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    border-radius: var(--wfn-border-radius, 6px);
+    border-left: 3px solid var(--wfn-color-primary, #3498db);
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-enhancement-modern-service .service-label {
+    font-weight: 600;
+    color: var(--wfn-color-text-primary, #2c3e50);
+}
+
+.wfn-enhancement-modern-more {
+    margin-top: auto;
+    padding: var(--wfn-card-padding, 0.75rem 1rem);
+    background: var(--wfn-color-primary, #3498db);
+    color: white;
+    text-align: center;
+    border-radius: var(--wfn-border-radius, 6px);
+    font-weight: 500;
+    font-size: var(--wfn-text-size, 0.9rem);
+    font-family: var(--wfn-font-body, inherit);
+    transition: background var(--wfn-transition-speed, 0.3s) ease;
+}
+
+.wfn-enhancement-modern-card:hover .wfn-enhancement-modern-more {
+    background: var(--wfn-color-accent, #2980b9);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .wfn-enhancement-modern-grid.wfn-cols-3,
+    .wfn-enhancement-modern-grid.wfn-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .wfn-enhancement-modern-content {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-enhancement-modern-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+    
+    .wfn-enhancement-modern-content {
+        padding: 1rem;
+    }
+}

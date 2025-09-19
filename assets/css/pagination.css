@@ -1,0 +1,195 @@
+/**
+ * WFN Pagination - FCRM Style Buttons
+ * Professional pagination styling for all layout modes
+ */
+
+.wfn-pagination {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    clear: both;
+}
+
+.wfn-pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.wfn-pagination-list li {
+    margin: 0;
+}
+
+/* Button base styling */
+.wfn-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background: var(--wfn-color-card-background, #ffffff);
+    border: 2px solid var(--wfn-color-border, #e1e5e9);
+    border-radius: var(--wfn-border-radius, 6px);
+    color: var(--wfn-color-text-primary, #495057);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: var(--wfn-text-size, 0.9rem);
+    line-height: 1;
+    transition: all var(--wfn-transition-speed, 0.2s) ease;
+    cursor: pointer;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-pagination-btn:hover {
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    border-color: var(--wfn-color-primary, #3498db);
+    color: var(--wfn-color-text-primary, #2c3e50);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Current page styling */
+.wfn-pagination-current {
+    background: var(--wfn-color-primary, #3498db) !important;
+    border-color: var(--wfn-color-primary, #3498db) !important;
+    color: white !important;
+    cursor: default;
+}
+
+.wfn-pagination-current:hover {
+    transform: none;
+    box-shadow: 0 2px 8px var(--wfn-color-shadow, rgba(52, 152, 219, 0.3));
+}
+
+/* Previous/Next button styling */
+.wfn-pagination-prev,
+.wfn-pagination-next {
+    min-width: auto;
+    padding: 0 16px;
+    font-weight: 600;
+}
+
+.wfn-pagination-prev:hover,
+.wfn-pagination-next:hover {
+    background: var(--wfn-color-primary, #3498db);
+    color: white;
+    border-color: var(--wfn-color-primary, #3498db);
+}
+
+/* Dots styling */
+.wfn-pagination-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: var(--wfn-border-radius, 6px);
+    color: var(--wfn-color-text-muted, #adb5bd);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: var(--wfn-text-size, 0.9rem);
+    line-height: 1;
+    cursor: default;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+/* Focus states for accessibility */
+.wfn-pagination-btn:focus {
+    outline: 2px solid var(--wfn-color-primary, #3498db);
+    outline-offset: 2px;
+}
+
+/* Disabled state (if needed) */
+.wfn-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .wfn-pagination {
+        margin: 1.5rem 0;
+    }
+    
+    .wfn-pagination-list {
+        gap: 0.25rem;
+    }
+    
+    .wfn-pagination-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.85rem;
+    }
+    
+    .wfn-pagination-prev,
+    .wfn-pagination-next {
+        padding: 0 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-pagination-list {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    
+    .wfn-pagination-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        font-size: 0.8rem;
+    }
+    
+    .wfn-pagination-prev,
+    .wfn-pagination-next {
+        padding: 0 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .wfn-pagination {
+        display: none;
+    }
+}
+
+/* Dark theme support (if needed) */
+@media (prefers-color-scheme: dark) {
+    .wfn-pagination-btn {
+        background: var(--wfn-color-card-background, #2c3e50);
+        border-color: var(--wfn-color-border, #4a5568);
+        color: var(--wfn-color-text-secondary, #e2e8f0);
+    }
+    
+    .wfn-pagination-btn:hover {
+        background: var(--wfn-color-row-alternate, #34495e);
+        border-color: var(--wfn-color-primary, #3498db);
+        color: #ffffff;
+    }
+    
+    .wfn-pagination-current {
+        background: var(--wfn-color-primary, #3498db) !important;
+        border-color: var(--wfn-color-primary, #3498db) !important;
+        color: white !important;
+    }
+    
+    .wfn-pagination-dots {
+        color: var(--wfn-color-text-muted, #718096);
+    }
+}

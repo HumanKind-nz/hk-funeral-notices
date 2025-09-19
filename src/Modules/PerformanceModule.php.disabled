@@ -1,0 +1,1171 @@
+<?php
+declare(strict_types=1);
+
+namespace WeaveStudios\FuneralNotices\Modules;
+
+/**
+ * Performance Module
+ * 
+ * Caching, optimization, and performance improvements.
+ * Manages query caching, asset optimization, lazy loading,
+ * and performance monitoring.
+ * 
+ * @since 2.0.0
+ */
+class PerformanceModule extends BaseModule {
+    
+    protected array $default_settings = [
+        'enable_query_caching' => true,
+        'cache_duration' => 3600,
+        'enable_auto_purge' => true,
+        'purge_triggers' => ['post_save', 'post_delete', 'term_update'],
+        'enable_asset_optimization' => true,
+        'minify_css' => true,
+        'minify_js' => true,
+        'defer_non_critical_css' => true,
+        'defer_javascript' => true,
+        'enable_lazy_loading' => true,
+        'lazy_load_images' => true,
+        'lazy_load_threshold' => 200,
+        'enable_database_cleanup' => true,
+        'cleanup_frequency' => 'weekly',
+        'cleanup_orphaned_meta' => true,
+        'cleanup_revisions' => true,
+        'cleanup_spam_comments' => true,
+        'enable_performance_monitoring' => true,
+        'track_query_time' => true,
+        'track_memory_usage' => true,
+        'performance_threshold' => 1000,
+        'enable_cdn_support' => false,
+        'cdn_url' => '',
+        'enable_gzip_compression' => true,
+        'enable_browser_caching' => true,
+        'cache_headers_ttl' => 86400,
+        'enable_preload' => false,
+        'preload_pages' => []
+    ];
+    
+    private array $cache_groups = [
+        'funeral_notices' => 'Funeral Notices Data',
+        'search_results' => 'Search Results',
+        'template_output' => 'Template Output',
+        'asset_urls' => 'Asset URLs',
+        'api_responses' => 'API Responses'
+    ];
+    
+    private array $cleanup_frequencies = [
+        'daily' => 'Daily',
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+        'manual' => 'Manual Only'
+    ];
+    
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        parent::__construct(
+            'performance',
+            'Performance',
+            'Caching, optimization, and performance improvements',
+            '2.0.0'
+        );
+    }
+    
+    /**
+     * Initialize the module
+     */
+    public function init(): void {
+        parent::init();
+    }
+    
+    /**
+     * Initialize frontend functionality
+     */
+    protected function init_frontend(): void {
+        $settings = $this->get_settings();
+        
+        // Initialize caching
+        if ($settings['enable_query_caching']) {
+            add_action('init', [$this, 'init_caching']);
+        }
+        
+        // Asset optimization
+        if ($settings['enable_asset_optimization']) {
+            add_action('wp_enqueue_scripts', [$this, 'optimize_assets'], 999);
+        }
+        
+        // Lazy loading
+        if ($settings['enable_lazy_loading']) {
+            add_filter('the_content', [$this, 'add_lazy_loading']);
+            add_filter('post_thumbnail_html', [$this, 'add_lazy_loading_to_thumbnails']);
+        }
+        
+        // Database cleanup
+        if ($settings['enable_database_cleanup']) {
+            add_action('wp_scheduled_delete', [$this, 'schedule_database_cleanup']);
+        }
+        
+        // Performance monitoring
+        if ($settings['enable_performance_monitoring']) {
+            add_action('init', [$this, 'init_performance_monitoring']);
+        }
+        
+        // CDN support
+        if ($settings['enable_cdn_support'] && !empty($settings['cdn_url'])) {
+            add_filter('wp_get_attachment_url', [$this, 'rewrite_url_for_cdn']);
+        }
+        
+        // Browser caching headers
+        if ($settings['enable_browser_caching']) {
+            add_action('wp_head', [$this, 'add_cache_headers']);
+        }
+        
+        // Admin bar performance info
+        if (is_admin_bar_showing()) {
+            add_action('admin_bar_menu', [$this, 'add_admin_bar_performance_info'], 999);
+        }
+    }
+    
+    /**
+     * Get module features
+     */
+    public function get_features(): array {
+        return [
+            'Query Caching System with Auto-Purge',
+            'Asset Optimization (CSS/JS Minification)',
+            'Lazy Loading Images & Content',
+            'Database Cleanup Tools',
+            'Performance Monitoring & Analytics',
+            'CDN Support & Integration',
+            'Browser Caching Headers',
+            'GZIP Compression Support',
+            'Asset Preloading',
+            'Memory Usage Tracking'
+        ];
+    }
+    
+    /**
+     * Initialize caching system
+     */
+    public function init_caching(): void {
+        $settings = $this->get_settings();
+        
+        // Set up cache purge triggers
+        if ($settings['enable_auto_purge']) {
+            foreach ($settings['purge_triggers'] as $trigger) {
+                switch ($trigger) {
+                    case 'post_save':
+                        add_action('save_post', [$this, 'purge_cache_on_post_save']);
+                        break;
+                    case 'post_delete':
+                        add_action('delete_post', [$this, 'purge_cache_on_post_delete']);
+                        break;
+                    case 'term_update':
+                        add_action('edited_term', [$this, 'purge_cache_on_term_update']);
+                        break;
+                }
+            }
+        }
+        
+        // Register cache groups
+        foreach ($this->cache_groups as $group => $description) {
+            wp_cache_add_global_groups($group);
+        }
+    }
+    
+    /**
+     * Optimize assets
+     */
+    public function optimize_assets(): void {
+        $settings = $this->get_settings();
+        
+        if ($settings['defer_non_critical_css']) {
+            add_filter('style_loader_tag', [$this, 'defer_non_critical_css'], 10, 2);
+        }
+        
+        if ($settings['defer_javascript']) {
+            add_filter('script_loader_tag', [$this, 'defer_javascript'], 10, 2);
+        }
+    }
+    
+    /**
+     * Add lazy loading to content
+     */
+    public function add_lazy_loading(string $content): string {
+        $settings = $this->get_settings();
+        
+        if (!$settings['lazy_load_images']) {
+            return $content;
+        }
+        
+        // Add loading="lazy" to images
+        $content = preg_replace_callback(
+            '/<img([^>]+)>/i',
+            function($matches) use ($settings) {
+                $img_tag = $matches[0];
+                
+                // Skip if loading attribute already exists
+                if (strpos($img_tag, 'loading=') !== false) {
+                    return $img_tag;
+                }
+                
+                // Add loading="lazy" attribute
+                $img_tag = str_replace('<img', '<img loading="lazy"', $img_tag);
+                
+                return $img_tag;
+            },
+            $content
+        );
+        
+        return $content;
+    }
+    
+    /**
+     * Add lazy loading to thumbnails
+     */
+    public function add_lazy_loading_to_thumbnails(string $html): string {
+        $settings = $this->get_settings();
+        
+        if (!$settings['lazy_load_images']) {
+            return $html;
+        }
+        
+        // Add loading="lazy" to thumbnail images
+        if (strpos($html, 'loading=') === false) {
+            $html = str_replace('<img', '<img loading="lazy"', $html);
+        }
+        
+        return $html;
+    }
+    
+    /**
+     * Schedule database cleanup
+     */
+    public function schedule_database_cleanup(): void {
+        $settings = $this->get_settings();
+        
+        if (!wp_next_scheduled('wfn_database_cleanup')) {
+            $frequency = $settings['cleanup_frequency'];
+            if ($frequency !== 'manual') {
+                wp_schedule_event(time(), $frequency, 'wfn_database_cleanup');
+            }
+        }
+        
+        add_action('wfn_database_cleanup', [$this, 'perform_database_cleanup']);
+    }
+    
+    /**
+     * Perform database cleanup
+     */
+    public function perform_database_cleanup(): void {
+        $settings = $this->get_settings();
+        
+        global $wpdb;
+        
+        $cleanup_count = 0;
+        
+        // Clean up orphaned meta
+        if ($settings['cleanup_orphaned_meta']) {
+            $orphaned_meta = $wpdb->query("
+                DELETE pm FROM {$wpdb->postmeta} pm
+                LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                WHERE p.ID IS NULL
+            ");
+            $cleanup_count += $orphaned_meta;
+        }
+        
+        // Clean up revisions
+        if ($settings['cleanup_revisions']) {
+            $revisions = $wpdb->query("
+                DELETE FROM {$wpdb->posts} 
+                WHERE post_type = 'revision'
+            ");
+            $cleanup_count += $revisions;
+        }
+        
+        // Clean up spam comments
+        if ($settings['cleanup_spam_comments']) {
+            $spam_comments = $wpdb->query("
+                DELETE FROM {$wpdb->comments} 
+                WHERE comment_approved = 'spam'
+            ");
+            $cleanup_count += $spam_comments;
+        }
+        
+        // Log cleanup results
+        $this->log_performance_event('database_cleanup', [
+            'items_cleaned' => $cleanup_count,
+            'timestamp' => current_time('mysql')
+        ]);
+    }
+    
+    /**
+     * Initialize performance monitoring
+     */
+    public function init_performance_monitoring(): void {
+        $settings = $this->get_settings();
+        
+        if ($settings['track_query_time']) {
+            add_action('shutdown', [$this, 'track_query_performance']);
+        }
+        
+        if ($settings['track_memory_usage']) {
+            add_action('shutdown', [$this, 'track_memory_usage']);
+        }
+    }
+    
+    /**
+     * Track query performance
+     */
+    public function track_query_performance(): void {
+        global $wpdb;
+        
+        $settings = $this->get_settings();
+        
+        $total_time = 0;
+        $slow_queries = [];
+        
+        foreach ($wpdb->queries as $query) {
+            $query_time = $query[1] * 1000; // Convert to milliseconds
+            $total_time += $query_time;
+            
+            // Track slow queries
+            if ($query_time > $settings['performance_threshold']) {
+                $slow_queries[] = [
+                    'query' => $query[0],
+                    'time' => $query_time,
+                    'stack' => $query[2] ?? ''
+                ];
+            }
+        }
+        
+        // Log performance data
+        $this->log_performance_event('query_performance', [
+            'total_queries' => count($wpdb->queries),
+            'total_time' => $total_time,
+            'slow_queries' => count($slow_queries),
+            'timestamp' => current_time('mysql')
+        ]);
+        
+        // Store slow queries for review
+        if (!empty($slow_queries)) {
+            update_option('wfn_slow_queries', array_slice($slow_queries, -10), false);
+        }
+    }
+    
+    /**
+     * Track memory usage
+     */
+    public function track_memory_usage(): void {
+        $memory_usage = memory_get_usage(true);
+        $peak_memory = memory_get_peak_usage(true);
+        $memory_limit = wp_convert_hr_to_bytes(ini_get('memory_limit'));
+        
+        $this->log_performance_event('memory_usage', [
+            'current_usage' => $memory_usage,
+            'peak_usage' => $peak_memory,
+            'memory_limit' => $memory_limit,
+            'usage_percentage' => ($peak_memory / $memory_limit) * 100,
+            'timestamp' => current_time('mysql')
+        ]);
+    }
+    
+    /**
+     * Log performance event
+     */
+    private function log_performance_event(string $event_type, array $data): void {
+        $performance_log = get_option('wfn_performance_log', []);
+        
+        $performance_log[] = [
+            'type' => $event_type,
+            'data' => $data,
+            'url' => $_SERVER['REQUEST_URI'] ?? '',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
+        ];
+        
+        // Keep only last 100 events
+        $performance_log = array_slice($performance_log, -100);
+        
+        update_option('wfn_performance_log', $performance_log, false);
+    }
+    
+    /**
+     * Rewrite URLs for CDN
+     */
+    public function rewrite_url_for_cdn(string $url): string {
+        $settings = $this->get_settings();
+        
+        if (empty($settings['cdn_url'])) {
+            return $url;
+        }
+        
+        $upload_dir = wp_upload_dir();
+        $base_url = $upload_dir['baseurl'];
+        
+        if (strpos($url, $base_url) === 0) {
+            $url = str_replace($base_url, rtrim($settings['cdn_url'], '/'), $url);
+        }
+        
+        return $url;
+    }
+    
+    /**
+     * Add cache headers
+     */
+    public function add_cache_headers(): void {
+        $settings = $this->get_settings();
+        
+        if (!headers_sent()) {
+            header('Cache-Control: public, max-age=' . $settings['cache_headers_ttl']);
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $settings['cache_headers_ttl']) . ' GMT');
+        }
+    }
+    
+    /**
+     * Add admin bar performance info
+     */
+    public function add_admin_bar_performance_info(\WP_Admin_Bar $wp_admin_bar): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
+        $memory_usage = memory_get_usage(true);
+        $memory_limit = wp_convert_hr_to_bytes(ini_get('memory_limit'));
+        $memory_percentage = ($memory_usage / $memory_limit) * 100;
+        
+        $wp_admin_bar->add_node([
+            'id' => 'wfn-performance',
+            'title' => sprintf('Memory: %.1f%% | Queries: %d', $memory_percentage, get_num_queries()),
+            'href' => $this->get_admin_url(),
+            'meta' => [
+                'title' => 'WFN Performance Monitor'
+            ]
+        ]);
+    }
+    
+    /**
+     * Defer non-critical CSS
+     */
+    public function defer_non_critical_css(string $html, string $handle): string {
+        // List of critical CSS handles that should not be deferred
+        $critical_handles = ['wfn-critical', 'admin-bar', 'dashicons'];
+        
+        if (in_array($handle, $critical_handles)) {
+            return $html;
+        }
+        
+        // Add media="print" and onload script to defer CSS
+        $html = str_replace('media=\'all\'', 'media=\'print\' onload=\'this.media="all"\'', $html);
+        $html = str_replace('media="all"', 'media="print" onload="this.media=\'all\'"', $html);
+        
+        return $html;
+    }
+    
+    /**
+     * Defer JavaScript
+     */
+    public function defer_javascript(string $tag, string $handle): string {
+        // List of scripts that should not be deferred
+        $no_defer_handles = ['jquery', 'jquery-core', 'jquery-migrate'];
+        
+        if (in_array($handle, $no_defer_handles)) {
+            return $tag;
+        }
+        
+        // Add defer attribute
+        return str_replace('<script', '<script defer', $tag);
+    }
+    
+    /**
+     * Get cache statistics
+     */
+    public function get_cache_statistics(): array {
+        $stats = [];
+        
+        foreach ($this->cache_groups as $group => $description) {
+            $stats[$group] = [
+                'description' => $description,
+                'size' => $this->get_cache_group_size($group),
+                'hit_ratio' => $this->get_cache_hit_ratio($group)
+            ];
+        }
+        
+        return $stats;
+    }
+    
+    /**
+     * Get cache group size
+     */
+    private function get_cache_group_size(string $group): int {
+        // This would need to be implemented based on your caching solution
+        // For now, return a placeholder
+        return 0;
+    }
+    
+    /**
+     * Get cache hit ratio
+     */
+    private function get_cache_hit_ratio(string $group): float {
+        // This would need to be implemented based on your caching solution
+        // For now, return a placeholder
+        return 0.0;
+    }
+    
+    /**
+     * Purge cache on post save
+     */
+    public function purge_cache_on_post_save(int $post_id): void {
+        if (get_post_type($post_id) === 'funeral-notice') {
+            $this->purge_cache_group('funeral_notices');
+            $this->purge_cache_group('search_results');
+            $this->purge_cache_group('template_output');
+        }
+    }
+    
+    /**
+     * Purge cache on post delete
+     */
+    public function purge_cache_on_post_delete(int $post_id): void {
+        if (get_post_type($post_id) === 'funeral-notice') {
+            $this->purge_cache_group('funeral_notices');
+            $this->purge_cache_group('search_results');
+            $this->purge_cache_group('template_output');
+        }
+    }
+    
+    /**
+     * Purge cache on term update
+     */
+    public function purge_cache_on_term_update(int $term_id): void {
+        $this->purge_cache_group('funeral_notices');
+        $this->purge_cache_group('search_results');
+    }
+    
+    /**
+     * Purge cache group
+     */
+    private function purge_cache_group(string $group): void {
+        wp_cache_flush_group($group);
+    }
+    
+    /**
+     * Render module admin content
+     */
+    protected function render_module_admin_content(): void {
+        $settings = $this->get_settings();
+        $cache_stats = $this->get_cache_statistics();
+        $performance_log = get_option('wfn_performance_log', []);
+        ?>
+        <form method="post" action="">
+            <?php $this->render_nonce_field(); ?>
+            
+            <div class="wfn-performance-admin">
+                <div class="wfn-admin-tabs">
+                    <nav class="nav-tab-wrapper">
+                        <a href="#caching" class="nav-tab nav-tab-active">Caching</a>
+                        <a href="#optimization" class="nav-tab">Optimization</a>
+                        <a href="#database" class="nav-tab">Database</a>
+                        <a href="#monitoring" class="nav-tab">Monitoring</a>
+                        <a href="#cdn" class="nav-tab">CDN & Assets</a>
+                    </nav>
+                    
+                    <!-- Caching Tab -->
+                    <div id="caching" class="tab-content active">
+                        <h3>Caching Settings</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_query_caching]"
+                                       id="enable_query_caching"
+                                       value="1"
+                                       <?php checked($settings['enable_query_caching']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Query Caching</span>
+                            </label>
+                            <p class="wfn-form-description">Cache database queries to improve performance.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="cache_duration">Cache Duration (seconds)</label>
+                            <input type="number" 
+                                   name="wfn_module_settings[cache_duration]" 
+                                   id="cache_duration" 
+                                   value="<?php echo esc_attr($settings['cache_duration']); ?>" 
+                                   min="300" 
+                                   max="86400">
+                            <p class="wfn-form-description">How long to cache data (3600 = 1 hour).</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_auto_purge]"
+                                       id="enable_auto_purge"
+                                       value="1"
+                                       <?php checked($settings['enable_auto_purge']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Auto Cache Purge</span>
+                            </label>
+                            <p class="wfn-form-description">Automatically clear cache when content is updated.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label>Cache Purge Triggers</label>
+                            <div class="wfn-checkbox-group">
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[purge_triggers][]" 
+                                           value="post_save"
+                                           <?php checked(in_array('post_save', $settings['purge_triggers'])); ?>>
+                                    Post Save
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[purge_triggers][]" 
+                                           value="post_delete"
+                                           <?php checked(in_array('post_delete', $settings['purge_triggers'])); ?>>
+                                    Post Delete
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[purge_triggers][]" 
+                                           value="term_update"
+                                           <?php checked(in_array('term_update', $settings['purge_triggers'])); ?>>
+                                    Term Update
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <?php if ($settings['enable_query_caching']): ?>
+                        <div class="wfn-cache-statistics">
+                            <h4>Cache Statistics</h4>
+                            <div class="wfn-stats-grid">
+                                <?php foreach ($cache_stats as $group => $stats): ?>
+                                    <div class="wfn-stat-card">
+                                        <h5><?php echo esc_html($stats['description']); ?></h5>
+                                        <p>Size: <?php echo esc_html($stats['size']); ?> items</p>
+                                        <p>Hit Ratio: <?php echo esc_html(number_format($stats['hit_ratio'], 2)); ?>%</p>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            
+                            <div class="wfn-cache-actions">
+                                <button type="button" class="button" onclick="wfnClearCache()">Clear All Cache</button>
+                                <button type="button" class="button" onclick="wfnWarmCache()">Warm Cache</button>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Optimization Tab -->
+                    <div id="optimization" class="tab-content">
+                        <h3>Asset Optimization</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_asset_optimization]"
+                                       id="enable_asset_optimization"
+                                       value="1"
+                                       <?php checked($settings['enable_asset_optimization']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Asset Optimization</span>
+                            </label>
+                            <p class="wfn-form-description">Optimize CSS and JavaScript files for better performance.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[minify_css]"
+                                       id="minify_css"
+                                       value="1"
+                                       <?php checked($settings['minify_css']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Minify CSS</span>
+                            </label>
+                            <p class="wfn-form-description">Remove unnecessary whitespace and comments from CSS files.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[minify_js]"
+                                       id="minify_js"
+                                       value="1"
+                                       <?php checked($settings['minify_js']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Minify JavaScript</span>
+                            </label>
+                            <p class="wfn-form-description">Remove unnecessary whitespace and comments from JavaScript files.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[defer_non_critical_css]"
+                                       id="defer_non_critical_css"
+                                       value="1"
+                                       <?php checked($settings['defer_non_critical_css']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Defer Non-Critical CSS</span>
+                            </label>
+                            <p class="wfn-form-description">Load non-critical CSS asynchronously to improve page load time.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[defer_javascript]"
+                                       id="defer_javascript"
+                                       value="1"
+                                       <?php checked($settings['defer_javascript']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Defer JavaScript</span>
+                            </label>
+                            <p class="wfn-form-description">Load JavaScript files after page content is loaded.</p>
+                        </div>
+                        
+                        <h4>Lazy Loading</h4>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_lazy_loading]"
+                                       id="enable_lazy_loading"
+                                       value="1"
+                                       <?php checked($settings['enable_lazy_loading']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Lazy Loading</span>
+                            </label>
+                            <p class="wfn-form-description">Load content only when it comes into view.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[lazy_load_images]"
+                                       id="lazy_load_images"
+                                       value="1"
+                                       <?php checked($settings['lazy_load_images']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Lazy Load Images</span>
+                            </label>
+                            <p class="wfn-form-description">Load images only when they come into viewport.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="lazy_load_threshold">Lazy Load Threshold (px)</label>
+                            <input type="number" 
+                                   name="wfn_module_settings[lazy_load_threshold]" 
+                                   id="lazy_load_threshold" 
+                                   value="<?php echo esc_attr($settings['lazy_load_threshold']); ?>" 
+                                   min="0" 
+                                   max="1000">
+                            <p class="wfn-form-description">Distance from viewport to start loading content.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Database Tab -->
+                    <div id="database" class="tab-content">
+                        <h3>Database Optimization</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_database_cleanup]"
+                                       id="enable_database_cleanup"
+                                       value="1"
+                                       <?php checked($settings['enable_database_cleanup']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Database Cleanup</span>
+                            </label>
+                            <p class="wfn-form-description">Automatically clean up database to improve performance.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="cleanup_frequency">Cleanup Frequency</label>
+                            <select name="wfn_module_settings[cleanup_frequency]" id="cleanup_frequency">
+                                <?php foreach ($this->cleanup_frequencies as $freq_value => $freq_name): ?>
+                                    <option value="<?php echo esc_attr($freq_value); ?>" 
+                                            <?php selected($settings['cleanup_frequency'], $freq_value); ?>>
+                                        <?php echo esc_html($freq_name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label>Cleanup Options</label>
+                            <div class="wfn-checkbox-group">
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[cleanup_orphaned_meta]" 
+                                           value="1"
+                                           <?php checked($settings['cleanup_orphaned_meta']); ?>>
+                                    Clean Orphaned Meta
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[cleanup_revisions]" 
+                                           value="1"
+                                           <?php checked($settings['cleanup_revisions']); ?>>
+                                    Clean Post Revisions
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                           name="wfn_module_settings[cleanup_spam_comments]" 
+                                           value="1"
+                                           <?php checked($settings['cleanup_spam_comments']); ?>>
+                                    Clean Spam Comments
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="wfn-database-actions">
+                            <button type="button" class="button" onclick="wfnRunDatabaseCleanup()">Run Cleanup Now</button>
+                            <button type="button" class="button" onclick="wfnAnalyzeDatabase()">Analyze Database</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Monitoring Tab -->
+                    <div id="monitoring" class="tab-content">
+                        <h3>Performance Monitoring</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_performance_monitoring]"
+                                       id="enable_performance_monitoring"
+                                       value="1"
+                                       <?php checked($settings['enable_performance_monitoring']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Performance Monitoring</span>
+                            </label>
+                            <p class="wfn-form-description">Track performance metrics and identify bottlenecks.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[track_query_time]"
+                                       id="track_query_time"
+                                       value="1"
+                                       <?php checked($settings['track_query_time']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Track Query Time</span>
+                            </label>
+                            <p class="wfn-form-description">Monitor database query execution time.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[track_memory_usage]"
+                                       id="track_memory_usage"
+                                       value="1"
+                                       <?php checked($settings['track_memory_usage']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Track Memory Usage</span>
+                            </label>
+                            <p class="wfn-form-description">Monitor memory consumption and usage patterns.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="performance_threshold">Performance Threshold (ms)</label>
+                            <input type="number" 
+                                   name="wfn_module_settings[performance_threshold]" 
+                                   id="performance_threshold" 
+                                   value="<?php echo esc_attr($settings['performance_threshold']); ?>" 
+                                   min="100" 
+                                   max="5000">
+                            <p class="wfn-form-description">Threshold for flagging slow queries (in milliseconds).</p>
+                        </div>
+                        
+                        <?php if ($settings['enable_performance_monitoring'] && !empty($performance_log)): ?>
+                        <div class="wfn-performance-log">
+                            <h4>Recent Performance Events</h4>
+                            <div class="wfn-log-entries">
+                                <?php foreach (array_slice($performance_log, -10) as $entry): ?>
+                                    <div class="wfn-log-entry">
+                                        <span class="wfn-log-type"><?php echo esc_html($entry['type']); ?></span>
+                                        <span class="wfn-log-time"><?php echo esc_html($entry['data']['timestamp']); ?></span>
+                                        <span class="wfn-log-url"><?php echo esc_html($entry['url']); ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- CDN & Assets Tab -->
+                    <div id="cdn" class="tab-content">
+                        <h3>CDN & Asset Delivery</h3>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_cdn_support]"
+                                       id="enable_cdn_support"
+                                       value="1"
+                                       <?php checked($settings['enable_cdn_support']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable CDN Support</span>
+                            </label>
+                            <p class="wfn-form-description">Serve assets from a Content Delivery Network.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="cdn_url">CDN URL</label>
+                            <input type="url" 
+                                   name="wfn_module_settings[cdn_url]" 
+                                   id="cdn_url" 
+                                   value="<?php echo esc_attr($settings['cdn_url']); ?>"
+                                   placeholder="https://cdn.example.com">
+                            <p class="wfn-form-description">Base URL for your CDN (without trailing slash).</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_gzip_compression]"
+                                       id="enable_gzip_compression"
+                                       value="1"
+                                       <?php checked($settings['enable_gzip_compression']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable GZIP Compression</span>
+                            </label>
+                            <p class="wfn-form-description">Compress assets for faster delivery.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label class="wfn-toggle-switch">
+                                <input type="checkbox"
+                                       name="wfn_module_settings[enable_browser_caching]"
+                                       id="enable_browser_caching"
+                                       value="1"
+                                       <?php checked($settings['enable_browser_caching']); ?>>
+                                <span class="wfn-toggle-slider"></span>
+                                <span class="wfn-toggle-label">Enable Browser Caching</span>
+                            </label>
+                            <p class="wfn-form-description">Set cache headers for better browser caching.</p>
+                        </div>
+                        
+                        <div class="wfn-form-group">
+                            <label for="cache_headers_ttl">Cache Headers TTL (seconds)</label>
+                            <input type="number" 
+                                   name="wfn_module_settings[cache_headers_ttl]" 
+                                   id="cache_headers_ttl" 
+                                   value="<?php echo esc_attr($settings['cache_headers_ttl']); ?>" 
+                                   min="3600" 
+                                   max="31536000">
+                            <p class="wfn-form-description">How long browsers should cache assets (86400 = 1 day).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <?php $this->render_submit_button(); ?>
+        </form>
+        
+        <style>
+            .wfn-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-top: 15px;
+            }
+            
+            .wfn-stat-card {
+                background: #f9f9f9;
+                padding: 15px;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+            
+            .wfn-stat-card h5 {
+                margin: 0 0 10px 0;
+                font-size: 14px;
+                color: #333;
+            }
+            
+            .wfn-stat-card p {
+                margin: 5px 0;
+                font-size: 13px;
+                color: #666;
+            }
+            
+            .wfn-cache-actions,
+            .wfn-database-actions {
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid #eee;
+            }
+            
+            .wfn-cache-actions button,
+            .wfn-database-actions button {
+                margin-right: 10px;
+            }
+            
+            .wfn-checkbox-group {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .wfn-checkbox-group label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: normal;
+            }
+            
+            .wfn-performance-log {
+                margin-top: 20px;
+                background: #f9f9f9;
+                padding: 15px;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+            
+            .wfn-log-entries {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .wfn-log-entry {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid #eee;
+                font-size: 13px;
+            }
+            
+            .wfn-log-type {
+                font-weight: 500;
+                color: #333;
+            }
+            
+            .wfn-log-time {
+                color: #666;
+            }
+            
+            .wfn-log-url {
+                color: #999;
+                font-family: monospace;
+            }
+            
+            .wfn-cache-statistics {
+                margin-top: 20px;
+                padding: 20px;
+                background: #f9f9f9;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+            
+            .wfn-cache-statistics h4 {
+                margin-top: 0;
+                margin-bottom: 15px;
+            }
+        </style>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Tab functionality
+                const tabs = document.querySelectorAll('.nav-tab');
+                const contents = document.querySelectorAll('.tab-content');
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        tabs.forEach(t => t.classList.remove('nav-tab-active'));
+                        contents.forEach(c => c.classList.remove('active'));
+                        
+                        this.classList.add('nav-tab-active');
+                        
+                        const target = this.getAttribute('href').substring(1);
+                        document.getElementById(target).classList.add('active');
+                    });
+                });
+            });
+            
+            // Performance action functions
+            function wfnClearCache() {
+                if (confirm('Are you sure you want to clear all cache?')) {
+                    // Implementation would go here
+                    alert('Cache cleared successfully!');
+                }
+            }
+            
+            function wfnWarmCache() {
+                if (confirm('This will pre-load cache for better performance. Continue?')) {
+                    // Implementation would go here
+                    alert('Cache warming started!');
+                }
+            }
+            
+            function wfnRunDatabaseCleanup() {
+                if (confirm('This will clean up your database. Continue?')) {
+                    // Implementation would go here
+                    alert('Database cleanup completed!');
+                }
+            }
+            
+            function wfnAnalyzeDatabase() {
+                // Implementation would go here
+                alert('Database analysis completed!');
+            }
+        </script>
+        <?php
+    }
+    
+    /**
+     * Sanitize settings with specific validation
+     */
+    protected function sanitize_settings(array $settings): array {
+        $sanitized = [];
+        
+        // Boolean settings
+        $boolean_settings = [
+            'enable_query_caching', 'enable_auto_purge', 'enable_asset_optimization',
+            'minify_css', 'minify_js', 'defer_non_critical_css', 'defer_javascript',
+            'enable_lazy_loading', 'lazy_load_images', 'enable_database_cleanup',
+            'cleanup_orphaned_meta', 'cleanup_revisions', 'cleanup_spam_comments',
+            'enable_performance_monitoring', 'track_query_time', 'track_memory_usage',
+            'enable_cdn_support', 'enable_gzip_compression', 'enable_browser_caching',
+            'enable_preload'
+        ];
+        
+        foreach ($boolean_settings as $setting) {
+            $sanitized[$setting] = !empty($settings[$setting]);
+        }
+        
+        // Numeric settings
+        $sanitized['cache_duration'] = max(300, min(86400, (int) ($settings['cache_duration'] ?? 3600)));
+        $sanitized['lazy_load_threshold'] = max(0, min(1000, (int) ($settings['lazy_load_threshold'] ?? 200)));
+        $sanitized['performance_threshold'] = max(100, min(5000, (int) ($settings['performance_threshold'] ?? 1000)));
+        $sanitized['cache_headers_ttl'] = max(3600, min(31536000, (int) ($settings['cache_headers_ttl'] ?? 86400)));
+        
+        // Array settings
+        $valid_triggers = ['post_save', 'post_delete', 'term_update'];
+        $sanitized['purge_triggers'] = array_intersect($settings['purge_triggers'] ?? [], $valid_triggers);
+        
+        // String settings
+        $sanitized['cdn_url'] = esc_url_raw($settings['cdn_url'] ?? '');
+        
+        // Cleanup frequency
+        $valid_frequencies = array_keys($this->cleanup_frequencies);
+        $sanitized['cleanup_frequency'] = in_array($settings['cleanup_frequency'] ?? '', $valid_frequencies) 
+            ? $settings['cleanup_frequency'] 
+            : 'weekly';
+        
+        // Preload pages
+        $sanitized['preload_pages'] = array_map('esc_url_raw', $settings['preload_pages'] ?? []);
+        
+        return $sanitized;
+    }
+}

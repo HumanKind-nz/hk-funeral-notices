@@ -1,0 +1,136 @@
+/* Error and no results messages */
+.wfn-error,
+.wfn-no-results,
+.wfn-bb-placeholder {
+    padding: 1rem;
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    border: 1px solid var(--wfn-color-border, #dee2e6);
+    border-radius: var(--wfn-border-radius, 4px);
+    text-align: center;
+    color: var(--wfn-color-text-secondary, #666);
+    margin: 1rem 0;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-error {
+    background: var(--wfn-color-accent, #f8d7da);
+    border-color: var(--wfn-color-accent, #f5c6cb);
+    color: var(--wfn-color-text-primary, #721c24);
+}
+
+.wfn-bb-placeholder {
+    background: var(--wfn-color-primary, #e1f5fe);
+    border-color: var(--wfn-color-primary, #b3e5fc);
+    color: var(--wfn-color-text-primary, #0277bd);
+    font-style: italic;
+}
+
+/* Responsive video embeds */
+.wfn-video-embed {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    margin: 1rem 0;
+    overflow: hidden;
+    border-radius: var(--wfn-border-radius, 8px);
+    box-shadow: var(--wfn-card-shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.wfn-video-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Streaming section styling */
+.wfn-streaming-section {
+    margin: var(--wfn-section-spacing, 2rem) 0;
+    padding: var(--wfn-card-padding, 1.5rem);
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    border-radius: var(--wfn-border-radius, 8px);
+    border-left: 4px solid var(--wfn-color-primary, #007cba);
+}
+
+.wfn-streaming-note {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--wfn-color-row-alternate, #e3f2fd);
+    border-radius: var(--wfn-border-radius, 4px);
+    font-style: italic;
+    color: var(--wfn-color-text-primary, #1565c0);
+    border-left: 3px solid var(--wfn-color-primary, #1976d2);
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-streaming-private {
+    padding: 1rem;
+    background: var(--wfn-color-secondary, #fff3cd);
+    border: 1px solid var(--wfn-color-secondary, #ffeaa7);
+    border-radius: var(--wfn-border-radius, 4px);
+    color: var(--wfn-color-text-primary, #856404);
+    text-align: center;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-streaming-link {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.wfn-stream-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--wfn-color-primary, #007cba);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--wfn-border-radius, 6px);
+    font-weight: 500;
+    font-family: var(--wfn-font-body, inherit);
+    transition: background-color var(--wfn-transition-speed, 0.2s) ease;
+}
+
+.wfn-stream-button:hover {
+    background: var(--wfn-color-accent, #005a87);
+    color: white;
+    text-decoration: none;
+}
+
+.wfn-stream-icon {
+    font-size: 1.2em;
+}
+
+/* Service-specific embed styling */
+.wfn-youtube-embed {
+    border-left: 4px solid var(--wfn-color-accent, #ff0000);
+}
+
+.wfn-vimeo-embed {
+    border-left: 4px solid var(--wfn-color-primary, #1ab7ea);
+}
+
+.wfn-facebook-embed {
+    border-left: 4px solid var(--wfn-color-primary, #1877f2);
+}
+
+.wfn-oneroom-embed {
+    border-left: 4px solid var(--wfn-color-secondary, #6c5ce7);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .wfn-streaming-section {
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+    
+    .wfn-stream-button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+} 

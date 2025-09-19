@@ -1,0 +1,207 @@
+/**
+ * Enhancement Suite - Search Form Styling
+ * Modern search interface matching Enhancement Suite design
+ */
+
+.wfn-enhancement-search {
+    background: var(--wfn-color-card-background, #ffffff);
+    border: 1px solid var(--wfn-color-border, #e1e5e9);
+    border-radius: var(--wfn-border-radius, 12px);
+    padding: var(--wfn-card-padding, 1.5rem);
+    margin-bottom: 2rem;
+    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.wfn-enhancement-search-form .search-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Name search field - takes priority */
+.name-search-field {
+    flex: 2;
+    min-width: 250px;
+}
+
+/* Date range field - compact */
+.date-range-field {
+    flex: 1.5;
+    min-width: 300px;
+}
+
+/* Search actions - compact */
+.search-actions {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Input groups */
+.wfn-enhancement-search .input-group {
+    display: flex;
+    align-items: center;
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    border: 1px solid var(--wfn-color-border, #dee2e6);
+    border-radius: var(--wfn-border-radius, 8px);
+    overflow: hidden;
+    transition: all var(--wfn-transition-speed, 0.2s) ease;
+}
+
+.wfn-enhancement-search .input-group:focus-within {
+    border-color: var(--wfn-color-primary, #3498db);
+    box-shadow: 0 0 0 3px var(--wfn-color-shadow, rgba(52, 152, 219, 0.1));
+    background: var(--wfn-color-card-background, #ffffff);
+}
+
+/* Input icons */
+.wfn-enhancement-search .input-icon {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    color: var(--wfn-color-text-secondary, #6c757d);
+    flex-shrink: 0;
+}
+
+/* Search and date inputs */
+.wfn-enhancement-search .search-input,
+.wfn-enhancement-search .date-input {
+    border: none;
+    background: none;
+    padding: 0.75rem 0.5rem;
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: var(--wfn-color-text-primary, #495057);
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-enhancement-search .search-input {
+    padding-right: 0.75rem;
+}
+
+.wfn-enhancement-search .search-input::placeholder {
+    color: var(--wfn-color-text-muted, #adb5bd);
+}
+
+/* Date separator */
+.date-separator {
+    padding: 0 0.5rem;
+    color: var(--wfn-color-text-secondary, #6c757d);
+    font-size: var(--wfn-text-size, 0.85rem);
+    flex-shrink: 0;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+/* Clear buttons */
+.wfn-enhancement-search .clear-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    color: var(--wfn-color-text-secondary, #6c757d);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color var(--wfn-transition-speed, 0.2s) ease;
+    flex-shrink: 0;
+}
+
+.wfn-enhancement-search .clear-btn:hover {
+    color: var(--wfn-color-accent, #dc3545);
+}
+
+/* Search button */
+.search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--wfn-color-primary, #3498db);
+    color: white;
+    border: none;
+    border-radius: var(--wfn-border-radius, 8px);
+    font-weight: 500;
+    font-size: var(--wfn-text-size, 0.9rem);
+    font-family: var(--wfn-font-body, inherit);
+    cursor: pointer;
+    transition: background var(--wfn-transition-speed, 0.2s) ease;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: var(--wfn-color-accent, #2980b9);
+}
+
+/* Clear all button */
+.clear-all-btn {
+    padding: 0.75rem 1rem;
+    background: none;
+    color: var(--wfn-color-text-secondary, #6c757d);
+    border: 1px solid var(--wfn-color-border, #dee2e6);
+    border-radius: var(--wfn-border-radius, 8px);
+    text-decoration: none;
+    font-size: var(--wfn-text-size, 0.9rem);
+    font-family: var(--wfn-font-body, inherit);
+    transition: all var(--wfn-transition-speed, 0.2s) ease;
+    white-space: nowrap;
+}
+
+.clear-all-btn:hover {
+    background: var(--wfn-color-row-alternate, #f8f9fa);
+    color: var(--wfn-color-text-primary, #495057);
+    text-decoration: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .wfn-enhancement-search {
+        padding: 1rem;
+    }
+    
+    .wfn-enhancement-search-form .search-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .name-search-field,
+    .date-range-field {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .search-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .search-btn,
+    .clear-all-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .date-range-field .input-group {
+        flex-wrap: wrap;
+        padding: 0.5rem;
+    }
+    
+    .date-separator {
+        width: 100%;
+        text-align: center;
+        padding: 0.25rem 0;
+        order: 1;
+    }
+    
+    .wfn-enhancement-search .date-input {
+        min-width: 120px;
+    }
+    
+    .search-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}

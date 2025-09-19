@@ -1,0 +1,168 @@
+/**
+ * Enhancement Suite - Gallery Grid Layout CSS
+ * Native WFN version of the FCRM Enhancement Suite gallery grid
+ */
+
+.wfn-enhancement-gallery-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+/* Column layouts */
+.wfn-enhancement-gallery-grid.wfn-cols-1 { grid-template-columns: 1fr; }
+.wfn-enhancement-gallery-grid.wfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.wfn-enhancement-gallery-grid.wfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.wfn-enhancement-gallery-grid.wfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Card styling - Gallery emphasizes images */
+.wfn-enhancement-gallery-card {
+    position: relative;
+    border-radius: var(--wfn-border-radius, 12px);
+    overflow: hidden;
+    transition: all var(--wfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--wfn-card-shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+    aspect-ratio: 4/3;
+}
+
+.wfn-enhancement-gallery-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.wfn-enhancement-gallery-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    height: 100%;
+}
+
+.wfn-enhancement-gallery-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Image container with overlay */
+.wfn-enhancement-gallery-image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.wfn-enhancement-gallery-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%; /* Focus on upper portion for better face positioning */
+    transition: transform 0.3s ease;
+}
+
+.wfn-enhancement-gallery-card:hover .wfn-enhancement-gallery-image img {
+    transform: scale(1.05);
+}
+
+/* Overlay with text - Always visible with enhanced readability */
+.wfn-enhancement-gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem 1.5rem 1.5rem;
+    color: white;
+    transform: translateY(0);
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+.wfn-enhancement-gallery-card:hover .wfn-enhancement-gallery-overlay {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+}
+
+.wfn-enhancement-gallery-text {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
+    margin-top: 0.5rem;
+}
+
+.wfn-enhancement-gallery-name {
+    font-size: var(--wfn-heading-size, 1.1rem);
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: white;
+    line-height: 1.3;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    font-family: var(--wfn-font-heading, inherit);
+}
+
+.wfn-enhancement-gallery-years {
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    font-style: italic;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 6px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+/* Fallback when no image */
+.wfn-enhancement-gallery-no-image {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background: var(--wfn-color-card-background, linear-gradient(135deg, #f8f9fa, #e9ecef));
+    text-align: center;
+    padding: var(--wfn-card-padding, 1.5rem);
+}
+
+.wfn-enhancement-gallery-no-image .wfn-enhancement-gallery-name {
+    color: var(--wfn-color-text-primary, #495057);
+    margin-bottom: 0.5rem;
+    text-shadow: none;
+}
+
+.wfn-enhancement-gallery-no-image .wfn-enhancement-gallery-years {
+    color: var(--wfn-color-text-secondary, #6c757d);
+    text-shadow: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .wfn-enhancement-gallery-grid.wfn-cols-3,
+    .wfn-enhancement-gallery-grid.wfn-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .wfn-enhancement-gallery-overlay {
+        padding: 1.5rem 1rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-enhancement-gallery-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+    
+    .wfn-enhancement-gallery-card {
+        aspect-ratio: 16/9;
+    }
+    
+    /* Enhanced overlay visibility on mobile */
+    .wfn-enhancement-gallery-overlay {
+        transform: translateY(0);
+        opacity: 1;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+        padding: 1.5rem 1rem 1rem;
+    }
+}

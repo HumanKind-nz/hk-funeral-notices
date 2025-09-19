@@ -1,0 +1,131 @@
+/**
+ * Enhancement Suite - Elegant Grid Layout CSS
+ * Native WFN version of the FCRM Enhancement Suite elegant grid
+ */
+
+.wfn-enhancement-elegant-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Column layouts */
+.wfn-enhancement-elegant-grid.wfn-cols-1 { grid-template-columns: 1fr; }
+.wfn-enhancement-elegant-grid.wfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.wfn-enhancement-elegant-grid.wfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.wfn-enhancement-elegant-grid.wfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Card styling */
+.wfn-enhancement-elegant-card {
+    background: var(--wfn-color-card-background, #ffffff);
+    border: 1px solid var(--wfn-color-border, #e5e5e5);
+    border-radius: var(--wfn-border-radius, 8px);
+    overflow: hidden;
+    transition: all var(--wfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--wfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.wfn-enhancement-elegant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.wfn-enhancement-elegant-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.wfn-enhancement-elegant-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header with image and details */
+.wfn-enhancement-elegant-header {
+    display: flex;
+    align-items: center;
+    padding: var(--wfn-card-padding, 1.5rem);
+    gap: 1rem;
+}
+
+.wfn-enhancement-elegant-portrait {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center 15% !important; /* Focus on upper portion to center faces better */
+    border: 2px solid var(--wfn-color-border, #f0f0f0) !important;
+}
+
+.wfn-enhancement-elegant-details {
+    flex: 1;
+}
+
+.wfn-enhancement-elegant-name {
+    font-size: var(--wfn-heading-size, 1.1rem);
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--wfn-color-text-primary, #2c3e50);
+    line-height: 1.3;
+    font-family: var(--wfn-font-heading, inherit);
+}
+
+.wfn-enhancement-elegant-years {
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: var(--wfn-color-text-secondary, #7f8c8d);
+    margin: 0;
+    font-style: italic;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+/* Service information */
+.wfn-enhancement-elegant-service {
+    padding: 0 var(--wfn-card-padding, 1.5rem) var(--wfn-card-padding, 1.5rem) var(--wfn-card-padding, 1.5rem);
+    font-size: var(--wfn-text-size, 0.9rem);
+    color: var(--wfn-color-text-secondary, #5d6d7e);
+    border-top: 1px solid var(--wfn-color-border, #f8f9fa);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    font-family: var(--wfn-font-body, inherit);
+}
+
+.wfn-enhancement-elegant-service strong {
+    color: var(--wfn-color-text-primary, #34495e);
+    font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .wfn-enhancement-elegant-grid.wfn-cols-3,
+    .wfn-enhancement-elegant-grid.wfn-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .wfn-enhancement-elegant-header {
+        padding: 1.25rem;
+    }
+    
+    .wfn-enhancement-elegant-service {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-enhancement-elegant-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+    
+    .wfn-enhancement-elegant-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .wfn-enhancement-elegant-portrait {
+        width: 80px;
+        height: 80px;
+    }
+}

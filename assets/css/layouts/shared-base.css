@@ -1,0 +1,510 @@
+/**
+ * WFN Layouts - Shared Base Styles
+ * 
+ * Common variables, utilities, and base styles for all modern layouts
+ * Adapted from FCRM Enhancement Suite for funeral notices
+ * 
+ * @package WeaveStudios\FuneralNotices
+ * @subpackage Layouts
+ * @since 2.0.0
+ */
+
+/* CSS Custom Properties (Variables) */
+:root {
+    /* Legacy fallback colors - these will be overridden by StylingModule */
+    --wfn-fallback-primary: #2c3e50;
+    --wfn-fallback-secondary: #3498db;
+    --wfn-fallback-text: #212529;
+    --wfn-fallback-text-muted: #6c757d;
+    --wfn-fallback-border: #e9ecef;
+    --wfn-fallback-background: #ffffff;
+    --wfn-fallback-background-alt: #f8f9fa;
+    
+    /* Use StylingModule variables with fallbacks */
+    --wfn-primary: var(--wfn-color-primary, var(--wfn-fallback-primary));
+    --wfn-secondary: var(--wfn-color-secondary, var(--wfn-fallback-secondary));
+    --wfn-accent: var(--wfn-color-accent, var(--wfn-fallback-secondary));
+    
+    /* Text colors from StylingModule */
+    --wfn-text-primary: var(--wfn-color-text-primary, var(--wfn-fallback-text));
+    --wfn-text-secondary: var(--wfn-color-text-secondary, var(--wfn-fallback-text-muted));
+    --wfn-text-muted: var(--wfn-color-text-muted, var(--wfn-fallback-text-muted));
+    
+    /* Background and border colors from StylingModule */
+    --wfn-background: var(--wfn-color-background, var(--wfn-fallback-background));
+    --wfn-background-card: var(--wfn-color-card-background, var(--wfn-fallback-background));
+    --wfn-background-alt: var(--wfn-color-row-alternate, var(--wfn-fallback-background-alt));
+    --wfn-border: var(--wfn-color-border, var(--wfn-fallback-border));
+    --wfn-border-light: var(--wfn-color-border, var(--wfn-fallback-border));
+    
+    /* Color variants for compatibility */
+    --wfn-primary-light: var(--wfn-color-primary, #34495e);
+    --wfn-primary-dark: var(--wfn-color-accent, #1a252f);
+    --wfn-secondary-light: var(--wfn-color-secondary, #5dade2);
+    --wfn-secondary-dark: var(--wfn-color-accent, #2980b9);
+    
+    /* Typography */
+    --wfn-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --wfn-font-size-xs: 0.75rem;
+    --wfn-font-size-sm: 0.875rem;
+    --wfn-font-size-base: 1rem;
+    --wfn-font-size-lg: 1.125rem;
+    --wfn-font-size-xl: 1.25rem;
+    --wfn-font-size-2xl: 1.5rem;
+    --wfn-font-size-3xl: 1.875rem;
+    
+    --wfn-font-weight-normal: 400;
+    --wfn-font-weight-medium: 500;
+    --wfn-font-weight-semibold: 600;
+    --wfn-font-weight-bold: 700;
+    
+    --wfn-line-height-tight: 1.25;
+    --wfn-line-height-normal: 1.5;
+    --wfn-line-height-relaxed: 1.625;
+    
+    /* Spacing */
+    --wfn-space-1: 0.25rem;
+    --wfn-space-2: 0.5rem;
+    --wfn-space-3: 0.75rem;
+    --wfn-space-4: 1rem;
+    --wfn-space-5: 1.25rem;
+    --wfn-space-6: 1.5rem;
+    --wfn-space-8: 2rem;
+    --wfn-space-10: 2.5rem;
+    --wfn-space-12: 3rem;
+    --wfn-space-16: 4rem;
+    --wfn-space-20: 5rem;
+    
+    /* Border Radius */
+    --wfn-radius-sm: 0.25rem;
+    --wfn-radius: 0.375rem;
+    --wfn-radius-md: 0.5rem;
+    --wfn-radius-lg: 0.75rem;
+    --wfn-radius-xl: 1rem;
+    --wfn-radius-full: 9999px;
+    
+    /* Shadows */
+    --wfn-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --wfn-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --wfn-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --wfn-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --wfn-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Transitions */
+    --wfn-transition-fast: 150ms ease-in-out;
+    --wfn-transition-normal: 250ms ease-in-out;
+    --wfn-transition-slow: 350ms ease-in-out;
+    
+    /* Z-index */
+    --wfn-z-dropdown: 1000;
+    --wfn-z-sticky: 1020;
+    --wfn-z-fixed: 1030;
+    --wfn-z-modal-backdrop: 1040;
+    --wfn-z-modal: 1050;
+    --wfn-z-popover: 1060;
+    --wfn-z-tooltip: 1070;
+}
+
+/* Base Reset and Normalisation */
+.wfn-funeral-notices-container {
+    box-sizing: border-box;
+    font-family: var(--wfn-font-family);
+    line-height: var(--wfn-line-height-normal);
+    color: var(--wfn-text-primary);
+}
+
+.wfn-funeral-notices-container *,
+.wfn-funeral-notices-container *::before,
+.wfn-funeral-notices-container *::after {
+    box-sizing: inherit;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus Styles */
+.wfn-funeral-notices-container a:focus,
+.wfn-funeral-notices-container button:focus {
+    outline: 2px solid var(--wfn-secondary);
+    outline-offset: 2px;
+}
+
+/* Button Base Styles */
+.wfn-funeral-notices-container button,
+.wfn-funeral-notices-container .service-button,
+.wfn-funeral-notices-container .view-details-button,
+.wfn-funeral-notices-container .streaming-button,
+.wfn-funeral-notices-container .wfn-load-more-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wfn-space-2);
+    padding: var(--wfn-space-2) var(--wfn-space-4);
+    font-family: inherit;
+    font-size: var(--wfn-font-size-sm);
+    font-weight: var(--wfn-font-weight-medium);
+    line-height: 1;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: var(--wfn-radius);
+    cursor: pointer;
+    transition: all var(--wfn-transition-fast);
+    user-select: none;
+}
+
+.wfn-funeral-notices-container button:disabled,
+.wfn-funeral-notices-container .service-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Primary Button */
+.wfn-funeral-notices-container .service-button,
+.wfn-funeral-notices-container .streaming-button {
+    background-color: var(--wfn-primary);
+    color: var(--wfn-white);
+    border-color: var(--wfn-primary);
+}
+
+.wfn-funeral-notices-container .service-button:hover,
+.wfn-funeral-notices-container .streaming-button:hover {
+    background-color: var(--wfn-primary-dark);
+    border-color: var(--wfn-primary-dark);
+}
+
+/* Secondary Button */
+.wfn-funeral-notices-container .view-details-button {
+    background-color: transparent;
+    color: var(--wfn-primary);
+    border-color: var(--wfn-primary);
+}
+
+.wfn-funeral-notices-container .view-details-button:hover {
+    background-color: var(--wfn-primary);
+    color: var(--wfn-white);
+}
+
+/* Icon Styles */
+.wfn-funeral-notices-container .service-icon,
+.wfn-funeral-notices-container .button-icon {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+}
+
+/* Loading Spinner */
+.wfn-funeral-notices-container .spinner {
+    animation: wfn-spin 1s linear infinite;
+}
+
+@keyframes wfn-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* No Funeral Notices Message */
+.wfn-no-notices {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    padding: var(--wfn-space-8);
+    text-align: center;
+}
+
+.no-notices-message h3 {
+    margin: 0 0 var(--wfn-space-2) 0;
+    font-size: var(--wfn-font-size-xl);
+    font-weight: var(--wfn-font-weight-semibold);
+    color: var(--wfn-text-primary);
+}
+
+.no-notices-message p {
+    margin: 0;
+    font-size: var(--wfn-font-size-base);
+    color: var(--wfn-text-secondary);
+}
+
+/* Modal Styles */
+.wfn-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--wfn-z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--wfn-transition-normal);
+}
+
+.wfn-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.wfn-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    background-color: var(--wfn-background);
+    border-radius: var(--wfn-radius-lg);
+    box-shadow: var(--wfn-shadow-xl);
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform var(--wfn-transition-normal);
+}
+
+.wfn-modal.active .wfn-modal-content {
+    transform: scale(1);
+}
+
+.wfn-modal-close {
+    position: absolute;
+    top: var(--wfn-space-4);
+    right: var(--wfn-space-4);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: var(--wfn-background);
+    border: 1px solid var(--wfn-border);
+    border-radius: var(--wfn-radius-full);
+    cursor: pointer;
+    transition: all var(--wfn-transition-fast);
+}
+
+.wfn-modal-close:hover {
+    background-color: var(--wfn-gray-100);
+}
+
+.wfn-modal-body {
+    padding: var(--wfn-space-6);
+    overflow-y: auto;
+    max-height: calc(90vh - 2rem);
+}
+
+/* Funeral Notice Card Base */
+.wfn-funeral-card {
+    background-color: var(--wfn-background);
+    border-radius: var(--wfn-radius-lg);
+    overflow: hidden;
+    transition: all var(--wfn-transition-normal);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-funeral-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Card Styles */
+.wfn-funeral-card.card-style-standard {
+    border: 1px solid var(--wfn-border);
+    box-shadow: var(--wfn-shadow-sm);
+}
+
+.wfn-funeral-card.card-style-elevated {
+    border: none;
+    box-shadow: var(--wfn-shadow-md);
+}
+
+.wfn-funeral-card.card-style-elevated:hover {
+    box-shadow: var(--wfn-shadow-lg);
+}
+
+.wfn-funeral-card.card-style-outlined {
+    border: 2px solid var(--wfn-primary);
+    box-shadow: none;
+}
+
+.wfn-funeral-card.card-style-minimal {
+    border: none;
+    box-shadow: none;
+    background-color: var(--wfn-background-alt);
+}
+
+/* Card Image */
+.wfn-funeral-card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background-color: var(--wfn-gray-100);
+}
+
+.wfn-funeral-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--wfn-transition-slow);
+}
+
+.wfn-funeral-card:hover .wfn-funeral-card-image img {
+    transform: scale(1.05);
+}
+
+.wfn-funeral-card-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: var(--wfn-gray-100);
+    color: var(--wfn-gray-400);
+    font-size: var(--wfn-font-size-3xl);
+}
+
+/* Card Content */
+.wfn-funeral-card-content {
+    padding: var(--wfn-space-6);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-funeral-card-title {
+    margin: 0 0 var(--wfn-space-2) 0;
+    font-size: var(--wfn-font-size-lg);
+    font-weight: var(--wfn-font-weight-semibold);
+    line-height: var(--wfn-line-height-tight);
+    color: var(--wfn-text-primary);
+}
+
+.wfn-funeral-card-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--wfn-transition-fast);
+}
+
+.wfn-funeral-card-title a:hover {
+    color: var(--wfn-primary);
+}
+
+.wfn-funeral-card-meta {
+    margin-bottom: var(--wfn-space-4);
+    font-size: var(--wfn-font-size-sm);
+    color: var(--wfn-text-secondary);
+    line-height: var(--wfn-line-height-normal);
+}
+
+.wfn-funeral-card-excerpt {
+    margin: 0 0 var(--wfn-space-4) 0;
+    font-size: var(--wfn-font-size-sm);
+    line-height: var(--wfn-line-height-relaxed);
+    color: var(--wfn-text-secondary);
+    flex: 1;
+}
+
+.wfn-funeral-card-actions {
+    display: flex;
+    gap: var(--wfn-space-3);
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+/* Life Span Display */
+.wfn-life-span {
+    display: inline-block;
+    padding: var(--wfn-space-1) var(--wfn-space-3);
+    background-color: var(--wfn-gray-100);
+    border-radius: var(--wfn-radius-full);
+    font-size: var(--wfn-font-size-xs);
+    font-weight: var(--wfn-font-weight-medium);
+    color: var(--wfn-text-secondary);
+}
+
+/* Service Status */
+.wfn-service-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wfn-space-1);
+    font-size: var(--wfn-font-size-xs);
+    font-weight: var(--wfn-font-weight-medium);
+}
+
+.wfn-service-status.upcoming {
+    color: var(--wfn-secondary);
+}
+
+.wfn-service-status.past {
+    color: var(--wfn-text-muted);
+}
+
+.wfn-service-status.today {
+    color: #dc3545;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    :root {
+        --wfn-space-6: 1rem;
+        --wfn-space-8: 1.5rem;
+    }
+
+    .wfn-modal {
+        align-items: flex-end;
+    }
+
+    .wfn-modal-content {
+        width: 100%;
+        max-height: 95vh;
+        border-radius: var(--wfn-radius-lg) var(--wfn-radius-lg) 0 0;
+    }
+
+    .wfn-modal-body {
+        padding: var(--wfn-space-4);
+        max-height: calc(95vh - 1rem);
+    }
+
+    .wfn-funeral-card-content {
+        padding: var(--wfn-space-4);
+    }
+
+    .wfn-funeral-card-actions {
+        flex-direction: column;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .wfn-funeral-notices-container .service-button,
+    .wfn-funeral-notices-container .streaming-button,
+    .wfn-funeral-notices-container .view-details-button {
+        display: none;
+    }
+
+    .wfn-funeral-notices-container {
+        background: white !important;
+        color: black !important;
+    }
+
+    .wfn-funeral-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+} 
