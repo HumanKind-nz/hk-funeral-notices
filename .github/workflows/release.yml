@@ -44,10 +44,6 @@ jobs:
 				  --exclude='phpcs.xml' \
 				  --exclude='phpunit.xml' \
 				  --exclude='tests' \
-				  --exclude='DEVELOPMENT-NOTES.md' \
-				  --exclude='MIGRATION.md' \
-				  --exclude='CLAUDE.md' \
-				  --exclude='WARP.md' \
 				  . build/hk-funeral-notices/
 	  
 	  - name: Create zip file
