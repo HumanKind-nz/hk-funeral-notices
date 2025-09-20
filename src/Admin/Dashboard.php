@@ -41,7 +41,7 @@ class Dashboard {
         // Main menu page - Dashboard with proper icon
         add_menu_page(
             'HumanKind Funeral Notices Dashboard',
-            'Funeral Notices',
+            'HK Funeral Notices',
             'manage_options',
             'hk-funeral-notices',
             [$this, 'render_dashboard'],
