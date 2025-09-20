@@ -139,7 +139,64 @@ function remove_content_analysis_metabox($seopress_get_post_types) {
  
      return $seopress_get_post_types;
  }
- add_filter('seopress_metaboxe_content_analysis', 'remove_content_analysis_metabox');
+add_filter('seopress_metaboxe_content_analysis', 'remove_content_analysis_metabox');
+
+/**
+ * Remove SEOPress metaboxes from funeral-location taxonomy screens
+ *
+ * @since 2.0.0
+ */
+function wfn_remove_seopress_taxonomy_metaboxes() {
+    // Remove SEOPress meta boxes from funeral-location taxonomy edit screens
+    remove_meta_box('seopress_cpt', 'edit-funeral-location', 'normal');
+    remove_meta_box('seopress_content_analysis', 'edit-funeral-location', 'normal');
+    remove_meta_box('seopress_ca', 'edit-funeral-location', 'normal');
+    
+    // Also remove any other SEOPress metaboxes that might appear on taxonomy screens
+    remove_meta_box('seopress_social', 'edit-funeral-location', 'normal');
+    remove_meta_box('seopress_advanced', 'edit-funeral-location', 'normal');
+    remove_meta_box('seopress_schemas', 'edit-funeral-location', 'normal');
+}
+add_action('add_meta_boxes', 'wfn_remove_seopress_taxonomy_metaboxes', 99);
+
+/**
+ * Hide SEOPress fields from funeral-location taxonomy using CSS
+ * (Backup method in case metabox removal doesn't work)
+ *
+ * @since 2.0.0
+ */
+function wfn_hide_seopress_taxonomy_fields() {
+    $screen = get_current_screen();
+    
+    // Only apply to funeral-location taxonomy screens
+    if ($screen && ($screen->id === 'edit-funeral-location' || $screen->taxonomy === 'funeral-location')) {
+        ?>
+        <style type="text/css">
+            /* Hide SEOPress taxonomy fields */
+            .term-seopress-wrap,
+            .term-seopress_titles_title-wrap,
+            .term-seopress_titles_desc-wrap,
+            .term-seopress_social_facebook_title-wrap,
+            .term-seopress_social_facebook_desc-wrap,
+            .term-seopress_social_twitter_title-wrap,
+            .term-seopress_social_twitter_desc-wrap,
+            .term-seopress_robots_index-wrap,
+            .term-seopress_robots_follow-wrap,
+            .term-seopress_robots_canonical-wrap {
+                display: none !important;
+            }
+            
+            /* Hide any SEOPress sections on taxonomy screens */
+            .seopress-notice,
+            .seopress-tabs,
+            .seopress-analysis {
+                display: none !important;
+            }
+        </style>
+        <?php
+    }
+}
+add_action('admin_head', 'wfn_hide_seopress_taxonomy_fields');
 
  /**
   * Change social share image for archive page

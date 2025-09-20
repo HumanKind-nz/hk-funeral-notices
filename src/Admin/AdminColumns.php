@@ -52,14 +52,12 @@ class AdminColumns {
                 break;
                 
             case 'first_name':
-                $person_group = get_field('wfn_person_group', $post_id) ?: [];
-                $first_name = $person_group['firstname'] ?? '';
+                $first_name = $this->get_person_field($post_id, 'firstname');
                 echo esc_html($first_name ?: '—');
                 break;
                 
             case 'last_name':
-                $person_group = get_field('wfn_person_group', $post_id) ?: [];
-                $last_name = $person_group['lastname'] ?? '';
+                $last_name = $this->get_person_field($post_id, 'lastname');
                 echo esc_html($last_name ?: '—');
                 break;
                 
@@ -116,9 +114,8 @@ class AdminColumns {
      * Render funeral date column
      */
     private function render_funeral_date_column(int $post_id): void {
-        $details_group = get_field('wfn_details_group', $post_id) ?: [];
-        $date = $details_group['funeral_date'] ?? '';
-        $hide_datetime = $details_group['hide_datetime'] ?? false;
+        $date = $this->get_event_field($post_id, 'funeral_date');
+        $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
             echo '<span style="color: #999; font-style: italic;">Hidden</span>';
@@ -138,9 +135,8 @@ class AdminColumns {
      * Render funeral time column
      */
     private function render_funeral_time_column(int $post_id): void {
-        $details_group = get_field('wfn_details_group', $post_id) ?: [];
-        $time = $details_group['funeral_time'] ?? '';
-        $hide_datetime = $details_group['hide_datetime'] ?? false;
+        $time = $this->get_event_field($post_id, 'funeral_time');
+        $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
             echo '<span style="color: #999; font-style: italic;">Hidden</span>';
@@ -156,66 +152,99 @@ class AdminColumns {
      * Render location column
      */
     private function render_location_column(int $post_id): void {
-        // Location data is stored in wfn_location_group (separate from details group)
+        // Prefer new structure in wfn_details_group
+        $details_group = get_field('wfn_details_group', $post_id) ?: [];
+        $location_type = $details_group['location_type'] ?? null;
+
+        if ($location_type === 'custom') {
+            // New custom address
+            $custom_address = $details_group['custom_address'] ?? [];
+            $afm = new \WeaveStudios\FuneralNotices\Address\AddressFieldManager();
+            $components = $afm->get_address_components($custom_address);
+            $name = $components['venue_name'] ?? '';
+            $formatted = $afm->get_formatted_address($custom_address);
+            $display = $name ?: $formatted;
+            echo esc_html($display ?: '—');
+            return;
+        }
+
+        if ($location_type === 'existing') {
+            // New taxonomy-based location
+            $term = $details_group['location'] ?? null;
+            $term_id = null;
+            if ($term instanceof \WP_Term) {
+                $term_id = $term->term_id;
+            } elseif (!empty($term)) {
+                $term_id = is_numeric($term) ? (int) $term : null;
+            }
+
+            if ($term_id) {
+                $location_term = get_term($term_id, 'funeral-location');
+                if ($location_term && !is_wp_error($location_term)) {
+                    $location_address = get_field('location_address', 'funeral-location_' . $term_id);
+                    if ($location_address) {
+                        $address_clean = str_replace(['<br>', '<br/>', '<br />'], ', ', $location_address);
+                        $address_clean = strip_tags($address_clean);
+                        echo esc_html($address_clean);
+                    } else {
+                        echo esc_html($location_term->name);
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Fallback to legacy structure in wfn_location_group
         $location_group = get_field('wfn_location_group', $post_id) ?: [];
-        
-        // Check if using custom location (old structure)
         $is_other_location_array = $location_group['is_at_another_location'] ?? [];
         $is_other_location = in_array('yes', $is_other_location_array);
         $other_address = $location_group['other_funeral_address'] ?? null;
-        
+
         if ($is_other_location && $other_address) {
-            // Custom location with Google Maps data
             $address_name = $other_address['name'] ?? '';
             $street_number = $other_address['street_number'] ?? '';
             $street_name = $other_address['street_name'] ?? '';
             $city = $other_address['city'] ?? '';
             $post_code = $other_address['post_code'] ?? '';
-            
+
             if ($address_name) {
                 echo esc_html($address_name);
             } elseif ($street_number || $street_name || $city) {
                 $address_parts = array_filter([$street_number, $street_name, $city, $post_code]);
                 echo esc_html(implode(', ', $address_parts));
             } else {
-                echo '<span style="color: #d63638;">Custom (No Address)</span>';
+                echo '<span style=\"color: #d63638;\">Custom (No Address)</span>';
             }
-        } else {
-            // Use taxonomy-based location
-            $location_term_id = $location_group['location'] ?? null;
-            
-            if ($location_term_id) {
-                $location_term = get_term($location_term_id, 'funeral-location');
-                
-                if ($location_term && !is_wp_error($location_term)) {
-                    // Try to get the address from the taxonomy term
-                    $location_address = get_field('location_address', 'funeral-location_' . $location_term_id);
-                    
-                    if ($location_address) {
-                        // Clean up the address for compact display
-                        $address_clean = str_replace(['<br>', '<br/>', '<br />'], ', ', $location_address);
-                        $address_clean = strip_tags($address_clean);
-                        echo esc_html($address_clean);
-                    } else {
-                        // Fallback to just the location name
-                        echo esc_html($location_term->name);
-                    }
+            return;
+        }
+
+        $location_term_id = $location_group['location'] ?? null;
+        if ($location_term_id) {
+            $location_term = get_term($location_term_id, 'funeral-location');
+            if ($location_term && !is_wp_error($location_term)) {
+                $location_address = get_field('location_address', 'funeral-location_' . $location_term_id);
+                if ($location_address) {
+                    $address_clean = str_replace(['<br>', '<br/>', '<br />'], ', ', $location_address);
+                    $address_clean = strip_tags($address_clean);
+                    echo esc_html($address_clean);
                 } else {
-                    echo '<span style="color: #d63638;">Invalid Location</span>';
+                    echo esc_html($location_term->name);
                 }
             } else {
-                echo '—';
+                echo '<span style=\"color: #d63638;\">Invalid Location</span>';
             }
+            return;
         }
+
+        echo '—';
     }
 
     /**
      * Render streaming column
      */
     private function render_streaming_column(int $post_id): void {
-        $streaming_group = get_field('wfn_streaming_group', $post_id) ?: [];
-        $streaming_url = $streaming_group['streaming_url'] ?? '';
-        $is_private = $streaming_group['streaming_private'] ?? false;
+        $streaming_url = $this->get_streaming_field($post_id, 'streaming_url');
+        $is_private = $this->get_streaming_field($post_id, 'streaming_private');
         
         if (empty($streaming_url)) {
             echo '—';
@@ -236,9 +265,8 @@ class AdminColumns {
      * Render service sheets column
      */
     private function render_service_sheets_column(int $post_id): void {
-        $media_group = get_field('wfn_media_group', $post_id) ?: [];
-        $service_sheet = $media_group['service_sheet'] ?? null;
-        $additional_docs = $media_group['additional_documents'] ?? [];
+        $service_sheet = $this->get_media_field($post_id, 'service_sheet');
+        $additional_docs = $this->get_media_field($post_id, 'additional_documents');
         
         $doc_count = 0;
         
@@ -307,4 +335,109 @@ class AdminColumns {
             </style>';
         }
     }
-} 
+    
+    /**
+     * Get person field with backward compatibility
+     * Supports both new (wfn_person_group) and legacy (wfn_person_group_*) formats
+     */
+    private function get_person_field(int $post_id, string $field_name): string {
+        // Method 1: Try new FieldGroupManager group structure
+        $person_group = get_field('wfn_person_group', $post_id);
+        if (is_array($person_group) && !empty($person_group[$field_name])) {
+            return trim($person_group[$field_name]);
+        }
+        
+        // Method 2: Fallback to legacy individual field format
+        $legacy_field_name = 'wfn_person_group_' . $field_name;
+        $legacy_value = get_field($legacy_field_name, $post_id);
+        if (!empty($legacy_value)) {
+            return trim($legacy_value);
+        }
+        
+        // Method 3: Final fallback to direct field names (if they exist)
+        $direct_value = get_field($field_name, $post_id);
+        if (!empty($direct_value)) {
+            return trim($direct_value);
+        }
+        
+        return '';
+    }
+    
+    /**
+     * Get event detail field with backward compatibility
+     */
+    private function get_event_field(int $post_id, string $field_name) {
+        // Method 1: Try new FieldGroupManager group structure
+        $details_group = get_field('wfn_details_group', $post_id);
+        if (is_array($details_group) && isset($details_group[$field_name])) {
+            return $details_group[$field_name];
+        }
+        
+        // Method 2: Fallback to legacy individual field format
+        $legacy_field_name = 'wfn_details_group_' . $field_name;
+        $legacy_value = get_field($legacy_field_name, $post_id);
+        if ($legacy_value !== false && $legacy_value !== null && $legacy_value !== '') {
+            return $legacy_value;
+        }
+        
+        // Method 3: Final fallback to direct field names
+        $direct_value = get_field($field_name, $post_id);
+        if ($direct_value !== false && $direct_value !== null && $direct_value !== '') {
+            return $direct_value;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get streaming field with backward compatibility
+     */
+    private function get_streaming_field(int $post_id, string $field_name) {
+        // Method 1: Try new FieldGroupManager group structure
+        $streaming_group = get_field('wfn_streaming_group', $post_id);
+        if (is_array($streaming_group) && isset($streaming_group[$field_name])) {
+            return $streaming_group[$field_name];
+        }
+        
+        // Method 2: Fallback to legacy individual field format
+        $legacy_field_name = 'wfn_streaming_group_' . $field_name;
+        $legacy_value = get_field($legacy_field_name, $post_id);
+        if ($legacy_value !== false && $legacy_value !== null && $legacy_value !== '') {
+            return $legacy_value;
+        }
+        
+        // Method 3: Final fallback to direct field names
+        $direct_value = get_field($field_name, $post_id);
+        if ($direct_value !== false && $direct_value !== null && $direct_value !== '') {
+            return $direct_value;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get media field with backward compatibility
+     */
+    private function get_media_field(int $post_id, string $field_name) {
+        // Method 1: Try new FieldGroupManager group structure
+        $media_group = get_field('wfn_media_group', $post_id);
+        if (is_array($media_group) && isset($media_group[$field_name])) {
+            return $media_group[$field_name];
+        }
+        
+        // Method 2: Fallback to legacy individual field format
+        $legacy_field_name = 'wfn_media_group_' . $field_name;
+        $legacy_value = get_field($legacy_field_name, $post_id);
+        if ($legacy_value !== false && $legacy_value !== null && $legacy_value !== '') {
+            return $legacy_value;
+        }
+        
+        // Method 3: Final fallback to direct field names
+        $direct_value = get_field($field_name, $post_id);
+        if ($direct_value !== false && $direct_value !== null && $direct_value !== '') {
+            return $direct_value;
+        }
+        
+        return null;
+    }
+}

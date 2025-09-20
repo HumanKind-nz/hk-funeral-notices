@@ -38,36 +38,35 @@ class AddressFieldManager {
         $settings = get_option('wfn_module_settings', []);
         $admin_preference = $settings['address_field_mode'] ?? 'auto';
         
-        // Debug logging
-        error_log('WFN: Module settings preference: ' . $admin_preference);
+        // Debug logging removed for production
         
         // Also check ACF options as fallback for backwards compatibility
         if (empty($admin_preference) || $admin_preference === 'auto') {
             $admin_preference = get_field('wfn_address_field_mode', 'option') ?: 'auto';
-            error_log('WFN: ACF options preference: ' . $admin_preference);
+            // Debug logging removed for production
         }
         
         if ($admin_preference === self::MODE_CUSTOM) {
-            error_log('WFN: Forced custom mode');
+            // Debug logging removed for production
             return self::MODE_CUSTOM;
         }
         
         if ($admin_preference === self::MODE_ACFE) {
-            error_log('WFN: Forced ACFE mode');
+            // Debug logging removed for production
             return self::MODE_ACFE;
         }
         
         // Auto-detect based on plugin availability (default behavior)
         $acfe_available = $this->is_acfe_available();
-        error_log('WFN: ACFE available: ' . ($acfe_available ? 'yes' : 'no'));
+        // Debug logging removed for production
         
         if ($acfe_available) {
-            error_log('WFN: Auto-detected ACFE mode');
+            // Debug logging removed for production
             return self::MODE_ACFE;
         }
         
         // Default to custom field
-        error_log('WFN: Defaulting to custom mode');
+        // Debug logging removed for production
         return self::MODE_CUSTOM;
     }
     
@@ -305,17 +304,14 @@ class AddressFieldManager {
         $settings = get_option('wfn_module_settings', []);
         $api_key = $settings['google_places_api_key'] ?? '';
         
-        // Debug logging
-        error_log('WFN: API key from module settings: ' . (empty($api_key) ? 'empty' : 'present (' . strlen($api_key) . ' chars)'));
+        // Debug logging removed for production
         
         // Fallback to ACF options for backwards compatibility
         if (empty($api_key)) {
             $api_key = get_field('wfn_google_places_api_key', 'option') ?: '';
-            error_log('WFN: API key from ACF options: ' . (empty($api_key) ? 'empty' : 'present (' . strlen($api_key) . ' chars)'));
         }
         
         $is_configured = !empty($api_key) && strlen($api_key) > 20;
-        error_log('WFN: API key configured: ' . ($is_configured ? 'yes' : 'no'));
         
         return $is_configured;
     }

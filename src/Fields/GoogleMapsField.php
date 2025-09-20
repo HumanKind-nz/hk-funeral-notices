@@ -209,8 +209,7 @@ class GoogleMapsField extends \acf_field {
             return;
         }
         
-        // Debug: Log that we're loading the API
-        error_log('WFN: Loading Google Maps API with key: ' . substr($api_key, 0, 10) . '... (length: ' . strlen($api_key) . ')');
+        // Debug logging removed for production
         
         // Enqueue Google Maps API with Places library
         wp_enqueue_script(

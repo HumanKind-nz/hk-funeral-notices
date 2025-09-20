@@ -285,10 +285,7 @@ class StylingModule extends BaseModule {
     public function enqueue_admin_styling_assets(): void {
         $screen = get_current_screen();
         
-        // Debug: Log current screen ID
-        if ($screen) {
-            error_log('WFN StylingModule: Current screen ID: ' . $screen->id);
-        }
+        // Debug logging removed for production
         
         // Check for both possible screen ID patterns
         $is_styling_page = $screen && (
@@ -336,8 +333,6 @@ class StylingModule extends BaseModule {
                 console.log("WFN Styling: jQuery version:", jQuery.fn.jquery);
                 console.log("WFN Styling: wp-color-picker available:", typeof jQuery.fn.wpColorPicker);
             ');
-            
-            error_log('WFN StylingModule: Enqueued admin styling assets for screen: ' . $screen->id);
         }
     }
     

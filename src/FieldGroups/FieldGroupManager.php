@@ -12,6 +12,8 @@ use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
  * @since 2.0.0
  */
 class FieldGroupManager {
+    
+    private static bool $registered = false;
 
     /**
      * Register all field groups
@@ -25,8 +27,10 @@ class FieldGroupManager {
         if (did_action('acf/init')) {
             $this->register_all_groups();
         } else {
-            // Otherwise wait for ACF to initialize
-            add_action('acf/init', [$this, 'register_all_groups']);
+            // Register on multiple hooks to ensure fields are available
+            add_action('acf/init', [$this, 'register_all_groups'], 5); // Early priority
+            add_action('init', [$this, 'register_all_groups'], 20); // Backup hook
+            add_action('admin_init', [$this, 'register_all_groups'], 5); // Admin backup
         }
     }
 
@@ -34,16 +38,41 @@ class FieldGroupManager {
      * Register all field groups at once
      */
     public function register_all_groups(): void {
-        // Debug: Log that we're registering fields
-        error_log('WFN: FieldGroupManager::register_all_groups() called');
+        // Prevent duplicate registration
+        if (self::$registered) {
+            return;
+        }
         
+        // Debug logging removed for production
         $this->register_personal_details();
         $this->register_notice_content();
         $this->register_event_details();
         $this->register_streaming_details();
         $this->register_media_documents();
+        // Ensure taxonomy fields for funeral locations are available
+        $this->register_location_taxonomy_fields();
         
-        error_log('WFN: All field groups registered');
+        self::$registered = true;
+        // Debug logging removed for production
+    }
+    
+    /**
+     * Check if legacy JSON field groups exist
+     */
+    private function has_legacy_field_groups(): bool {
+        // Check for the main legacy field group key
+        $legacy_groups = [
+            'group_6125700a6a0a7', // Main funeral notice fields
+            'group_61285c27a1a63'  // Funeral locations taxonomy
+        ];
+        
+        foreach ($legacy_groups as $group_key) {
+            if (acf_get_field_group($group_key)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -53,14 +82,13 @@ class FieldGroupManager {
         $address_manager = new AddressFieldManager();
         $mode = $address_manager->get_field_mode();
         
-        // Debug: Log which mode we're using
-        error_log('WFN: Address field mode detected: ' . $mode);
+        // Debug logging removed for production
         
         if ($mode === AddressFieldManager::MODE_ACFE) {
-            error_log('WFN: Using ACFE address field');
+            // Debug logging removed for production
             return $this->get_acfe_address_field();
         } else {
-            error_log('WFN: Using custom address field');
+            // Debug logging removed for production
             return $this->get_custom_address_field();
         }
     }
@@ -322,7 +350,7 @@ class FieldGroupManager {
                             'type' => 'radio',
                             'instructions' => 'Choose how to display the funeral location',
                             'choices' => [
-                                'none' => 'No location (hide from public)',
+                                'none' => 'No location',
                                 'existing' => 'Use saved location',
                                 'custom' => 'Enter custom address',
                             ],
@@ -576,4 +604,48 @@ class FieldGroupManager {
 
         return $instructions[$section] ?? '';
     }
-} 
+    
+    /**
+     * Funeral Location taxonomy fields (venue address and map link)
+     * Mirrors legacy JSON group for 'funeral-location' taxonomy.
+     */
+    private function register_location_taxonomy_fields(): void {
+        acf_add_local_field_group([
+            'key' => 'group_wfn_funeral_locations_v2',
+            'title' => 'Funeral Locations',
+            'fields' => [
+                [
+                    'key' => 'field_wfn_location_address',
+                    'label' => 'Location Address',
+                    'name' => 'location_address',
+                    'type' => 'textarea',
+                    'rows' => 3,
+                    'new_lines' => 'br',
+                ],
+                [
+                    'key' => 'field_wfn_location_map_link',
+                    'label' => 'Location Google Link',
+                    'name' => 'location_map_link',
+                    'type' => 'link',
+                    'return_format' => 'array',
+                ],
+            ],
+            'location' => [
+                [
+                    [
+                        'param' => 'taxonomy',
+                        'operator' => '==',
+                        'value' => 'funeral-location',
+                    ],
+                ],
+            ],
+            'menu_order' => 0,
+            'position' => 'acf_after_title',
+            'style' => 'default',
+            'label_placement' => 'left',
+            'instruction_placement' => 'label',
+            'active' => true,
+            'description' => 'Add your Chapel locations',
+        ]);
+    }
+}

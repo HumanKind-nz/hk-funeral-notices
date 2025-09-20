@@ -430,15 +430,14 @@ class FuneralNoticesShortcode {
             $query->the_post();
             $post_id = get_the_ID();
 
-            // Use direct ACF access like the old working version
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
-            $first_name = $person_group['firstname'] ?? '';
-            $last_name = $person_group['lastname'] ?? '';
-            $birth_year = $person_group['birth_year'] ?? '';
-            $death_year = $person_group['death_year'] ?? '';
+            // Use TemplateManager for unified data access
+            $data = $this->template_manager->get_funeral_data($post_id);
+            $person = $data['person'];
             
-            $full_name = trim("{$first_name} {$last_name}");
-            $years_display = ($birth_year && $death_year) ? "{$birth_year} - {$death_year}" : '';
+            $first_name = $person['first_name'];
+            $last_name = $person['last_name'];
+            $full_name = $person['full_name'];
+            $years_display = $person['years_display'];
             
             // Format name for Firehawk style (LASTNAME, First)
             $formatted_name = strtoupper($last_name) . ', ' . $first_name;
@@ -471,7 +470,6 @@ class FuneralNoticesShortcode {
      */
     private function render_current_grid(\WP_Query $query, int $columns): void {
         // Fallback to modern grid since current layout is removed
-        error_log('WFN: Current layout requested but removed. Falling back to modern layout.');
         $this->render_modern_grid($query, $columns);
     }
 
@@ -830,21 +828,17 @@ class FuneralNoticesShortcode {
             $query->the_post();
             $post_id = get_the_ID();
 
-            // Use direct ACF access
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
-            $details_group = get_field('wfn_details_group', $post_id) ?: [];
+            // Use TemplateManager for unified data access
+            $data = $this->template_manager->get_funeral_data($post_id);
+            $person = $data['person'];
+            $event = $data['event'];
             
-            $first_name = $person_group['firstname'] ?? '';
-            $last_name = $person_group['lastname'] ?? '';
-            $birth_year = $person_group['birth_year'] ?? '';
-            $death_year = $person_group['death_year'] ?? '';
-            
-            $full_name = trim("{$first_name} {$last_name}");
-            $years_display = ($birth_year && $death_year) ? "{$birth_year} - {$death_year}" : '';
+            $full_name = $person['full_name'];
+            $years_display = $person['years_display'];
             
             // Get funeral date and time for service info
-            $funeral_date = $details_group['funeral_date'] ?? '';
-            $funeral_time = $details_group['funeral_time'] ?? '';
+            $funeral_date = $event['funeral_date'];
+            $funeral_time = $event['funeral_time'];
             
             // Get image
             $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
@@ -903,21 +897,17 @@ class FuneralNoticesShortcode {
             $query->the_post();
             $post_id = get_the_ID();
 
-            // Use direct ACF access
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
-            $details_group = get_field('wfn_details_group', $post_id) ?: [];
+            // Use TemplateManager for unified data access
+            $data = $this->template_manager->get_funeral_data($post_id);
+            $person = $data['person'];
+            $event = $data['event'];
             
-            $first_name = $person_group['firstname'] ?? '';
-            $last_name = $person_group['lastname'] ?? '';
-            $birth_year = $person_group['birth_year'] ?? '';
-            $death_year = $person_group['death_year'] ?? '';
-            
-            $full_name = trim("{$first_name} {$last_name}");
-            $years_display = ($birth_year && $death_year) ? "{$birth_year} - {$death_year}" : '';
+            $full_name = $person['full_name'];
+            $years_display = $person['years_display'];
             
             // Get funeral date and time
-            $funeral_date = $details_group['funeral_date'] ?? '';
-            $funeral_time = $details_group['funeral_time'] ?? '';
+            $funeral_date = $event['funeral_date'];
+            $funeral_time = $event['funeral_time'];
             
             // Get image
             $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
@@ -972,16 +962,12 @@ class FuneralNoticesShortcode {
             $query->the_post();
             $post_id = get_the_ID();
 
-            // Use direct ACF access
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
+            // Use TemplateManager for unified data access
+            $data = $this->template_manager->get_funeral_data($post_id);
+            $person = $data['person'];
             
-            $first_name = $person_group['firstname'] ?? '';
-            $last_name = $person_group['lastname'] ?? '';
-            $birth_year = $person_group['birth_year'] ?? '';
-            $death_year = $person_group['death_year'] ?? '';
-            
-            $full_name = trim("{$first_name} {$last_name}");
-            $years_display = ($birth_year && $death_year) ? "{$birth_year} - {$death_year}" : '';
+            $full_name = $person['full_name'];
+            $years_display = $person['years_display'];
             
             // Get image - Gallery style emphasizes the image
             $featured_image = get_the_post_thumbnail_url($post_id, 'large');
@@ -1036,17 +1022,12 @@ class FuneralNoticesShortcode {
             $query->the_post();
             $post_id = get_the_ID();
 
-            // Use direct ACF access
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
-            $details_group = get_field('wfn_details_group', $post_id) ?: [];
+            // Use TemplateManager for unified data access
+            $data = $this->template_manager->get_funeral_data($post_id);
+            $person = $data['person'];
             
-            $first_name = $person_group['firstname'] ?? '';
-            $last_name = $person_group['lastname'] ?? '';
-            $birth_year = $person_group['birth_year'] ?? '';
-            $death_year = $person_group['death_year'] ?? '';
-            
-            $full_name = trim("{$first_name} {$last_name}");
-            $years_display = ($birth_year && $death_year) ? "{$birth_year} - {$death_year}" : '';
+            $full_name = $person['full_name'];
+            $years_display = $person['years_display'];
             
             echo '<article class="wfn-enhancement-minimal-card">';
             echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-minimal-link">';

@@ -51,8 +51,7 @@ class FieldGroupMigration {
      * Run the migration process
      */
     private function run_migration(): void {
-        // Log migration start
-        error_log('WFN: Starting field group migration from monolithic to modular structure');
+        // Debug logging removed for production
 
         try {
             // Step 1: Verify data integrity
@@ -62,12 +61,10 @@ class FieldGroupMigration {
             $this->deactivate_old_field_group();
 
             // Step 3: Migrate location structure
-            $location_results = $this->migrate_location_structure();
-            error_log('WFN: Location migration completed - ' . $location_results['migrated'] . ' migrated, ' . $location_results['skipped'] . ' skipped');
+            $location_results = $this->migrate_location_structure(false, true); // allow fixing records set to 'none'
 
             // Step 4: Migrate hero background images to options
             $hero_results = $this->migrate_hero_background_to_options();
-            error_log('WFN: Hero background migration completed - ' . $hero_results['migrated'] . ' found, ' . $hero_results['message']);
 
             // Step 5: Test new field groups work with existing data
             $this->test_new_field_groups();
@@ -75,10 +72,10 @@ class FieldGroupMigration {
             // Step 6: Mark migration as complete
             $this->mark_migration_complete();
 
-            error_log('WFN: Field group migration completed successfully');
+            // Debug logging removed for production
 
         } catch (Exception $e) {
-            error_log('WFN: Field group migration failed: ' . $e->getMessage());
+            // Debug logging removed for production
             $this->rollback_migration();
         }
     }
@@ -105,8 +102,7 @@ class FieldGroupMigration {
                 continue;
             }
 
-            // Log successful data read
-            error_log("WFN: Verified data access for post {$post->ID}");
+            // Debug logging removed for production
         }
     }
 
@@ -122,7 +118,6 @@ class FieldGroupMigration {
         if ($old_group) {
             $old_group['active'] = 0;
             acf_update_field_group($old_group);
-            error_log('WFN: Deactivated old monolithic field group');
         }
     }
 
@@ -145,8 +140,8 @@ class FieldGroupMigration {
                 $firstname = $person_data['firstname'] ?? '';
                 $lastname = $person_data['lastname'] ?? '';
                 
-                if (!empty($firstname) || !empty($lastname)) {
-                    error_log("WFN: Successfully read person data for post {$post->ID}: {$firstname} {$lastname}");
+                    if (!empty($firstname) || !empty($lastname)) {
+                    // Debug logging removed for production
                 }
             }
         }
@@ -170,7 +165,6 @@ class FieldGroupMigration {
             if ($old_group) {
                 $old_group['active'] = 1;
                 acf_update_field_group($old_group);
-                error_log('WFN: Rolled back to old field group due to migration failure');
             }
         }
     }
@@ -181,7 +175,6 @@ class FieldGroupMigration {
     public function reset_migration(): void {
         delete_option(self::MIGRATION_OPTION);
         delete_option('wfn_field_migration_date');
-        error_log('WFN: Migration reset - will run again on next load');
     }
 
     /**
@@ -212,57 +205,86 @@ class FieldGroupMigration {
     /**
      * Migrate location structure from checkbox to radio options
      */
-    public function migrate_location_structure(): array {
+    public function migrate_location_structure(bool $dry_run = false, bool $overwrite_none = false): array {
         $results = [
             'migrated' => 0,
             'skipped' => 0,
-            'errors' => []
+            'errors'  => []
         ];
 
         $posts = get_posts([
-            'post_type' => 'funeral-notice',
+            'post_type'      => 'funeral-notice',
             'posts_per_page' => -1,
-            'post_status' => 'any'
+            'post_status'    => 'any'
         ]);
 
         foreach ($posts as $post) {
             try {
-                $details_group = get_field('wfn_details_group', $post->ID) ?: [];
-                
-                // Skip if already has new location_type field
+                $details_group  = get_field('wfn_details_group', $post->ID) ?: [];
+                $location_group = get_field('wfn_location_group', $post->ID) ?: [];
+
+                // Skip if already migrated to new schema, unless we explicitly want to overwrite 'none'
                 if (isset($details_group['location_type'])) {
-                    $results['skipped']++;
-                    continue;
+                    if ($overwrite_none && $details_group['location_type'] === 'none') {
+                        // allow reprocessing
+                    } else {
+                        $results['skipped']++;
+                        continue;
+                    }
                 }
-                
-                // Check for old structure
-                $is_other_location_array = $details_group['is_at_another_location'] ?? [];
-                $is_other_location = in_array('yes', $is_other_location_array);
-                $other_address = $details_group['other_address'] ?? '';
-                $has_taxonomy_location = !empty($details_group['location']);
-                
-                // Determine new location_type
-                $location_type = 'existing'; // Default
-                
-                if ($is_other_location) {
-                    $location_type = !empty($other_address) ? 'custom' : 'existing';
-                } elseif (!$has_taxonomy_location) {
-                    $location_type = 'none';
+
+                // Legacy v1 structure (ACFE):
+                // - Checkbox: wfn_location_group['is_at_another_location'] => ['yes'] or []
+                // - ACFE Google Map: wfn_location_group['other_funeral_address'] (array with address/lat/lng/...)
+                // - Taxonomy selection: wfn_location_group['location'] (term id)
+                // Prefer group values
+                $is_other_array   = $location_group['is_at_another_location'] ?? [];
+                // Also read direct subfield meta if stored outside the group
+                if (empty($is_other_array)) {
+                    $is_other_array = get_field('wfn_location_group_is_at_another_location', $post->ID) ?: [];
                 }
-                
-                // Update the field group with new structure
-                $details_group['location_type'] = $location_type;
-                
-                // Rename other_address to custom_address if it exists
-                if (!empty($other_address)) {
-                    $details_group['custom_address'] = $other_address;
+                $is_other = is_array($is_other_array) ? in_array('yes', $is_other_array) : (bool) $is_other_array;
+
+                // ACFE Google Map field (array)
+                $acfe_address = $location_group['other_funeral_address'] ?? null;
+                if (empty($acfe_address)) {
+                    $acfe_address = get_field('wfn_location_group_other_funeral_address', $post->ID);
                 }
-                
-                // Update the field group
-                update_field('wfn_details_group', $details_group, $post->ID);
-                
+
+                // Selected taxonomy location id
+                $taxonomy_term_id = $location_group['location'] ?? null;
+                if (empty($taxonomy_term_id)) {
+                    $taxonomy_term_id = get_field('wfn_location_group_location', $post->ID);
+                }
+
+                // Determine new location_type and target values
+                $location_type = 'none';
+                if ($is_other && !empty($acfe_address)) {
+                    $location_type = 'custom';
+                } elseif (!empty($taxonomy_term_id)) {
+                    $location_type = 'existing';
+                }
+
+                // Build updated details group
+                $updated = $details_group; // keep any other new fields already present
+                $updated['location_type'] = $location_type;
+
+                if ($location_type === 'custom' && !empty($acfe_address) && is_array($acfe_address)) {
+                    // Directly copy ACFE Google Map structure to our custom_address (AddressFieldManager will normalize on read)
+                    $updated['custom_address'] = $acfe_address;
+                }
+
+                if ($location_type === 'existing' && !empty($taxonomy_term_id)) {
+                    // Store selected taxonomy term id
+                    $updated['location'] = $taxonomy_term_id;
+                }
+
+                if (!$dry_run) {
+                    update_field('wfn_details_group', $updated, $post->ID);
+                }
+
                 $results['migrated']++;
-                
+
             } catch (Exception $e) {
                 $results['errors'][] = "Post {$post->ID}: " . $e->getMessage();
             }

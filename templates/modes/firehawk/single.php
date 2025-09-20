@@ -130,26 +130,27 @@ $tribute = $data['tribute'];
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))): ?>
+                        <?php if ($location['show_location'] && ($location['display_venue'] || !empty($location['formatted_address']))): ?>
                             <div class="firehawk-detail-row">
                                 <span class="firehawk-detail-label">Location:</span>
                                 <div class="firehawk-detail-value">
                                     <?php if ($location['display_venue']): ?>
                                         <div class="firehawk-venue-name"><?php echo esc_html($location['display_venue']); ?></div>
                                     <?php endif; ?>
-                                    <?php 
-                                    $address = $location['display_address'];
-                                    if (is_array($address) && !empty($address)) {
-                                        foreach ($address as $line) {
+                                    <?php
+                                    // Match default/current template behavior: use formatted address only
+                                    $formatted_address = $location['formatted_address'] ?? '';
+                                    if (!empty($formatted_address)) {
+                                        // Split into lines for clean display similar to current template
+                                        $lines = explode(', ', $formatted_address);
+                                        foreach ($lines as $line) {
+                                            $line = trim($line);
                                             if (!empty($line)) {
                                                 echo '<div class="firehawk-address-line">' . esc_html($line) . '</div>';
                                             }
                                         }
-                                    } elseif (!empty($address)) {
-                                        echo '<div class="firehawk-address-line">' . esc_html($address) . '</div>';
                                     }
                                     ?>
-                                    
                                     <?php if (!empty($location['maps_url'])): ?>
                                         <div class="firehawk-maps-link">
                                             <a href="<?php echo esc_url($location['maps_url']); ?>" 

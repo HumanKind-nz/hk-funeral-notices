@@ -221,6 +221,13 @@ $post_content = get_the_content();
                         </div>
                     <?php endif; ?>
 
+                    <!-- Streaming Note -->
+                    <?php if ($streaming['streaming_note']): ?>
+                        <div class="wfn-streaming-note">
+                            <p><?php echo esc_html($streaming['streaming_note']); ?></p>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
             </div>
         <?php endif; ?>

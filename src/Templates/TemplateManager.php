@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace WeaveStudios\FuneralNotices\Templates;
 
 use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
+use WeaveStudios\FuneralNotices\Streaming\StreamingDetector;
 
 /**
  * Template Manager - handles loading and rendering template partials
@@ -16,10 +17,13 @@ class TemplateManager {
     private string $template_path;
     private array $modes;
     private AddressFieldManager $address_manager;
+    private StreamingDetector $streaming_detector;
 
     public function __construct() {
-        $this->template_path = plugin_dir_path(__FILE__) . '../../templates/';
+        $this->template_path = plugin_dir_path(dirname(__FILE__, 2)) . 'templates/';
         $this->address_manager = new AddressFieldManager();
+        $this->streaming_detector = new StreamingDetector();
+        
         $this->modes = [
             'firehawk' => [
                 'name' => 'Firehawk Tributes Compatible',
@@ -41,9 +45,26 @@ class TemplateManager {
 
     /**
      * Get the active display mode
+     * Decides between single and archive modes with sensible fallbacks.
      */
     public function get_active_mode(): string {
-        return get_option('wfn_display_mode', 'modern');
+        // Pull settings for sane defaults
+        $settings = get_option('wfn_module_settings', []);
+        $default_single  = $settings['default_single_layout']  ?? 'current';
+        $default_archive = $settings['default_archive_layout'] ?? 'modern';
+        
+        // Single funeral notice page
+        if (function_exists('is_singular') && is_singular('funeral-notice')) {
+            return get_option('wfn_single_display_mode', $default_single);
+        }
+        
+        // Archive page for funeral notices
+        if (function_exists('is_post_type_archive') && is_post_type_archive('funeral-notice')) {
+            return get_option('wfn_archive_display_mode', $default_archive);
+        }
+        
+        // General fallback (shortcodes pick their own layout, so this is rarely used)
+        return get_option('wfn_display_mode', $default_archive);
     }
 
     /**
@@ -164,16 +185,52 @@ class TemplateManager {
         $notice_content = get_post_field('post_content', $post_id);
         $notice_content = apply_filters('the_content', $notice_content);
 
-        // Streaming - handle both grouped and individual field formats
+        // Streaming - handle both grouped and individual field formats with legacy support
         $streaming_group = get_field('wfn_streaming_group', $post_id) ?: [];
-        $streaming_url = $streaming_group['streaming_url'] ?? get_field('wfn_streaming_group_streaming_url', $post_id) ?? '';
-        $is_private = $streaming_group['streaming_private'] ?? get_field('wfn_streaming_group_streaming_private', $post_id) ?? false;
-        $streaming_note = $streaming_group['streaming_note'] ?? get_field('wfn_streaming_group_streaming_note', $post_id) ?? '';
         
-        // Simplified streaming detection without complex dependencies
-        $has_streaming = !empty($streaming_url);
-        $streaming_service = $this->detect_streaming_service($streaming_url);
-        $embed_code = $this->generate_embed_code($streaming_url, $streaming_service);
+        // Check if streaming is enabled (legacy field)
+        $has_streaming_setting = get_field('wfn_streaming_group_has_streaming', $post_id) ?? '';
+        $streaming_enabled = ($has_streaming_setting === 'streaming');
+        
+        // Get streaming URL with legacy fallback - handle empty strings properly
+        $streaming_url = '';
+        
+        // Try various field sources, checking for non-empty values
+        $url_sources = [
+            $streaming_group['streaming_url'] ?? '',
+            get_field('wfn_streaming_group_streaming_url', $post_id) ?? '',
+            get_field('wfn_streaming_group_public_streaming_link', $post_id) ?? '' // Legacy field
+        ];
+        
+        foreach ($url_sources as $potential_url) {
+            if (!empty(trim($potential_url))) {
+                $streaming_url = trim($potential_url);
+                break;
+            }
+        }
+        
+        // Get streaming service (legacy and new)
+        $streaming_service_raw = $streaming_group['streaming_service'] ?? 
+                                get_field('wfn_streaming_group_streaming_service', $post_id) ?? 
+                                '';
+        
+        // Privacy settings
+        $is_private = $streaming_group['streaming_private'] ?? 
+                     get_field('wfn_streaming_group_streaming_private', $post_id) ?? 
+                     false;
+        
+        // Streaming note
+        $streaming_note = $streaming_group['streaming_note'] ?? 
+                         get_field('wfn_streaming_group_streaming_note', $post_id) ?? 
+                         '';
+        
+        // Enhanced streaming detection with comprehensive service support
+        $has_streaming = $streaming_enabled || !empty($streaming_url);
+        
+        // Use StreamingDetector for comprehensive streaming service detection
+        $streaming_info = $this->streaming_detector->detect_service($streaming_url);
+        $streaming_service = $streaming_service_raw ?: $streaming_info['service'];
+        $embed_code = $streaming_info['embed'] ?? '';
 
         // Location - Enhanced with unified address handling
         $location_type = $details_group['location_type'] ?? get_field('wfn_details_group_location_type', $post_id) ?? null;
@@ -252,7 +309,8 @@ class TemplateManager {
                 'streaming_url' => $streaming_url,
                 'embed_code' => $embed_code,
                 'streaming_note' => $streaming_note,
-                'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook'])
+                'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook']),
+                'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream'])
             ],
             'location' => [
                 'type' => $location_type,
@@ -387,98 +445,8 @@ class TemplateManager {
         return [];
     }
 
-    /**
-     * Detect streaming service from URL
-     */
-    private function detect_streaming_service(string $url): string {
-        $url = strtolower($url);
-        
-        if (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
-            return 'youtube';
-        }
-        
-        if (strpos($url, 'vimeo.com') !== false) {
-            // Check if it's Vimeo Pro (has /video/ in URL or other pro indicators)
-            if (strpos($url, '/video/') !== false || strpos($url, 'player.vimeo.com') !== false) {
-                return 'vimeo_pro';
-            }
-            return 'vimeo';
-        }
-        
-        return 'other';
-    }
-
-    /**
-     * Generate embed code for supported streaming services
-     */
-    private function generate_embed_code(string $url, string $service): string {
-        switch ($service) {
-            case 'youtube':
-                return $this->generate_youtube_embed($url);
-            
-            case 'vimeo':
-            case 'vimeo_pro':
-                return $this->generate_vimeo_embed($url);
-            
-            default:
-                return '';
-        }
-    }
-
-    /**
-     * Generate YouTube embed code
-     */
-    private function generate_youtube_embed(string $url): string {
-        // Extract video ID from various YouTube URL formats
-        $video_id = '';
-        
-        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $url, $matches)) {
-            $video_id = $matches[1];
-        }
-        
-        if (empty($video_id)) {
-            return '';
-        }
-        
-        return sprintf(
-            '<iframe width="560" height="315" src="https://www.youtube.com/embed/%s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
-            esc_attr($video_id)
-        );
-    }
-
-    /**
-     * Generate Vimeo embed code
-     */
-    private function generate_vimeo_embed(string $url): string {
-        // Extract video ID and sharing token from Vimeo URL
-        $video_id = '';
-        $sharing_token = '';
-
-        // Handle private Vimeo URLs with sharing tokens (e.g., vimeo.com/1234567/abcdefg)
-        if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)\/([a-zA-Z0-9]+)/', $url, $matches)) {
-            $video_id = $matches[1];
-            $sharing_token = $matches[2];
-        }
-        // Handle public Vimeo URLs
-        elseif (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches)) {
-            $video_id = $matches[1];
-        }
-
-        if (empty($video_id)) {
-            return '';
-        }
-
-        // Build player URL with sharing token if present
-        $player_url = 'https://player.vimeo.com/video/' . $video_id;
-        if (!empty($sharing_token)) {
-            $player_url .= '?h=' . $sharing_token;
-        }
-
-        return sprintf(
-            '<iframe src="%s" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>',
-            esc_url($player_url)
-        );
-    }
+    // REMOVED: Old streaming detection methods - now using StreamingDetector class
+    // for comprehensive streaming service support including OneRoom, Facebook, and others
 
     /**
      * Generate enhanced Google Maps URL with Place ID support
@@ -530,7 +498,7 @@ class TemplateManager {
      */
     private function get_tribute_url(): string {
         // Try new settings module first
-        $settings = get_option('wfn_module_settings_settings', []);
+        $settings = get_option('wfn_module_settings', []);
         $tribute_url = $settings['tribute_form_url'] ?? '';
 
         // Fallback to ACF option for backwards compatibility
@@ -542,7 +510,7 @@ class TemplateManager {
     }
 
     /**
-     * Generate full tribute URL with person's name
+     * Generate full tribute URL with person's name using flexible placeholders
      */
     private function generate_tribute_url(string $first_name, string $last_name): string {
         $base_url = $this->get_tribute_url();
@@ -551,12 +519,25 @@ class TemplateManager {
             return '';
         }
         
-        // Clean and encode the names
-        $tribute_param = urlencode(trim($first_name . ' ' . $last_name));
-        
-        // Add tribute parameter to URL
-        $separator = strpos($base_url, '?') !== false ? '&' : '?';
-        return $base_url . $separator . 'tribute=' . $tribute_param;
+        // Check if URL contains placeholders
+        if (preg_match('/\{[a-zA-Z_]+\}/', $base_url)) {
+            // New placeholder system - replace placeholders in the URL
+            $placeholders = [
+                '{firstname}' => urlencode(trim($first_name)),
+                '{lastname}' => urlencode(trim($last_name)),
+                '{fullname}' => urlencode(trim($first_name . ' ' . $last_name)),
+                '{first_name}' => urlencode(trim($first_name)), // Alternative format
+                '{last_name}' => urlencode(trim($last_name)),   // Alternative format
+                '{full_name}' => urlencode(trim($first_name . ' ' . $last_name)) // Alternative format
+            ];
+            
+            return str_replace(array_keys($placeholders), array_values($placeholders), $base_url);
+        } else {
+            // Legacy system - append as tribute parameter (backwards compatibility)
+            $tribute_param = urlencode(trim($first_name . ' ' . $last_name));
+            $separator = strpos($base_url, '?') !== false ? '&' : '?';
+            return $base_url . $separator . 'tribute=' . $tribute_param;
+        }
     }
 
     /**

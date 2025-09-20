@@ -136,6 +136,8 @@ class Dashboard {
         wp_localize_script('wfn-admin', 'wfnAdmin', [
             'nonce' => wp_create_nonce('wfn_admin_nonce'),
             'ajax_url' => admin_url('admin-ajax.php'),
+            // Provide camelCase alias for compatibility with any legacy scripts
+            'ajaxUrl' => admin_url('admin-ajax.php'),
             'strings' => [
                 'saving' => __('Saving...', 'weave-funeral-notices'),
                 'saved' => __('Settings saved!', 'weave-funeral-notices'),

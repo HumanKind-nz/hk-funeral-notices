@@ -141,7 +141,15 @@ abstract class BaseModule implements ModuleInterface {
      */
     public function update_settings(array $settings): bool {
         $sanitized_settings = $this->sanitize_settings($settings);
-        return update_option($this->get_settings_option_name(), $sanitized_settings);
+        $option_name = $this->get_settings_option_name();
+        $current = get_option($option_name, []);
+        
+        // Treat re-saving the same values as success (avoid false negative from update_option)
+        if ($current == $sanitized_settings) { // intentionally loose compare to ignore type differences
+            return true;
+        }
+        
+        return update_option($option_name, $sanitized_settings);
     }
     
     /**

@@ -161,12 +161,12 @@ class Plugin {
      */
     public function register_custom_fields(): void {
         // Debug: Log that we're registering custom fields
-        error_log('WFN: Registering custom ACF field types');
+        // Debug logging removed for production
         
         // Register Google Maps field
         new GoogleMapsField();
         
-        error_log('WFN: Google Maps field registered');
+        // Debug logging removed for production
     }
 
     /**

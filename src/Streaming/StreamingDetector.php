@@ -25,12 +25,17 @@ class StreamingDetector {
         if ($this->is_youtube_url($url)) {
             $video_id = $this->extract_youtube_id($url);
             if ($video_id) {
+                $thumbnail_url = '';
+                if ($video_id !== 'LIVE_URL') {
+                    $thumbnail_url = "https://img.youtube.com/vi/{$video_id}/maxresdefault.jpg";
+                }
+                
                 return [
                     'service' => 'youtube',
                     'video_id' => $video_id,
-                    'embed' => $this->generate_youtube_embed($video_id),
+                    'embed' => $this->generate_youtube_embed($video_id, $url),
                     'url' => $url,
-                    'thumbnail' => "https://img.youtube.com/vi/{$video_id}/maxresdefault.jpg"
+                    'thumbnail' => $thumbnail_url
                 ];
             }
         }
@@ -45,7 +50,27 @@ class StreamingDetector {
             ];
         }
 
-        // Vimeo detection
+        // iStream and similar streaming page services (button-only)
+        if ($this->is_istream_url($url)) {
+            return [
+                'service' => 'istream',
+                'embed' => $this->generate_generic_link($url, 'iStream'),
+                'url' => $url,
+                'thumbnail' => ''
+            ];
+        }
+
+        // Vimeo Pro detection (button-only, no embed)
+        if ($this->is_vimeo_pro_url($url)) {
+            return [
+                'service' => 'vimeo_pro',
+                'embed' => $this->generate_generic_link($url, 'Vimeo'),
+                'url' => $url,
+                'thumbnail' => ''
+            ];
+        }
+
+        // Regular Vimeo detection (embeddable)
         if ($this->is_vimeo_url($url)) {
             $video_id = $this->extract_vimeo_id($url);
             if ($video_id) {
@@ -86,18 +111,37 @@ class StreamingDetector {
     }
 
     /**
-     * Extract YouTube video ID
+     * Extract YouTube video ID - handles all YouTube URL formats
      */
     private function extract_youtube_id(string $url): ?string {
         $patterns = [
-            '/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/',
+            // Standard watch URLs
+            '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/',
             '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/',
+            // Live URLs
+            '/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/',
+            // Embed URLs
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            // Channel live URLs
+            '/youtube\.com\/channel\/[^\/]+\/live/',
+            // User live URLs
+            '/youtube\.com\/user\/[^\/]+\/live/',
+            // Handle @username format
+            '/youtube\.com\/@[^\/]+\/live/',
+            // Mobile URLs
+            '/m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/',
         ];
 
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $url, $matches)) {
-                return $matches[1];
+                return $matches[1] ?? null;
             }
+        }
+
+        // Special handling for live URLs without video ID - use the URL as-is
+        if (preg_match('/youtube\.com\/.*(live|stream)/i', $url)) {
+            // Return a special marker for live URLs
+            return 'LIVE_URL';
         }
 
         return null;
@@ -106,7 +150,13 @@ class StreamingDetector {
     /**
      * Generate YouTube embed code
      */
-    private function generate_youtube_embed(string $video_id): string {
+    private function generate_youtube_embed(string $video_id, string $original_url = ''): string {
+        // Handle special live URLs that don't have extractable video IDs
+        if ($video_id === 'LIVE_URL') {
+            // For live URLs without video ID, create a button link
+            return $this->generate_generic_link($original_url, 'YouTube Live');
+        }
+        
         return sprintf(
             '<div class="wfn-video-embed wfn-youtube-embed">' .
             '<iframe src="https://www.youtube.com/embed/%s?rel=0&modestbranding=1" ' .
@@ -144,6 +194,22 @@ class StreamingDetector {
      */
     private function is_vimeo_url(string $url): bool {
         return (bool) preg_match('/vimeo\.com/i', $url);
+    }
+
+    /**
+     * Check if URL is Vimeo Pro (button-only, no embed)
+     */
+    private function is_vimeo_pro_url(string $url): bool {
+        // Vimeo Pro typically uses private/protected URLs that can't be embedded directly
+        return (bool) preg_match('/vimeo\.com\/.*\/(.*\?h=|.*private)/i', $url) ||
+               (bool) preg_match('/player\.vimeo\.com\/video\/.*\?h=/i', $url);
+    }
+
+    /**
+     * Check if URL is iStream or similar streaming page service
+     */
+    private function is_istream_url(string $url): bool {
+        return (bool) preg_match('/(istream\.co\.nz|streamingfunerals\.)/i', $url);
     }
 
     /**
@@ -211,9 +277,12 @@ class StreamingDetector {
     /**
      * Generate generic link for unknown services
      */
-    private function generate_generic_link(string $url): string {
+    private function generate_generic_link(string $url, string $service_name = ''): string {
         $domain = parse_url($url, PHP_URL_HOST);
         $clean_domain = str_replace('www.', '', $domain ?? '');
+        
+        // Use provided service name or auto-detect from domain
+        $display_name = $service_name ?: ucfirst($clean_domain);
 
         return sprintf(
             '<div class="wfn-streaming-link">' .
@@ -221,7 +290,7 @@ class StreamingDetector {
             '<span class="wfn-stream-icon">📺</span> Watch Live Stream on %s' .
             '</a></div>',
             esc_url($url),
-            esc_html(ucfirst($clean_domain))
+            esc_html($display_name)
         );
     }
 

@@ -17,7 +17,7 @@ class LayoutsModule extends BaseModule {
     protected array $default_settings = [
         'enable_archive_templates' => false,
         'default_archive_layout' => 'modern',
-        'default_single_layout' => 'elegant',
+'default_single_layout' => 'current',
         'default_card_style' => 'standard',
         'responsive_breakpoints' => [
             'mobile' => 768,
@@ -131,14 +131,14 @@ class LayoutsModule extends BaseModule {
      * Constructor
      */
     public function __construct() {
-        error_log('LayoutsModule: Constructor called');
+        // Debug logging removed for production
         parent::__construct(
             'layouts',
             'Modern Layouts',
             'Professional responsive layouts and grid systems management',
             '2.0.1'
         );
-        error_log('LayoutsModule: Constructor completed');
+        // Debug logging removed for production
     }
     
     /**
@@ -146,6 +146,12 @@ class LayoutsModule extends BaseModule {
      */
     public function init(): void {
         parent::init();
+        
+        // When layouts settings are saved, sync WP options for template manager
+        add_action('update_option_' . $this->get_settings_option_name(), function($old_value, $new_value) {
+            // Ensure our settings are available before syncing
+            $this->sync_archive_layout_setting();
+        }, 10, 2);
     }
     
     /**
@@ -304,15 +310,10 @@ class LayoutsModule extends BaseModule {
      * Render module admin content
      */
     protected function render_module_admin_content(): void {
-        error_log('LayoutsModule: render_module_admin_content called');
         $settings = $this->get_settings();
         
-        // Debug: Force default values if missing
+        // Ensure default values are present
         $settings = array_merge($this->default_settings, $settings);
-        
-        // Debug output
-        error_log('LayoutsModule settings: ' . print_r($settings, true));
-        error_log('LayoutsModule: About to render HTML');
         ?>
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>

@@ -3,7 +3,7 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://weave.co.nz
+ * @link       https://humankindfuneralnotices.com
  * @since      1.0.0
  *
  * @package    HK_Funeral_Notices

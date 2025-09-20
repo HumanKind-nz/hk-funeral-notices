@@ -335,7 +335,14 @@ class SettingsModule extends BaseModule {
                                value="<?php echo esc_attr($settings['tribute_form_url']); ?>"
                                placeholder="https://yoursite.com/contact/"
                                class="wfn-wide-input">
-                        <p class="wfn-form-description">URL for tribute form page. Deceased name will be appended as ?tribute=First+Last parameter for pre-population.</p>
+                        <p class="wfn-form-description">
+                            URL for tribute form page. Use placeholders for dynamic values:<br>
+                            <strong>{firstname}</strong> - person's first name<br>
+                            <strong>{lastname}</strong> - person's last name<br>
+                            <strong>{fullname}</strong> - person's full name<br>
+                            Example: <code>https://yoursite.com/contact/?tribute={firstname}+{lastname}</code><br>
+                            <em>Legacy: URLs without placeholders will have ?tribute=First+Last automatically appended</em>
+                        </p>
                     </div>
                     
                     <div class="wfn-form-group">
@@ -640,8 +647,7 @@ class SettingsModule extends BaseModule {
     public function enqueue_admin_assets($hook): void {
         parent::enqueue_admin_assets($hook);
 
-        // Debug: Always log to see if method is called
-        error_log("WFN Settings: enqueue_admin_assets called with hook: " . $hook);
+        // Debug logging removed for production
 
         // Always add a basic script to test if method works
         wp_enqueue_script('jquery');
@@ -649,11 +655,11 @@ class SettingsModule extends BaseModule {
 
         // Load media script on our settings page
         if (strpos($hook, 'weave-funeral-notices') === false && strpos($hook, 'wfn-module-settings') === false) {
-            error_log("WFN Settings: Not our page, hook doesn't contain our identifiers");
+            // Debug logging removed for production
             return;
         }
 
-        error_log("WFN Settings: Loading media script on our page");
+        // Debug logging removed for production
 
         // Enqueue WordPress media library and dependencies
         wp_enqueue_media();

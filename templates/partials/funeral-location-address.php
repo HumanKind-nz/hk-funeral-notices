@@ -66,8 +66,18 @@ if ($data['location']['is_other_location'] && !empty($data['location']['custom_a
                 <?php if ($location_address): ?>
                     <?php echo esc_html($location_address); ?><br />
                 <?php endif; ?>
-                <?php if ($map_link && isset($map_link['url'])): ?>
-                    <a class="fn_loc_name" href="<?php echo esc_url($map_link['url']); ?>" target="_blank" rel="noopener">
+                <?php 
+                    $map_url = '';
+                    if (!empty($map_link)) {
+                        if (is_array($map_link)) {
+                            $map_url = $map_link['url'] ?? '';
+                        } elseif (is_string($map_link)) {
+                            $map_url = $map_link;
+                        }
+                    }
+                ?>
+                <?php if (!empty($map_url)): ?>
+                    <a class="fn_loc_name" href="<?php echo esc_url($map_url); ?>" target="_blank" rel="noopener">
                         View on Google Maps
                     </a>
                 <?php endif; ?>

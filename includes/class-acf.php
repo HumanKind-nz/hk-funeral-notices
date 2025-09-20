@@ -135,6 +135,26 @@ function disable_gutenberg_for_funeral_notice_post_type($use_block_editor, $post
 add_filter('use_block_editor_for_post_type', 'disable_gutenberg_for_funeral_notice_post_type', 10, 2);
 
 /**
+ * Remove SEOPress meta boxes from funeral notices
+ * 
+ * SEOPress Meta and Content Analysis boxes can clutter the admin interface
+ * for funeral notices. This removes them to provide a cleaner editing experience.
+ * 
+ * @since 2.0.0
+ */
+function wfn_remove_seopress_metaboxes() {
+    // Remove SEOPress meta boxes from funeral-notice post type
+    remove_meta_box('seopress_cpt', 'funeral-notice', 'normal');
+    remove_meta_box('seopress_content_analysis', 'funeral-notice', 'normal');
+    remove_meta_box('seopress_ca', 'funeral-notice', 'normal');
+    
+    // Also remove any other SEOPress metaboxes that might appear
+    remove_meta_box('seopress_social', 'funeral-notice', 'normal');
+    remove_meta_box('seopress_advanced', 'funeral-notice', 'normal');
+}
+add_action('add_meta_boxes', 'wfn_remove_seopress_metaboxes', 99);
+
+/**
  * ========================================================================
  * FUNERAL NOTICE ADMIN INTERFACE CUSTOMIZATION
  * ========================================================================
@@ -261,8 +281,7 @@ function wfn_enqueue_post_editor_scripts($hook) {
             '2.0.2'
         );
 
-        // Debug: Log that we're enqueuing scripts
-        error_log('WFN: Enqueuing post-editor.js for ' . $hook . ' with post_type: ' . $post_type);
+        // Debug logging removed for production
     }
 }
 add_action('admin_enqueue_scripts', 'wfn_enqueue_post_editor_scripts');
@@ -270,29 +289,13 @@ add_action('admin_enqueue_scripts', 'wfn_enqueue_post_editor_scripts');
 /**
  * Add helpful notice about auto-generated titles to funeral notice admin
  * 
- * Displays an admin notice explaining how the title system works for
- * funeral notices to help users understand the interface.
+ * REMOVED: This notice was confusing for users who don't need to understand
+ * WordPress technical details. The auto-title system works seamlessly in
+ * the background without needing user awareness.
  * 
  * @return void
  */
-function wfn_add_auto_title_admin_notice() {
-    global $post_type, $pagenow;
-    
-    // Only show on funeral notice edit pages
-    if ($post_type !== 'funeral-notice') return;
-    if (!in_array($pagenow, ['post.php', 'post-new.php'])) return;
-    
-    ?>
-    <div class="notice notice-info" style="margin: 10px 0; padding: 8px 12px; border-left: 4px solid #00a0d2;">
-        <p style="margin: 0; font-size: 13px;">
-            <strong>📝 Auto-Generated Titles:</strong> 
-            The post title and URL are automatically created from the person's name fields below. 
-            No need to enter a title manually.
-        </p>
-    </div>
-    <?php
-}
-add_action('edit_form_after_title', 'wfn_add_auto_title_admin_notice');
+// function wfn_add_auto_title_admin_notice() - REMOVED FOR BETTER UX
 
 /**
  * Check if ACF Pro is installed and active
@@ -302,7 +305,7 @@ add_action('edit_form_after_title', 'wfn_add_auto_title_admin_notice');
  */
 function wfn_check_acf_pro_dependency() {
     // Check if ACF Pro is installed and active
-    if (!function_exists('acf_add_local_field_group') || !class_exists('ACF_PRO')) {
+    if (!function_exists('acf_add_local_field_group') || !function_exists('acf_add_options_sub_page') || !class_exists('ACF_PRO')) {
         add_action('admin_notices', 'wfn_acf_pro_missing_notice');
         return false;
     }
@@ -324,11 +327,26 @@ function wfn_acf_pro_missing_notice() {
             <a href="https://www.advancedcustomfields.com/pro/" target="_blank">Purchase ACF Pro</a> 
             or <a href="<?php echo admin_url('plugins.php'); ?>">activate it</a> if already installed.
         </p>
-        <p><em>Required Pro features: Group fields, Google Maps, and ACF Extended integration.</em></p>
+        <p><em>Required Pro features: Options pages, Group fields, Google Maps, and ACF Extended integration.</em></p>
     </div>
     <?php
 }
 
+/**
+ * Create ACF options page for legacy field groups (backward compatibility)
+ *
+ * @since 0.9.2
+ */
+if ( function_exists( 'acf_add_options_sub_page' ) ){
+	acf_add_options_sub_page(array(
+		'title'      => 'Funeral Settings',
+		'parent'     => 'edit.php?post_type=funeral-notice',
+		'update_button' => __('Update', 'acf'),
+		'updated_message' => __("Settings Updated", 'acf'),
+		'menu_slug' => 'funeral-notice-settings',
+		'capability' => 'edit_posts'
+	));
+}
 
 // Google Maps Key for locations
 function my_acf_init() {
@@ -337,16 +355,13 @@ function my_acf_init() {
 add_action('acf/init', 'my_acf_init');
 
 
-//  Load Funeral ACF fields in Plugin folder (DISABLED - using modern FieldGroupManager)
+//  Load Funeral ACF fields from JSON (DISABLED - using modern FieldGroupManager)
 /*
 add_filter('acf/settings/load_json', 'my_acf_json_load_point');
 function my_acf_json_load_point( $paths ) {	
-	// remove original path (optional)
-	//unset($paths[0]);	
-	// append path
+	// Append path to load legacy JSON field groups
 	$paths[] = plugin_dir_path(__FILE__) . 'acf-json';
 	
-	// return
 	return $paths;
 }
 */
@@ -716,7 +731,35 @@ function makePrintContentsSaySaved()
   }
   add_action('init', 'makePrintContentsSaySavedGutenberg');
 
-// OneRoom field toggling removed - legacy functionality no longer used in v2.0
+add_action('admin_head', 'oneroom_fields_show_hide');
+  function oneroom_fields_show_hide() {
+	  // Check if the get_field function exists (ACF is active)
+	  if (function_exists('get_field')) {
+		  // Get the value of the ACF true/false field on the options page
+		  $show_field = get_field('wfn_settings_use_oneroom_api', 'option');
+  
+		  // Show/hide the fields based on the true/false field value
+		  ?>
+		  <style>
+			  <?php if ($show_field): ?>
+				  .acf-field-64d8324340181 {
+					  display: none !important;
+				  }
+				  .acf-field-63bf682ce1c21 {
+					  display: block;
+				  }
+			  <?php else: ?>
+				  .acf-field-64d8324340181 {
+					  display: block;
+				  }
+				  .acf-field-63bf682ce1c21 {
+					  display: none !important;
+				  }
+			  <?php endif; ?>
+		  </style>
+		  <?php
+	  }
+  }
 
 
 /**
@@ -954,8 +997,11 @@ function render_firehawk_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$settings = get_option('wfn_module_settings', []);
-		$fallback_url = $settings['default_person_image'] ?? '';
+		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_url = '';
+		if (is_array($fallback_image) && isset($fallback_image['url'])) {
+			$fallback_url = $fallback_image['url'];
+		}
 		$image_url = $featured_image ?: $fallback_url;
 
 		echo '<div class="grid-col">';
@@ -1000,8 +1046,11 @@ function render_modern_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$settings = get_option('wfn_module_settings', []);
-		$fallback_url = $settings['default_person_image'] ?? '';
+		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_url = '';
+		if (is_array($fallback_image) && isset($fallback_image['url'])) {
+			$fallback_url = $fallback_image['url'];
+		}
 		$image_url = $featured_image ?: $fallback_url;
 
 		echo '<article class="wfn-funeral-card">';
@@ -1059,8 +1108,11 @@ function render_elegant_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$settings = get_option('wfn_module_settings', []);
-		$fallback_url = $settings['default_person_image'] ?? '';
+		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_url = '';
+		if (is_array($fallback_image) && isset($fallback_image['url'])) {
+			$fallback_url = $fallback_image['url'];
+		}
 		$image_url = $featured_image ?: $fallback_url;
 
 		echo '<article class="wfn-elegant-card">';

@@ -346,7 +346,7 @@
             $button.addClass('loading').prop('disabled', true);
             
             $.ajax({
-                url: wfnAdmin.ajaxUrl,
+                url: wfnAdmin.ajax_url,
                 type: 'POST',
                 data: formData + '&action=wfn_save_settings&nonce=' + wfnAdmin.nonce,
                 success: function(response) {
