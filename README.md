@@ -2,7 +2,7 @@
 
 # HumanKind Funeral Notices
 
-A comprehensive WordPress plugin for funeral homes to manage and display funeral notices with modern responsive layouts, advanced search capabilities, and professional styling controls.
+A modern WordPress plugin for funeral homes to publish and display funeral notices with beautiful layouts, reliable streaming support, and a simple admin experience.
 
 ---
 
