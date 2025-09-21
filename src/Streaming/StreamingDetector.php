@@ -160,7 +160,7 @@ class StreamingDetector {
         return sprintf(
             '<div class="wfn-video-embed wfn-youtube-embed">' .
             '<iframe src="https://www.youtube.com/embed/%s?rel=0&modestbranding=1" ' .
-            'width="100%%" height="400" frameborder="0" allowfullscreen ' .
+            'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">' .
             '</iframe></div>',
             esc_attr($video_id)
@@ -181,9 +181,9 @@ class StreamingDetector {
         return sprintf(
             '<div class="wfn-video-embed wfn-oneroom-embed">' .
             '<iframe class="livestream-video" src="%s" ' .
-            'width="100%%" height="600" frameborder="0" ' .
+            'width="100%%" height="1000" frameborder="0" ' .
             'allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" ' .
-            'style="border:none;">' .
+            'style="border:none; height: 1000px;">' .
             '</iframe></div>',
             esc_url($url)
         );
@@ -238,7 +238,7 @@ class StreamingDetector {
         return sprintf(
             '<div class="wfn-video-embed wfn-vimeo-embed">' .
             '<iframe src="https://player.vimeo.com/video/%s?title=0&byline=0&portrait=0" ' .
-            'width="100%%" height="400" frameborder="0" allowfullscreen ' .
+            'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="autoplay; fullscreen; picture-in-picture">' .
             '</iframe></div>',
             esc_attr($video_id)
@@ -267,7 +267,7 @@ class StreamingDetector {
         return sprintf(
             '<div class="wfn-video-embed wfn-facebook-embed">' .
             '<iframe src="https://www.facebook.com/plugins/video.php?href=%s&show_text=false&width=560" ' .
-            'width="100%%" height="400" style="border:none;overflow:hidden" scrolling="no" frameborder="0" ' .
+            'width="100%%" height="450" style="border:none;overflow:hidden" scrolling="no" frameborder="0" ' .
             'allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">' .
             '</iframe></div>',
             urlencode($url)

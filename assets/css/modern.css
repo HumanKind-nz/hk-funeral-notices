@@ -356,7 +356,7 @@
 }
 
 .wfn-modern-stream-wrapper {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     text-align: center;
 }
@@ -451,6 +451,22 @@
         width: 100%;
         max-width: 300px;
     }
+    
+    .wfn-video-embed {
+        height: 281px; /* 16:9 for mobile */
+    }
+    .wfn-modern-stream-wrapper {
+        height: 281px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-video-embed {
+        height: 225px; /* 16:9 for small mobile */
+    }
+    .wfn-modern-stream-wrapper {
+        height: 225px;
+    }
 }
 
 /* Video Embed Styling */
@@ -458,8 +474,13 @@
     width: 100%;
     max-width: 800px;
     margin: 0 auto 1rem auto;
-    height: 800px;
+    height: 450px; /* 16:9 aspect ratio */
     position: relative;
+}
+
+/* Modern template streaming wrapper height */
+.wfn-modern-stream-wrapper {
+    height: 450px; /* Give container explicit height */
 }
 
 .wfn-video-embed iframe {
@@ -518,7 +539,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
 }
 

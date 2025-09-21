@@ -428,6 +428,17 @@ body #content .container {
     padding: 1.5rem;
     border-radius: 6px;
     border: 1px solid var(--wfn-accent);
+    height: 450px; /* 16:9 aspect ratio height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wfn-elegant-stream-embed iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 4px;
 }
 
 /* Location Section */
@@ -455,6 +466,23 @@ body #content .container {
     padding-top: 2rem;
     border-top: 2px solid var(--wfn-accent);
 }
+
+/* OneRoom large embed sizing for Elegant */
+.wfn-elegant-stream-wrapper.wfn-oneroom { max-width: 800px; margin: 0 auto; }
+.wfn-elegant-stream-wrapper.wfn-oneroom {
+    max-width: 800px !important;
+}
+.wfn-elegant-stream-wrapper.wfn-oneroom .wfn-elegant-stream-embed {
+    height: 1000px !important;
+    aspect-ratio: auto !important;
+}
+.wfn-elegant-stream-wrapper.wfn-oneroom .wfn-elegant-stream-embed iframe,
+.wfn-elegant-stream-wrapper.wfn-oneroom iframe.livestream-video {
+    height: 1000px !important;
+}
+@media (max-width:1200px){ .wfn-elegant-stream-wrapper.wfn-oneroom .wfn-elegant-stream-embed{ height:900px; } }
+@media (max-width:1024px){ .wfn-elegant-stream-wrapper.wfn-oneroom .wfn-elegant-stream-embed{ height:760px; } }
+@media (max-width:768px){ .wfn-elegant-stream-wrapper.wfn-oneroom .wfn-elegant-stream-embed{ height:auto; aspect-ratio:16/9; } }
 
 .wfn-elegant-actions {
     margin-bottom: 2rem;

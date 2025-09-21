@@ -138,11 +138,11 @@ $tribute = $data['tribute'];
                                         <div class="firehawk-venue-name"><?php echo esc_html($location['display_venue']); ?></div>
                                     <?php endif; ?>
                                     <?php
-                                    // Match default/current template behavior: use formatted address only
+                                    // Use formatted address; normalize potential <br> tags
                                     $formatted_address = $location['formatted_address'] ?? '';
                                     if (!empty($formatted_address)) {
-                                        // Split into lines for clean display similar to current template
-                                        $lines = explode(', ', $formatted_address);
+                                        $formatted_plain = wp_strip_all_tags(str_replace(['<br />','<br>','<br/>'], ', ', $formatted_address));
+                                        $lines = preg_split('/,\s*/', $formatted_plain);
                                         foreach ($lines as $line) {
                                             $line = trim($line);
                                             if (!empty($line)) {

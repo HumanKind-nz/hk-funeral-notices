@@ -264,18 +264,18 @@ Add custom CSS in the Styling Module:
 ```css
 /* Custom funeral notice styling */
 .wfn-funeral-card {
-    border-left: 4px solid #1f4b8f;
+	border-left: 4px solid #1f4b8f;
 }
 
 .wfn-funeral-card:hover {
-    transform: scale(1.02);
+	transform: scale(1.02);
 }
 
 /* Mobile-specific styles */
 @media (max-width: 768px) {
-    .wfn-layouts-grid {
-        gap: 15px;
-    }
+	.wfn-layouts-grid {
+		gap: 15px;
+	}
 }
 ```
 
@@ -297,9 +297,9 @@ templates/
 │   ├── gallery/          # Photo-focused layout
 │   └── minimal/          # Clean list view
 └── partials/
-    ├── search-form.php   # Advanced search form
-    ├── funeral-card.php  # Reusable card component
-    └── pagination.php    # Modern pagination
+	├── search-form.php   # Advanced search form
+	├── funeral-card.php  # Reusable card component
+	└── pagination.php    # Modern pagination
 ```
 
 ### Custom Templates
@@ -314,12 +314,12 @@ Example theme structure:
 ```
 your-theme/
 └── funeral-notices/
-    ├── archive-funeral-notice.php
-    ├── single-funeral-notice.php
-    └── modes/
-        └── custom/
-            ├── archive.php
-            └── single.php
+	├── archive-funeral-notice.php
+	├── single-funeral-notice.php
+	└── modes/
+		└── custom/
+			├── archive.php
+			└── single.php
 ```
 
 ---
@@ -331,24 +331,24 @@ your-theme/
 ```php
 // Modify available layouts
 add_filter('wfn_available_layouts', function($layouts) {
-    $layouts['custom'] = [
-        'name' => 'Custom Layout',
-        'description' => 'My custom layout',
-        'template' => 'custom-template.php'
-    ];
-    return $layouts;
+	$layouts['custom'] = [
+		'name' => 'Custom Layout',
+		'description' => 'My custom layout',
+		'template' => 'custom-template.php'
+	];
+	return $layouts;
 });
 
 // Add custom search filters
 add_filter('wfn_search_meta_query', function($meta_query, $search_params) {
-    // Add custom search logic
-    return $meta_query;
+	// Add custom search logic
+	return $meta_query;
 }, 10, 2);
 
 // Modify card data before rendering
 add_filter('wfn_funeral_card_data', function($data, $post_id) {
-    // Customise card data
-    return $data;
+	// Customise card data
+	return $data;
 }, 10, 2);
 ```
 
@@ -357,17 +357,17 @@ add_filter('wfn_funeral_card_data', function($data, $post_id) {
 ```php
 // Before funeral notice display
 add_action('wfn_before_funeral_display', function($post_id) {
-    // Custom logic before display
+	// Custom logic before display
 });
 
 // After search form render
 add_action('wfn_after_search_form', function() {
-    // Add custom search elements
+	// Add custom search elements
 });
 
 // Module activation
 add_action('wfn_module_activated', function($module_id) {
-    // Handle module activation
+	// Handle module activation
 });
 ```
 

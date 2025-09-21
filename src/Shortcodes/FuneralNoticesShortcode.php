@@ -683,22 +683,27 @@ class FuneralNoticesShortcode {
                 <div class="search-container">
                     <!-- Name Search - Primary -->
                     <div class="name-search-field">
+                        <label for="wfn_search_input" class="visually-hidden">Search by name</label>
                         <div class="input-group">
-                            <span class="input-icon">
+                            <span class="input-icon" aria-hidden="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                                     <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </span>
                             <input type="text" 
+                                   id="wfn_search_input"
                                    name="wfn_search" 
                                    class="search-input"
                                    placeholder="Search by name..." 
+                                   aria-label="Search funeral notices by name"
                                    value="<?php echo esc_attr($search_term); ?>" 
                                    autocomplete="off" />
                             <?php if ($search_term): ?>
-                            <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''; this.parentElement.parentElement.parentElement.submit();">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <button type="button" class="clear-btn" 
+                                    aria-label="Clear name search"
+                                    onclick="this.previousElementSibling.value=''; this.parentElement.parentElement.parentElement.submit();">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
                                     <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
                                 </svg>
@@ -708,9 +713,10 @@ class FuneralNoticesShortcode {
                     </div>
                     
                     <!-- Date Range - Compact -->
-                    <div class="date-range-field">
+                    <fieldset class="date-range-field">
+                        <legend class="visually-hidden">Filter by date range</legend>
                         <div class="input-group">
-                            <span class="input-icon">
+                            <span class="input-icon" aria-hidden="true">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
                                     <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
@@ -718,32 +724,38 @@ class FuneralNoticesShortcode {
                                     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </span>
+                            <label for="wfn_date_from" class="visually-hidden">From date</label>
                             <input type="date" 
+                                   id="wfn_date_from"
                                    name="wfn_date_from" 
                                    class="date-input"
-                                   title="From date"
+                                   aria-label="Filter from date"
                                    value="<?php echo esc_attr($_GET['wfn_date_from'] ?? $date_from); ?>" />
                             <span class="date-separator">to</span>
+                            <label for="wfn_date_to" class="visually-hidden">To date</label>
                             <input type="date" 
+                                   id="wfn_date_to"
                                    name="wfn_date_to" 
                                    class="date-input"
-                                   title="To date"
+                                   aria-label="Filter to date"
                                    value="<?php echo esc_attr($_GET['wfn_date_to'] ?? $date_to); ?>" />
                             <?php if ($date_from || $date_to): ?>
-                            <button type="button" class="clear-btn" onclick="const group = this.parentElement; group.querySelector('[name=wfn_date_from]').value=''; group.querySelector('[name=wfn_date_to]').value=''; group.closest('form').submit();">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <button type="button" class="clear-btn" 
+                                    aria-label="Clear date filter"
+                                    onclick="const group = this.parentElement; group.querySelector('[name=wfn_date_from]').value=''; group.querySelector('[name=wfn_date_to]').value=''; group.closest('form').submit();">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
                                     <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </button>
                             <?php endif; ?>
                         </div>
-                    </div>
+                    </fieldset>
                     
                     <!-- Search Button -->
                     <div class="search-actions">
-                        <button type="submit" class="search-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <button type="submit" class="search-btn" aria-label="Search funeral notices">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                                 <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
                             </svg>
@@ -751,7 +763,7 @@ class FuneralNoticesShortcode {
                         </button>
                         
                         <?php if ($search_term || $date_from || $date_to): ?>
-                        <a href="<?php echo esc_url($current_url); ?>" class="clear-all-btn">Clear</a>
+                        <a href="<?php echo esc_url($current_url); ?>" class="clear-all-btn" aria-label="Clear all filters">Clear</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -866,12 +878,13 @@ class FuneralNoticesShortcode {
                 echo '<span class="service-label">Service:</span> ';
                 echo esc_html(date('j M Y', strtotime($funeral_date)));
                 if ($funeral_time) {
-                    echo ' at ' . esc_html($funeral_time);
+                    $formatted_time = date('g:i A', strtotime($funeral_time));
+                    echo ' at ' . esc_html($formatted_time);
                 }
                 echo '</div>';
             }
             
-            echo '<span class="wfn-enhancement-modern-more">View Details</span>';
+            // View Details span removed - entire card is clickable for better accessibility
             echo '</div></a></article>';
         }
 
@@ -932,7 +945,8 @@ class FuneralNoticesShortcode {
                 echo '<div class="wfn-enhancement-elegant-service">';
                 echo '<strong>Service:</strong> ' . esc_html(date('j F Y', strtotime($funeral_date)));
                 if ($funeral_time) {
-                    echo ' at ' . esc_html($funeral_time);
+                    $formatted_time = date('g:i A', strtotime($funeral_time));
+                    echo ' at ' . esc_html($formatted_time);
                 }
                 echo '</div>';
             }

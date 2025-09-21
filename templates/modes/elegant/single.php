@@ -88,12 +88,11 @@ $tribute = $data['tribute'];
                                     <?php if (!empty($location['display_address'])): ?><br><?php endif; ?>
                                 <?php endif; ?>
                                 <?php 
-                                $address = $location['display_address'];
-                                if (is_array($address) && !empty($address)) {
-                                    // Only show the first address line to avoid clutter
-                                    echo esc_html($address[0]);
-                                } elseif (!empty($address)) {
-                                    echo esc_html($address);
+                                $address = $location['formatted_address'] ?? '';
+                                if (!empty($address)) {
+                                    $formatted_plain = wp_strip_all_tags(str_replace(['<br />','<br>','<br/>'], ', ', $address));
+                                    $parts = preg_split('/,\s*/', $formatted_plain);
+                                    echo esc_html(trim($parts[0] ?? $formatted_plain));
                                 }
                                 ?>
                                 <?php if (!empty($location['maps_url'])): ?>

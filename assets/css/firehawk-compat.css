@@ -1166,4 +1166,21 @@
     .firehawk-video-embed iframe {
         height: 250px;
     }
-} 
+}
+
+/* OneRoom large embed sizing */
+.firehawk-stream-content.firehawk-oneroom { max-width: 800px; margin: 0 auto; }
+.firehawk-oneroom .firehawk-stream-content {
+    max-width: 800px !important;
+}
+.firehawk-oneroom .firehawk-video-embed {
+    height: 1000px !important;
+    aspect-ratio: auto !important;
+}
+.firehawk-oneroom .firehawk-video-embed iframe,
+.firehawk-oneroom iframe.livestream-video {
+    height: 1000px !important;
+}
+@media (max-width: 1200px) { .firehawk-oneroom .firehawk-video-embed { height: 900px; } }
+@media (max-width: 1024px) { .firehawk-oneroom .firehawk-video-embed { height: 760px; } }
+@media (max-width: 768px)  { .firehawk-oneroom .firehawk-video-embed { height: auto; aspect-ratio: 16/9; } }

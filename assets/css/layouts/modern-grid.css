@@ -5,8 +5,9 @@
 
 .wfn-enhancement-modern-grid {
     display: grid;
-    gap: 2rem;
+    gap: 1.5rem; /* Reduced from 2rem */
     margin: 2rem 0;
+    padding: 0; /* Ensure no padding that would misalign with search */
 }
 
 /* Column layouts */

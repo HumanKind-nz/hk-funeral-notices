@@ -32,6 +32,7 @@ class Dashboard {
         add_action('admin_menu', [$this, 'modify_menu_structure'], 999); // Run after menu is built
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('wp_ajax_wfn_toggle_module', [$this, 'handle_module_toggle']);
+        add_action('wp_ajax_wfn_migrate_addresses', [$this, 'handle_address_migration']);
     }
 
     /**
@@ -40,13 +41,13 @@ class Dashboard {
     public function add_admin_menu(): void {
         // Main menu page - Dashboard with proper icon
         add_menu_page(
-            'HumanKind Funeral Notices Dashboard',
+            'HK Funeral Notices Dashboard',
             'HK Funeral Notices',
             'manage_options',
             'hk-funeral-notices',
             [$this, 'render_dashboard'],
             'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2ZmZiIgdmlld0JveD0iMCAwIDEyMiAxMDYiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik02LjQgMTguN2MwIDE1LjUgNi41IDI5LjUgMTcgMzkuNSAyLTEuNiA0LjItMyA2LjQtNC40YTQ2LjcgNDYuNyAwIDAgMS0xNS44LTM1aDYuNWE0MC40IDQwLjQgMCAwIDAgMjIgMzYgNTEuOCA1MS44IDAgMCAwLTE5LjEgMTEuOGMtMTAuNSA5LjktMTcgMjQtMTcgMzkuNEgwYzAtMTcuMSA3LjEtMzIuNiAxOC41LTQzLjZBNjAuNiA2MC42IDAgMCAxIDAgMTguN2g2LjRabTEwMS42IDBhNDYuNyA0Ni43IDAgMCAxLTQ3IDQ2LjkgNDAuMiA0MC4yIDAgMCAwLTI1IDguNkE0MC40IDQwLjQgMCAwIDAgMjAuNSAxMDZIMTRhNDYuNyA0Ni43IDAgMCAxIDQ3LTQ2LjggNDAuMiA0MC4yIDAgMCAwIDI1LTguNyA0MC4xIDQwLjEgMCAwIDAgMTUuNS0zMS44aDYuNVpNNjEgNzMuMmM1LjkgMCAxMS40IDEuNSAxNi4xIDQuMmguMUEzMi45IDMyLjkgMCAwIDEgOTQgMTA2aC02LjVhMjYuNSAyNi41IDAgMCAwLTUzIDBoLTYuNEEzMi44IDMyLjggMCAwIDEgNjEgNzMuMVptNjEtNTQuNWMwIDE3LjEtNy4xIDMyLjYtMTguNSA0My43QTYwLjYgNjAuNiAwIDAgMSAxMjIgMTA2aC02LjRhNTQuMyA1NC4zIDAgMCAwLTIyLTQzLjYgNTQuMyA1NC4zIDAgMCAwIDIyLTQzLjZoNi40Wm0tMzUuNCA0OEE0Ni43IDQ2LjcgMCAwIDEgMTA4IDEwNmgtNi40YTQwLjQgNDAuNCAwIDAgMC0yMi0zNmMyLjQtLjggNC44LTIgNy4xLTMuMVptLTUyLjEtNDhhMjYuNSAyNi41IDAgMCAwIDUzIDBoNi40YTMyLjggMzIuOCAwIDAgMS00OSAyOC42aC0uMUEzMi45IDMyLjkgMCAwIDEgMjggMTguN2g2LjVaTTYxIDBhMTcuMiAxNy4yIDAgMSAxIDAgMzQuNEExNy4yIDE3LjIgMCAwIDEgNjEgMFptMCA2LjRhMTAuOCAxMC44IDAgMSAwIDEwLjggMTAuOGMwLTYtNC45LTEwLjgtMTAuOC0xMC44WiIvPjwvc3ZnPgo=',
-            30
+            6
         );
 
         // Add New Funeral Notice submenu (first item)
@@ -429,6 +430,175 @@ class Dashboard {
                     break;
             }
         }
+    }
+    
+    /**
+     * Render address migration page
+     */
+    public function render_migration_page(): void {
+        // Handle form submission
+        if (isset($_POST['migrate_addresses']) && wp_verify_nonce($_POST['wfn_migration_nonce'], 'wfn_migrate_action')) {
+            $this->run_address_migration();
+        }
+        
+        ?>
+        <div class="wfn-admin-dashboard">
+            <?php $this->render_header(); ?>
+            
+            <div class="wfn-dashboard-content">
+                <div class="wfn-container">
+                    
+                    <div class="wfn-migration-section">
+                        <h2>Address Migration Tool</h2>
+                        <p>This tool migrates Google Places address data from the legacy ACFE format to the new plugin structure.</p>
+                        
+                        <?php
+                        // Check if migration has been run
+                        $migration_date = get_option('wfn_address_migration_completed');
+                        if ($migration_date) {
+                            echo '<div class="notice notice-info"><p>✅ Migration was last completed on: ' . esc_html($migration_date) . '</p></div>';
+                        }
+                        
+                        // Count posts that need migration
+                        $posts_to_migrate = get_posts([
+                            'post_type' => 'funeral-notice',
+                            'posts_per_page' => -1,
+                            'meta_key' => 'wfn_location_group_other_funeral_address',
+                            'meta_compare' => 'EXISTS',
+                            'fields' => 'ids'
+                        ]);
+                        
+                        if (count($posts_to_migrate) > 0) {
+                            echo '<p>Found <strong>' . count($posts_to_migrate) . '</strong> funeral notices with legacy address data that can be migrated.</p>';
+                            
+                            echo '<form method="post" action="">';
+                            wp_nonce_field('wfn_migrate_action', 'wfn_migration_nonce');
+                            echo '<button type="submit" name="migrate_addresses" class="button button-primary">Migrate Address Data</button>';
+                            echo '</form>';
+                        } else {
+                            echo '<p>No funeral notices with legacy address data found.</p>';
+                        }
+                        ?>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Run address migration process
+     */
+    private function run_address_migration(): void {
+        echo '<div class="wfn-migration-results">';
+        echo '<h3>Migration Results</h3>';
+        
+        // Get all funeral notice posts that have the old address field
+        $posts = get_posts([
+            'post_type' => 'funeral-notice',
+            'posts_per_page' => -1,
+            'meta_key' => 'wfn_location_group_other_funeral_address',
+            'meta_compare' => 'EXISTS'
+        ]);
+        
+        echo '<p>Found ' . count($posts) . ' posts with legacy address data to migrate.</p>';
+        
+        $migrated_count = 0;
+        $error_count = 0;
+        
+        foreach ($posts as $post) {
+            echo '<div class="migration-item">';
+            echo '<strong>Processing:</strong> ' . esc_html($post->post_title) . ' (ID: ' . $post->ID . ')<br>';
+            
+            try {
+                // Get the legacy ACFE Google Maps data
+                $legacy_address = get_post_meta($post->ID, 'wfn_location_group_other_funeral_address', true);
+                
+                if (empty($legacy_address)) {
+                    echo '<span style="color: #666;">No legacy address data found, skipping...</span><br>';
+                    continue;
+                }
+                
+                // If it's serialized data, unserialize it
+                if (is_string($legacy_address) && (strpos($legacy_address, 'a:') === 0)) {
+                    $legacy_address = maybe_unserialize($legacy_address);
+                }
+                
+                if (!is_array($legacy_address)) {
+                    echo '<span style="color: #d63638;">Legacy address data is not in expected format, skipping...</span><br>';
+                    $error_count++;
+                    continue;
+                }
+                
+                echo 'Address: ' . esc_html($legacy_address['address'] ?? 'No address') . '<br>';
+                
+                // Create the new address structure
+                $new_address_data = [
+                    'address' => $legacy_address['address'] ?? '',
+                    'lat' => $legacy_address['lat'] ?? 0,
+                    'lng' => $legacy_address['lng'] ?? 0,
+                    'zoom' => $legacy_address['zoom'] ?? 16,
+                    'place_id' => $legacy_address['place_id'] ?? '',
+                    'name' => $legacy_address['name'] ?? '',
+                    'street_number' => $legacy_address['street_number'] ?? '',
+                    'street_name' => $legacy_address['street_name'] ?? '',
+                    'street_name_short' => $legacy_address['street_name_short'] ?? '',
+                    'city' => $legacy_address['city'] ?? '',
+                    'state' => $legacy_address['state'] ?? '',
+                    'post_code' => $legacy_address['post_code'] ?? '',
+                    'country' => $legacy_address['country'] ?? '',
+                    'country_short' => $legacy_address['country_short'] ?? ''
+                ];
+                
+                // Update the current field structure
+                update_field('wfn_location_group_other_funeral_address', $new_address_data, $post->ID);
+                update_field('wfn_location_group_is_at_another_location', ['yes'], $post->ID);
+                
+                // Backup the original data
+                update_post_meta($post->ID, '_wfn_migrated_address_backup', $legacy_address);
+                
+                echo '<span style="color: #00a32a;">✅ Successfully migrated address data</span><br>';
+                $migrated_count++;
+                
+            } catch (Exception $e) {
+                echo '<span style="color: #d63638;">❌ Error: ' . esc_html($e->getMessage()) . '</span><br>';
+                $error_count++;
+            }
+            
+            echo '</div><br>';
+        }
+        
+        echo '<div class="notice notice-success"><p>';
+        echo '✅ Successfully migrated: <strong>' . $migrated_count . '</strong> posts<br>';
+        if ($error_count > 0) {
+            echo '❌ Errors: <strong>' . $error_count . '</strong> posts<br>';
+        }
+        echo 'Migration completed!';
+        echo '</p></div>';
+        
+        // Set migration completed flag
+        update_option('wfn_address_migration_completed', current_time('mysql'));
+        
+        echo '</div>';
+        
+        // Add some CSS for better presentation
+        echo '<style>
+        .wfn-migration-results {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .migration-item {
+            padding: 10px;
+            border-left: 3px solid #0073aa;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        </style>';
     }
 
 

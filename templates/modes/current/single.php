@@ -112,11 +112,13 @@ $post_content = get_the_content();
                         // Use formatted address for clean display
                         $formatted_address = $location['formatted_address'];
                         if (!empty($formatted_address)) {
-                            // Split formatted address into lines for better display
-                            $lines = explode(', ', $formatted_address);
+                            // Normalize potential <br> tags from taxonomy field and split cleanly
+                            $formatted_plain = wp_strip_all_tags(str_replace(['<br />','<br>','<br/>'], ', ', $formatted_address));
+                            $lines = preg_split('/,\s*/', $formatted_plain);
                             foreach ($lines as $line) {
-                                if (!empty(trim($line))) {
-                                    echo '<div class="wfn-address-line">' . esc_html(trim($line)) . '</div>';
+                                $line = trim($line);
+                                if (!empty($line)) {
+                                    echo '<div class="wfn-address-line">' . esc_html($line) . '</div>';
                                 }
                             }
                         }
@@ -189,13 +191,23 @@ $post_content = get_the_content();
             <div class="wfn-current-stream-section">
                 <h2 class="wfn-stream-title">View the Funeral Stream</h2>
 
-                <div class="wfn-stream-container">
+                <?php $stream_container_classes = 'wfn-stream-container';
+                if ($streaming['streaming_service'] === 'oneroom') { $stream_container_classes .= ' wfn-oneroom'; }
+                ?>
+                <div class="<?php echo esc_attr($stream_container_classes); ?>">
 
                     <?php if ($streaming['streaming_service'] === 'oneroom' && $streaming['embed_code']): ?>
                         <!-- OneRoom embed -->
                         <div class="wfn-video-wrapper">
                             <?php echo $streaming['embed_code']; ?>
                         </div>
+                        <?php if (!empty($streaming['streaming_url'])): ?>
+                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem;">
+                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-view-external">
+                                    Open on OneRoom
+                                </a>
+                            </div>
+                        <?php endif; ?>
 
                     <?php elseif (in_array($streaming['streaming_service'], ['youtube', 'vimeo', 'vimeo_pro']) && $streaming['embed_code']): ?>
                         <!-- YouTube/Vimeo embed -->

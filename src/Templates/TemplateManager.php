@@ -261,22 +261,40 @@ class TemplateManager {
             }
         }
         
-        // Get location name from taxonomy if selected
+        // Get location name and taxonomy fields if selected
         $location_name = '';
+        $taxonomy_term_id = 0;
+        $taxonomy_address = '';
+        $taxonomy_map_url = '';
         if ($location_taxonomy) {
             if (is_object($location_taxonomy)) {
                 $location_name = $location_taxonomy->name;
+                $taxonomy_term_id = (int) $location_taxonomy->term_id;
             } else {
                 $location_term = get_term($location_taxonomy, 'funeral-location');
                 if ($location_term && !is_wp_error($location_term)) {
                     $location_name = $location_term->name;
+                    $taxonomy_term_id = (int) $location_term->term_id;
+                }
+            }
+            // Fetch ACF fields from taxonomy term for physical address and map link
+            if ($taxonomy_term_id) {
+                $taxonomy_address = get_field('location_address', 'funeral-location_' . $taxonomy_term_id) ?: '';
+                $map_link = get_field('location_map_link', 'funeral-location_' . $taxonomy_term_id);
+                if (is_array($map_link) && !empty($map_link['url'])) {
+                    $taxonomy_map_url = $map_link['url'];
                 }
             }
         }
         
         // Get formatted address components for display
         $address_components = $this->address_manager->get_address_components($custom_address);
-        $formatted_address = $this->address_manager->get_formatted_address($custom_address);
+        // If using an existing taxonomy location and the taxonomy has a physical address, prefer it
+        if (($details_group['location_type'] ?? null) === 'existing' && !empty($taxonomy_address)) {
+            $formatted_address = trim((string) $taxonomy_address);
+        } else {
+            $formatted_address = $this->address_manager->get_formatted_address($custom_address);
+        }
 
         return [
             'post_id' => $post_id,
@@ -321,7 +339,9 @@ class TemplateManager {
                 'formatted_address' => $formatted_address,
                 'address_components' => $address_components,
                 'show_location' => $location_type !== 'none',
-                'maps_url' => $this->generate_enhanced_maps_url($location_type, $location_name, $custom_address),
+                'maps_url' => !empty($taxonomy_map_url)
+                    ? $taxonomy_map_url
+                    : $this->generate_enhanced_maps_url($location_type, $location_name, $custom_address),
                 // Backwards compatibility
                 'is_other_location' => $location_type === 'custom',
                 'other_address' => $custom_address, // For legacy template compatibility

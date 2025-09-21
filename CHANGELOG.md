@@ -2,6 +2,26 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.0.2] - 2025-01-21
+
+### 🐛 **Bug Fixes & Improvements**
+
+#### **Fixed**
+- 🔧 **Modern Grid Button Visibility** - Fixed "View Details" button having same color for text and background
+- 🎨 **Theme Integration** - Removed hardcoded color from `.wfn-current-name` to allow theme h1 styling
+- 🗑️ **Admin Menu Cleanup** - Removed unused Address Migration menu item
+
+#### **Enhanced**
+- ♿ **Accessibility Improvements**:
+  - Enhanced search form with proper labels, ARIA attributes, and fieldset structure
+  - Improved grid navigation with better semantic HTML
+  - Removed redundant "View Details" text for cleaner screen reader experience
+- 🏷️ **Admin Interface** - Updated plugin menu name from "Funeral Notices" to "HK Funeral Notices"
+- 💾 **Migration Tools** - Added comprehensive site-to-site migration documentation with SQL scripts
+- ✅ **Custom CSS Functionality** - Verified Visual Styling custom CSS feature works correctly
+
+---
+
 ## [2.0.0] - 2025-10-19
 
 ### 🚀 **Major Plugin Rewrite - PHP 8.0+ Architecture**

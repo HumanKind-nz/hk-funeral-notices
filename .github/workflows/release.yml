@@ -55,9 +55,3 @@ jobs:
           files: build/hk-funeral-notices-${{ env.VERSION }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_PAT }}
-	
-	  - name: Validate plugin header
-		run: |
-		  if ! grep -q "Version: " build/hk-funeral-notices/hk-funeral-notices.php; then
-			echo "Warning: Plugin version header not found"
-		  fi

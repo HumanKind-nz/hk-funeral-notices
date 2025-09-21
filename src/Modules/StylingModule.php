@@ -589,7 +589,7 @@ class StylingModule extends BaseModule {
         $css .= '}';
         
         $css .= '.wfn-enhancement-modern-more {';
-        $css .= 'color: var(--wfn-color-primary) !important;';
+        $css .= 'color: white !important;';
         $css .= 'background: var(--wfn-color-primary) !important;';
         $css .= '}';
         

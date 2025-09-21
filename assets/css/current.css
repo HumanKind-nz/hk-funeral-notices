@@ -1,7 +1,8 @@
 /*
- * Current Layout Styling
- * Matches existing Beaver Themer layout for transition period
+ * Default Layout Styling
+ *
  * @since 2.0.0
+ * @updated 2.0.2
  */
 
 .wfn-current-single {
@@ -34,7 +35,6 @@
     font-size: 2.5rem;
     font-weight: normal;
     margin: 0;
-    color: #2c3e50;
     line-height: 1.2;
 }
 
@@ -152,6 +152,7 @@
     color: #666;
     font-size: 0.95rem;
     line-height: 1.4;
+    font-weight: 400; 
 }
 
 .wfn-maps-link {
@@ -203,14 +204,14 @@
 }
 
 .wfn-stream-container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
 .wfn-video-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
+    height: 450px; /* 16:9 ratio for 800px width (800/16*9=450) */
     background: #000;
     border-radius: 8px;
     overflow: hidden;
@@ -220,6 +221,18 @@
     width: 100%;
     height: 100%;
     border: none;
+}
+
+/* Video embed wrappers need full height */
+.wfn-video-embed {
+    height: 100%;
+    width: 100%;
+}
+
+.wfn-video-embed.wfn-youtube-embed,
+.wfn-video-embed.wfn-vimeo-embed,
+.wfn-video-embed.wfn-facebook-embed {
+    height: 100%;
 }
 
 .wfn-stream-button-wrapper {
@@ -398,4 +411,47 @@
     text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* OneRoom service sizing (desktop emphasis) */
+.wfn-oneroom .wfn-stream-container {
+    max-width: 800px !important;
+}
+.wfn-oneroom .wfn-video-wrapper {
+    height: 1000px !important;
+    aspect-ratio: auto !important; /* Override 16/9 ratio */
+}
+.wfn-oneroom .wfn-video-wrapper iframe,
+.wfn-oneroom iframe.livestream-video {
+    height: 1000px !important;
+}
+
+/* External view link below embed */
+.wfn-view-external {
+    color: #3498db;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+.wfn-view-external:hover { text-decoration: underline; }
+
+/* Responsive video wrapper heights for all video services */
+@media (max-width: 1024px) {
+    .wfn-video-wrapper { height: 375px; } /* 16:9 for smaller screens */
+}
+@media (max-width: 768px) {
+    .wfn-video-wrapper { height: 281px; } /* 16:9 for mobile (500px width) */
+}
+@media (max-width: 480px) {
+    .wfn-video-wrapper { height: 225px; } /* 16:9 for small mobile (400px width) */
+}
+
+/* OneRoom responsive fallback (larger sizes) */
+@media (max-width: 1200px) {
+    .wfn-oneroom .wfn-video-wrapper { height: 900px !important; }
+}
+@media (max-width: 1024px) {
+    .wfn-oneroom .wfn-video-wrapper { height: 760px !important; }
+}
+@media (max-width: 768px) {
+    .wfn-oneroom .wfn-video-wrapper { height: 400px !important; }
 }
