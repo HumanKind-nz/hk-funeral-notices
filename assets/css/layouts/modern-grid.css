@@ -78,7 +78,7 @@
 }
 
 .wfn-enhancement-modern-title {
-    font-size: var(--wfn-heading-size, 1.25rem);
+    font-size: var(--wfn-heading-size, 1.5rem); /* Changed from 1.25rem to 1.5rem (XL) */
     font-weight: 600;
     margin: 0 0 0.75rem 0;
     color: var(--wfn-color-text-primary, #2c3e50);
@@ -96,18 +96,41 @@
 
 .wfn-enhancement-modern-service {
     font-size: var(--wfn-text-size, 0.85rem);
-    color: var(--wfn-color-text-secondary, #495057);
+    color: var(--wfn-color-primary, #3498db);
     margin: 0 0 0.75rem 0; /* Reduced bottom margin */
     padding: var(--wfn-card-padding, 0.75rem);
     background: var(--wfn-color-row-alternate, #f8f9fa);
     border-radius: var(--wfn-border-radius, 6px);
-    border-left: 3px solid var(--wfn-color-primary, #3498db);
+    border: 1px solid var(--wfn-color-primary, #3498db);
     font-family: var(--wfn-font-body, inherit);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .wfn-enhancement-modern-service .service-label {
     font-weight: 600;
-    color: var(--wfn-color-text-primary, #2c3e50);
+    color: var(--wfn-color-primary, #3498db);
+}
+
+/* Streaming icon styling */
+.wfn-streaming-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.wfn-streaming-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--wfn-color-primary, #3498db);
+    opacity: 0.8;
+    transition: opacity var(--wfn-transition-speed, 0.3s) ease;
+}
+
+.wfn-enhancement-modern-card:hover .wfn-streaming-icon svg {
+    opacity: 1;
 }
 
 .wfn-enhancement-modern-more {

@@ -2,7 +2,7 @@
  * Default Layout Styling
  *
  * @since 2.0.0
- * @updated 2.0.2
+ * @updated 2.0.4
  */
 
 .wfn-current-single {
@@ -52,8 +52,9 @@
 }
 
 .wfn-current-portrait {
-    width: 250px;
-    height: 250px;
+    max-width: 550px;
+    width: 100%; /* Responsive within max-width */
+    height: auto;
     object-fit: cover;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -96,12 +97,12 @@
 }
 
 .wfn-current-tribute a {
-    color: #3498db;
+    /* color: #3498db; removed to use theme default */
     text-decoration: underline;
 }
 
 .wfn-current-tribute a:hover {
-    color: #2980b9;
+    /* color: #2980b9; removed to use theme default */
 }
 
 /* Right Column - Service Details */
@@ -160,12 +161,13 @@
 }
 
 .wfn-maps-link a {
-    color: #3498db;
-    text-decoration: none;
+    /* color: #3498db; removed to use theme default */
+    text-decoration: underline;
     font-size: 0.9rem;
 }
 
 .wfn-maps-link a:hover {
+    /* Uses theme default hover color */
     text-decoration: underline;
 }
 
@@ -312,8 +314,9 @@
     }
 
     .wfn-current-portrait {
-        width: 200px;
-        height: 200px;
+        max-width: 350px; /* Smaller on tablets */
+        width: 100%;
+        height: auto;
     }
 
     .wfn-current-layout {
@@ -340,8 +343,9 @@
     }
 
     .wfn-current-portrait {
-        width: 180px;
-        height: 180px;
+        max-width: 280px; /* Even smaller on mobile */
+        width: 100%;
+        height: auto;
     }
 
     .wfn-current-right-column {
@@ -428,7 +432,7 @@
 
 /* External view link below embed */
 .wfn-view-external {
-    color: #3498db;
+    /* color: #3498db; removed to use theme default */
     font-size: 0.95rem;
     text-decoration: none;
 }
