@@ -1,8 +1,8 @@
 <?php
 /**
  * Current Layout Template - Single Funeral Notice
- * Matches existing Beaver Themer layout for transition period
  * @since 2.0.0
+ * @updated 2.0.3
  */
 
 if (!defined('ABSPATH')) {
@@ -32,7 +32,7 @@ $post_content = get_the_content();
     <div class="wfn-current-container">
 
         <!-- Header Section -->
-        <header class="wfn-current-header">
+        <div class="wfn-current-header">
             <?php if (!$content['hide_intro']): ?>
                 <div class="wfn-memory-text">In loving memory of</div>
             <?php endif; ?>
@@ -42,7 +42,7 @@ $post_content = get_the_content();
                     <?php echo esc_html($person['birth_year'] . ' - ' . $person['death_year']); ?>
                 </div>
             <?php endif; ?>
-        </header>
+        </div>
 
         <!-- Portrait Image -->
         <?php if ($image['featured_url'] || $image['fallback_url']): ?>
