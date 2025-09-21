@@ -2,6 +2,24 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.0.3] - 2025-01-21
+
+### 🐛 **Layout & Styling Fixes**
+
+#### **Fixed**
+- 🎯 **Grid Layout Alignment** - Fixed modern, elegant, and gallery grid layouts not aligning with search bar edges
+- 📏 **Grid Spacing** - Reduced excessive gaps between cards from 1.5rem to 1rem for more polished appearance
+- 🎨 **Card Padding** - Optimized internal card spacing and reduced bottom margins after service times
+- 🏷️ **Header Element Conflicts** - Changed `<header>` to `<div>` in current template to prevent duplicate header styling issues
+- ⚡ **CSS Override Conflicts** - Fixed StylingModule generating CSS with `!important` declarations that overrode layout spacing controls
+
+#### **Enhanced**
+- 📱 **Responsive Design** - Improved spacing across all breakpoints (desktop, tablet, mobile)
+- 🎛️ **Visual Styling Module** - Layout CSS now works harmoniously with color scheme controls
+- ✨ **Professional Polish** - All grid layouts now have consistent, proportional spacing
+
+---
+
 ## [2.0.2] - 2025-01-21
 
 ### 🐛 **Bug Fixes & Improvements**
@@ -9,6 +27,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 #### **Fixed**
 - 🔧 **Modern Grid Button Visibility** - Fixed "View Details" button having same color for text and background
 - 🎨 **Theme Integration** - Removed hardcoded color from `.wfn-current-name` to allow theme h1 styling
+- 📂 **Code Organization** - Moved migration code from main plugin file to dedicated `includes/migrations.php`
 - 🗑️ **Admin Menu Cleanup** - Removed unused Address Migration menu item
 
 #### **Enhanced**
@@ -19,6 +38,11 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 - 🏷️ **Admin Interface** - Updated plugin menu name from "Funeral Notices" to "HK Funeral Notices"
 - 💾 **Migration Tools** - Added comprehensive site-to-site migration documentation with SQL scripts
 - ✅ **Custom CSS Functionality** - Verified Visual Styling custom CSS feature works correctly
+
+#### **Documentation**
+- 📖 **Complete Migration Guide** - New `FUNERAL-NOTICES-SITE-MIGRATION-GUIDE.md` with step-by-step instructions
+- 🔧 **WP All Import Helper** - Updated v2 PHP script for complex data migrations
+- 🗂️ **File Organization** - Better separation of migration tools and documentation
 
 ---
 

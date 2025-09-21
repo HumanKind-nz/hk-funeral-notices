@@ -41,7 +41,7 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 ## ✨ Features
 
 ### 🎨 **Professional Layouts**
-- **6 Layout Options**: Current (Beaver compatibility), Firehawk, Modern, Elegant, Gallery, Minimal
+- **6 Layout Options**: Default, Firehawk look, Modern, Elegant, Gallery, Minimal
 - **4 Card Styles**: Standard, Elevated, Outlined, Minimal
 - **Responsive Grid System**: 1-4 columns with intelligent breakpoints
 - **Mobile-First Design**: Optimised for all screen sizes
@@ -433,9 +433,9 @@ define('WFN_DEBUG', true);
 - **Module Help**: Contextual help on each module page
 
 ### Getting Help
-- **Email Support**: [support@humankindnotices.com]
-- **Documentation**: [docs.humankindnotices.com]
-- **GitHub Issues**: [github.com/yourusername/hk-funeral-notices]
+- **Email Support**: [support@weave.co.nz]
+- **Documentation**: [https://github.com/HumanKind-nz/hk-funeral-notices]
+- **GitHub Issues**: [https://github.com/HumanKind-nz/hk-funeral-notices]
 
 ### Before Contacting Support
 1. Check the built-in documentation
@@ -448,22 +448,7 @@ define('WFN_DEBUG', true);
 
 ## 🔄 Changelog
 
-### Version 2.0.0 (Current)
-- **NEW**: Complete plugin architecture rewrite with modern PHP 8.0+
-- **NEW**: 5 professional modules (Settings, Layouts, Search, Styling, Performance)  
-- **NEW**: 6 responsive layout options with mobile-first design
-- **NEW**: Advanced AJAX search with real-time filtering
-- **NEW**: Visual styling system with 5+ Colour schemes
-- **NEW**: Performance optimisation with smart caching
-- **NEW**: Professional admin dashboard with module management
-- **ENHANCED**: Shortcode system with extensive customisation options
-- **IMPROVED**: Mobile responsiveness and accessibility
-- **FIXED**: Various performance and compatibility issues
-
-### Version 1.4.2 (Previous)
-- Updated ACF field definitions
-- Added Vimeo Pro streaming support
-- Minor bug fixes and improvements
+See [CHANGELOG.md](CHANGELOG.md)
 
 ---
 

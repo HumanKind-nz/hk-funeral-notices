@@ -1,8 +1,8 @@
 <?php
 /**
  * Current Layout Template - Single Funeral Notice
+ * Matches existing Beaver Themer layout for transition period
  * @since 2.0.0
- * @updated 2.0.3
  */
 
 if (!defined('ABSPATH')) {

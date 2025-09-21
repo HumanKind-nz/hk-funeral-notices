@@ -564,8 +564,7 @@ class StylingModule extends BaseModule {
         $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
         $css .= 'border-radius: var(--wfn-border-radius) !important;';
         $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
-        $css .= 'padding: var(--wfn-card-padding) !important;';
-        $css .= 'margin: var(--wfn-card-margin) !important;';
+        $css .= '/* padding and margin removed to allow layout CSS to control spacing */';
         $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
         $css .= '}';
         
@@ -604,8 +603,7 @@ class StylingModule extends BaseModule {
         $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
         $css .= 'border-radius: var(--wfn-border-radius) !important;';
         $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
-        $css .= 'padding: var(--wfn-card-padding) !important;';
-        $css .= 'margin: var(--wfn-card-margin) !important;';
+        $css .= '/* padding and margin removed to allow layout CSS to control spacing */';
         $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
         $css .= '}';
         
@@ -639,7 +637,7 @@ class StylingModule extends BaseModule {
         $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
         $css .= 'border-radius: var(--wfn-border-radius) !important;';
         $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
-        $css .= 'margin: var(--wfn-card-margin) !important;';
+        $css .= '/* margin removed to allow layout CSS to control spacing */';
         $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
         $css .= '}';
         

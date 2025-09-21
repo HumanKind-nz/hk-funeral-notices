@@ -5,8 +5,8 @@
 
 .wfn-enhancement-modern-grid {
     display: grid;
-    gap: 1.5rem; /* Reduced from 2rem */
-    margin: 2rem 0;
+    gap: 1rem; /* Reduced for better polish */
+    margin: 1.5rem 0;
     padding: 0; /* Ensure no padding that would misalign with search */
 }
 
@@ -71,7 +71,7 @@
 
 /* Content styling */
 .wfn-enhancement-modern-content {
-    padding: 1.5rem;
+    padding: 1.25rem;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -97,7 +97,7 @@
 .wfn-enhancement-modern-service {
     font-size: var(--wfn-text-size, 0.85rem);
     color: var(--wfn-color-text-secondary, #495057);
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.75rem 0; /* Reduced bottom margin */
     padding: var(--wfn-card-padding, 0.75rem);
     background: var(--wfn-color-row-alternate, #f8f9fa);
     border-radius: var(--wfn-border-radius, 6px);
@@ -132,21 +132,21 @@
     .wfn-enhancement-modern-grid.wfn-cols-3,
     .wfn-enhancement-modern-grid.wfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        gap: 1rem;
     }
     
     .wfn-enhancement-modern-content {
-        padding: 1.25rem;
+        padding: 1rem;
     }
 }
 
 @media (max-width: 480px) {
     .wfn-enhancement-modern-grid {
         grid-template-columns: 1fr !important;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .wfn-enhancement-modern-content {
-        padding: 1rem;
+        padding: 0.875rem;
     }
 }

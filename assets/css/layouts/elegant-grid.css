@@ -5,8 +5,8 @@
 
 .wfn-enhancement-elegant-grid {
     display: grid;
-    gap: 1.5rem; /* Reduced from 2rem */
-    margin: 2rem 0;
+    gap: 1rem; /* Reduced for better polish */
+    margin: 1.5rem 0;
     padding: 0; /* Ensure no padding that would misalign with search */
 }
 
@@ -46,7 +46,7 @@
 .wfn-enhancement-elegant-header {
     display: flex;
     align-items: center;
-    padding: var(--wfn-card-padding, 1.5rem);
+    padding: var(--wfn-card-padding, 1.25rem);
     gap: 1rem;
 }
 
@@ -82,12 +82,12 @@
 
 /* Service information */
 .wfn-enhancement-elegant-service {
-    padding: 0 var(--wfn-card-padding, 1.5rem) var(--wfn-card-padding, 1.5rem) var(--wfn-card-padding, 1.5rem);
+    padding: 0 var(--wfn-card-padding, 1.25rem) var(--wfn-card-padding, 1rem) var(--wfn-card-padding, 1.25rem);
     font-size: var(--wfn-text-size, 0.9rem);
     color: var(--wfn-color-text-secondary, #5d6d7e);
     border-top: 1px solid var(--wfn-color-border, #f8f9fa);
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
     font-family: var(--wfn-font-body, inherit);
 }
 
@@ -101,28 +101,28 @@
     .wfn-enhancement-elegant-grid.wfn-cols-3,
     .wfn-enhancement-elegant-grid.wfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        gap: 1rem;
     }
     
     .wfn-enhancement-elegant-header {
-        padding: 1.25rem;
+        padding: 1rem;
     }
     
     .wfn-enhancement-elegant-service {
-        padding: 0 1.25rem 1.25rem 1.25rem;
+        padding: 0 1rem 1rem 1rem;
     }
 }
 
 @media (max-width: 480px) {
     .wfn-enhancement-elegant-grid {
         grid-template-columns: 1fr !important;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .wfn-enhancement-elegant-header {
         flex-direction: column;
         text-align: center;
-        padding: 1rem;
+        padding: 0.875rem;
     }
     
     .wfn-enhancement-elegant-portrait {
