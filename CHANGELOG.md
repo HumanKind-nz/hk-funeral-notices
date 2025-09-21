@@ -2,18 +2,18 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.0.4] - 2025-01-21
+## [2.0.4] - 2025-10-21
 
 ### ✨ **Feature Enhancement**
 
 #### **Added**
 - 📺 **Streaming Icon Indicator** - Modern grid layout now displays a streaming icon when live streaming is available for a funeral service
-- 🎨 **Visual Enhancement** - Icon uses primary theme color and includes hover effects for better user interaction
+- 🎨 **Visual Enhancement** - Icon uses primary theme colour and includes hover effects for better user interaction
 - ♿ **Accessibility** - Streaming icon includes descriptive title attribute for screen readers
 
 ---
 
-## [2.0.3] - 2025-01-21
+## [2.0.3] - 2025-10-22
 
 ### 🐛 **Layout & Styling Fixes**
 
@@ -31,7 +31,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ---
 
-## [2.0.2] - 2025-01-21
+## [2.0.2] - 2025-10-21
 
 ### 🐛 **Bug Fixes & Improvements**
 
