@@ -127,6 +127,9 @@ class HK_Funeral_Notices {
 		//  Functions for Custom Fields  (ACF & ACFE)
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-acf.php';
 		
+		// Role integration with HK Funeral Suite
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-role-integration.php';
+		
 		// Additions for WPBF Theme
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpbf.php';
 		

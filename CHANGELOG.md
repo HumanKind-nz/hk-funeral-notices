@@ -2,23 +2,16 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.0.7] - 2025-09-22
+## [2.0.8] - 2025-09-22
 
-### 🚨 **Critical Bug Fix & Cleanup**
-
-#### **Fixed**
-- 🔥 **Fatal Error** - Removed reference to non-existent `includes/migrations.php` file that was causing plugin to crash
-- ✅ **Plugin Activation** - Plugin now loads correctly without fatal errors
-
-#### **Removed**
-- 🔧 **WP-CLI Commands** - Removed redundant WP-CLI migration commands (now handled by dedicated migration plugin)
-- 🧹 **Code Cleanup** - Removed unnecessary includes for cleaner codebase
-
----
-
-## [2.0.6] - 2025-09-22
-
-### 📱 **Mobile UX Improvements**
+#### **Added**
+- 👥 **Role Integration** - Added seamless integration with HK Funeral Suite's `funeral_staff` and `funeral_manager` roles
+- 🔐 **Permission Management** - Staff can manage their own notices, managers can manage all notices
+- 🛡️ **Fallback Roles** - Creates basic roles if HK Funeral Suite is not installed
+- 📋 **Menu Visibility** - Settings hidden from basic staff, visible to managers
+- 📺 **Streaming Icon Indicator** - Modern grid layout now displays a streaming icon when live streaming is available for a funeral service
+- 🎨 **Visual Enhancement** - Icon uses primary theme colour and includes hover effects for better user interaction
+- ♿ **Accessibility** - Streaming icon includes descriptive title attribute for screen readers
 
 #### **Enhanced**
 - 🔍 **Mobile Search Experience** - Date range fields now hidden on mobile devices (≤768px) for cleaner interface
@@ -30,36 +23,11 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 - 🐛 **iOS Zoom Issue** - Input font size set to 16px to prevent unwanted zoom on focus
 - 📐 **Layout Issues** - Fixed cramped search form layout on small screens
 
----
-
-## [2.0.5] - 2025-09-22
-
-### 🗑️ **Code Cleanup & Optimisation**
-
 #### **Removed**
 - ❌ **Gallery Layout** - Completely removed unused gallery card view and all related code
 - 🧹 **Cleaned Files** - Removed `gallery-grid.css` and all gallery-related CSS/JS
 - 📦 **Reduced Size** - Smaller plugin footprint with removal of unused components
 
-#### **Enhanced**
-- ✨ **Cleaner Codebase** - Removed gallery references from:
-  - LayoutsModule.php
-  - FuneralNoticesShortcode.php
-  - StylingModule.php
-  - SettingsModule.php
-  - Archive templates
-- 🎯 **Streamlined Options** - Simplified layout choices to: Current, Firehawk, Modern, Elegant, Minimal
-
----
-
-## [2.0.4] - 2025-09-21
-
-### ✨ **Feature Enhancement**
-
-#### **Added**
-- 📺 **Streaming Icon Indicator** - Modern grid layout now displays a streaming icon when live streaming is available for a funeral service
-- 🎨 **Visual Enhancement** - Icon uses primary theme color and includes hover effects for better user interaction
-- ♿ **Accessibility** - Streaming icon includes descriptive title attribute for screen readers
 
 ---
 
@@ -122,7 +90,7 @@ Complete architectural overhaul with dual-system compatibility (legacy + modern)
 - 📱 **Dynamic Address System** - Auto-detects ACFE Pro vs native Google Maps
 - 🔄 **Field Group Migration System** - Handles internal plugin upgrades automatically
 - 📊 **Statistics Dashboard** - Post counts, status breakdown, recent activity
-- ⚡ **Performance Optimisations** - Lazy asset loading, intelligent caching
+- ⚡ **Performance Optimizations** - Lazy asset loading, intelligent caching
 - 🎨 **Advanced Styling Controls** - Alpha color pickers, live preview
 - 📋 **Enhanced Shortcode System** with extensive parameters and layout options
 - 🛠️ **Developer Tools** - Debug logging, migration utilities, validation systems
