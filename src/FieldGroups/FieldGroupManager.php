@@ -203,7 +203,8 @@ class FieldGroupManager {
                             'wrapper' => ['width' => '25'],
                             'min' => 1900,
                             'max' => date('Y') + 1,
-                            'placeholder' => '2024',
+                            'placeholder' => date('Y'),
+                            'default_value' => date('Y'),
                         ],
                         [
                             'key' => 'field_wfn_person_image',
@@ -254,14 +255,16 @@ class FieldGroupManager {
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_hide_intro',
-                            'label' => 'Hide Introduction Text',
-                            'name' => 'hide_intro_copy',
-                            'type' => 'true_false',
-                            'instructions' => 'Hide the "In loving memory of" text',
-                            'ui' => 1,
-                            'ui_on_text' => 'Hidden',
-                            'ui_off_text' => 'Show',
+                            'key' => 'field_wfn_intro_text',
+                            'label' => 'Introduction Text',
+                            'name' => 'intro_text',
+                            'type' => 'text',
+                            'instructions' => 'This text appears at the top of the single funeral notice page before the person\'s name. Common examples: "In loving memory of", "Celebrating the life of", "In remembrance of", "A tribute to". Leave blank if you don\'t want any introduction text.',
+                            'default_value' => $this->get_default_intro_text(),
+                            'placeholder' => $this->get_default_intro_text(),
+                            'prepend' => '',
+                            'append' => '[Person\'s Name]',
+                            'wrapper' => ['width' => '70'],
                         ],
                         [
                             'key' => 'field_wfn_newspaper_notice',
@@ -595,14 +598,22 @@ class FieldGroupManager {
      */
     private function get_help_instructions(string $section): string {
         $instructions = [
-            'personal' => 'Enter the basic information about the deceased person. The image uses WordPress featured image. Help: <a href="https://support.invo.care/article/how-to-add-a-new-funeral/" target="_blank">How to Add a New Funeral</a>',
+            'personal' => 'Enter the basic information about the deceased person. The image uses WordPress featured image.',
             'content' => 'Add the main content for the funeral notice. This uses the WordPress post content editor.',
             'event' => 'Set the date, time and location details for the funeral service. The location selector will appear in the main form when you choose to use a different location.',
-            'streaming' => 'Add live streaming to your funeral service. Simply choose OneRoom (paste embed code) or Other Service (paste any YouTube, Vimeo, or streaming URL - we\'ll automatically detect the service type).',
+            'streaming' => 'Paste any streaming link from OneRoom, YouTube, Vimeo, iStream and we\'ll automatically detect the service type and embed it for you.',
             'media' => 'Upload service documents and additional files for the funeral.',
         ];
 
         return $instructions[$section] ?? '';
+    }
+    
+    /**
+     * Get default intro text from settings
+     */
+    private function get_default_intro_text(): string {
+        $settings = get_option('wfn_module_settings', []);
+        return $settings['default_intro_text'] ?? 'In loving memory of';
     }
     
     /**

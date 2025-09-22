@@ -33,8 +33,21 @@ $post_content = get_the_content();
 
         <!-- Header Section -->
         <div class="wfn-current-header">
-            <?php if (!$content['hide_intro']): ?>
-                <div class="wfn-memory-text">In loving memory of</div>
+            <?php 
+            // Get intro text from field or use site default
+            $notice_group = get_field('wfn_notice_group', get_the_ID());
+            $intro_text = isset($notice_group['intro_text']) ? $notice_group['intro_text'] : '';
+            
+            // If field is empty, use site default
+            if (empty($intro_text)) {
+                $settings = get_option('wfn_module_settings', []);
+                $intro_text = isset($settings['default_intro_text']) ? $settings['default_intro_text'] : 'In loving memory of';
+            }
+            
+            // Display intro text if not empty
+            if (!empty($intro_text)):
+            ?>
+                <div class="wfn-memory-text"><?php echo esc_html($intro_text); ?></div>
             <?php endif; ?>
             <h1 class="wfn-current-name"><?php echo esc_html($person['full_name']); ?></h1>
             <?php if ($person['birth_year'] && $person['death_year']): ?>
@@ -59,11 +72,7 @@ $post_content = get_the_content();
             <!-- Left Column: Main Content -->
             <div class="wfn-current-left-column">
 
-                <?php if (!$content['hide_intro']): ?>
-                    <div class="wfn-current-intro">
-                        Please join us in celebrating <?php echo esc_html($person['full_name']); ?>'s life.
-                    </div>
-                <?php endif; ?>
+                <?php // Removed duplicate intro check - already handled in header ?>
 
                 <?php if ($content['notice']): ?>
                     <div class="wfn-current-notice">

@@ -48,10 +48,23 @@ $tribute = $data['tribute'];
         </div>
 
         <!-- Memorial Introduction -->
-        <?php if (!$content['hide_intro']): ?>
+        <?php 
+        // Get intro text from field or use site default
+        $notice_group = get_field('wfn_notice_group', get_the_ID());
+        $intro_text = isset($notice_group['intro_text']) ? $notice_group['intro_text'] : '';
+        
+        // If field is empty, use site default
+        if (empty($intro_text)) {
+            $settings = get_option('wfn_module_settings', []);
+            $intro_text = isset($settings['default_intro_text']) ? $settings['default_intro_text'] : 'In loving memory of';
+        }
+        
+        // Display intro text if not empty
+        if (!empty($intro_text)):
+        ?>
             <div class="wfn-elegant-memorial">
                 <p class="wfn-elegant-invitation">
-                    In loving memory of <?php echo esc_html($person['first_name']); ?>, 
+                    <?php echo esc_html($intro_text); ?> <?php echo esc_html($person['first_name']); ?>, 
                     we invite you to join us in celebrating a life well lived.
                 </p>
             </div>

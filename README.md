@@ -6,6 +6,15 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 
 ---
 
+## 🚀 What's New in Version 2.0.9
+
+### Latest Updates (January 2025)
+- **👥 User Role Integration**: Seamless integration with funeral_staff and funeral_manager roles
+- **🎆 Customizable Intro Text**: Replace "In loving memory of" with any custom text per notice or site-wide
+- **📱 Mobile Search Improvements**: Cleaner mobile interface with date fields hidden for better UX
+- **🔐 Permission Management**: Staff can manage their own notices, managers can manage all
+- **🧹 Code Cleanup**: Removed unused gallery layout and redundant WP-CLI commands
+
 ## 🚀 What's New in Version 2.0
 
 ### Major Updates
@@ -16,7 +25,7 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 - **🔧 Advanced Admin Interface**: Professional dashboard with modular management
 
 ### New Features
-- **6 Professional Layout Options**: From minimal to elegant funeral styling
+- **5 Professional Layout Options**: From minimal to elegant funeral styling
 - **Advanced Search & Filtering**: Real-time AJAX search with date range filtering
 - **Visual Styling Controls**: 5 colour schemes plus custom colour picker with alpha support
 - **Performance Optimisation**: Caching system, asset optimisation, and lazy loading
@@ -41,14 +50,14 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 ## ✨ Features
 
 ### 🎨 **Professional Layouts**
-- **6 Layout Options**: Default, Firehawk look, Modern, Elegant, Gallery, Minimal
+- **5 Layout Options**: Current, Firehawk, Modern, Elegant, Minimal
 - **4 Card Styles**: Standard, Elevated, Outlined, Minimal
 - **Responsive Grid System**: 1-4 columns with intelligent breakpoints
 - **Mobile-First Design**: Optimised for all screen sizes
 
 ### 🔍 **Advanced Search & Filtering**
 - **Real-time AJAX Search**: Instant results without page refresh
-- **Date Range Filtering**: Custom date ranges with calendar picker
+- **Date Range Filtering**: Custom date ranges with calendar picker (hidden on mobile for better UX)
 - **Text Search**: Names, content, and ACF field searching
 - **Location Filtering**: Integration with funeral location taxonomy
 - **Autocomplete Suggestions**: Enhanced user experience
@@ -141,7 +150,7 @@ The plugin automatically verifies:
 
 | v1.x | v2.0 |
 |------|------|
-| Single display mode | 6 professional layouts |
+| Single display mode | 5 professional layouts |
 | Basic admin interface | Advanced modular dashboard |
 | Limited search | Real-time AJAX search with filters |
 | Fixed styling | 5+ Colour schemes + custom picker |
@@ -167,7 +176,7 @@ The plugin's functionality is organized into 5 professional modules:
 
 ### 2. 🎨 **Layouts Module** 
 - **Purpose**: Template and layout management
-- **Features**: 6 layout options, responsive grid settings, card style variants
+- **Features**: 5 layout options, responsive grid settings, card style variants
 - **Admin Page**: `Funeral Notices > Layouts`
 
 ### 3. 🔍 **Search Module**
