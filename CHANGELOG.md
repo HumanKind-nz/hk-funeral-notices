@@ -2,6 +2,20 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.0.7] - 2025-09-22
+
+### 🚨 **Critical Bug Fix & Cleanup**
+
+#### **Fixed**
+- 🔥 **Fatal Error** - Removed reference to non-existent `includes/migrations.php` file that was causing plugin to crash
+- ✅ **Plugin Activation** - Plugin now loads correctly without fatal errors
+
+#### **Removed**
+- 🔧 **WP-CLI Commands** - Removed redundant WP-CLI migration commands (now handled by dedicated migration plugin)
+- 🧹 **Code Cleanup** - Removed unnecessary includes for cleaner codebase
+
+---
+
 ## [2.0.6] - 2025-09-22
 
 ### 📱 **Mobile UX Improvements**
