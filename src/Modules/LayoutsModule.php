@@ -62,14 +62,6 @@ class LayoutsModule extends BaseModule {
             'css_file' => 'layouts/elegant-grid.css',
             'preview_image' => 'elegant-preview.jpg'
         ],
-        'gallery' => [
-            'name' => 'Memorial Photo Gallery',
-            'description' => 'Photo-focused tribute layout emphasizing memorial images',
-            'features' => ['Photo Focus', 'Gallery View', 'Image Lightbox', 'Memorial Focus'],
-            'template' => 'gallery-grid',
-            'css_file' => 'layouts/gallery-grid.css',
-            'preview_image' => 'gallery-preview.jpg'
-        ],
         'minimal' => [
             'name' => 'Simple Memorial List',
             'description' => 'Clean, minimal list layout for understated presentation',

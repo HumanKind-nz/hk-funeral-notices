@@ -34,7 +34,7 @@ class FuneralNoticesShortcode {
      * Enhanced version of the original display plugin shortcode
      * 
      * Available shortcode attributes:
-     * - layout/style: Layout style (firehawk, modern, elegant, gallery, minimal)
+     * - layout/style: Layout style (firehawk, modern, elegant, minimal)
      * - type: Filter type (all, future, archived, today, this_week, this_month)
      * - per_page: Number of items per page (default: 12)
      * - columns: Number of columns (1, 2, 3, 4)
@@ -47,7 +47,7 @@ class FuneralNoticesShortcode {
      * Example usage:
      * [funeral_notices layout="modern" columns="3" type="future"]
      * [funeral_notices layout="elegant" per_page="6" show_search="no"]
-     * [funeral_notices layout="gallery" columns="3" show_search="yes"]
+     * [funeral_notices layout="minimal" columns="2" show_search="yes"]
      * 
      * @param array $atts Shortcode attributes
      * @return string HTML output
@@ -368,9 +368,6 @@ class FuneralNoticesShortcode {
                 break;
             case 'elegant':
                 $this->render_enhancement_elegant_grid($query, $columns);
-                break;
-            case 'gallery':
-                $this->render_enhancement_gallery_grid($query, $columns);
                 break;
             case 'minimal':
                 $this->render_enhancement_minimal($query, $columns);
@@ -960,66 +957,6 @@ class FuneralNoticesShortcode {
                 if ($funeral_time) {
                     $formatted_time = date('g:i A', strtotime($funeral_time));
                     echo ' at ' . esc_html($formatted_time);
-                }
-                echo '</div>';
-            }
-            
-            echo '</a></article>';
-        }
-
-        echo '</div>';
-    }
-
-    /**
-     * Render Enhancement Suite Gallery Grid (native WFN version)
-     */
-    private function render_enhancement_gallery_grid(\WP_Query $query, int $columns): void {
-        // Ensure StylingModule assets are loaded for color schemes and typography
-        $this->ensure_styling_module_assets();
-        
-        // Enqueue shared base styles first
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.0');
-        // Enqueue Enhancement Suite gallery grid CSS
-        wp_enqueue_style('wfn-enhancement-gallery', plugin_dir_url(__FILE__) . '../../assets/css/layouts/gallery-grid.css', ['wfn-enhancement-base'], '2.0.1');
-        
-        $grid_class = "wfn-enhancement-gallery-grid wfn-cols-{$columns}";
-        echo "<div class=\"{$grid_class}\">";
-
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
-
-            // Use TemplateManager for unified data access
-            $data = $this->template_manager->get_funeral_data($post_id);
-            $person = $data['person'];
-            
-            $full_name = $person['full_name'];
-            $years_display = $person['years_display'];
-            
-            // Get image - Gallery style emphasizes the image
-            $featured_image = get_the_post_thumbnail_url($post_id, 'large');
-            $fallback_url = $this->get_fallback_image_url();
-            $image_url = $featured_image ?: $fallback_url;
-
-            echo '<article class="wfn-enhancement-gallery-card">';
-            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-gallery-link">';
-            
-            if ($image_url) {
-                echo '<div class="wfn-enhancement-gallery-image">';
-                echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" loading="lazy">';
-                echo '<div class="wfn-enhancement-gallery-overlay">';
-                echo '<div class="wfn-enhancement-gallery-text">';
-                echo '<h3 class="wfn-enhancement-gallery-name">' . esc_html($full_name) . '</h3>';
-                if ($years_display) {
-                    echo '<p class="wfn-enhancement-gallery-years">' . esc_html($years_display) . '</p>';
-                }
-                echo '</div></div></div>';
-            } else {
-                // Fallback when no image
-                echo '<div class="wfn-enhancement-gallery-no-image">';
-                echo '<h3 class="wfn-enhancement-gallery-name">' . esc_html($full_name) . '</h3>';
-                if ($years_display) {
-                    echo '<p class="wfn-enhancement-gallery-years">' . esc_html($years_display) . '</p>';
                 }
                 echo '</div>';
             }

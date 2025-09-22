@@ -142,7 +142,6 @@ class SettingsModule extends BaseModule {
                             <option value="firehawk" <?php selected($settings['default_layout'], 'firehawk'); ?>>Firehawk Compatible</option>
                             <option value="modern" <?php selected($settings['default_layout'], 'modern'); ?>>Modern Memorial Grid</option>
                             <option value="elegant" <?php selected($settings['default_layout'], 'elegant'); ?>>Elegant Funeral Grid</option>
-                            <option value="gallery" <?php selected($settings['default_layout'], 'gallery'); ?>>Memorial Photo Gallery</option>
                             <option value="minimal" <?php selected($settings['default_layout'], 'minimal'); ?>>Simple Memorial List</option>
                         </select>
                         <p class="wfn-form-description">Default layout for funeral notices when no layout is specified in shortcode.</p>
@@ -422,7 +421,7 @@ class SettingsModule extends BaseModule {
                             
                             <p><strong>Available Parameters:</strong></p>
                             <ul>
-                                <li><strong>layout:</strong> current, firehawk, modern, elegant, gallery, minimal</li>
+                                <li><strong>layout:</strong> current, firehawk, modern, elegant, minimal</li>
                                 <li><strong>columns:</strong> 2, 3, 4</li>
                                 <li><strong>per_page:</strong> Number of notices per page</li>
                                 <li><strong>show_search:</strong> yes, no</li>
@@ -548,7 +547,7 @@ class SettingsModule extends BaseModule {
         $sanitized = $this->default_settings;
         
         // Layout validation
-        $valid_layouts = ['current', 'firehawk', 'modern', 'elegant', 'gallery', 'minimal'];
+        $valid_layouts = ['current', 'firehawk', 'modern', 'elegant', 'minimal'];
         $sanitized['default_layout'] = in_array($settings['default_layout'] ?? '', $valid_layouts) 
             ? $settings['default_layout'] 
             : 'modern';

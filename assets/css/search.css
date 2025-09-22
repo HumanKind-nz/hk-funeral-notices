@@ -223,7 +223,15 @@
     }
     
     /* Hide date fields on smaller screens for better UX */
-    .wfn-search-field.wfn-date-field {
+    .wfn-search-field.wfn-date-field,
+    .wfn-date-filters,
+    .date-range-field,
+    input[type="date"],
+    input[name="wfn_date_from"],
+    input[name="wfn_date_to"],
+    label[for="wfn_date_from"],
+    label[for="wfn_date_to"],
+    .wfn-search-dates {
         display: none !important;
     }
     

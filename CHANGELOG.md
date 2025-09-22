@@ -2,18 +2,54 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.0.4] - 2025-10-21
+## [2.0.6] - 2025-09-22
+
+### 📱 **Mobile UX Improvements**
+
+#### **Enhanced**
+- 🔍 **Mobile Search Experience** - Date range fields now hidden on mobile devices (≤768px) for cleaner interface
+- 📱 **Touch Optimisation** - Improved touch targets and input sizing for mobile devices
+- 🎯 **Focused Search** - Mobile users get streamlined name-only search for faster access
+- ⚡ **Performance** - Reduced form complexity on mobile for better performance
+
+#### **Fixed**
+- 🐛 **iOS Zoom Issue** - Input font size set to 16px to prevent unwanted zoom on focus
+- 📐 **Layout Issues** - Fixed cramped search form layout on small screens
+
+---
+
+## [2.0.5] - 2025-09-22
+
+### 🗑️ **Code Cleanup & Optimisation**
+
+#### **Removed**
+- ❌ **Gallery Layout** - Completely removed unused gallery card view and all related code
+- 🧹 **Cleaned Files** - Removed `gallery-grid.css` and all gallery-related CSS/JS
+- 📦 **Reduced Size** - Smaller plugin footprint with removal of unused components
+
+#### **Enhanced**
+- ✨ **Cleaner Codebase** - Removed gallery references from:
+  - LayoutsModule.php
+  - FuneralNoticesShortcode.php
+  - StylingModule.php
+  - SettingsModule.php
+  - Archive templates
+- 🎯 **Streamlined Options** - Simplified layout choices to: Current, Firehawk, Modern, Elegant, Minimal
+
+---
+
+## [2.0.4] - 2025-09-21
 
 ### ✨ **Feature Enhancement**
 
 #### **Added**
 - 📺 **Streaming Icon Indicator** - Modern grid layout now displays a streaming icon when live streaming is available for a funeral service
-- 🎨 **Visual Enhancement** - Icon uses primary theme colour and includes hover effects for better user interaction
+- 🎨 **Visual Enhancement** - Icon uses primary theme color and includes hover effects for better user interaction
 - ♿ **Accessibility** - Streaming icon includes descriptive title attribute for screen readers
 
 ---
 
-## [2.0.3] - 2025-10-22
+## [2.0.3] - 2025-09-21
 
 ### 🐛 **Layout & Styling Fixes**
 
@@ -31,7 +67,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ---
 
-## [2.0.2] - 2025-10-21
+## [2.0.2] - 2025-09-21
 
 ### 🐛 **Bug Fixes & Improvements**
 
@@ -57,7 +93,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ---
 
-## [2.0.0] - 2025-10-19
+## [2.0.0] - 2025-09-19
 
 ### 🚀 **Major Plugin Rewrite - PHP 8.0+ Architecture**
 
@@ -72,7 +108,7 @@ Complete architectural overhaul with dual-system compatibility (legacy + modern)
 - 📱 **Dynamic Address System** - Auto-detects ACFE Pro vs native Google Maps
 - 🔄 **Field Group Migration System** - Handles internal plugin upgrades automatically
 - 📊 **Statistics Dashboard** - Post counts, status breakdown, recent activity
-- ⚡ **Performance Optimizations** - Lazy asset loading, intelligent caching
+- ⚡ **Performance Optimisations** - Lazy asset loading, intelligent caching
 - 🎨 **Advanced Styling Controls** - Alpha color pickers, live preview
 - 📋 **Enhanced Shortcode System** with extensive parameters and layout options
 - 🛠️ **Developer Tools** - Debug logging, migration utilities, validation systems

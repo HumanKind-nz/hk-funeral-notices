@@ -27,7 +27,6 @@ get_header(); ?>
         $css_files = [
             'modern' => 'modern-grid.css',
             'elegant' => 'elegant-grid.css',
-            'gallery' => 'gallery-grid.css',
             'minimal' => 'minimal.css'
         ];
 

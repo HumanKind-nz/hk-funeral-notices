@@ -626,30 +626,6 @@ class StylingModule extends BaseModule {
         $css .= 'color: var(--wfn-color-text-secondary) !important;';
         $css .= '}';
         
-        // Enhancement Suite shortcode styling - Gallery Grid
-        $css .= '.wfn-enhancement-gallery-grid {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-body, inherit);';
-        $css .= '}';
-        
-        $css .= '.wfn-enhancement-gallery-card {';
-        $css .= 'background: var(--wfn-color-card-background) !important;';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
-        $css .= 'border-radius: var(--wfn-border-radius) !important;';
-        $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
-        $css .= '/* margin removed to allow layout CSS to control spacing */';
-        $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
-        $css .= '}';
-        
-        $css .= '.wfn-enhancement-gallery-name {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
-        $css .= 'font-family: var(--wfn-font-heading, inherit) !important;';
-        $css .= 'font-size: var(--wfn-heading-size) !important;';
-        $css .= '}';
-        
-        $css .= '.wfn-enhancement-gallery-years {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
-        $css .= '}';
         
         // Enhancement Suite shortcode styling - Minimal Grid
         $css .= '.wfn-enhancement-minimal-grid {';
@@ -691,12 +667,12 @@ class StylingModule extends BaseModule {
         
         // Hover effects for shortcode cards
         if ($settings['card_styling']['hover_effect'] === 'lift') {
-            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-gallery-card:hover, .wfn-enhancement-minimal-card:hover {';
+            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-minimal-card:hover {';
             $css .= 'transform: translateY(-2px) !important;';
             $css .= 'box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;';
             $css .= '}';
         } elseif ($settings['card_styling']['hover_effect'] === 'glow') {
-            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-gallery-card:hover, .wfn-enhancement-minimal-card:hover {';
+            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-minimal-card:hover {';
             $css .= 'box-shadow: 0 0 20px var(--wfn-color-accent) !important;';
             $css .= '}';
         }

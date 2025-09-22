@@ -190,47 +190,54 @@
     }
     
     .wfn-enhancement-search-form .search-container {
-        flex-direction: column;
-        gap: 1rem;
+        flex-direction: row;
+        gap: 0.75rem;
+        align-items: stretch;
     }
     
-    .name-search-field,
+    /* Hide date range on mobile - focus on name search */
     .date-range-field {
+        display: none !important;
+    }
+    
+    .name-search-field {
         min-width: auto;
-        width: 100%;
+        flex: 1;
     }
     
     .search-actions {
-        width: 100%;
-        justify-content: center;
+        flex: 0 0 auto;
     }
     
-    .search-btn,
+    .search-btn {
+        padding: 0.75rem 1rem;
+    }
+    
+    .search-btn span {
+        /* Hide text on mobile, show only icon */
+        display: none;
+    }
+    
     .clear-all-btn {
-        flex: 1;
-        justify-content: center;
+        display: none; /* Hide clear all on mobile since we only have name search */
     }
 }
 
 @media (max-width: 480px) {
-    .date-range-field .input-group {
-        flex-wrap: wrap;
-        padding: 0.5rem;
+    .wfn-enhancement-search {
+        padding: 0.75rem;
     }
     
-    .date-separator {
-        width: 100%;
-        text-align: center;
-        padding: 0.25rem 0;
-        order: 1;
+    .wfn-enhancement-search-form .search-container {
+        gap: 0.5rem;
     }
     
-    .wfn-enhancement-search .date-input {
-        min-width: 120px;
+    .wfn-enhancement-search .search-input {
+        font-size: 16px; /* Prevent zoom on iOS */
     }
     
-    .search-actions {
-        flex-direction: column;
-        gap: 0.75rem;
+    .search-btn {
+        padding: 0.75rem;
+        border-radius: 50%;
     }
 }
