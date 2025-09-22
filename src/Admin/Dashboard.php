@@ -60,16 +60,11 @@ class Dashboard {
             'post-new.php?post_type=funeral-notice'
         );
 
-        // Add All Funeral Notices submenu (second item)
-        add_submenu_page(
-            'hk-funeral-notices',
-            'All Funeral Notices',
-            'All Funeral Notices',
-            'edit_posts',
-            'edit.php?post_type=funeral-notice'
-        );
+        // NOTE: "All Funeral Notices" is not added here because WordPress
+        // automatically creates it as the first submenu item that duplicates
+        // the main menu page. We'll just reorder it in modify_menu_structure().
 
-        // Add Venues submenu (third item, renamed from Locations)
+        // Add Venues submenu (renamed from Locations)
         add_submenu_page(
             'hk-funeral-notices',
             'Funeral Venues',
@@ -90,18 +85,20 @@ class Dashboard {
     }
 
     /**
-     * Modify menu structure to remove duplicate and reorder
+     * Modify menu structure to rename and reorder items
      */
     public function modify_menu_structure(): void {
         global $submenu;
         
-        // Remove the first submenu item (duplicate of main menu)
+        // Rename the automatically created first submenu item
         if (isset($submenu['hk-funeral-notices'])) {
-            // Remove the first item which is automatically created by WordPress
-            // This removes "Funeral Notices" from the submenu
-            foreach ($submenu['hk-funeral-notices'] as $key => $item) {
+            // The first item WordPress creates duplicates the main menu
+            // We'll rename it to "All Funeral Notices"
+            foreach ($submenu['hk-funeral-notices'] as $key => &$item) {
                 if ($item[2] === 'hk-funeral-notices') {
-                    unset($submenu['hk-funeral-notices'][$key]);
+                    // Change it to redirect to the funeral notices list
+                    $item[0] = 'All Funeral Notices';
+                    $item[2] = 'edit.php?post_type=funeral-notice';
                     break;
                 }
             }
