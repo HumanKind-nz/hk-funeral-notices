@@ -514,6 +514,26 @@ body #content .container {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* External link styling (View in new window) */
+.wfn-elegant-external-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--wfn-accent);
+    text-decoration: none;
+    border: 1px solid var(--wfn-accent);
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.wfn-elegant-external-link:hover {
+    background: var(--wfn-accent);
+    color: #ffffff;
+    text-decoration: none;
+}
+
 .wfn-elegant-admin {
     margin-top: 1.5rem;
     padding-top: 1.5rem;

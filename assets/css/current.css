@@ -5,6 +5,14 @@
  * @updated 2.0.4
  */
 
+/* Main wrapper for single pages - ensure full width */
+.wfn-fullwidth-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .wfn-current-single {
     font-family: inherit;
     line-height: 1.6;
@@ -69,6 +77,20 @@
     align-items: start;
 }
 
+/* Single Column Layout - When no left content */
+.wfn-current-layout-single {
+    display: flex !important;
+    justify-content: center !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+}
+
+.wfn-current-layout-single .wfn-current-right-column {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+}
+
 /* Left Column - Main Content */
 .wfn-current-left-column {
     line-height: 1.7;
@@ -103,6 +125,18 @@
 
 .wfn-current-tribute a:hover {
     /* color: #2980b9; removed to use theme default */
+}
+
+/* Tribute in right column when no left content */
+.wfn-current-tribute-right {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.wfn-current-tribute-right p {
+    font-size: 0.95rem;
+    margin: 0;
 }
 
 /* Right Column - Service Details */
@@ -243,7 +277,7 @@
 
 .wfn-stream-btn {
     display: inline-block;
-    background: #27ae60;
+    background: var(--wfn-color-primary, #27ae60);
     color: white;
     padding: 1rem 2rem;
     text-decoration: none;
@@ -254,7 +288,7 @@
 }
 
 .wfn-stream-btn:hover {
-    background: #229954;
+    background: var(--wfn-color-secondary, #229954);
     color: white;
     text-decoration: none;
 }
@@ -322,6 +356,16 @@
     .wfn-current-layout {
         grid-template-columns: 1fr;
         gap: 2rem;
+    }
+    
+    /* Ensure single-column layout stays centered on mobile too */
+    .wfn-current-layout-single {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .wfn-current-layout-single .wfn-current-right-column {
+        max-width: 100%;
     }
 
     .wfn-current-right-column {

@@ -6,7 +6,15 @@
  * @since 2.0.0
  */
 
-/* Modern grid layout */
+/* Main wrapper for single pages - ensure full width */
+.wfn-fullwidth-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Modern Grid Layout */
 .wfn-modern-grid {
     display: grid;
     gap: 2rem;

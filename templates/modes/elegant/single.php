@@ -47,25 +47,29 @@ $tribute = $data['tribute'];
             <div class="wfn-elegant-ornament"></div>
         </div>
 
-        <!-- Memorial Introduction -->
+        <!-- Celebration Text -->
         <?php 
-        // Get intro text from field or use site default
+        // Get celebration text from field
         $notice_group = get_field('wfn_notice_group', get_the_ID());
-        $intro_text = isset($notice_group['intro_text']) ? $notice_group['intro_text'] : '';
+        $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
         
-        // If field is empty, use site default
-        if (empty($intro_text)) {
-            $settings = get_option('wfn_module_settings', []);
-            $intro_text = isset($settings['default_intro_text']) ? $settings['default_intro_text'] : 'In loving memory of';
-        }
-        
-        // Display intro text if not empty
-        if (!empty($intro_text)):
+        // Only show if not explicitly empty (allows user to clear it)
+        if ($celebration_text !== ''):
+            // Use default if field wasn't modified or is empty
+            if (empty($celebration_text)) {
+                $celebration_text = 'Please join us in celebrating {firstname} {lastname}\'s life';
+            }
+            
+            // Replace template variables with actual values
+            $celebration_text = str_replace(
+                ['{firstname}', '{lastname}', '{fullname}'],
+                [$person['first_name'], $person['last_name'], $person['full_name']],
+                $celebration_text
+            );
         ?>
             <div class="wfn-elegant-memorial">
                 <p class="wfn-elegant-invitation">
-                    <?php echo esc_html($intro_text); ?> <?php echo esc_html($person['first_name']); ?>, 
-                    we invite you to join us in celebrating a life well lived.
+                    <?php echo wp_kses_post($celebration_text); ?>
                 </p>
             </div>
         <?php endif; ?>
@@ -147,6 +151,13 @@ $tribute = $data['tribute'];
                         <div class="wfn-elegant-stream-embed">
                             <?php echo $streaming['embed_code']; ?>
                         </div>
+                        <?php if (!empty($streaming['streaming_url'])): ?>
+                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem; text-align: center;">
+                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-elegant-external-link">
+                                    Open on OneRoom
+                                </a>
+                            </div>
+                        <?php endif; ?>
                         
                     <?php elseif (in_array($streaming['streaming_service'], ['youtube', 'vimeo', 'vimeo_pro']) && $streaming['embed_code']): ?>
                         <!-- YouTube/Vimeo embed -->
@@ -156,6 +167,13 @@ $tribute = $data['tribute'];
                         <div class="wfn-elegant-stream-embed">
                             <?php echo $streaming['embed_code']; ?>
                         </div>
+                        <?php if (!empty($streaming['streaming_url'])): ?>
+                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem; text-align: center;">
+                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-elegant-external-link">
+                                    View in new window
+                                </a>
+                            </div>
+                        <?php endif; ?>
                         
                     <?php elseif ($streaming['streaming_service'] === 'other' && $streaming['streaming_url']): ?>
                         <!-- Other streaming service - button link -->

@@ -19,20 +19,8 @@ get_header(); ?>
         $template_manager = new TemplateManager();
         $active_mode = $template_manager->get_single_mode(); // Use single-specific mode
 
-        // Enqueue base CSS for all layouts
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../assets/css/layouts/shared-base.css', [], '2.0.0');
-
-        // Enqueue mode-specific CSS for single posts (different from grid layouts)
-        $css_files = [
-            'current' => 'current.css',
-            'modern' => 'modern.css',
-            'elegant' => 'elegant.css',
-            'firehawk' => 'firehawk-compat.css'
-        ];
-
-        if (isset($css_files[$active_mode])) {
-            wp_enqueue_style("wfn-style-{$active_mode}", plugin_dir_url(__FILE__) . "../assets/css/{$css_files[$active_mode]}", ['wfn-enhancement-base'], '2.0.1');
-        }
+        // CSS is now handled by LayoutsModule to avoid duplication
+        // Mode-specific CSS is loaded automatically based on the active template
 
         // Build path to mode-specific template
         $mode_template = plugin_dir_path(__FILE__) . "modes/{$active_mode}/single.php";

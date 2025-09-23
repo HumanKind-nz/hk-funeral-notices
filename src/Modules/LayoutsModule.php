@@ -181,10 +181,43 @@ class LayoutsModule extends BaseModule {
     }
     
     /**
+     * Check if current page should load funeral notice styles
+     */
+    private function should_load_styles(): bool {
+        // Always load on single funeral notice pages
+        if (is_singular('funeral-notice')) {
+            return true;
+        }
+        
+        // Check if current page/post has the funeral_notices shortcode
+        global $post;
+        if ($post && has_shortcode($post->post_content, 'funeral_notices')) {
+            return true;
+        }
+        
+        // Check if it's the archive page for funeral notices
+        if (is_post_type_archive('funeral-notice')) {
+            return true;
+        }
+        
+        // Check if it's a funeral location taxonomy page
+        if (is_tax('funeral-location')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue layout-specific assets
      */
     public function enqueue_layout_assets(): void {
         if (!$this->is_enabled()) {
+            return;
+        }
+        
+        // Only load styles on relevant pages
+        if (!$this->should_load_styles()) {
             return;
         }
         
@@ -197,6 +230,39 @@ class LayoutsModule extends BaseModule {
             [],
             $this->get_version()
         );
+        
+        // For single funeral notice pages, load template-specific CSS
+        if (is_singular('funeral-notice')) {
+            // Get the template manager to determine active mode
+            $template_manager = new \WeaveStudios\FuneralNotices\Templates\TemplateManager();
+            $active_mode = $template_manager->get_single_mode();
+            
+            // Map modes to their CSS files
+            $css_files = [
+                'current' => 'current.css',
+                'modern' => 'modern.css',
+                'elegant' => 'elegant.css',
+                'firehawk' => 'firehawk-compat.css'
+            ];
+            
+            // Load mode-specific CSS if available
+            if (isset($css_files[$active_mode])) {
+                wp_enqueue_style(
+                    'wfn-template-' . $active_mode,
+                    WFN_PLUGIN_URL . 'assets/css/' . $css_files[$active_mode],
+                    ['wfn-layouts-base'],
+                    $this->get_version()
+                );
+            }
+            
+            // Also load celebration text styles
+            wp_enqueue_style(
+                'wfn-celebration-text',
+                WFN_PLUGIN_URL . 'assets/css/celebration-text.css',
+                ['wfn-layouts-base'],
+                $this->get_version()
+            );
+        }
         
         // Register all card layout styles (loaded on demand)
         foreach ($this->available_card_layouts as $layout_id => $layout) {

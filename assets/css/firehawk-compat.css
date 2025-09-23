@@ -5,6 +5,14 @@
  * @since 2.0.0
  */
 
+/* Main wrapper for single pages - ensure full width */
+.wfn-fullwidth-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 /* Remove all link styling */
 .firehawk-crm a,
 .firehawk-crm a:hover,

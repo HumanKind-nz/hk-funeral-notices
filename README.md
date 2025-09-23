@@ -6,28 +6,19 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 
 ---
 
-## 🚀 What's New in Version 2.0.9
-
-### Latest Updates (January 2025)
-- **👥 User Role Integration**: Seamless integration with funeral_staff and funeral_manager roles
-- **🎆 Customizable Intro Text**: Replace "In loving memory of" with any custom text per notice or site-wide
-- **📱 Mobile Search Improvements**: Cleaner mobile interface with date fields hidden for better UX
-- **🔐 Permission Management**: Staff can manage their own notices, managers can manage all
-- **🧹 Code Cleanup**: Removed unused gallery layout and redundant WP-CLI commands
-
 ## 🚀 What's New in Version 2.0
 
 ### Major Updates
 - **🏗️ Complete Architecture Modernisation**: New PHP 8.0+ codebase with namespace organisation
-- **🎨 Professional Module System**: 5 advanced modules for comprehensive functionality
+- **🎨 Professional Module System**: 4 advanced modules for comprehensive functionality
 - **📱 Mobile-First Responsive Design**: Perfect on all devices and screen sizes
 - **⚡ Enhanced Performance**: Smart caching and optimised database queries
 - **🔧 Advanced Admin Interface**: Professional dashboard with modular management
 
 ### New Features
-- **5 Professional Layout Options**: From minimal to elegant funeral styling
+- **4 Professional Layout Options**: From minimal to elegant funeral styling
 - **Advanced Search & Filtering**: Real-time AJAX search with date range filtering
-- **Visual Styling Controls**: 5 colour schemes plus custom colour picker with alpha support
+- **Visual Styling Controls**: Custom colour picker with alpha support
 - **Performance Optimisation**: Caching system, asset optimisation, and lazy loading
 - **Enhanced Shortcode System**: Powerful shortcodes with extensive customisation options
 
@@ -63,7 +54,6 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 - **Autocomplete Suggestions**: Enhanced user experience
 
 ### 🎨 **Visual Styling System**
-- **5 Professional Colour Schemes**: Professional, Elegant, Warm, Serene, Classic
 - **Custom Colour Picker**: Alpha transparency support for advanced theming
 - **Typography Controls**: 10+ professional font options including Google Fonts
 - **Layout Customisation**: Spacing, borders, shadows, and aspect ratios
@@ -119,51 +109,6 @@ The plugin automatically verifies:
 
 ---
 
-## 🔄 Migration from v1.x
-
-**Important:** Version 2.0 is a major upgrade with new architecture and features.
-
-### Pre-Migration Checklist
-- [ ] **Backup your site** completely
-- [ ] **Test on staging site** first
-- [ ] **Document current settings** and customisations
-- [ ] **Note any custom CSS** modifications
-
-### Migration Process
-
-1. **Automatic Data Preservation**
-   - All existing funeral notices remain unchanged
-   - ACF field data is fully preserved
-   - Existing shortcodes continue working
-
-2. **New Features Activation**
-   - Access new dashboard at `Funeral Notices > Dashboard`
-   - Configure modules as needed
-   - Choose your preferred layout and styling
-
-3. **Template Compatibility**
-   - Existing Beaver Builder templates continue working
-   - New plugin templates provide enhanced functionality
-   - Switch between old and new systems during transition
-
-### What's Different
-
-| v1.x | v2.0 |
-|------|------|
-| Single display mode | 5 professional layouts |
-| Basic admin interface | Advanced modular dashboard |
-| Limited search | Real-time AJAX search with filters |
-| Fixed styling | 5+ Colour schemes + custom picker |
-| Basic performance | Advanced caching & optimisation |
-
-### Post-Migration Steps
-1. **Review Dashboard**: Visit the new Funeral Notices Dashboard
-2. **Configure Modules**: Enable/disable features as needed
-3. **Choose Layout**: Select from 6 professional layout options
-4. **Customise Styling**: Apply Colour schemes and typography
-5. **Test Functionality**: Verify search, pagination, and mobile display
-
----
 
 ## 🏗️ Module Overview
 
@@ -250,22 +195,6 @@ Each module can be enabled/disabled independently and includes comprehensive set
 
 ## 🎨 Styling & Customisation
 
-### Built-in Colour Schemes
-
-1. **Professional** - Clean blue with modern accents
-2. **Elegant** - Deep navy with gold highlights  
-3. **Warm** - Earth tones with warm browns
-4. **Serene** - Soft greens with calming palette
-5. **Classic** - Traditional black with minimal Colour
-
-### Custom Styling Options
-
-- **Typography**: Choose from 10+ professional fonts including Google Fonts
-- **Colours**: Full Colour picker with alpha transparency
-- **Spacing**: Adjust card gaps, padding, and margins
-- **Borders**: Control border radius and shadow depth
-- **Images**: Set aspect ratios and hover effects
-
 ### CSS Customisation
 
 Add custom CSS in the Styling Module:
@@ -303,7 +232,6 @@ templates/
 │   ├── firehawk/         # Firehawk Tributes compatible
 │   ├── modern/           # Contemporary memorial design
 │   ├── elegant/          # Formal funeral styling
-│   ├── gallery/          # Photo-focused layout
 │   └── minimal/          # Clean list view
 └── partials/
 	├── search-form.php   # Advanced search form

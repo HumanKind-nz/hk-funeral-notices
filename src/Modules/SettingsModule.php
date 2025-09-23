@@ -37,7 +37,7 @@ class SettingsModule extends BaseModule {
         'tribute_form_url' => '',
         'default_person_image' => '',
         'location_name' => '',
-        'default_intro_text' => 'In loving memory of'
+        'default_memorial_header' => 'In loving memory of'
     ];
     
     /**
@@ -304,17 +304,17 @@ class SettingsModule extends BaseModule {
                     <h3>Content Settings</h3>
                     
                     <div class="wfn-form-group">
-                        <label for="default_intro_text">Default Introduction Text</label>
+                        <label for="default_memorial_header">Default Memorial Header Text</label>
                         <input type="text" 
-                               name="wfn_module_settings[default_intro_text]" 
-                               id="default_intro_text" 
-                               value="<?php echo esc_attr($settings['default_intro_text']); ?>" 
+                               name="wfn_module_settings[default_memorial_header]" 
+                               id="default_memorial_header" 
+                               value="<?php echo esc_attr($settings['default_memorial_header']); ?>" 
                                placeholder="In loving memory of"
                                class="wfn-wide-input">
                         <p class="wfn-form-description">
-                            Default text that appears before the person's name on single funeral notice pages.<br>
+                            Default text that appears at the top of single funeral notice pages above the person's name.<br>
                             Examples: "In loving memory of", "Celebrating the life of", "In remembrance of"<br>
-                            Individual notices can override this default. Leave blank for no intro text.
+                            Individual notices can override this default. Leave blank for no header text.
                         </p>
                     </div>
                     
@@ -632,9 +632,9 @@ class SettingsModule extends BaseModule {
         $location_name = trim($settings['location_name'] ?? '');
         $sanitized['location_name'] = sanitize_text_field($location_name);
         
-        // Default intro text validation
-        $intro_text = trim($settings['default_intro_text'] ?? 'In loving memory of');
-        $sanitized['default_intro_text'] = sanitize_text_field($intro_text);
+        // Default memorial header validation
+        $memorial_header = trim($settings['default_memorial_header'] ?? 'In loving memory of');
+        $sanitized['default_memorial_header'] = sanitize_text_field($memorial_header);
 
         return $sanitized;
     }

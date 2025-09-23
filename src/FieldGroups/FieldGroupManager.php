@@ -255,16 +255,28 @@ class FieldGroupManager {
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_intro_text',
-                            'label' => 'Introduction Text',
-                            'name' => 'intro_text',
+                            'key' => 'field_wfn_memorial_header',
+                            'label' => 'Memorial Header Text',
+                            'name' => 'memorial_header',
                             'type' => 'text',
-                            'instructions' => 'This text appears at the top of the single funeral notice page before the person\'s name. Common examples: "In loving memory of", "Celebrating the life of", "In remembrance of", "A tribute to". Leave blank if you don\'t want any introduction text.',
-                            'default_value' => $this->get_default_intro_text(),
-                            'placeholder' => $this->get_default_intro_text(),
+                            'instructions' => 'This text appears at the very top of the single funeral notice page, above the person\'s name and photo. Common examples: "In loving memory of", "Celebrating the life of", "In remembrance of", "A tribute to". Leave blank if you don\'t want any header text.',
+                            'default_value' => $this->get_default_memorial_header(),
+                            'placeholder' => $this->get_default_memorial_header(),
                             'prepend' => '',
                             'append' => '[Person\'s Name]',
                             'wrapper' => ['width' => '70'],
+                        ],
+                        [
+                            'key' => 'field_wfn_celebration_text',
+                            'label' => 'Celebration Text',
+                            'name' => 'celebration_text',
+                            'type' => 'textarea',
+                            'instructions' => 'Customize the celebration message. Use these placeholders: {firstname} for first name, {lastname} for last name, {fullname} for full name. Default: "Please join us in celebrating {firstname} {lastname}\'s life". Leave completely blank to hide this text.',
+                            'default_value' => 'Please join us in celebrating {firstname} {lastname}\'s life',
+                            'placeholder' => 'Please join us in celebrating {firstname} {lastname}\'s life',
+                            'rows' => 2,
+                            'new_lines' => 'br',
+                            'wrapper' => ['width' => '100'],
                         ],
                         [
                             'key' => 'field_wfn_newspaper_notice',
@@ -609,11 +621,11 @@ class FieldGroupManager {
     }
     
     /**
-     * Get default intro text from settings
+     * Get default memorial header text from settings
      */
-    private function get_default_intro_text(): string {
+    private function get_default_memorial_header(): string {
         $settings = get_option('wfn_module_settings', []);
-        return $settings['default_intro_text'] ?? 'In loving memory of';
+        return $settings['default_memorial_header'] ?? 'In loving memory of';
     }
     
     /**

@@ -34,20 +34,20 @@ $post_content = get_the_content();
         <!-- Header Section -->
         <div class="wfn-current-header">
             <?php 
-            // Get intro text from field or use site default
+            // Get memorial header text from field or use site default
             $notice_group = get_field('wfn_notice_group', get_the_ID());
-            $intro_text = isset($notice_group['intro_text']) ? $notice_group['intro_text'] : '';
+            $memorial_header = isset($notice_group['memorial_header']) ? $notice_group['memorial_header'] : '';
             
             // If field is empty, use site default
-            if (empty($intro_text)) {
+            if (empty($memorial_header)) {
                 $settings = get_option('wfn_module_settings', []);
-                $intro_text = isset($settings['default_intro_text']) ? $settings['default_intro_text'] : 'In loving memory of';
+                $memorial_header = isset($settings['default_memorial_header']) ? $settings['default_memorial_header'] : 'In loving memory of';
             }
             
-            // Display intro text if not empty
-            if (!empty($intro_text)):
+            // Display memorial header if not empty
+            if (!empty($memorial_header)):
             ?>
-                <div class="wfn-memory-text"><?php echo esc_html($intro_text); ?></div>
+                <div class="wfn-memory-text"><?php echo esc_html($memorial_header); ?></div>
             <?php endif; ?>
             <h1 class="wfn-current-name"><?php echo esc_html($person['full_name']); ?></h1>
             <?php if ($person['birth_year'] && $person['death_year']): ?>
@@ -66,9 +66,40 @@ $post_content = get_the_content();
             </div>
         <?php endif; ?>
 
-        <!-- Main Content Layout -->
-        <div class="wfn-current-layout">
+        <!-- Celebration Text -->
+        <?php 
+        // Get celebration text from field
+        $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
+        
+        // Only show if not explicitly empty (allows user to clear it)
+        if ($celebration_text !== ''):
+            // Use default if field wasn't modified or is empty
+            if (empty($celebration_text)) {
+                $celebration_text = 'Please join us in celebrating {firstname} {lastname}\'s life';
+            }
+            
+            // Replace template variables with actual values
+            $celebration_text = str_replace(
+                ['{firstname}', '{lastname}', '{fullname}'],
+                [$person['first_name'], $person['last_name'], $person['full_name']],
+                $celebration_text
+            );
+        ?>
+            <div class="wfn-celebration-text">
+                <h2><?php echo wp_kses_post($celebration_text); ?></h2>
+            </div>
+        <?php endif; ?>
 
+        <?php 
+        // Check if we have content for the left column
+        // Only consider tribute button as content if there's also notice content
+        $has_left_content = !empty($content['notice']);
+        ?>
+        
+        <!-- Main Content Layout -->
+        <div class="wfn-current-layout <?php echo $has_left_content ? '' : 'wfn-current-layout-single'; ?>">
+
+            <?php if ($has_left_content): ?>
             <!-- Left Column: Main Content -->
             <div class="wfn-current-left-column">
 
@@ -92,6 +123,7 @@ $post_content = get_the_content();
                 <?php endif; ?>
 
             </div>
+            <?php endif; ?>
 
             <!-- Right Column: Service Details -->
             <div class="wfn-current-right-column">
@@ -190,6 +222,18 @@ $post_content = get_the_content();
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
+                
+                <?php // Show tribute button in right column when there's no left content ?>
+                <?php if (!$has_left_content && $tribute['show_button']): ?>
+                    <div class="wfn-current-tribute wfn-current-tribute-right">
+                        <?php if ($tribute['has_url']): ?>
+                            <p>Unable to attend the service? <a href="<?php echo esc_url($tribute['full_url']); ?>"
+                               target="_blank" rel="noopener">Send a Tribute</a></p>
+                        <?php else: ?>
+                            <p><span style="color: #999;">Send a Tribute (Configure URL in Settings)</span></p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
 
             </div>
 
@@ -223,6 +267,13 @@ $post_content = get_the_content();
                         <div class="wfn-video-wrapper">
                             <?php echo $streaming['embed_code']; ?>
                         </div>
+                        <?php if (!empty($streaming['streaming_url'])): ?>
+                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem;">
+                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-view-external">
+                                    View in new window
+                                </a>
+                            </div>
+                        <?php endif; ?>
 
                     <?php elseif ($streaming['streaming_service'] === 'other' && $streaming['streaming_url']): ?>
                         <!-- Other streaming service - button link -->

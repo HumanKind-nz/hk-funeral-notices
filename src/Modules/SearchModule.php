@@ -168,10 +168,43 @@ class SearchModule extends BaseModule {
     }
     
     /**
+     * Check if current page should load search functionality
+     */
+    private function should_load_styles(): bool {
+        // DO NOT load on single funeral notice pages - they don't have search
+        if (is_singular('funeral-notice')) {
+            return false;
+        }
+        
+        // Check if current page/post has the funeral_notices shortcode (which may include search)
+        global $post;
+        if ($post && has_shortcode($post->post_content, 'funeral_notices')) {
+            return true;
+        }
+        
+        // Check if it's the archive page for funeral notices (has search)
+        if (is_post_type_archive('funeral-notice')) {
+            return true;
+        }
+        
+        // Check if it's a funeral location taxonomy page (has search)
+        if (is_tax('funeral-location')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue search assets
      */
     public function enqueue_search_assets(): void {
         if (!$this->is_enabled()) {
+            return;
+        }
+        
+        // Only load styles on relevant pages
+        if (!$this->should_load_styles()) {
             return;
         }
         
@@ -180,7 +213,7 @@ class SearchModule extends BaseModule {
         // Enqueue search styles
         wp_enqueue_style(
             'wfn-search',
-            plugins_url('assets/css/search.css', dirname(__DIR__, 2)),
+            WFN_PLUGIN_URL . 'assets/css/search.css',
             [],
             $this->get_version()
         );
@@ -189,7 +222,7 @@ class SearchModule extends BaseModule {
         if (isset($this->search_form_styles[$settings['search_form_style']])) {
             wp_enqueue_style(
                 'wfn-search-' . $settings['search_form_style'],
-                plugins_url('assets/css/search-' . $settings['search_form_style'] . '.css', dirname(__DIR__, 2)),
+                WFN_PLUGIN_URL . 'assets/css/search-' . $settings['search_form_style'] . '.css',
                 ['wfn-search'],
                 $this->get_version()
             );

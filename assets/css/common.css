@@ -96,7 +96,7 @@
 }
 
 .wfn-stream-button:hover {
-    background: var(--wfn-color-accent, #005a87);
+    background: var(--wfn-color-secondary, #d4af37);
     color: white;
     text-decoration: none;
 }

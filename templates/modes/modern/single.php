@@ -44,22 +44,26 @@ $tribute = $data['tribute'];
                 <?php endif; ?>
                 
                 <?php 
-                // Get intro text from field or use site default
+                // Get celebration text from field
                 $notice_group = get_field('wfn_notice_group', get_the_ID());
-                $intro_text = isset($notice_group['intro_text']) ? $notice_group['intro_text'] : '';
+                $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
                 
-                // If field is empty, use site default
-                if (empty($intro_text)) {
-                    $settings = get_option('wfn_module_settings', []);
-                    $intro_text = isset($settings['default_intro_text']) ? $settings['default_intro_text'] : 'In loving memory of';
-                }
-                
-                // Display intro text if not empty  
-                if (!empty($intro_text)):
+                // Only show if not explicitly empty (allows user to clear it)
+                if ($celebration_text !== ''):
+                    // Use default if field wasn't modified or is empty
+                    if (empty($celebration_text)) {
+                        $celebration_text = 'Please join us in celebrating {firstname} {lastname}\'s life';
+                    }
+                    
+                    // Replace template variables with actual values
+                    $celebration_text = str_replace(
+                        ['{firstname}', '{lastname}', '{fullname}'],
+                        [$person['first_name'], $person['last_name'], $person['full_name']],
+                        $celebration_text
+                    );
                 ?>
                     <p class="wfn-modern-intro">
-                        <?php echo esc_html($intro_text); ?> <?php echo esc_html($person['first_name']); ?>, 
-                        please join us in celebrating a life well lived.
+                        <?php echo wp_kses_post($celebration_text); ?>
                     </p>
                 <?php endif; ?>
             </div>

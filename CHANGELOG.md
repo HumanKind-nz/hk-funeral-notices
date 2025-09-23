@@ -2,12 +2,58 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.1.0] - 2025-09-23
+
+### 🎯 **Performance, Streaming & User Experience Update**
+
+#### **Added**
+- 🎉 **Celebration Text Feature** - Restored from v1 with enhancements
+  - Default: "Please join us in celebrating [First Name] [Last Name]'s life"
+  - New dedicated CSS file for consistent presentation
+
+- 📺 **Streaming Improvements**
+  - Added "View in new window" link for all Vimeo/YouTube embeds across all templates
+  - Helps when videos have embedding disabled in their sharing settings
+  - Consistent with OneRoom streaming which already had external links
+
+#### **Enhanced**
+- ⚡ **CSS Performance Optimisation** - Styles now load conditionally
+  - CSS only loads on pages with funeral notices (not site-wide)
+  - Detects: single funeral notices, shortcode pages, archives, taxonomy pages
+  - Significantly reduces unnecessary CSS loading across the site
+  - Fixed broken CSS paths that were missing plugin directory name
+  - Removed duplicate CSS loading and legacy unused styles
+  
+- 🎨 **Simplified Color Management** - Streamlined Visual Styling module
+  - Removed preset color schemes (Professional Blue, Elegant Navy, etc.)
+  - Focus on custom colors that integrate with theme
+  - Cleaner, less overwhelming admin interface
+  - Retained full custom color control and CSS variable system
+
+#### **Fixed**
+- 🔗 **CSS Path Issues** - Corrected broken paths in SearchModule using WFN_PLUGIN_URL constant
+- 🏷️ **Field Naming Clarity** - Renamed ACF fields for better understanding:
+  - `intro_text` → `memorial_header` (top of page text)
+  - New `celebration_text` field for the celebration message
+- 🎨 **Styling Consistency**
+  - Fixed button hover colors - all now use `var(--wfn-color-secondary)` for consistency
+  - Removed CSS override that was forcing service date/time to wrong color in modern grid
+  - Service info now correctly displays in primary color (green) instead of text-secondary (gray)
+- 🐛 **Streaming Display** - Fixed Vimeo streams not showing when incorrectly marked as private
+
+#### **Technical**
+- Added `should_load_styles()` helper method in all style-loading modules
+- Consistent conditional loading pattern across LayoutsModule, SearchModule, and StylingModule
+- Improved code organization and reduced complexity
+- Enhanced content detection logic for better layout decisions
+- Removed problematic CSS generation from StylingModule that was overriding layout styles
+
 ## [2.0.9] - 2025-09-22
 
 ### 🎉 **Feature-Rich Update**
 
 #### **Added**
-- 🎆 **Customisable Introduction Text** - Replace "In loving memory of" with any custom text
+- 🎆 **Customizable Introduction Text** - Replace "In loving memory of" with any custom text
   - Site-wide default setting in Content Settings
   - Per-notice override capability
   - Leave blank to hide intro text entirely
@@ -44,6 +90,20 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ---
 
+## [2.0.7] - 2025-09-22
+
+### 🚨 **Critical Bug Fix**
+
+#### **Fixed**
+- 🔥 **Fatal Error** - Removed reference to non-existent `includes/migrations.php` file that was causing plugin to crash
+- ✅ **Plugin Activation** - Plugin now loads correctly without fatal errors
+
+#### **Removed**
+- 🔧 **WP-CLI Commands** - Removed redundant WP-CLI migration commands (now handled by dedicated migration plugin)
+- 🧹 **Code Cleanup** - Removed unnecessary includes for cleaner codebase
+
+---
+
 ## [2.0.6] - 2025-09-22
 
 ### 📱 **Mobile UX Improvements**
@@ -62,7 +122,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ## [2.0.5] - 2025-09-22
 
-### 🗑️ **Code Cleanup & Optimisation**
+### 🗑️ **Code Cleanup & Optimization**
 
 #### **Removed**
 - ❌ **Gallery Layout** - Completely removed unused gallery card view and all related code

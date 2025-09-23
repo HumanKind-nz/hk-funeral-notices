@@ -14,7 +14,7 @@ namespace WeaveStudios\FuneralNotices\Modules;
 class StylingModule extends BaseModule {
     
     protected array $default_settings = [
-        'color_scheme' => 'professional',
+        'color_scheme' => 'custom',
         'custom_colors' => [
             'primary' => '#2c5282',
             'secondary' => '#d4af37',
@@ -233,10 +233,43 @@ class StylingModule extends BaseModule {
     }
     
     /**
+     * Check if current page should load funeral notice styles
+     */
+    private function should_load_styles(): bool {
+        // Always load on single funeral notice pages
+        if (is_singular('funeral-notice')) {
+            return true;
+        }
+        
+        // Check if current page/post has the funeral_notices shortcode
+        global $post;
+        if ($post && has_shortcode($post->post_content, 'funeral_notices')) {
+            return true;
+        }
+        
+        // Check if it's the archive page for funeral notices
+        if (is_post_type_archive('funeral-notice')) {
+            return true;
+        }
+        
+        // Check if it's a funeral location taxonomy page
+        if (is_tax('funeral-location')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue styling assets
      */
     public function enqueue_styling_assets(): void {
         if (!$this->is_enabled()) {
+            return;
+        }
+        
+        // Only load styles on relevant pages
+        if (!$this->should_load_styles()) {
             return;
         }
         
@@ -262,21 +295,8 @@ class StylingModule extends BaseModule {
             );
         }
         
-        // Enqueue styling JavaScript for dynamic features
-        wp_enqueue_script(
-            'wfn-styling',
-            WFN_PLUGIN_URL . 'assets/js/styling-admin.js',
-            ['jquery'],
-            $this->get_version(),
-            true
-        );
-        
-        // Pass settings to JavaScript
-        wp_localize_script('wfn-styling', 'wfnStyling', [
-            'settings' => $settings,
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_styling_nonce')
-        ]);
+        // Note: Removed styling-admin.js from frontend as it requires wpColorPicker which is admin-only
+        // The custom CSS file handles all frontend styling needs
     }
     
     /**
@@ -583,9 +603,8 @@ class StylingModule extends BaseModule {
         $css .= 'color: var(--wfn-color-text-secondary) !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-modern-service {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
-        $css .= '}';
+        // Service info color removed - let modern-grid.css control it with primary color
+        // .wfn-enhancement-modern-service uses var(--wfn-color-primary) in modern-grid.css
         
         $css .= '.wfn-enhancement-modern-more {';
         $css .= 'color: white !important;';
@@ -661,8 +680,8 @@ class StylingModule extends BaseModule {
         $css .= '}';
         
         $css .= '.wfn-enhancement-search-form .search-btn:hover {';
-        $css .= 'background: var(--wfn-color-accent) !important;';
-        $css .= 'border-color: var(--wfn-color-accent) !important;';
+        $css .= 'background: var(--wfn-color-secondary) !important;';
+        $css .= 'border-color: var(--wfn-color-secondary) !important;';
         $css .= '}';
         
         // Hover effects for shortcode cards
@@ -714,16 +733,11 @@ class StylingModule extends BaseModule {
     }
     
     /**
-     * Get current colors based on scheme
+     * Get current colors (always custom now)
      */
     private function get_current_colors(): array {
         $settings = $this->get_settings();
-        
-        if ($settings['color_scheme'] === 'custom') {
-            return $settings['custom_colors'];
-        }
-        
-        return $this->color_schemes[$settings['color_scheme']]['colors'] ?? $this->color_schemes['professional']['colors'];
+        return $settings['custom_colors'];
     }
     
     /**
@@ -770,11 +784,18 @@ class StylingModule extends BaseModule {
     }
     
     /**
-     * Get CSS file URL
+     * Get CSS file URL with correct protocol
      */
     private function get_css_file_url(): string {
         $upload_dir = wp_upload_dir();
-        return $upload_dir['baseurl'] . '/wfn-styling.css';
+        $url = $upload_dir['baseurl'] . '/wfn-styling.css';
+        
+        // Ensure URL uses the same protocol as the site
+        if (is_ssl()) {
+            $url = str_replace('http://', 'https://', $url);
+        }
+        
+        return $url;
     }
     
     /**
@@ -807,51 +828,13 @@ class StylingModule extends BaseModule {
                     
                     <!-- Color Schemes Tab -->
                     <div id="colors" class="tab-content active">
-                        <h3>Color Schemes</h3>
+                        <h3>Custom Colors</h3>
+                        <p class="wfn-form-description">Customize the colors to match your website's theme. Leave fields at default to inherit from your theme.</p>
                         
-                        <div class="wfn-color-schemes">
-                            <?php foreach ($this->color_schemes as $scheme_id => $scheme): ?>
-                                <div class="wfn-color-scheme">
-                                    <label>
-                                        <input type="radio" 
-                                               name="wfn_module_settings[color_scheme]" 
-                                               value="<?php echo esc_attr($scheme_id); ?>"
-                                               <?php checked($settings['color_scheme'], $scheme_id); ?>>
-                                        
-                                        <div class="wfn-scheme-preview">
-                                            <div class="wfn-scheme-colors">
-                                                <?php foreach (array_slice($scheme['colors'], 0, 5) as $color): ?>
-                                                    <div class="wfn-color-swatch" style="background-color: <?php echo esc_attr($color); ?>"></div>
-                                                <?php endforeach; ?>
-                                            </div>
-                                            <div class="wfn-scheme-info">
-                                                <h4><?php echo esc_html($scheme['name']); ?></h4>
-                                                <p><?php echo esc_html($scheme['description']); ?></p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                            <?php endforeach; ?>
-                            
-                            <div class="wfn-color-scheme">
-                                <label>
-                                    <input type="radio" 
-                                           name="wfn_module_settings[color_scheme]" 
-                                           value="custom"
-                                           <?php checked($settings['color_scheme'], 'custom'); ?>>
-                                    
-                                    <div class="wfn-scheme-preview">
-                                        <div class="wfn-scheme-info">
-                                            <h4>Custom Colors</h4>
-                                            <p>Create your own color scheme</p>
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="wfn-custom-colors" style="<?php echo $settings['color_scheme'] === 'custom' ? '' : 'display: none;'; ?>">
-                            <h4>Custom Color Settings</h4>
+                        <!-- Always show custom colors since that's the only option now -->
+                        <div class="wfn-custom-colors">
+                            <input type="hidden" name="wfn_module_settings[color_scheme]" value="custom">
+                            <h4>Color Settings</h4>
                             <div class="wfn-color-grid">
                                 <?php foreach ($settings['custom_colors'] as $key => $value): ?>
                                     <div class="wfn-color-field">
@@ -1348,19 +1331,7 @@ class StylingModule extends BaseModule {
                     });
                 });
                 
-                // Color scheme toggle
-                const colorSchemeRadios = document.querySelectorAll('input[name="wfn_module_settings[color_scheme]"]');
-                const customColorsDiv = document.querySelector('.wfn-custom-colors');
-                
-                colorSchemeRadios.forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        if (this.value === 'custom') {
-                            customColorsDiv.style.display = 'block';
-                        } else {
-                            customColorsDiv.style.display = 'none';
-                        }
-                    });
-                });
+                // Color scheme toggle removed - always custom now
                 
                 // Custom CSS toggle
                 const customCssCheckbox = document.getElementById('enable_custom_css');
@@ -1387,11 +1358,10 @@ class StylingModule extends BaseModule {
                             },
                             hide: true,
                             palettes: [
-                                '#8b4513', '#d69e2e', '#c05621', // Warm Earth colors
-                                '#2c5282', '#d4af37', '#667eea', // Professional colors
-                                '#1a365d', '#b7791f', '#4a5568', // Elegant colors
-                                '#22543d', '#38a169', '#68d391', // Serene colors
-                                '#1a202c', '#4a5568', '#718096'  // Classic colors
+                                '#2c5282', '#d4af37', '#667eea', // Primary colors
+                                '#2d3748', '#718096', '#a0aec0', // Text colors
+                                '#e2e8f0', '#f8fafc', '#ffffff', // Background colors
+                                '#1a202c', '#4a5568', '#718096'  // Dark colors
                             ]
                         };
                         
@@ -1415,12 +1385,8 @@ class StylingModule extends BaseModule {
     protected function sanitize_settings(array $settings): array {
         $sanitized = [];
         
-        // Color scheme validation
-        $valid_schemes = array_keys($this->color_schemes);
-        $valid_schemes[] = 'custom';
-        $sanitized['color_scheme'] = in_array($settings['color_scheme'] ?? '', $valid_schemes) 
-            ? $settings['color_scheme'] 
-            : 'professional';
+        // Color scheme always custom now
+        $sanitized['color_scheme'] = 'custom';
         
         // Custom colors validation
         $sanitized['custom_colors'] = [];

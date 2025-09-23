@@ -102,6 +102,33 @@ $tribute = $data['tribute'];
     <div class="firehawk-main-container">
         <div class="firehawk-content-single-column">
             
+            <!-- Celebration Text -->
+            <?php 
+            // Get celebration text from field
+            $notice_group = get_field('wfn_notice_group', get_the_ID());
+            $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
+            
+            // Only show if not explicitly empty (allows user to clear it)
+            if ($celebration_text !== ''):
+                // Use default if field wasn't modified or is empty
+                if (empty($celebration_text)) {
+                    $celebration_text = 'Please join us in celebrating {firstname} {lastname}\'s life';
+                }
+                
+                // Replace template variables with actual values
+                $celebration_text = str_replace(
+                    ['{firstname}', '{lastname}', '{fullname}'],
+                    [$person['first_name'], $person['last_name'], $person['full_name']],
+                    $celebration_text
+                );
+            ?>
+                <div class="firehawk-celebration-section">
+                    <h2 class="firehawk-celebration-text">
+                        <?php echo wp_kses_post($celebration_text); ?>
+                    </h2>
+                </div>
+            <?php endif; ?>
+            
             <!-- Funeral Notice Content -->
             <?php if ($content['notice']): ?>
                 <div class="firehawk-notice-section">
