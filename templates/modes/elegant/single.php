@@ -75,7 +75,7 @@ $tribute = $data['tribute'];
         <?php endif; ?>
 
         <!-- Service Details with traditional styling -->
-        <?php if ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address'])))): ?>
+        <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
             <div class="wfn-elegant-service">
                 <h2 class="wfn-elegant-section-title">Memorial Service</h2>
                 <div class="wfn-elegant-service-details">
@@ -86,7 +86,7 @@ $tribute = $data['tribute'];
                             <span class="wfn-elegant-detail-value"><?php echo esc_html($event['formatted_date']); ?></span>
                         </div>
                     <?php endif; ?>
-                    <?php if ($event['formatted_time'] && !$event['hide_time']): ?>
+                    <?php if ($event['formatted_time']): ?>
                         <div class="wfn-elegant-detail-row">
                             <span class="wfn-elegant-detail-label">Time</span>
                             <span class="wfn-elegant-detail-divider">•</span>

@@ -2,6 +2,14 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.1.2] - 2025-09-24
+
+### 🎨 **UI Refinements**
+- 📺 **Streaming Icons** - Improved streaming icon styling and positioning:
+  - Refined icon sizes and spacing across all grid layouts
+  - Enhanced visibility and positioning of streaming indicators
+  - Consistent icon styling when date/time/venue are hidden
+
 ## [2.1.1] - 2025-09-24
 
 ### 🎨 **UI/UX Improvements**

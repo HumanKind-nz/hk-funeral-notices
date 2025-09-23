@@ -70,7 +70,7 @@ $tribute = $data['tribute'];
         </div>
 
         <!-- Service Information -->
-        <?php if ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address'])))): ?>
+        <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
             <div class="wfn-modern-service">
                 <h2 class="wfn-modern-section-title">Service Information</h2>
                 <div class="wfn-modern-service-details">
@@ -80,7 +80,7 @@ $tribute = $data['tribute'];
                             <span class="wfn-modern-value"><?php echo esc_html($event['formatted_date']); ?></span>
                         </div>
                     <?php endif; ?>
-                    <?php if ($event['formatted_time'] && !$event['hide_time']): ?>
+                    <?php if ($event['formatted_time']): ?>
                         <div class="wfn-modern-detail">
                             <span class="wfn-modern-label">Time:</span>
                             <span class="wfn-modern-value"><?php echo esc_html($event['formatted_time']); ?></span>

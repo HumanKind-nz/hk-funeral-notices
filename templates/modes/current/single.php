@@ -143,7 +143,7 @@ $post_content = get_the_content();
                     </div>
                 <?php endif; ?>
 
-                <?php if ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))): ?>
+                <?php if ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address'])) && !$event['hide_time']): ?>
                     <div class="wfn-current-where">
                         <h3>WHERE</h3>
                         <?php if ($location['display_venue']): ?>

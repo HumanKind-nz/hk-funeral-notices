@@ -18,6 +18,7 @@
 
 /* Card styling */
 .wfn-enhancement-modern-card {
+    position: relative;
     background: var(--wfn-color-card-background, #ffffff);
     border: 1px solid var(--wfn-color-border, #e9ecef);
     border-radius: var(--wfn-border-radius, 12px);
@@ -71,6 +72,7 @@
 
 /* Content styling */
 .wfn-enhancement-modern-content {
+    position: relative;
     padding: 1.25rem;
     flex: 1;
     display: flex;
@@ -131,6 +133,25 @@
 
 .wfn-enhancement-modern-card:hover .wfn-streaming-icon svg {
     opacity: 1;
+}
+
+/* Floating streaming icon when date/time/venue hidden (modern) */
+.wfn-streaming-icon-float {
+    position: absolute;
+    top: 0.75rem; /* sits just below the image, inside content */
+    right: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    z-index: 2;
+}
+
+.wfn-streaming-icon-float svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--wfn-color-primary, #3498db);
 }
 
 .wfn-enhancement-modern-more {

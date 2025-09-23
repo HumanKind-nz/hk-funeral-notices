@@ -13,7 +13,7 @@
  * Plugin Name:       HumanKind Funeral Notices
  * Plugin URI:        https://github.com/HumanKind-nz/hk-funeral-notices
  * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls for funeral homes.
- * Version:           2.1.1
+ * Version:           2.1.2
  * Author:            Gareth Bissland | Weave Digital Studio
  * Author URI:        https://weave.co.nz
  * License:           GPL-2.0

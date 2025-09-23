@@ -139,7 +139,7 @@ $tribute = $data['tribute'];
             <?php endif; ?>
 
             <!-- Service Details -->
-            <?php if ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address'])))): ?>
+            <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
                 <div class="firehawk-service-section">
                     <h3 class="firehawk-section-title">Service Details</h3>
                     <div class="firehawk-service-details">
@@ -150,7 +150,7 @@ $tribute = $data['tribute'];
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($event['formatted_time'] && !$event['hide_time']): ?>
+                        <?php if ($event['formatted_time']): ?>
                             <div class="firehawk-detail-row">
                                 <span class="firehawk-detail-label">Time:</span>
                                 <span class="firehawk-detail-value"><?php echo esc_html($event['formatted_time']); ?></span>

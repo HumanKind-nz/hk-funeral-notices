@@ -118,7 +118,7 @@ class AdminColumns {
         $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
-            echo '<span style="color: #999; font-style: italic;">Hidden</span>';
+            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
         } elseif ($date) {
             // Format as "Tues 27th May 2025"
             $day_of_week = date('D', strtotime($date));
@@ -139,7 +139,7 @@ class AdminColumns {
         $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
-            echo '<span style="color: #999; font-style: italic;">Hidden</span>';
+            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
         } elseif ($time) {
             $formatted_time = date('g:i A', strtotime($time));
             echo esc_html($formatted_time);
@@ -155,6 +155,14 @@ class AdminColumns {
         // Prefer new structure in wfn_details_group
         $details_group = get_field('wfn_details_group', $post_id) ?: [];
         $location_type = $details_group['location_type'] ?? null;
+        
+        // Check if date/time/venue is hidden
+        $hide_datetime = $details_group['hide_datetime'] ?? false;
+        
+        if ($hide_datetime) {
+            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
+            return;
+        }
 
         if ($location_type === 'custom') {
             // New custom address

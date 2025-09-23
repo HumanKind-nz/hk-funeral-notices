@@ -871,13 +871,27 @@ class FuneralNoticesShortcode {
             }
             
             echo '<div class="wfn-enhancement-modern-content">';
+            
+            // Check if we should hide date/time/venue
+            $hide_details = $event['hide_time'] ?? false;
+            
+            // Show floating streaming icon when details are hidden but streaming is available
+            $streaming = $data['streaming'];
+            if ($hide_details && $streaming['is_public'] && !empty($streaming['streaming_url'])) {
+                echo '<span class="wfn-streaming-icon-float" title="Live streaming available">';
+                echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
+                echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
+                echo '</svg>';
+                echo '</span>';
+            }
+            
             echo '<h3 class="wfn-enhancement-modern-title">' . esc_html($full_name) . '</h3>';
             
             if ($years_display) {
                 echo '<p class="wfn-enhancement-modern-dates">' . esc_html($years_display) . '</p>';
             }
             
-            if ($funeral_date) {
+            if ($funeral_date && !$hide_details) {
                 echo '<div class="wfn-enhancement-modern-service">';
                 echo '<span class="wfn-service-info">';
                 echo '<span class="service-label">Service:</span> ';
@@ -948,6 +962,20 @@ class FuneralNoticesShortcode {
             echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-elegant-link">';
             
             echo '<div class="wfn-enhancement-elegant-header">';
+            
+            // Check if we should hide date/time/venue
+            $hide_details = $event['hide_time'] ?? false;
+            
+            // Show floating streaming icon when details are hidden but streaming is available
+            $streaming = $data['streaming'];
+            if ($hide_details && $streaming['is_public'] && !empty($streaming['streaming_url'])) {
+                echo '<span class="wfn-streaming-icon-float" title="Live streaming available">';
+                echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
+                echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
+                echo '</svg>';
+                echo '</span>';
+            }
+            
             if ($image_url) {
                 echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" class="wfn-enhancement-elegant-portrait">';
             }
@@ -958,7 +986,7 @@ class FuneralNoticesShortcode {
             }
             echo '</div></div>';
             
-            if ($funeral_date) {
+            if ($funeral_date && !$hide_details) {
                 echo '<div class="wfn-enhancement-elegant-service">';
                 echo '<strong>Service:</strong> ' . esc_html(date('j F Y', strtotime($funeral_date)));
                 if ($funeral_time) {
