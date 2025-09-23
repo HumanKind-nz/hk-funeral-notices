@@ -99,10 +99,10 @@ class FieldGroupManager {
     private function get_acfe_address_field(): array {
         return [
             'key' => 'field_wfn_custom_address_acfe',
-            'label' => 'Custom Address',
+            'label' => 'Custom Location/Address',
             'name' => 'custom_address',
             'type' => 'acfe_google_maps',
-            'instructions' => 'Search and select the funeral venue address (ACFE Pro)',
+            'instructions' => 'Search and select the funeral venue address',
             'conditional_logic' => [
                 [
                     [
@@ -126,10 +126,10 @@ class FieldGroupManager {
     private function get_custom_address_field(): array {
         return [
             'key' => 'field_wfn_custom_address_native',
-            'label' => 'Custom Address',
+            'label' => 'Custom Location/Address',
             'name' => 'custom_address',
             'type' => 'wfn_google_maps',
-            'instructions' => 'Search and select the funeral venue address (Native)',
+            'instructions' => 'Search and select the funeral venue address',
             'conditional_logic' => [
                 [
                     [
@@ -365,9 +365,9 @@ class FieldGroupManager {
                             'type' => 'radio',
                             'instructions' => 'Choose how to display the funeral location',
                             'choices' => [
-                                'none' => 'No location',
-                                'existing' => 'Use saved location',
-                                'custom' => 'Enter custom address',
+                                'none' => 'Display No Location',
+                                'existing' => 'Use one of our saved Venues',
+                                'custom' => 'Enter a Custom Location/Address',
                             ],
                             'default_value' => 'existing',
                             'layout' => 'vertical',
@@ -375,10 +375,10 @@ class FieldGroupManager {
                         ],
                         [
                             'key' => 'field_wfn_location',
-                            'label' => 'Funeral Location',
+                            'label' => 'Saved Venues/Locations',
                             'name' => 'location',
                             'type' => 'taxonomy',
-                            'instructions' => 'Select the funeral location from your saved venues',
+                            'instructions' => 'Select from your Saved Venues (to add a saved venue <a href="mailto:support@weave.co.nz?subject=New%20Saved%20Location%20for%20Funeral%20Notices">contact Weave/HumanKind</a>)',
                             'conditional_logic' => [
                                 [
                                     [

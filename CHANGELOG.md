@@ -2,6 +2,15 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.1.1] - 2025-09-24
+
+### 🎨 **UI/UX Improvements**
+
+- 📝 **Location Field Labels** - Improved clarity and user-friendliness of location selection fields in ACF:
+  - "No location" → "Display No Location"
+  - "Use saved location" → "Use one of our saved Venues"
+  - "Enter custom address" → "Enter a Custom Location/Address"
+
 ## [2.1.0] - 2025-09-23
 
 ### 🎯 **Performance, Streaming & User Experience Update**
