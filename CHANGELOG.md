@@ -11,6 +11,12 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
   - Default: "Please join us in celebrating [First Name] [Last Name]'s life"
   - New dedicated CSS file for consistent presentation
 
+- 📅 **Smart Ordering** - Funeral notices now intelligently sorted
+  - Primary sort by service date (furthest dates appear first)
+  - Secondary sort by publish date for notices without service dates
+  - Applies to both grid layouts and archive pages
+  - Ensures upcoming services are more prominent
+
 - 📺 **Streaming Improvements**
   - Added "View in new window" link for all Vimeo/YouTube embeds across all templates
   - Helps when videos have embedding disabled in their sharing settings

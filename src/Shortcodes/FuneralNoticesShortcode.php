@@ -95,10 +95,17 @@ class FuneralNoticesShortcode {
             'post_status' => 'publish'
         ];
         
-        // Always order by funeral date - date is more important than search relevance
+        // Order by funeral date first (Y-m-d), then fall back to post date for items without a date
+        // Notes:
+        // - meta_type=DATE ensures correct chronological ordering
+        // - Posts without the meta_key naturally fall to the end of the result set
+        // - Secondary 'date' ordering keeps no-date items sorted by publish date (newest first)
         $args['meta_key'] = 'wfn_details_group_funeral_date';
-        $args['orderby'] = 'meta_value';
-        $args['order'] = 'DESC';
+        $args['meta_type'] = 'DATE';
+        $args['orderby'] = [
+            'meta_value' => 'DESC', // furthest dates first (Oct 4 before Sep 26, Sep 25)
+            'date'       => 'DESC', // for notices without dates, newest published first
+        ];
 
         // Add date filtering based on type
         $today = date('Y-m-d');

@@ -93,6 +93,9 @@ class Plugin {
         // Register template loading hooks
         add_filter('single_template', [$this, 'load_single_template']);
         add_filter('archive_template', [$this, 'load_archive_template']);
+        
+        // Customize archive query ordering
+        add_action('pre_get_posts', [$this, 'customize_archive_query']);
     }
 
     /**
@@ -193,5 +196,21 @@ class Plugin {
             }
         }
         return $template;
+    }
+    
+    /**
+     * Customize archive query to order by funeral date
+     */
+    public function customize_archive_query(\WP_Query $query): void {
+        // Only modify main query on frontend archive pages
+        if (!is_admin() && $query->is_main_query() && is_post_type_archive('funeral-notice')) {
+            // Order by funeral date first (furthest dates first), then by publish date
+            $query->set('meta_key', 'wfn_details_group_funeral_date');
+            $query->set('meta_type', 'DATE');
+            $query->set('orderby', [
+                'meta_value' => 'DESC', // furthest dates first
+                'date'       => 'DESC', // for notices without dates, newest published first
+            ]);
+        }
     }
 }
