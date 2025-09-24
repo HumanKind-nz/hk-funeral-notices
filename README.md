@@ -6,14 +6,15 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 
 ---
 
-## 🚀 What's New in Version 2.0
+## 🚀 What's New in Version 2.1.3
 
-### Major Updates
-- **🏗️ Complete Architecture Modernisation**: New PHP 8.0+ codebase with namespace organisation
-- **🎨 Professional Module System**: 4 advanced modules for comprehensive functionality
-- **📱 Mobile-First Responsive Design**: Perfect on all devices and screen sizes
-- **⚡ Enhanced Performance**: Smart caching and optimised database queries
-- **🔧 Advanced Admin Interface**: Professional dashboard with modular management
+### Latest Updates (September 2025)
+- **📝 Tribute Text Update**: Changed to "Send a tribute to the family" for more personal messaging
+- **🎉 Celebration Text**: Beautiful tribute message feature with customizable templates
+- **📅 Smart Ordering**: Funeral notices sorted by service date with publish date fallback
+- **📺 Better Streaming**: "View in new window" links for all video embeds
+- **🎨 Layout Fixes**: Centered single pages, consistent button hovers, proper CSS usage
+- **⚡ Performance**: Optimized CSS loading and removed legacy code
 
 ### New Features
 - **4 Professional Layout Options**: From minimal to elegant funeral styling

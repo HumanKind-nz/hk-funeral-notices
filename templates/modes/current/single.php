@@ -115,9 +115,9 @@ $post_content = get_the_content();
                     <div class="wfn-current-tribute">
                         <?php if ($tribute['has_url']): ?>
                             <p>Unable to attend the service? <a href="<?php echo esc_url($tribute['full_url']); ?>"
-                               target="_blank" rel="noopener">Send a Tribute</a></p>
+                               target="_blank" rel="noopener">Send a tribute to the family</a></p>
                         <?php else: ?>
-                            <p><span style="color: #999;">Send a Tribute (Configure URL in Settings)</span></p>
+                            <p><span style="color: #999;">Send a tribute to the family (Configure URL in Settings)</span></p>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -228,9 +228,9 @@ $post_content = get_the_content();
                     <div class="wfn-current-tribute wfn-current-tribute-right">
                         <?php if ($tribute['has_url']): ?>
                             <p>Unable to attend the service? <a href="<?php echo esc_url($tribute['full_url']); ?>"
-                               target="_blank" rel="noopener">Send a Tribute</a></p>
+                               target="_blank" rel="noopener">Send a tribute to the family</a></p>
                         <?php else: ?>
-                            <p><span style="color: #999;">Send a Tribute (Configure URL in Settings)</span></p>
+                            <p><span style="color: #999;">Send a tribute to the family (Configure URL in Settings)</span></p>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

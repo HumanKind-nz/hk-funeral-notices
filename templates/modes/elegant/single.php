@@ -227,11 +227,11 @@ $tribute = $data['tribute'];
                            target="_blank" 
                            rel="noopener"
                            class="wfn-elegant-tribute-link">
-                           Send a Tribute
+                           Send a tribute to the family
                         </a>
                     <?php else: ?>
                         <span class="wfn-elegant-tribute-link" style="color: #999; cursor: not-allowed;">
-                           Send a Tribute (Configure URL in Settings)
+                           Send a tribute to the family (Configure URL in Settings)
                         </span>
                     <?php endif; ?>
                 </div>

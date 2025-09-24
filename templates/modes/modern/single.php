@@ -190,11 +190,11 @@ $tribute = $data['tribute'];
                        target="_blank" 
                        rel="noopener"
                        class="wfn-modern-button">
-                       Send a Tribute
+                       Send a tribute to the family
                     </a>
                 <?php else: ?>
                     <span class="wfn-modern-button wfn-modern-button-disabled">
-                       Send a Tribute (Configure URL in Settings)
+                       Send a tribute to the family (Configure URL in Settings)
                     </span>
                 <?php endif; ?>
             </div>

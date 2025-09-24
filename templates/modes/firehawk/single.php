@@ -82,12 +82,12 @@ $tribute = $data['tribute'];
                        rel="noopener"
                        class="firehawk-action-btn firehawk-action-tribute">
                         <span class="firehawk-action-icon">💐</span>
-                        <span class="firehawk-action-text">Share Tribute</span>
+                        <span class="firehawk-action-text">Send a tribute to the family</span>
                     </a>
                 <?php else: ?>
                     <div class="firehawk-action-btn firehawk-action-tribute firehawk-action-disabled">
                         <span class="firehawk-action-icon">💐</span>
-                        <span class="firehawk-action-text">Share Tribute</span>
+                        <span class="firehawk-action-text">Send a tribute to the family</span>
                         <small class="firehawk-action-note">Configure URL in Settings</small>
                     </div>
                 <?php endif; ?>

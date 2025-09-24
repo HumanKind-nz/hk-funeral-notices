@@ -2,7 +2,17 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.1.2] - 2025-09-24
+## [2.1.3] - 2025-09-24
+
+### 🎯 **Text Update**
+
+#### **Changed**
+- 📝 **Tribute Link Text** - Updated all "Send a Tribute" links to "Send a tribute to the family"
+  - More personal and family-focused messaging
+  - Applied consistently across all single templates (Current, Modern, Elegant, Firehawk)
+  - Includes both active links and placeholder text when URL not configured
+
+## [2.1.0] - 2025-09-23
 
 ### 🎨 **UI Refinements**
 - 📺 **Streaming Icons** - Improved streaming icon styling and positioning:
