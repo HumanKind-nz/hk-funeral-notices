@@ -187,24 +187,20 @@ class TemplateManager {
         $notice_content = get_post_field('post_content', $post_id);
         $notice_content = apply_filters('the_content', $notice_content);
 
-        // Streaming - handle both grouped and individual field formats with legacy support
+        // Streaming - simplified approach based on URL presence only
         $streaming_group = get_field('wfn_streaming_group', $post_id) ?: [];
-        
-        // Check if streaming is enabled (legacy field) - handles both 'streaming' and 'live' values
-        $has_streaming_setting = get_field('wfn_streaming_group_has_streaming', $post_id) ?? '';
-        $streaming_enabled = in_array($has_streaming_setting, ['streaming', 'live']);
-        
+
         // Get streaming URL with legacy fallback - handle empty strings properly
         $streaming_url = '';
-        
+
         // Try various field sources, checking for non-empty values
         $url_sources = [
             $streaming_group['streaming_url'] ?? '',
             get_field('wfn_streaming_group_streaming_url', $post_id) ?? '',
-            get_field('wfn_streaming_group_oneroom_streaming_link', $post_id) ?? '', // OneRoom specific field
-            get_field('wfn_streaming_group_public_streaming_link', $post_id) ?? '' // Legacy field
+            get_field('wfn_streaming_group_oneroom_streaming_link', $post_id) ?? '', // OneRoom legacy field
+            get_field('wfn_streaming_group_public_streaming_link', $post_id) ?? '' // General legacy field
         ];
-        
+
         foreach ($url_sources as $potential_url) {
             if (!empty(trim($potential_url))) {
                 $streaming_url = trim($potential_url);
@@ -227,9 +223,9 @@ class TemplateManager {
                          get_field('wfn_streaming_group_streaming_note', $post_id) ?? 
                          '';
         
-        // Enhanced streaming detection - only consider valid if we have an actual URL
-        // Even if streaming is "enabled", we need a valid URL to show the streaming section
-        $has_streaming = $streaming_enabled && !empty($streaming_url);
+        // Streaming detection - simply check if we have a valid URL
+        // No need for has_streaming field - URL presence determines availability
+        $has_streaming = !empty($streaming_url);
         
         // Use StreamingDetector for comprehensive streaming service detection
         $streaming_info = $this->streaming_detector->detect_service($streaming_url);

@@ -2,6 +2,18 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.6] - 2025-09-27
+
+### 🐛 **Critical Production Fix**
+
+#### **Fixed**
+- 🚨 **Live Site Streaming Issue** - Fixed streaming not displaying on production sites where `has_streaming` field was set to 'none'
+  - Streaming logic now prioritizes URL presence over `has_streaming` field setting
+  - Handles cases where users add streaming URLs but field defaults to 'none'
+  - Ensures streaming works regardless of ACF field configuration state
+
+---
+
 ## [2.2.5] - 2025-09-27
 
 ### 🐛 **Critical Bug Fix**
