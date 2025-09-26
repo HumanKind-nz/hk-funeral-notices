@@ -54,6 +54,20 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
             // Clear cache on activation attempt
             delete_transient(self::CACHE_KEY);
 
+            // If activation was successful, store the token and license key
+            if (isset($response['success']) && $response['success']) {
+                // Store license key for future reference
+                update_option('wfn_license_key', $license_key);
+
+                // Store hoster token for secure updates (if provided)
+                if (isset($response['token']) && !empty($response['token'])) {
+                    update_option('wfn_hoster_token', $response['token']);
+                    error_log('WFN: Hoster token stored successfully for secure updates');
+                } else {
+                    error_log('WFN: No token received in activation response');
+                }
+            }
+
             return $response;
         }
 
@@ -74,6 +88,14 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
             // Clear cache on deactivation
             delete_transient(self::CACHE_KEY);
 
+            // If deactivation was successful, clean up stored license data
+            if (isset($response['success']) && $response['success']) {
+                // Remove stored license key and token
+                delete_option('wfn_license_key');
+                delete_option('wfn_hoster_token');
+                error_log('WFN: License key and token cleaned up after deactivation');
+            }
+
             return $response;
         }
 
@@ -90,14 +112,6 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
                 $site_url = get_site_url();
             }
 
-            // Check for bypass (development/testing)
-            if (defined('WFN_BYPASS_LICENSE') && WFN_BYPASS_LICENSE === true) {
-                return [
-                    'success' => true,
-                    'license' => 'valid',
-                    'message' => 'License bypassed for development'
-                ];
-            }
 
             // Check cache first unless forced
             if (!$force_check) {
@@ -191,6 +205,24 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
                     '_transient_timeout_' . self::CACHE_KEY . '%'
                 )
             );
+        }
+
+        /**
+         * Clean up license data when license becomes invalid/expired
+         * This should be called when check_license returns invalid/expired status
+         */
+        public function cleanup_invalid_license() {
+            delete_option('wfn_license_key');
+            delete_option('wfn_hoster_token');
+            $this->clear_cache();
+            error_log('WFN: Cleaned up invalid/expired license data');
+        }
+
+        /**
+         * Get stored hoster token for secure updates
+         */
+        public function get_stored_token() {
+            return get_option('wfn_hoster_token', '');
         }
     }
 }

@@ -412,6 +412,24 @@
     }
 }
 
+/* License Protection - Hide upload interface when unlicensed */
+.wfn-video-field-unlicensed .acf-input .acf-file-uploader {
+    display: none !important;
+}
+
+.wfn-video-field-unlicensed .acf-input::after {
+    content: 'Premium license required to upload memorial videos.';
+    display: block;
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
     .wfn-progress-fill,

@@ -2,6 +2,29 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.4] - 2025-09-26
+
+### 🚀 **Premium Video Hosting**
+
+#### **Added**
+- 📺 **Premium Licensing System** - Integrated professional license management for video streaming features
+  - Secure license validation with humankindwebsites.com
+  - Dynamic token management for secure updates
+  - Automatic cleanup of expired licenses
+- 🎥 **Video Upload Protection** - Video slideshow uploads now require valid premium license
+  - Clean admin interface with upgrade prompts for unlicensed users
+  - CSS-based hiding of upload interface when unlicensed
+  - Professional error messaging and upgrade paths
+
+#### **Changed**
+- 🔧 **Update System** - Switched to dynamic token-based updates for licensed installations
+- 🎛️ **Admin Interface** - Premium modules (Video Slideshows) hidden when unlicensed
+- ⚙️ **Video Module** - Notification settings now default to disabled
+
+#### **Removed**
+- 🧹 **Development Bypasses** - Removed development license bypass functionality
+- 🔗 **GitHub Links** - Removed GitHub link from plugin action links
+
 ## [2.1.3] - 2025-09-24
 
 ### 🎯 **Text Update**

@@ -526,6 +526,9 @@ class FieldGroupManager {
                             'max_size' => 100, // 100MB limit
                             'insert' => 'upload', // Default to Upload tab for better UX
                             'disabled' => !$this->has_premium_license(),
+                            'wrapper' => [
+                                'class' => $this->has_premium_license() ? '' : 'wfn-video-field-unlicensed'
+                            ],
                         ],
                         [
                             'key' => 'field_wfn_additional_documents',

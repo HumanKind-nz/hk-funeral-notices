@@ -118,6 +118,25 @@ class HK_Funeral_Notices_Unified_Updater {
     }
 
     /**
+     * Build hoster URL with stored token
+     *
+     * @return string|null Hoster URL with token or null if no token stored
+     */
+    private function build_hoster_url() {
+        if (class_exists('HK_Funeral_Notices_License_Handler')) {
+            $license_handler = HK_Funeral_Notices_License_Handler::init();
+            $stored_token = $license_handler->get_stored_token();
+
+            if (!empty($stored_token)) {
+                // Replace HOSTER_TOKEN_HERE with actual token
+                return str_replace('HOSTER_TOKEN_HERE', $stored_token, $this->hoster_remote_url);
+            }
+        }
+
+        return null; // No valid token available
+    }
+
+    /**
      * Get update information from hoster API
      *
      * @return object|false Hoster info or false on failure
@@ -138,7 +157,19 @@ class HK_Funeral_Notices_Unified_Updater {
             return $this->hoster_response;
         }
 
-        $response = wp_remote_get($this->hoster_remote_url, [
+        // Build hoster URL with stored token
+        $hoster_url = $this->build_hoster_url();
+
+        // If no token is available, skip hoster and return false (will fallback to GitHub)
+        if (empty($hoster_url)) {
+            error_log('WFN: No hoster token available - skipping hoster updates');
+            set_transient(self::HOSTER_CACHE_KEY, ['status' => 'no_token'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
+            return false;
+        }
+
+        error_log('WFN: Using hoster updates with stored token');
+
+        $response = wp_remote_get($hoster_url, [
             'timeout' => 15,
             'headers' => [
                 'Accept' => 'application/json',

@@ -11,9 +11,9 @@
 
 /**
  * Plugin Name:       HumanKind Funeral Notices
- * Plugin URI:        https://humankindwebsites.com/funeral-notices-wordpress-plugin/
+ * Plugin URI:        https://humankindwebsites.com/plugins/funeral-notices/
  * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls for funeral homes. Premium video streaming features available.
- * Version:           2.2.3
+ * Version:           2.2.4
  * Author:            Gareth Bissland | Weave Digital Studio
  * Author URI:        https://weave.co.nz
  * License:           GPL-2.0-or-later
@@ -24,7 +24,6 @@
  * Primary Branch:    main
  * Requires at least: 6.0
  * Requires PHP:      8.0
- * Update URI:        https://humankindwebsites.com/wp-content/plugins/hoster/inc/secure-download.php?file=json&download=8031&token=HOSTER_TOKEN_HERE
  * Website:           https://humankindwebsites.com/
  */
 
@@ -34,7 +33,7 @@ if (!defined("WPINC")) {
 }
 
 // Define plugin constants
-define('WFN_VERSION', '2.2.3');
+define('WFN_VERSION', '2.2.4');
 define('WFN_PLUGIN_FILE', __FILE__);
 define('WFN_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WFN_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -44,6 +43,7 @@ define('WFN_HOSTER_DOWNLOAD_ID', 8031);
 define('WFN_HOSTER_API_URL', 'https://humankindwebsites.com/wp-json/hoster/v1');
 define('WFN_HOSTER_REMOTE_URL', 'https://humankindwebsites.com/wp-content/plugins/hoster/inc/secure-download.php?file=json&download=8031&token=HOSTER_TOKEN_HERE');
 define('WFN_PREMIUM_FEATURE_VIDEO', 'video_streaming');
+
 
 /**
  * Check PHP version requirement
@@ -146,15 +146,13 @@ add_action('plugins_loaded', 'init_modern_funeral_notices');
 
 
 /**
- * Add plugin action links (Settings & GitHub)
+ * Add plugin action links (Settings)
  */
 function hk_funeral_notices_plugin_action_links($links) {
 	$settings_link = '<a href="' . admin_url('admin.php?page=hk-funeral-notices') . '">Settings</a>';
-	$github_link = '<a href="https://github.com/HumanKind-nz/hk-funeral-notices" target="_blank" rel="noopener noreferrer">GitHub</a>';
-	
+
 	array_unshift($links, $settings_link);
-	array_push($links, $github_link);
-	
+
 	return $links;
 }
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'hk_funeral_notices_plugin_action_links');

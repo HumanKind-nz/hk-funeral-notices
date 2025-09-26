@@ -54,10 +54,6 @@ class LicenseService {
      * @return bool
      */
     public function checkFeatureLicense(string $feature): bool {
-        // Check for development bypass
-        if (defined('WFN_BYPASS_LICENSE') && WFN_BYPASS_LICENSE === true) {
-            return true;
-        }
 
         // For now, we only have video streaming as premium feature
         if ($feature !== WFN_PREMIUM_FEATURE_VIDEO) {
@@ -105,14 +101,6 @@ class LicenseService {
      * @return array
      */
     public function getLicenseStatus(): array {
-        // Check for development bypass
-        if (defined('WFN_BYPASS_LICENSE') && WFN_BYPASS_LICENSE === true) {
-            return [
-                'status' => 'valid',
-                'message' => 'License bypassed for development',
-                'type' => 'development'
-            ];
-        }
 
         $license_key = get_option('wfn_license_key', '');
 
@@ -152,6 +140,10 @@ class LicenseService {
                     'license_data' => $response
                 ];
             } else {
+                // License is invalid/expired - clean up stored data
+                if ($this->license_handler !== null) {
+                    $this->license_handler->cleanup_invalid_license();
+                }
                 return [
                     'status' => 'invalid',
                     'message' => $response['message'] ?? 'License is not valid',
@@ -159,6 +151,10 @@ class LicenseService {
                 ];
             }
         } else {
+            // License verification failed - clean up stored data
+            if ($this->license_handler !== null) {
+                $this->license_handler->cleanup_invalid_license();
+            }
             return [
                 'status' => 'invalid',
                 'message' => $response['message'] ?? 'License verification failed',
