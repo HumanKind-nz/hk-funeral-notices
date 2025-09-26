@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
 
 use WeaveStudios\FuneralNotices\Templates\TemplateManager;
 
+// Load SVG icon functions
+require_once __DIR__ . '/../../partials/svg-icons.php';
+
 $template_manager = new TemplateManager();
 $data = $template_manager->get_funeral_data(get_the_ID());
 
@@ -149,7 +152,7 @@ $tribute = $data['tribute'];
                                target="_blank" 
                                rel="noopener" 
                                class="wfn-modern-button wfn-view-external">
-                               🔗 View in new window
+                               <?php echo wfn_get_link_icon(); ?> View in new window
                             </a>
                         </div>
                         

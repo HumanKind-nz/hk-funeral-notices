@@ -12,6 +12,8 @@ use WeaveStudios\FuneralNotices\Modules\SettingsModule;
 use WeaveStudios\FuneralNotices\Modules\LayoutsModule;
 use WeaveStudios\FuneralNotices\Modules\SearchModule;
 use WeaveStudios\FuneralNotices\Modules\StylingModule;
+use WeaveStudios\FuneralNotices\Modules\LicenseModule;
+use WeaveStudios\FuneralNotices\Modules\VideoModule;
 use WeaveStudios\FuneralNotices\Fields\GoogleMapsField;
 
 /**
@@ -131,7 +133,9 @@ class Plugin {
             'settings' => new SettingsModule(),
             'layouts' => new LayoutsModule(),
             'search' => new SearchModule(),
-            'styling' => new StylingModule()
+            'styling' => new StylingModule(),
+            'license' => new LicenseModule(),
+            'video' => new VideoModule()
         ];
     }
     

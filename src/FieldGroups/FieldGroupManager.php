@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace WeaveStudios\FuneralNotices\FieldGroups;
 
+use WeaveStudios\FuneralNotices\Services\LicenseService;
+
 use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
 
 /**
@@ -513,6 +515,19 @@ class FieldGroupManager {
                             'mime_types' => 'pdf,doc,docx',
                         ],
                         [
+                            'key' => 'field_wfn_video_slideshow',
+                            'label' => 'Memorial Video Slideshow',
+                            'name' => 'video_slideshow',
+                            'type' => 'file',
+                            'instructions' => $this->get_video_field_instructions(),
+                            'return_format' => 'array',
+                            'library' => 'all',
+                            'mime_types' => 'mp4,mov,avi,wmv,webm',
+                            'max_size' => 100, // 100MB limit
+                            'insert' => 'upload', // Default to Upload tab for better UX
+                            'disabled' => !$this->has_premium_license(),
+                        ],
+                        [
                             'key' => 'field_wfn_additional_documents',
                             'label' => 'Additional Links or Attachments',
                             'name' => 'additional_documents',
@@ -614,7 +629,7 @@ class FieldGroupManager {
             'content' => 'Add the main content for the funeral notice. This uses the WordPress post content editor.',
             'event' => 'Set the date, time and location details for the funeral service. The location selector will appear in the main form when you choose to use a different location.',
             'streaming' => 'Paste any streaming link from OneRoom, YouTube, Vimeo, iStream and we\'ll automatically detect the service type and embed it for you.',
-            'media' => 'Upload service documents and additional files for the funeral.',
+            'media' => 'Upload service documents, memorial video slideshows, and additional files for the funeral.',
         ];
 
         return $instructions[$section] ?? '';
@@ -670,5 +685,25 @@ class FieldGroupManager {
             'active' => true,
             'description' => 'Add your Chapel locations',
         ]);
+    }
+
+    /**
+     * Get instructions for video field based on license status
+     */
+    private function get_video_field_instructions(): string {
+        if (!$this->has_premium_license()) {
+            return '⚠️ <strong>Premium Feature:</strong> Video streaming requires a valid premium license. ' .
+                   'Contact your administrator to activate this feature. <a href="' .
+                   admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>';
+        }
+
+        return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 100MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
+    }
+
+    /**
+     * Check if premium license is active
+     */
+    private function has_premium_license(): bool {
+        return LicenseService::hasValidVideoLicense();
     }
 }

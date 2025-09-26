@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace WeaveStudios\FuneralNotices\Admin;
 
+use WeaveStudios\FuneralNotices\Services\LicenseService;
+
 /**
  * Admin Dashboard - FCRM-Style Interface
  * 
@@ -121,6 +123,45 @@ class Dashboard {
             [],
             $this->version
         );
+
+        // Add inline CSS for premium module styling
+        $inline_css = '
+        .wfn-module-unlicensed {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .wfn-module-unlicensed::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .wfn-upgrade-button {
+            background: #ff6b35 !important;
+            border-color: #ff6b35 !important;
+            color: #fff !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+        }
+
+        .wfn-upgrade-button:hover,
+        .wfn-upgrade-button:focus {
+            background: #e55a2e !important;
+            border-color: #e55a2e !important;
+        }
+
+        .wfn-always-active-spacer {
+            height: 36px; /* Same height as toggle switch */
+        }';
+
+        wp_add_inline_style('wfn-admin', $inline_css);
 
         // Admin JavaScript
         wp_enqueue_script(
@@ -271,9 +312,14 @@ class Dashboard {
         $is_enabled = $module['enabled'];
         $status_class = $is_enabled ? 'active' : 'inactive';
         $status_text = $is_enabled ? 'Active' : 'Inactive';
-        
+
+        // Check if license is required and valid
+        $license_required = $module['premium_required'] ?? false;
+        $license_valid = $module['license_valid'] ?? true;
+        $is_grayed_out = $license_required && !$license_valid;
+
         ?>
-        <div class="wfn-module-card" data-module="<?php echo esc_attr($module_id); ?>">
+        <div class="wfn-module-card<?php echo $is_grayed_out ? ' wfn-module-unlicensed' : ''; ?>" data-module="<?php echo esc_attr($module_id); ?>">
             <div class="wfn-module-header">
                 <div class="wfn-module-icon" style="background: <?php echo esc_attr($module['icon_color']); ?>;">
                     <span class="dashicons <?php echo esc_attr($module['icon']); ?>"></span>
@@ -299,12 +345,12 @@ class Dashboard {
             </div>
             
             <div class="wfn-module-actions">
-                <?php if (!empty($module['always_active'])): ?>
-                    <!-- Always active modules - show empty space for cleaner UI -->
+                <?php if (!empty($module['always_active']) || !empty($module['no_toggle'])): ?>
+                    <!-- Always active modules or no-toggle modules - show empty space for cleaner UI -->
                     <div class="wfn-always-active-spacer"></div>
                 <?php else: ?>
                     <label class="wfn-toggle-switch">
-                        <input type="checkbox" 
+                        <input type="checkbox"
                                <?php checked($is_enabled); ?>
                                data-module="<?php echo esc_attr($module_id); ?>"
                                class="wfn-module-toggle">
@@ -312,12 +358,21 @@ class Dashboard {
                         <span class="wfn-toggle-label"><?php echo $is_enabled ? 'Enabled' : 'Disabled'; ?></span>
                     </label>
                 <?php endif; ?>
-                
-                <?php if ($is_enabled && !empty($module['settings_page'])): ?>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=' . $module['settings_page'])); ?>" 
-                   class="button button-secondary">
-                    Configure
-                </a>
+
+                <?php if (!empty($module['settings_page'])): ?>
+                    <?php if ($is_grayed_out): ?>
+                        <!-- Premium module without license - show upgrade message -->
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=hkfn-module-license')); ?>"
+                           class="button button-primary wfn-upgrade-button">
+                            Upgrade License
+                        </a>
+                    <?php else: ?>
+                        <!-- Regular configure button -->
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=' . $module['settings_page'])); ?>"
+                           class="button button-secondary">
+                            Configure
+                        </a>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -332,7 +387,8 @@ class Dashboard {
             'layouts' => true,
             'styling' => false,
             'search' => true,
-            'settings' => true
+            'settings' => true,
+            'license' => false
         ]);
 
         return [
@@ -390,6 +446,38 @@ class Dashboard {
                     'Default Layout Settings',
                     'Fallback Image Configuration',
                     'Archive Page Options'
+                ]
+            ],
+            'license' => [
+                'name' => 'Premium License',
+                'description' => 'Manage premium license for advanced features like memorial video slideshows.',
+                'icon' => 'dashicons-admin-network',
+                'icon_color' => '#e74c3c',
+                'enabled' => true, // Always enabled, no toggle
+                'settings_page' => 'hkfn-module-license',
+                'no_toggle' => true, // Don't show toggle switch
+                'features' => [
+                    'Video Slideshow Upload',
+                    'Professional CDN Hosting',
+                    'Modal Video Player',
+                    'Advanced Media Management'
+                ]
+            ],
+            'video' => [
+                'name' => 'Video Slideshows',
+                'description' => 'Upload and manage memorial video slideshows with professional hosting.',
+                'icon' => 'dashicons-video-alt3',
+                'icon_color' => '#9b59b6',
+                'enabled' => $enabled_modules['video'] ?? false,
+                'settings_page' => 'hkfn-module-video',
+                'premium_required' => true,
+                'no_toggle' => true, // Don't show toggle switch
+                'license_valid' => LicenseService::hasValidVideoLicense(),
+                'features' => [
+                    'Video Upload & Validation',
+                    'Modal Video Players',
+                    'Thumbnail Generation',
+                    'Mobile-Responsive Players'
                 ]
             ]
         ];

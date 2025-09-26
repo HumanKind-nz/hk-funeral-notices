@@ -215,9 +215,14 @@
     margin-top: 1rem;
 }
 
+/* Video Slideshow Button */
+.wfn-current-video-slideshow {
+    margin-top: 1rem;
+}
+
 /* Additional Documents in Right Column */
 .wfn-current-additional-docs {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -461,6 +466,35 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+/* Memorial Video Button */
+.wfn-memorial-video-btn {
+    display: block;
+    width: 100%;
+    background: var(--wfn-color-primary, #9b59b6);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: var(--wfn-border-radius, 5px);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--wfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1));
+}
+
+.wfn-memorial-video-btn:hover {
+    background: var(--wfn-color-secondary, #8e44ad);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.wfn-memorial-video-btn:focus {
+    outline: 2px solid var(--wfn-color-accent, #3498db);
+    outline-offset: 2px;
+}
+
 /* OneRoom service sizing (desktop emphasis) */
 .wfn-oneroom .wfn-stream-container {
     max-width: 800px !important;
@@ -503,3 +537,4 @@
 @media (max-width: 768px) {
     .wfn-oneroom .wfn-video-wrapper { height: 400px !important; }
 }
+

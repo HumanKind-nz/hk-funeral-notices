@@ -28,18 +28,25 @@ class AdminColumns {
     public function set_columns(array $columns): array {
         // Remove default title and date columns
         unset($columns['title'], $columns['date']);
-        
-        return [
+
+        $base_columns = [
             'cb' => $columns['cb'],
             'image' => 'Image',
             'first_name' => 'First Name',
-            'last_name' => 'Last Name', 
+            'last_name' => 'Last Name',
             'funeral_date' => 'Funeral Date',
             'funeral_time' => 'Funeral Time',
             'location' => 'Location',
             'streaming' => 'Streaming',
             'service_sheets' => 'Service Sheets',
         ];
+
+        // Only show slideshow column if license is valid
+        if ($this->has_video_license()) {
+            $base_columns['slideshow'] = 'Slideshow';
+        }
+
+        return $base_columns;
     }
 
     /**
@@ -79,6 +86,10 @@ class AdminColumns {
                 
             case 'service_sheets':
                 $this->render_service_sheets_column($post_id);
+                break;
+
+            case 'slideshow':
+                $this->render_slideshow_column($post_id);
                 break;
         }
     }
@@ -294,6 +305,49 @@ class AdminColumns {
     }
 
     /**
+     * Render slideshow column
+     */
+    private function render_slideshow_column(int $post_id): void {
+        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
+        $video_data = get_post_meta($post_id, '_wfn_video_data', true);
+        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $upload_status = get_post_meta($post_id, '_wfn_video_upload_status', true);
+
+        // Show ready if status is ready AND (data exists OR video ID exists for reconstruction)
+        if ($video_status === 'ready' && ($video_data || $video_id)) {
+            echo '<span style="color: #0073aa; font-weight: bold;" title="Memorial slideshow ready for viewing">🎥 Ready</span>';
+        } elseif ($upload_status && isset($upload_status['status'])) {
+            $status = $upload_status['status'];
+            $progress = $upload_status['progress'] ?? 0;
+
+            switch ($status) {
+                case 'processing':
+                case 'uploading':
+                case 'queued':
+                    echo '<span style="color: #f79e05;" title="Video processing: ' . $progress . '%">🔄 Processing</span>';
+                    break;
+                case 'failed':
+                case 'retrying':
+                    echo '<span style="color: #dc3545;" title="Upload failed - check diagnostics">❌ Failed</span>';
+                    break;
+                default:
+                    echo '<span style="color: #6c757d;" title="Video upload in progress">⏳ Uploading</span>';
+                    break;
+            }
+        } else {
+            // Check if video field has content
+            $media_group = get_field('wfn_media_group', $post_id);
+            $video_field = $media_group['video_slideshow'] ?? null;
+
+            if ($video_field) {
+                echo '<span style="color: #6c757d;" title="Video uploaded, waiting for processing">⏳ Pending</span>';
+            } else {
+                echo '—';
+            }
+        }
+    }
+
+    /**
      * Detect streaming service from URL
      */
     private function detect_streaming_service_from_url(string $url): string {
@@ -330,7 +384,8 @@ class AdminColumns {
                 .wp-list-table .column-location { width: 200px; }
                 .wp-list-table .column-streaming { width: 120px; }
                 .wp-list-table .column-service_sheets { width: 100px; }
-                
+                .wp-list-table .column-slideshow { width: 100px; }
+
                 .wp-list-table .column-image img,
                 .wp-list-table .column-image div {
                     margin: 5px 0;
@@ -447,5 +502,15 @@ class AdminColumns {
         }
         
         return null;
+    }
+
+    /**
+     * Check if video license is valid
+     */
+    private function has_video_license(): bool {
+        if (class_exists('WeaveStudios\FuneralNotices\Services\LicenseService')) {
+            return \WeaveStudios\FuneralNotices\Services\LicenseService::hasValidVideoLicense();
+        }
+        return false;
     }
 }

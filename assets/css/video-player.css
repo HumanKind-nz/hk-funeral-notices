@@ -1,0 +1,358 @@
+/*
+ * Memorial Video Player Styles
+ * Frontend styles for video modal and player
+ * @since 2.1.4
+ */
+
+/* Video Button Styles */
+.wfn-video-button,
+.wfn-memorial-video-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--wfn-color-primary, #2c3e50);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.wfn-video-button:hover,
+.wfn-memorial-video-btn:hover {
+    background: var(--wfn-color-secondary, #34495e);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Removed play icon - now using SVG icons in templates */
+
+.wfn-video-button:focus,
+.wfn-memorial-video-btn:focus {
+    outline: 2px solid var(--wfn-color-accent, #3498db);
+    outline-offset: 2px;
+}
+
+/* Video Modal Styles */
+.wfn-video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.wfn-video-modal[aria-hidden="false"] {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.wfn-video-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+}
+
+.wfn-video-modal-content {
+    position: relative;
+    margin: 5% auto;
+    background: #fff;
+    border-radius: 12px;
+    max-height: 90vh;
+    width: 90%;
+    max-width: 900px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.4s ease;
+    z-index: 1000000;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Modal Header */
+.wfn-video-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.wfn-video-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.wfn-video-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wfn-video-new-window {
+    color: #3498db;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.wfn-video-new-window:hover {
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+}
+
+.wfn-video-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    color: #666;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wfn-video-modal-close:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+/* Modal Body */
+.wfn-video-modal-body {
+    padding: 0;
+    position: relative;
+}
+
+.wfn-video-container {
+    position: relative;
+    width: 100%;
+    background: #000;
+}
+
+.wfn-video-container iframe {
+    width: 100%;
+    height: auto;
+    border: none;
+    display: block;
+}
+
+/* Responsive Video Wrapper */
+.wfn-video-responsive-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    background: #000;
+}
+
+.wfn-video-responsive-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Video Loading States */
+.wfn-video-loading {
+    position: relative;
+}
+
+.wfn-video-loading:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.wfn-video-loading:after {
+    content: "Loading video...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 30px;
+    color: #666;
+    font-size: 14px;
+    z-index: 1;
+}
+
+.wfn-video-error:after {
+    content: "Error loading video";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #e74c3c;
+    font-size: 14px;
+    z-index: 1;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .wfn-video-modal-content {
+        margin: 2% auto;
+        width: 95%;
+        max-width: 95%;
+    }
+
+    .wfn-video-modal-header {
+        padding: 6px 12px;
+    }
+
+    .wfn-video-modal-header h3 {
+        font-size: 14px;
+    }
+
+    .wfn-video-button,
+    .wfn-memorial-video-btn {
+        width: 100%;
+        margin: 8px 0;
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+
+    .wfn-video-new-window {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wfn-video-modal-content {
+        margin: 1% auto;
+        width: 98%;
+        max-width: 98%;
+        border-radius: 8px;
+    }
+
+    .wfn-video-modal-header {
+        padding: 6px 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .wfn-video-modal-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .wfn-video-responsive-wrapper {
+        padding-bottom: 75%; /* Adjust aspect ratio for mobile */
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .wfn-video-modal-content {
+        background: #2c3e50;
+        color: white;
+    }
+
+    .wfn-video-modal-header {
+        background: #34495e;
+        border-bottom-color: #555;
+    }
+
+    .wfn-video-modal-header h3 {
+        color: white;
+    }
+
+    .wfn-video-modal-close {
+        color: #bdc3c7;
+    }
+
+    .wfn-video-modal-close:hover {
+        background: #555;
+        color: white;
+    }
+}
+
+/* Body scroll lock when modal is open */
+body.wfn-video-modal-open {
+    overflow: hidden;
+    padding-right: 15px; /* Prevent layout shift from scrollbar */
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .wfn-video-button,
+    .wfn-memorial-video-btn {
+        border: 2px solid;
+    }
+
+    .wfn-video-modal-content {
+        border: 2px solid;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .wfn-video-modal,
+    .wfn-video-modal-content,
+    .wfn-video-button,
+    .wfn-memorial-video-btn {
+        animation: none;
+        transition: none;
+    }
+}

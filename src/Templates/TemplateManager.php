@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace WeaveStudios\FuneralNotices\Templates;
 
+use WeaveStudios\FuneralNotices\Services\LicenseService;
+
 use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
 use WeaveStudios\FuneralNotices\Streaming\StreamingDetector;
 
@@ -324,13 +326,14 @@ class TemplateManager {
             'streaming' => [
                 'has_streaming' => $has_streaming,
                 'is_private' => $is_private,
-                'is_public' => $has_streaming && !$is_private,
+                'is_public' => $has_streaming && !$is_private && LicenseService::hasValidVideoLicense(),
                 'streaming_service' => $streaming_service,
                 'streaming_url' => $streaming_url,
                 'embed_code' => $embed_code,
                 'streaming_note' => $streaming_note,
                 'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook']),
-                'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream'])
+                'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream']),
+                'license_required' => !LicenseService::hasValidVideoLicense()
             ],
             'location' => [
                 'type' => $location_type,
@@ -361,6 +364,7 @@ class TemplateManager {
             ],
             'documents' => [
                 'service_sheet' => $this->get_service_sheet_data($post_id),
+                'video_slideshow' => $this->get_video_slideshow_data($post_id),
                 'additional' => $this->get_additional_documents($post_id)
             ]
         ];
@@ -587,6 +591,66 @@ class TemplateManager {
         }
 
         return null;
+    }
+
+    /**
+     * Get video slideshow data
+     */
+    private function get_video_slideshow_data($post_id): ?array {
+        // Check if VideoModule is enabled and has premium license
+        $enabled_modules = get_option('wfn_enabled_modules', []);
+        if (empty($enabled_modules['video'])) {
+            return null;
+        }
+
+        // Get video data from post meta (set by VideoModule when upload completes)
+        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
+        $video_data = get_post_meta($post_id, '_wfn_video_data', true);
+
+        // Decode JSON if needed
+        if (is_string($video_data)) {
+            $video_data = json_decode($video_data, true);
+        }
+
+        // Only show if video is ready
+        if ($video_status !== 'ready') {
+            return null;
+        }
+
+        // Handle corrupted video data by reconstructing from video ID
+        $video_id_meta = get_post_meta($post_id, '_wfn_video_id', true);
+
+        // If video data is corrupted but we have a video ID, reconstruct the URLs
+        if ((empty($video_data) || $video_data === 'null' || $video_data === null) && $video_id_meta) {
+            // Get library ID from settings for URL reconstruction
+            $library_id = defined('WFN_VIDEO_LIBRARY_ID') ? WFN_VIDEO_LIBRARY_ID : get_option('wfn_bunny_library_id', '');
+
+            return [
+                'video_id' => $video_id_meta,
+                'stream_url' => $library_id ? "https://iframe.mediadelivery.net/embed/{$library_id}/{$video_id_meta}" : '',
+                'thumbnail_url' => $library_id ? "https://vz-{$library_id}.b-cdn.net/{$video_id_meta}/thumbnail.jpg" : '',
+                'duration' => 0, // Unknown duration for reconstructed data
+                'title' => 'Memorial Video Slideshow',
+                'modal_id' => 'wfn-video-modal-' . $post_id,
+                'type' => 'video_slideshow'
+            ];
+        }
+
+        // Normal case: use existing video data
+        if (empty($video_data)) {
+            return null;
+        }
+
+        // Return video data with modal information
+        return [
+            'video_id' => $video_data['video_id'] ?? $video_id_meta ?? '',
+            'stream_url' => $video_data['stream_url'] ?? '',
+            'thumbnail_url' => $video_data['thumbnail_url'] ?? '',
+            'duration' => $video_data['duration'] ?? 0,
+            'title' => 'Memorial Video Slideshow',
+            'modal_id' => 'wfn-video-modal-' . $post_id,
+            'type' => 'video_slideshow'
+        ];
     }
 
     /**

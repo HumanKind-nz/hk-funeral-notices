@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
 
 use WeaveStudios\FuneralNotices\Templates\TemplateManager;
 
+// Load SVG icon functions
+require_once __DIR__ . '/../../partials/svg-icons.php';
+
 $template_manager = new TemplateManager();
 $data = $template_manager->get_funeral_data(get_the_ID());
 
@@ -183,8 +186,19 @@ $post_content = get_the_content();
                         <a href="<?php echo esc_url($documents['service_sheet']['url']); ?>"
                            target="_blank"
                            class="wfn-service-sheet-btn">
-                           📄 Download Service Sheet
+                           <?php echo wfn_get_document_icon(); ?> Download Service Sheet
                         </a>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Memorial Video Slideshow Button -->
+                <?php if (!empty($documents['video_slideshow']) && $streaming['is_public']): ?>
+                    <div class="wfn-current-video-slideshow">
+                        <button type="button"
+                                class="wfn-memorial-video-btn"
+                                data-video-modal="<?php echo esc_attr($documents['video_slideshow']['modal_id']); ?>">
+                                <?php echo wfn_get_video_icon(); ?> View Slideshow
+                        </button>
                     </div>
                 <?php endif; ?>
 
@@ -194,30 +208,30 @@ $post_content = get_the_content();
                         <?php foreach ($documents['additional'] as $doc): ?>
                             <?php
                             // Choose icon based on document type
-                            $icon = '📄'; // Default document icon
+                            $icon_function = 'wfn_get_document_icon'; // Default document icon
                             if (isset($doc['document_type']) && $doc['document_type'] === 'url') {
-                                $icon = '🔗'; // Link icon for external URLs
+                                $icon_function = 'wfn_get_link_icon'; // Link icon for external URLs
                             } elseif (isset($doc['document_type']) && $doc['document_type'] === 'file') {
-                                $icon = '📄'; // Document icon for files
+                                $icon_function = 'wfn_get_document_icon'; // Document icon for files
                             }
                             // Smart icon detection based on URL if type not available
                             if (!isset($doc['document_type']) && isset($doc['url'])) {
                                 $url = strtolower($doc['url']);
                                 if (strpos($url, 'donate') !== false || strpos($url, 'givealittle') !== false) {
-                                    $icon = '💝'; // Gift icon for donations
+                                    $icon_function = 'wfn_get_link_icon'; // Use link icon for donations (no specific icon available)
                                 } elseif (strpos($url, 'youtube') !== false || strpos($url, 'vimeo') !== false) {
-                                    $icon = '📹'; // Video icon
+                                    $icon_function = 'wfn_get_video_icon'; // Video icon
                                 } elseif (strpos($url, 'photo') !== false || strpos($url, 'gallery') !== false) {
-                                    $icon = '📷'; // Camera icon for photos
+                                    $icon_function = 'wfn_get_link_icon'; // Use link icon for photos (no specific icon available)
                                 } elseif (!preg_match('/\.(pdf|doc|docx)$/i', $url)) {
-                                    $icon = '🔗'; // Link icon for external URLs
+                                    $icon_function = 'wfn_get_link_icon'; // Link icon for external URLs
                                 }
                             }
                             ?>
                             <a href="<?php echo esc_url($doc['url']); ?>"
                                target="_blank"
                                class="wfn-document-link">
-                               <?php echo $icon; ?> <?php echo esc_html($doc['title']); ?>
+                               <?php echo $icon_function(); ?> <?php echo esc_html($doc['title']); ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
@@ -282,7 +296,7 @@ $post_content = get_the_content();
                                target="_blank"
                                rel="noopener"
                                class="wfn-stream-btn">
-                               View Funeral Stream
+                               <?php echo wfn_get_stream_icon(); ?> View Funeral Stream
                             </a>
                         </div>
 
@@ -304,7 +318,53 @@ $post_content = get_the_content();
             </div>
         <?php endif; ?>
 
+        <!-- Video Modal -->
+        <?php if (!empty($documents['video_slideshow']) && $streaming['is_public']): ?>
+            <?php $video = $documents['video_slideshow']; ?>
+            <div id="<?php echo esc_attr($video['modal_id']); ?>"
+                 class="wfn-video-modal"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-hidden="true"
+                 aria-labelledby="<?php echo esc_attr($video['modal_id']); ?>-title">
 
+                <div class="wfn-video-modal-overlay"></div>
+
+                <div class="wfn-video-modal-content">
+                    <div class="wfn-video-modal-header">
+                        <h3 id="<?php echo esc_attr($video['modal_id']); ?>-title">
+                            <?php echo esc_html($video['title']); ?>
+                        </h3>
+                        <div class="wfn-video-modal-actions">
+                            <a href="<?php echo esc_url($video['stream_url']); ?>"
+                               target="_blank"
+                               class="wfn-video-new-window">
+                               View in new window
+                            </a>
+                            <button type="button"
+                                    class="wfn-video-modal-close"
+                                    data-close-modal="<?php echo esc_attr($video['modal_id']); ?>"
+                                    aria-label="Close video modal">
+                                ×
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="wfn-video-modal-body">
+                        <div class="wfn-video-container">
+                            <div class="wfn-video-responsive-wrapper">
+                                <iframe src="<?php echo esc_url($video['stream_url']); ?>"
+                                        frameborder="0"
+                                        allowfullscreen
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        title="<?php echo esc_attr($video['title']); ?>">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
 
     </div>
 </div>

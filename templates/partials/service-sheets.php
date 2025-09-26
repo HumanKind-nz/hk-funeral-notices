@@ -12,6 +12,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Load SVG icon functions
+require_once __DIR__ . '/svg-icons.php';
+
 // Get media group data
 $media_group = get_field('wfn_media_group', $post_id) ?: [];
 $service_sheet = $media_group['service_sheet'] ?? null;
@@ -50,12 +53,12 @@ $mode = $args['mode'] ?? 'modern';
     <?php if ($mode === 'current'): ?>
         <!-- Current layout content -->
             <?php if ($service_sheet): ?>
-                <p><strong>Service Sheet:</strong> <a href="<?php echo esc_url($service_sheet['url']); ?>" target="_blank" rel="noopener">📄 Download Service Sheet</a></p>
+                <p><strong>Service Sheet:</strong> <a href="<?php echo esc_url($service_sheet['url']); ?>" target="_blank" rel="noopener"><?php echo wfn_get_document_icon(); ?> Download Service Sheet</a></p>
             <?php endif; ?>
             <?php if (!empty($additional_docs)): ?>
                 <?php foreach ($additional_docs as $doc): ?>
                     <?php if (!empty($doc['file'])): ?>
-                        <p><strong><?php echo esc_html($doc['title'] ?: 'Additional Document'); ?>:</strong> <a href="<?php echo esc_url($doc['file']['url']); ?>" target="_blank" rel="noopener">📎 Download</a></p>
+                        <p><strong><?php echo esc_html($doc['title'] ?: 'Additional Document'); ?>:</strong> <a href="<?php echo esc_url($doc['file']['url']); ?>" target="_blank" rel="noopener"><?php echo wfn_get_document_icon(); ?> Download</a></p>
                     <?php endif; ?>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -72,7 +75,7 @@ $mode = $args['mode'] ?? 'modern';
                            target="_blank" 
                            rel="noopener"
                            class="firehawk-maps-button">
-                           📄 Download Service Sheet
+                           <?php echo wfn_get_document_icon(); ?> Download Service Sheet
                         </a>
                     </span>
                 </div>
@@ -87,7 +90,7 @@ $mode = $args['mode'] ?? 'modern';
                                    target="_blank" 
                                    rel="noopener"
                                    class="firehawk-maps-button">
-                                   📎 Download
+                                   <?php echo wfn_get_document_icon(); ?> Download
                                 </a>
                             </span>
                         </div>
@@ -110,7 +113,7 @@ $mode = $args['mode'] ?? 'modern';
                            target="_blank" 
                            rel="noopener"
                            class="wfn-download-button wfn-<?php echo esc_attr($mode); ?>-download-button">
-                           📄 Download Service Sheet
+                           <?php echo wfn_get_document_icon(); ?> Download Service Sheet
                         </a>
                     </div>
                 </div>
@@ -133,7 +136,7 @@ $mode = $args['mode'] ?? 'modern';
                                    target="_blank" 
                                    rel="noopener"
                                    class="wfn-download-button wfn-<?php echo esc_attr($mode); ?>-download-button">
-                                   📎 Download
+                                   <?php echo wfn_get_document_icon(); ?> Download
                                 </a>
                             </div>
                         </div>
