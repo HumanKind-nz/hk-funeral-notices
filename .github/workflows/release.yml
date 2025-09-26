@@ -38,18 +38,22 @@ jobs:
             echo "No build script found - skipping build step"
           fi
 
-      - name: "Create distribution directory"
-        run: mkdir -p dist
+      - name: "Get the version"
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: "Copy files to distribution directory excluding .distignore entries"
+      - name: "Create build directory with proper plugin folder name"
+        run: mkdir -p build/hk-funeral-notices
+
+      - name: "Copy plugin files to build directory"
         run: |
           if [ -f .distignore ]; then
             echo "Using .distignore to exclude files..."
-            rsync -av --delete --exclude-from='.distignore' ./ dist/ --exclude='dist/'
+            rsync -av --exclude-from='.distignore' ./ build/hk-funeral-notices/ --exclude='build/'
           else
             echo "No .distignore found, copying all files except common excludes..."
-            rsync -av --delete ./ dist/ \
-              --exclude='dist/' \
+            rsync -av ./ build/hk-funeral-notices/ \
+              --exclude='build/' \
               --exclude='.git/' \
               --exclude='.github/' \
               --exclude='node_modules/' \
@@ -60,24 +64,24 @@ jobs:
 
       - name: "Create GitHub Release Archive"
         run: |
-          cd dist
-          zip -r ../hk-funeral-notices.zip .
+          cd build
+          zip -r hk-funeral-notices-${{ env.VERSION }}.zip hk-funeral-notices
           cd ..
-          echo "Created hk-funeral-notices.zip"
+          echo "Created hk-funeral-notices-${{ env.VERSION }}.zip"
 
-      - name: "Debug: List distribution contents"
+      - name: "Debug: List build contents"
         run: |
-          echo "=== Distribution directory contents ==="
-          ls -la dist/
-          echo "=== Root directory contents ==="
-          ls -la
+          echo "=== Build directory contents ==="
+          ls -la build/
+          echo "=== Plugin directory contents ==="
+          ls -la build/hk-funeral-notices/
           echo "=== Archive file info ==="
-          ls -lh *.zip
+          ls -lh build/*.zip
 
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
-          files: hk-funeral-notices.zip
+          files: build/hk-funeral-notices-${{ env.VERSION }}.zip
           name: "HK Funeral Notices ${{ github.ref_name }}"
           body: |
             ## HumanKind Funeral Notices ${{ github.ref_name }}
@@ -85,7 +89,7 @@ jobs:
             Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls.
 
             ### 🚀 Installation
-            1. Download the `hk-funeral-notices.zip` file
+            1. Download the `hk-funeral-notices-${{ env.VERSION }}.zip` file
             2. Upload via WordPress Admin → Plugins → Add New → Upload Plugin
             3. Activate the plugin
             4. Ensure ACF Pro is installed and active
@@ -119,7 +123,7 @@ jobs:
           echo "=== Hoster Integration ==="
           echo "🎉 GitHub release created successfully!"
           echo "📦 Release: ${{ github.ref_name }}"
-          echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices.zip"
+          echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
           echo ""
           echo "⚠️  Manual Step Required:"
           echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
@@ -133,9 +137,9 @@ jobs:
         run: |
           echo "=== Build Summary ==="
           echo "📋 Tag: ${{ github.ref_name }}"
-          echo "📦 Archive: hk-funeral-notices.zip"
+          echo "📦 Archive: hk-funeral-notices-${{ env.VERSION }}.zip"
           echo "🔗 Repository: ${{ github.repository }}"
           echo "✅ Status: ${{ job.status }}"
-          if [ -f "hk-funeral-notices.zip" ]; then
-            echo "📊 Archive Size: $(du -h hk-funeral-notices.zip | cut -f1)"
+          if [ -f "build/hk-funeral-notices-${{ env.VERSION }}.zip" ]; then
+            echo "📊 Archive Size: $(du -h build/hk-funeral-notices-${{ env.VERSION }}.zip | cut -f1)"
           fi
