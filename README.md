@@ -6,9 +6,8 @@ A modern WordPress plugin for funeral homes to publish and display funeral notic
 
 ---
 
-## 🚀 What's New in Version 2.1.3
-
 ### Latest Updates (September 2025)
+- **🎥 Vide Upload for Slidehows**: Hosted Videos added to funeral notices for Premium License Holder
 - **📝 Tribute Text Update**: Changed to "Send a tribute to the family" for more personal messaging
 - **🎉 Celebration Text**: Beautiful tribute message feature with customizable templates
 - **📅 Smart Ordering**: Funeral notices sorted by service date with publish date fallback
@@ -157,7 +156,7 @@ Each module can be enabled/disabled independently and includes comprehensive set
 
 // Other layout options
 [funeral_notices layout="elegant" columns="3"]
-[funeral_notices layout="gallery" columns="3"]
+[funeral_notices layout="firehawk" columns="3"]
 [funeral_notices layout="minimal" columns="1"]
 
 // Show only future funerals with search
@@ -168,7 +167,7 @@ Each module can be enabled/disabled independently and includes comprehensive set
 
 | Parameter | Options | Default | Description |
 |-----------|---------|---------|-------------|
-|| `layout`/`style` | `firehawk`, `modern`, `elegant`, `gallery`, `minimal` | `modern` | Layout template |
+|| `layout`/`style` | `firehawk`, `modern`, `elegant`, `minimal` | `modern` | Layout template |
 | `type` | `all`, `future`, `archived`, `today`, `this_week`, `this_month` | `all` | Filter by date |
 | `columns` | `1`, `2`, `3`, `4` | `3` | Number of columns |
 | `per_page` | number | `12` | Items per page |
@@ -184,9 +183,6 @@ Each module can be enabled/disabled independently and includes comprehensive set
 
 // Minimal list view for archives
 [funeral_notices layout="minimal" columns="1" show_search="no" per_page="20"]
-
-// Modern responsive gallery with search
-[funeral_notices layout="gallery" columns="3" show_search="yes" type="future"]
 
 // Firehawk-compatible display
 [funeral_notices layout="firehawk" columns="3" show_pagination="yes"]
