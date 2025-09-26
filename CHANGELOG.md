@@ -2,19 +2,35 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.5] - 2025-09-27
+
+### 🐛 **Critical Bug Fix**
+
+#### **Fixed**
+- 🚨 **Streaming Display Issue** - Fixed critical bug where all streaming links (YouTube, Vimeo, OneRoom) were not displaying
+  - Regular streaming URLs no longer incorrectly require premium license validation
+  - Streaming icons in grid cards now display properly
+  - Video upload features still require premium license as intended
+  - Affects both single notice templates and grid view streaming indicators
+
+---
+
 ## [2.2.4] - 2025-09-26
 
-### 🚀 **Premium Video Slideshow Hosting**
+### 🚀 **Premium Slideshow Video Hosting**
 
 #### **Added**
 
-- 🎥 **Video Uploads** - Video slideshow uploads now require valid premium license
+- 🎥 **Video Hosting System** - Video slideshow uploads now require valid premium license
   - Clean admin interface with upgrade prompts for unlicensed users
   - CSS-based hiding of upload interface when unlicensed
   - Professional error messaging and upgrade paths
 
 #### **Changed**
 - 🔧 **Update System** - Switched to dynamic token-based updates for licensed installations
+- 🎛️ **Admin Interface** - Premium modules (Video Slideshows) hidden when unlicensed
+- ⚙️ **Video Module** - Notification settings now default to disabled
+
 
 ## [2.1.3] - 2025-09-24
 

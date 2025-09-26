@@ -54,15 +54,16 @@ jobs:
               --exclude='.github/' \
               --exclude='node_modules/' \
               --exclude='*.log' \
-              --exclude='.DS_Store' 
+              --exclude='.DS_Store' \
+              --exclude='hoster-files-for-plugin/'
           fi
 
       - name: "Create GitHub Release Archive"
         run: |
           cd dist
-          zip -r ../hk-funeral-notices-${{ github.ref_name }}.zip .
+          zip -r ../hk-funeral-notices.zip .
           cd ..
-          echo "Created hk-funeral-notices-${{ github.ref_name }}.zip"
+          echo "Created hk-funeral-notices.zip"
 
       - name: "Debug: List distribution contents"
         run: |
@@ -76,7 +77,7 @@ jobs:
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
-          files: hk-funeral-notices-${{ github.ref_name }}.zip
+          files: hk-funeral-notices.zip
           name: "HK Funeral Notices ${{ github.ref_name }}"
           body: |
             ## HumanKind Funeral Notices ${{ github.ref_name }}
@@ -84,7 +85,7 @@ jobs:
             Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls.
 
             ### 🚀 Installation
-            1. Download the `hk-funeral-notices-${{ github.ref_name }}.zip` file
+            1. Download the `hk-funeral-notices.zip` file
             2. Upload via WordPress Admin → Plugins → Add New → Upload Plugin
             3. Activate the plugin
             4. Ensure ACF Pro is installed and active
@@ -118,7 +119,7 @@ jobs:
           echo "=== Hoster Integration ==="
           echo "🎉 GitHub release created successfully!"
           echo "📦 Release: ${{ github.ref_name }}"
-          echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ github.ref_name }}.zip"
+          echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices.zip"
           echo ""
           echo "⚠️  Manual Step Required:"
           echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
@@ -132,9 +133,9 @@ jobs:
         run: |
           echo "=== Build Summary ==="
           echo "📋 Tag: ${{ github.ref_name }}"
-          echo "📦 Archive: hk-funeral-notices-${{ github.ref_name }}.zip"
+          echo "📦 Archive: hk-funeral-notices.zip"
           echo "🔗 Repository: ${{ github.repository }}"
           echo "✅ Status: ${{ job.status }}"
-          if [ -f "hk-funeral-notices-${{ github.ref_name }}.zip" ]; then
-            echo "📊 Archive Size: $(du -h hk-funeral-notices-${{ github.ref_name }}.zip | cut -f1)"
+          if [ -f "hk-funeral-notices.zip" ]; then
+            echo "📊 Archive Size: $(du -h hk-funeral-notices.zip | cut -f1)"
           fi

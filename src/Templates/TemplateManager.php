@@ -326,14 +326,14 @@ class TemplateManager {
             'streaming' => [
                 'has_streaming' => $has_streaming,
                 'is_private' => $is_private,
-                'is_public' => $has_streaming && !$is_private && LicenseService::hasValidVideoLicense(),
+                'is_public' => $has_streaming && !$is_private, // Regular streaming always public if not private
                 'streaming_service' => $streaming_service,
                 'streaming_url' => $streaming_url,
                 'embed_code' => $embed_code,
                 'streaming_note' => $streaming_note,
                 'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook']),
                 'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream']),
-                'license_required' => !LicenseService::hasValidVideoLicense()
+                'license_required' => false // Regular streaming URLs don't require license
             ],
             'location' => [
                 'type' => $location_type,
