@@ -54,8 +54,7 @@ jobs:
               --exclude='.github/' \
               --exclude='node_modules/' \
               --exclude='*.log' \
-              --exclude='.DS_Store' \
-              --exclude='hoster-files-for-plugin/'
+              --exclude='.DS_Store' 
           fi
 
       - name: "Create GitHub Release Archive"
@@ -78,9 +77,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: hk-funeral-notices-${{ github.ref_name }}.zip
-          name: "HK Funeral Notices v${{ github.ref_name }}"
+          name: "HK Funeral Notices ${{ github.ref_name }}"
           body: |
-            ## HumanKind Funeral Notices v${{ github.ref_name }}
+            ## HumanKind Funeral Notices ${{ github.ref_name }}
 
             Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls.
 
