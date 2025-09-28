@@ -2,6 +2,31 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.13] - 2025-09-29
+
+### 🐛 **User Role & Admin Interface Fixes**
+
+#### **Added**
+- Noindex toggle setting to add remove public indexing of funeral notices. Some prefer privacy, some prefer reach.
+
+#### **Fixed**
+- 🚨 **Admin Columns Visibility** - Fixed Image column and edit/delete actions not showing for `funeral_staff`, `funeral_manager`, and `editor` roles
+  - Added meta capability mapping to bridge HK Funeral Suite roles with custom post type capabilities
+  - Resolves WordPress core capability checks (`current_user_can('edit_post', $post_id)`) for non-admin users
+  - Admin columns now display properly with edit/delete row actions for authorised users
+- 🧹 **Admin Bar Cleanup** - Removed confusing "View Funeral Notices" link from admin bar (no archive page exists)
+- ✏️ **Single Post Edit Access** - Added "Edit Funeral Notice" link to admin bar on individual funeral notice pages
+  - Respects user permissions and ownership rules
+  - Provides direct edit access for `funeral_staff`, `funeral_manager`, `editor`, and `administrator` roles
+  - Small UI fixes to Admin Dashboard
+
+#### **Technical**
+- Enhanced `WFN_Role_Integration` class with proper meta capability mapping
+- Fixed circular dependency in capability checking functions
+- Maintains compatibility between HK Funeral Suite and HK Funeral Notices plugins
+
+---
+
 ## [2.2.6] - 2025-09-27
 
 ### 🐛 **Critical Production Fix**

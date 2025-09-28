@@ -20,33 +20,37 @@ class AdminColumns {
         add_action('manage_funeral-notice_posts_custom_column', [$this, 'populate_columns'], 10, 2);
         add_filter('manage_edit-funeral-notice_sortable_columns', [$this, 'sortable_columns']);
         add_action('admin_head', [$this, 'add_column_styles']);
+
+        // Prevent WordPress from adding automatic row actions to our custom columns
+        add_filter('post_row_actions', [$this, 'remove_default_row_actions'], 10, 2);
     }
 
     /**
      * Set custom columns for funeral notice admin
      */
     public function set_columns(array $columns): array {
-        // Remove default title and date columns
-        unset($columns['title'], $columns['date']);
-
-        $base_columns = [
-            'cb' => $columns['cb'],
-            'image' => 'Image',
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'funeral_date' => 'Funeral Date',
-            'funeral_time' => 'Funeral Time',
-            'location' => 'Location',
-            'streaming' => 'Streaming',
-            'service_sheets' => 'Service Sheets',
-        ];
-
+        // Keep checkbox for bulk actions
+        $new_columns = ['cb' => $columns['cb']];
+        
+        // Add our custom columns first
+        $new_columns['image'] = 'Image';
+        $new_columns['first_name'] = 'First Name';
+        $new_columns['last_name'] = 'Last Name';
+        $new_columns['funeral_date'] = 'Funeral Date';
+        $new_columns['funeral_time'] = 'Funeral Time';
+        $new_columns['location'] = 'Location';
+        $new_columns['streaming'] = 'Streaming';
+        $new_columns['service_sheets'] = 'Service Sheets';
+        
         // Only show slideshow column if license is valid
         if ($this->has_video_license()) {
-            $base_columns['slideshow'] = 'Slideshow';
+            $new_columns['slideshow'] = 'Slideshow';
         }
+        
+        // Keep the date column
+        $new_columns['date'] = 'Published';
 
-        return $base_columns;
+        return $new_columns;
     }
 
     /**
@@ -60,7 +64,15 @@ class AdminColumns {
                 
             case 'first_name':
                 $first_name = $this->get_person_field($post_id, 'firstname');
-                echo esc_html($first_name ?: '—');
+                $display_name = esc_html($first_name ?: '—');
+                
+                // Add row actions to first name column
+                $row_actions = $this->get_row_actions($post_id);
+                if (!empty($row_actions)) {
+                    $display_name .= '<div class="row-actions">' . implode(' | ', $row_actions) . '</div>';
+                }
+                
+                echo $display_name;
                 break;
                 
             case 'last_name':
@@ -105,19 +117,19 @@ class AdminColumns {
     }
 
     /**
-     * Render image column (150x150px)
+     * Render image column (100x100px)
      */
     private function render_image_column(int $post_id): void {
         $thumbnail_id = get_post_thumbnail_id($post_id);
         
         if ($thumbnail_id) {
-            $image = wp_get_attachment_image($thumbnail_id, [150, 150], false, [
-                'style' => 'width: 150px; height: 150px; object-fit: cover; border-radius: 4px;'
+            $image = wp_get_attachment_image($thumbnail_id, [100, 100], false, [
+                'style' => 'width: 100px; height: 100px; object-fit: cover; border-radius: 4px;'
             ]);
             echo $image;
         } else {
             // Show placeholder or default image
-            echo '<div style="width: 150px; height: 150px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>';
+            echo '<div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>';
         }
     }
 
@@ -376,19 +388,22 @@ class AdminColumns {
         
         if ($screen && $screen->post_type === 'funeral-notice' && $screen->base === 'edit') {
             echo '<style>
-                .wp-list-table .column-image { width: 170px; }
-                .wp-list-table .column-first_name { width: 120px; }
-                .wp-list-table .column-last_name { width: 120px; }
+                .wp-list-table .column-image { width: 120px; }
+                .wp-list-table .column-first_name { width: 100px; }
+                .wp-list-table .column-last_name { width: 100px; }
                 .wp-list-table .column-funeral_date { width: 110px; }
-                .wp-list-table .column-funeral_time { width: 100px; }
-                .wp-list-table .column-location { width: 200px; }
-                .wp-list-table .column-streaming { width: 120px; }
-                .wp-list-table .column-service_sheets { width: 100px; }
-                .wp-list-table .column-slideshow { width: 100px; }
+                .wp-list-table .column-funeral_time { width: 90px; }
+                .wp-list-table .column-location { width: 180px; }
+                .wp-list-table .column-streaming { width: 100px; }
+                .wp-list-table .column-service_sheets { width: 80px; }
+                .wp-list-table .column-slideshow { width: 90px; }
+                .wp-list-table .column-date { width: 90px; }
 
                 .wp-list-table .column-image img,
                 .wp-list-table .column-image div {
                     margin: 5px 0;
+                    width: 100px !important;
+                    height: 100px !important;
                 }
                 
                 .wp-list-table .column-location {
@@ -512,5 +527,97 @@ class AdminColumns {
             return \WeaveStudios\FuneralNotices\Services\LicenseService::hasValidVideoLicense();
         }
         return false;
+    }
+
+    /**
+     * Generate row actions for a post
+     */
+    private function get_row_actions(int $post_id): array {
+        $post = get_post($post_id);
+        if (!$post) {
+            return [];
+        }
+
+        $actions = [];
+        $post_type_object = get_post_type_object($post->post_type);
+
+        // Edit link
+        if (current_user_can('edit_post', $post_id)) {
+            $actions['edit'] = sprintf(
+                '<a href="%s" aria-label="%s">%s</a>',
+                get_edit_post_link($post_id),
+                esc_attr(sprintf(__('Edit "%s"'), $post->post_title)),
+                __('Edit')
+            );
+        }
+
+        // Quick Edit link
+        if (current_user_can('edit_post', $post_id)) {
+            $actions['inline hide-if-no-js'] = sprintf(
+                '<button type="button" class="button-link editinline" aria-label="%s" aria-expanded="false">%s</button>',
+                esc_attr(sprintf(__('Quick edit "%s" inline'), $post->post_title)),
+                __('Quick&nbsp;Edit')
+            );
+        }
+
+        // Trash/Delete link
+        if (current_user_can('delete_post', $post_id)) {
+            if (EMPTY_TRASH_DAYS) {
+                $actions['trash'] = sprintf(
+                    '<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
+                    get_delete_post_link($post_id),
+                    esc_attr(sprintf(__('Move "%s" to the Trash'), $post->post_title)),
+                    __('Trash')
+                );
+            } else {
+                $actions['delete'] = sprintf(
+                    '<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
+                    get_delete_post_link($post_id, '', true),
+                    esc_attr(sprintf(__('Delete "%s" permanently'), $post->post_title)),
+                    __('Delete Permanently')
+                );
+            }
+        }
+
+        // View link
+        if ($post_type_object->public) {
+            if (in_array($post->post_status, ['pending', 'draft', 'future'])) {
+                $preview_link = get_preview_post_link($post);
+                $actions['view'] = sprintf(
+                    '<a href="%s" rel="bookmark" aria-label="%s">%s</a>',
+                    esc_url($preview_link),
+                    esc_attr(sprintf(__('Preview "%s"'), $post->post_title)),
+                    __('Preview')
+                );
+            } elseif ('trash' !== $post->post_status) {
+                $actions['view'] = sprintf(
+                    '<a href="%s" rel="bookmark" aria-label="%s">%s</a>',
+                    get_permalink($post_id),
+                    esc_attr(sprintf(__('View "%s"'), $post->post_title)),
+                    __('View')
+                );
+            }
+        }
+
+        return $actions;
+    }
+
+    /**
+     * Remove WordPress default row actions for funeral notices
+     *
+     * We handle row actions manually in the first_name column to prevent
+     * them from appearing in multiple columns.
+     *
+     * @param array $actions Row actions
+     * @param WP_Post $post Post object
+     * @return array
+     */
+    public function remove_default_row_actions($actions, $post) {
+        if ($post->post_type === 'funeral-notice') {
+            // Remove all default row actions since we handle them manually
+            return array();
+        }
+
+        return $actions;
     }
 }

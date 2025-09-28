@@ -11,17 +11,25 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
-* No index single funeral notices
+* No index single funeral notices (if enabled in settings)
 *
 * @since 1.2.0
+* @updated 2.2.12 - Made configurable via settings
 */
 function sp_titles_robots($html) {
-       if (is_singular('funeral-notice')) {
-           $html = '<meta name="robots" content="noindex"/>' . "\n";
-       }
-       return $html;
-   }
-   add_filter('seopress_titles_robots', 'sp_titles_robots');
+    if (is_singular('funeral-notice')) {
+        // Get plugin settings
+        $settings = get_option('wfn_module_settings', []);
+        $noindex_enabled = $settings['noindex_funeral_notices'] ?? false;
+
+        // Only add noindex if enabled in settings (default is to allow indexing)
+        if ($noindex_enabled) {
+            $html = '<meta name="robots" content="noindex"/>' . "\n";
+        }
+    }
+    return $html;
+}
+add_filter('seopress_titles_robots', 'sp_titles_robots');
 
 /**
  * Add title tag for Funeral Notice Archive
@@ -226,4 +234,23 @@ function wfn_exclude_funeral_notice_from_sitemap($post_types) {
     }
 
     return $post_types;
+}
+
+/**
+ * Remove SEOPress admin columns from funeral notice list table
+ *
+ * @since 2.2.11
+ */
+add_filter('manage_funeral-notice_posts_columns', 'wfn_remove_seopress_admin_columns', 999);
+
+function wfn_remove_seopress_admin_columns($columns) {
+    // Remove SEOPress title and meta description columns
+    unset($columns['seopress_title']);
+    unset($columns['seopress_desc']);
+    unset($columns['seopress_target_kw']);
+    unset($columns['seopress_score']);
+    unset($columns['seopress_analysis']);
+    unset($columns['seopress_noindex']);
+
+    return $columns;
 }

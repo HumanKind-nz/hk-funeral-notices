@@ -324,11 +324,13 @@ class Dashboard {
                 <div class="wfn-module-icon" style="background: <?php echo esc_attr($module['icon_color']); ?>;">
                     <span class="dashicons <?php echo esc_attr($module['icon']); ?>"></span>
                 </div>
+                <?php if (empty($module['always_active']) && empty($module['no_toggle'])): ?>
                 <div class="wfn-module-status">
                     <span class="wfn-status-indicator <?php echo esc_attr($status_class); ?>">
                         <?php echo esc_html($status_text); ?>
                     </span>
                 </div>
+                <?php endif; ?>
             </div>
             
             <div class="wfn-module-content">

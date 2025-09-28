@@ -37,7 +37,8 @@ class SettingsModule extends BaseModule {
         'tribute_form_url' => '',
         'default_person_image' => '',
         'location_name' => '',
-        'default_memorial_header' => 'In loving memory of'
+        'default_memorial_header' => 'In loving memory of',
+        'noindex_funeral_notices' => false
     ];
     
     /**
@@ -371,6 +372,22 @@ class SettingsModule extends BaseModule {
                             <span class="wfn-toggle-label">Enable SEO Features</span>
                         </label>
                         <p class="wfn-form-description">Generate meta descriptions and structured data.</p>
+                    </div>
+
+                    <div class="wfn-form-group">
+                        <label class="wfn-toggle-switch">
+                            <input type="checkbox"
+                                   name="wfn_module_settings[noindex_funeral_notices]"
+                                   id="noindex_funeral_notices"
+                                   value="1"
+                                   <?php checked($settings['noindex_funeral_notices']); ?>>
+                            <span class="wfn-toggle-slider"></span>
+                            <span class="wfn-toggle-label">Hide Funeral Notices from Search Engines</span>
+                        </label>
+                        <p class="wfn-form-description">
+                            Add noindex meta tag to prevent search engines from indexing individual funeral notice pages.<br>
+                            <strong>Default:</strong> Funeral notices are indexed for SEO benefits. Enable this for privacy concerns.
+                        </p>
                     </div>
                     
                     <div class="wfn-form-group">
