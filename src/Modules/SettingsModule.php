@@ -38,7 +38,9 @@ class SettingsModule extends BaseModule {
         'default_person_image' => '',
         'location_name' => '',
         'default_memorial_header' => 'In loving memory of',
-        'noindex_funeral_notices' => false
+        'noindex_funeral_notices' => false,
+        'social_share_image' => '',
+        'seo_title_suffix' => ' - Funeral Notice'
     ];
     
     /**
@@ -392,13 +394,64 @@ class SettingsModule extends BaseModule {
                     
                     <div class="wfn-form-group">
                         <label for="meta_description_length">Meta Description Length</label>
-                        <input type="number" 
-                               name="wfn_module_settings[meta_description_length]" 
-                               id="meta_description_length" 
-                               value="<?php echo esc_attr($settings['meta_description_length']); ?>" 
-                               min="120" 
+                        <input type="number"
+                               name="wfn_module_settings[meta_description_length]"
+                               id="meta_description_length"
+                               value="<?php echo esc_attr($settings['meta_description_length']); ?>"
+                               min="120"
                                max="200">
                         <p class="wfn-form-description">Maximum length for generated meta descriptions.</p>
+                    </div>
+
+                    <div class="wfn-form-group">
+                        <label for="seo_title_suffix">SEO Title Suffix</label>
+                        <input type="text"
+                               name="wfn_module_settings[seo_title_suffix]"
+                               id="seo_title_suffix"
+                               value="<?php echo esc_attr($settings['seo_title_suffix']); ?>"
+                               placeholder=" - Funeral Notice"
+                               class="wfn-wide-input">
+                        <p class="wfn-form-description">
+                            Text added after the person's name in SEO titles.<br>
+                            <strong>Example:</strong> "John Smith<em> - Funeral Notice</em> | Your Funeral Home"<br>
+                            Leave blank for no suffix.
+                        </p>
+                    </div>
+
+                    <div class="wfn-form-group">
+                        <label for="social_share_image">Social Share Image</label>
+                        <div class="wfn-image-upload-wrapper">
+                            <input type="url"
+                                   name="wfn_module_settings[social_share_image]"
+                                   id="social_share_image"
+                                   value="<?php echo esc_attr($settings['social_share_image']); ?>"
+                                   placeholder="https://yoursite.com/image.jpg"
+                                   class="wfn-wide-input">
+                            <div class="wfn-image-upload-buttons">
+                                <button type="button" class="button" id="upload_social_image_button">
+                                    <?php echo $settings['social_share_image'] ? 'Change Image' : 'Upload Image'; ?>
+                                </button>
+                                <?php if ($settings['social_share_image']): ?>
+                                <button type="button" class="button" id="remove_social_image_button">Remove</button>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($settings['social_share_image']): ?>
+                            <div class="wfn-image-preview">
+                                <img src="<?php echo esc_url($settings['social_share_image']); ?>"
+                                     alt="Social share preview"
+                                     style="max-width: 300px; height: auto; margin-top: 10px;">
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <p class="wfn-form-description">
+                            Custom image for social media sharing when funeral notices are shared.<br>
+                            <strong>Fallback order:</strong> This custom image → Plugin default<br>
+                            <strong>Recommended size:</strong> 1200x630px for best social media compatibility<br>
+                            <?php
+                            $default_social_image = plugin_dir_url(__FILE__) . '../../assets/images/funeral-notice-social-share.jpg';
+                            ?>
+                            <strong>Current default image:</strong> <a href="<?php echo esc_url($default_social_image); ?>" target="_blank"><?php echo esc_url($default_social_image); ?></a>
+                        </p>
                     </div>
                 </div>
                 
@@ -596,8 +649,8 @@ class SettingsModule extends BaseModule {
         
         // Boolean settings
         $boolean_settings = [
-            'show_search', 'show_pagination', 'show_featured_image', 
-            'enable_streaming', 'enable_seo'
+            'show_search', 'show_pagination', 'show_featured_image',
+            'enable_streaming', 'enable_seo', 'noindex_funeral_notices'
         ];
         
         foreach ($boolean_settings as $setting) {
@@ -645,6 +698,10 @@ class SettingsModule extends BaseModule {
         $default_image = trim($settings['default_person_image'] ?? '');
         $sanitized['default_person_image'] = !empty($default_image) && filter_var($default_image, FILTER_VALIDATE_URL) ? $default_image : '';
 
+        // Social share image validation
+        $social_image = trim($settings['social_share_image'] ?? '');
+        $sanitized['social_share_image'] = !empty($social_image) && filter_var($social_image, FILTER_VALIDATE_URL) ? $social_image : '';
+
         // Location name validation
         $location_name = trim($settings['location_name'] ?? '');
         $sanitized['location_name'] = sanitize_text_field($location_name);
@@ -652,6 +709,10 @@ class SettingsModule extends BaseModule {
         // Default memorial header validation
         $memorial_header = trim($settings['default_memorial_header'] ?? 'In loving memory of');
         $sanitized['default_memorial_header'] = sanitize_text_field($memorial_header);
+
+        // SEO title suffix validation
+        $title_suffix = trim($settings['seo_title_suffix'] ?? ' - Funeral Notice');
+        $sanitized['seo_title_suffix'] = sanitize_text_field($title_suffix);
 
         return $sanitized;
     }
@@ -689,13 +750,7 @@ class SettingsModule extends BaseModule {
         wp_enqueue_script('jquery');
         wp_add_inline_script('jquery', 'console.log("WFN Settings: Basic script loaded on hook: ' . $hook . '");');
 
-        // Load media script on our settings page
-        if (strpos($hook, 'weave-funeral-notices') === false && strpos($hook, 'wfn-module-settings') === false) {
-            // Debug logging removed for production
-            return;
-        }
-
-        // Debug logging removed for production
+        // Load media scripts for settings functionality
 
         // Enqueue WordPress media library and dependencies
         wp_enqueue_media();
@@ -755,6 +810,56 @@ class SettingsModule extends BaseModule {
 
                     targetInput.val("");
                     preview.html("<p>No image selected</p>");
+                });
+
+                // Social share image uploader
+                var socialMediaUploader;
+                $("#upload_social_image_button").click(function(e) {
+                    e.preventDefault();
+
+                    if (socialMediaUploader) {
+                        socialMediaUploader.open();
+                        return;
+                    }
+
+                    socialMediaUploader = wp.media({
+                        title: "Choose Social Share Image",
+                        button: {
+                            text: "Use this image"
+                        },
+                        multiple: false
+                    });
+
+                    socialMediaUploader.on("select", function() {
+                        var attachment = socialMediaUploader.state().get("selection").first().toJSON();
+                        $("#social_share_image").val(attachment.url);
+
+                        // Update preview
+                        if ($(".wfn-image-preview").length === 0) {
+                            $("#social_share_image").after("<div class=\\"wfn-image-preview\\"><img src=\\"" + attachment.url + "\\" alt=\\"Social share preview\\" style=\\"max-width: 300px; height: auto; margin-top: 10px;\\"></div>");
+                        } else {
+                            $(".wfn-image-preview img").attr("src", attachment.url);
+                        }
+
+                        // Update button text and show remove button
+                        $("#upload_social_image_button").text("Change Image");
+                        if ($("#remove_social_image_button").length === 0) {
+                            $("#upload_social_image_button").after("<button type=\\"button\\" class=\\"button\\" id=\\"remove_social_image_button\\">Remove</button>");
+                        } else {
+                            $("#remove_social_image_button").show();
+                        }
+                    });
+
+                    socialMediaUploader.open();
+                });
+
+                // Remove social share image
+                $(document).on("click", "#remove_social_image_button", function(e) {
+                    e.preventDefault();
+                    $("#social_share_image").val("");
+                    $(".wfn-image-preview").remove();
+                    $("#upload_social_image_button").text("Upload Image");
+                    $(this).hide();
                 });
             });
         ', 'after');

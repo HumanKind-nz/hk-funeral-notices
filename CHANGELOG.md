@@ -2,6 +2,19 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.15] - 2025-10-01
+
+### 🔧 **SEO & Configuration Fixes**
+
+#### **Fixed**
+- 🐛 **Custom Slug Support** - SEOPress integration now respects custom single funeral notice slug setting
+
+#### **Technical**
+- Enhanced SEOPress integration with dynamic slug detection across all meta functions
+- Output buffering solution adds minimal overhead (single regex on funeral notice pages only)
+
+---
+
 ## [2.2.13] - 2025-09-29
 
 ### 🐛 **User Role & Admin Interface Fixes**

@@ -10,7 +10,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 function register_funeral_notice_post_type() {
     // Get custom slug from settings module
-    $settings = get_option('wfn_module_settings_settings', []);
+    $settings = get_option('wfn_module_settings', []);
     $single_slug = $settings['single_slug'] ?? 'funeral-notice';
     $labels = array(
         'name'                  => _x('Funerals', 'Post Type General Name', 'weave-funeral-notices'),

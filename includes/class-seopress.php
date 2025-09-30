@@ -17,9 +17,11 @@ if ( ! defined( 'WPINC' ) ) {
 * @updated 2.2.12 - Made configurable via settings
 */
 function sp_titles_robots($html) {
-    if (is_singular('funeral-notice')) {
-        // Get plugin settings
-        $settings = get_option('wfn_module_settings', []);
+    // Get plugin settings
+    $settings = get_option('wfn_module_settings', []);
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
         $noindex_enabled = $settings['noindex_funeral_notices'] ?? false;
 
         // Only add noindex if enabled in settings (default is to allow indexing)
@@ -254,3 +256,286 @@ function wfn_remove_seopress_admin_columns($columns) {
 
     return $columns;
 }
+
+/**
+ * Enhanced SEOPress integration for single funeral notice pages
+ *
+ * @since 2.2.14
+ */
+
+/**
+ * Add custom title for single funeral notice pages
+ */
+add_filter('seopress_titles_title', 'wfn_funeral_notice_seo_title');
+
+function wfn_funeral_notice_seo_title($title) {
+    // Check if SEO features are enabled
+    $settings = get_option('wfn_module_settings', []);
+    if (empty($settings['enable_seo'])) {
+        return $title;
+    }
+
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
+        global $post;
+
+        // Get person details - handle both new group structure and old flat structure
+        $person_group = get_field('wfn_person_group', $post->ID);
+
+        if (!empty($person_group)) {
+            // New group structure (post-migration)
+            $first_name = $person_group['firstname'] ?? '';
+            $last_name = $person_group['lastname'] ?? '';
+        } else {
+            // Fallback to old flat field structure (pre-migration)
+            $first_name = get_field('wfn_person_group_firstname', $post->ID) ?? '';
+            $last_name = get_field('wfn_person_group_lastname', $post->ID) ?? '';
+        }
+
+        if ($first_name && $last_name) {
+            $full_name = trim($first_name . ' ' . $last_name);
+            $title_suffix = $settings['seo_title_suffix'] ?? '';
+            $site_name = get_bloginfo('name');
+
+            // Build title: Firstname Lastname [Custom Text or 'Funeral Notice'] | Sitename
+            $custom_text = !empty($title_suffix) ? $title_suffix : 'Funeral Notice';
+            $title = $full_name . ' ' . $custom_text;
+
+            // Add site name if available
+            if ($site_name) {
+                $title .= ' | ' . $site_name;
+            }
+
+        } else {
+            // Fallback if no names found
+            $site_name = get_bloginfo('name');
+            if ($site_name) {
+                $title = get_the_title($post->ID) . ' | ' . $site_name;
+            } else {
+                $title = get_the_title($post->ID);
+            }
+        }
+    }
+
+    return $title;
+}
+
+/**
+ * Add custom meta description for single funeral notice pages
+ */
+add_filter('seopress_titles_desc', 'wfn_funeral_notice_seo_description');
+
+function wfn_funeral_notice_seo_description($description) {
+    // Check if SEO features are enabled
+    $settings = get_option('wfn_module_settings', []);
+    if (empty($settings['enable_seo'])) {
+        return $description;
+    }
+
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
+        global $post;
+
+        // Get person details - handle both new group structure and old flat structure
+        $person_group = get_field('wfn_person_group', $post->ID);
+        $details_group = get_field('wfn_details_group', $post->ID);
+        $notice_group = get_field('wfn_notice_group', $post->ID);
+
+        if (!empty($person_group)) {
+            // New group structure (post-migration)
+            $first_name = $person_group['firstname'] ?? '';
+            $last_name = $person_group['lastname'] ?? '';
+        } else {
+            // Fallback to old flat field structure (pre-migration)
+            $first_name = get_field('wfn_person_group_firstname', $post->ID) ?? '';
+            $last_name = get_field('wfn_person_group_lastname', $post->ID) ?? '';
+        }
+        // Handle backward compatibility for all group fields
+        if (!empty($details_group)) {
+            $funeral_date = $details_group['funeral_date'] ?? '';
+            $funeral_time = $details_group['funeral_time'] ?? '';
+            $venue = $details_group['venue'] ?? '';
+        } else {
+            // Fallback to flat structure
+            $funeral_date = get_field('wfn_details_group_funeral_date', $post->ID) ?? '';
+            $funeral_time = get_field('wfn_details_group_funeral_time', $post->ID) ?? '';
+            $venue = get_field('wfn_details_group_venue', $post->ID) ?? '';
+        }
+
+        if (!empty($notice_group)) {
+            $tribute_text = $notice_group['tribute_text'] ?? '';
+        } else {
+            // Fallback to flat structure
+            $tribute_text = get_field('wfn_notice_group_tribute_text', $post->ID) ?? '';
+        }
+
+        // If no tribute_text field, use post content (newspaper notice)
+        if (empty($tribute_text)) {
+            $tribute_text = $post->post_content;
+        }
+        $location_name = $settings['location_name'] ?? '';
+
+        if ($first_name && $last_name) {
+            $full_name = trim($first_name . ' ' . $last_name);
+
+            // Start with tribute text if available (this is the main content)
+            if ($tribute_text) {
+                $clean_tribute = strip_tags($tribute_text);
+                $clean_tribute = str_replace(['"', "\r", "\n"], ["'", ' ', ' '], $clean_tribute);
+                $clean_tribute = preg_replace('/\s+/', ' ', trim($clean_tribute));
+
+                // Get max length setting
+                $max_length = (int) ($settings['meta_description_length'] ?? 160);
+
+                // If tribute is too long, truncate it with service details space
+                $service_suffix = '';
+                if ($funeral_date || $venue) {
+                    // Reserve space for service details (approximately 50 chars)
+                    $reserve_space = 60;
+                    $available_space = $max_length - $reserve_space;
+
+                    if (strlen($clean_tribute) > $available_space) {
+                        $clean_tribute = substr($clean_tribute, 0, $available_space - 3) . '...';
+                    }
+
+                    // Add service details
+                    if ($funeral_date) {
+                        $formatted_date = date('F j, Y', strtotime($funeral_date));
+                        $service_suffix = " The service will be on {$formatted_date}";
+
+                        if ($funeral_time) {
+                            $formatted_time = date('g:i A', strtotime($funeral_time));
+                            $service_suffix .= " at {$formatted_time}";
+                        }
+
+                        if ($venue) {
+                            $service_suffix .= " at {$venue}";
+                        }
+
+                        $service_suffix .= '…';
+                    }
+                } else {
+                    // No service details, use full space for tribute
+                    if (strlen($clean_tribute) > $max_length - 3) {
+                        $clean_tribute = substr($clean_tribute, 0, $max_length - 3) . '...';
+                    }
+                }
+
+                $description = $clean_tribute . $service_suffix;
+            } else {
+                // Fallback if no tribute text - use service details
+                $description_parts = [];
+                $description_parts[] = "Funeral notice for {$full_name}";
+
+                if ($funeral_date) {
+                    $formatted_date = date('F j, Y', strtotime($funeral_date));
+                    $date_part = "Service on {$formatted_date}";
+
+                    if ($funeral_time) {
+                        $formatted_time = date('g:i A', strtotime($funeral_time));
+                        $date_part .= " at {$formatted_time}";
+                    }
+
+                    $description_parts[] = $date_part;
+                }
+
+                if ($venue) {
+                    $description_parts[] = "held at {$venue}";
+                }
+
+                // Only add location if it exists
+                if ($location_name) {
+                    $description_parts[] = "From {$location_name}";
+                }
+
+                $description = implode('. ', $description_parts);
+
+                // Ensure it doesn't exceed meta description length setting
+                $max_length = (int) ($settings['meta_description_length'] ?? 160);
+                if (strlen($description) > $max_length) {
+                    $description = substr($description, 0, $max_length - 3) . '...';
+                }
+            }
+        }
+    }
+
+    return $description;
+}
+
+/**
+ * Add custom Open Graph image for funeral notices
+ */
+add_filter('seopress_social_og_thumb', 'wfn_funeral_notice_og_image');
+
+function wfn_funeral_notice_og_image($image) {
+    // Check if SEO features are enabled
+    $settings = get_option('wfn_module_settings', []);
+    if (empty($settings['enable_seo'])) {
+        return $image;
+    }
+
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
+        global $post;
+
+        // Check for custom social share image setting first
+        $custom_social_image = $settings['social_share_image'] ?? '';
+        if ($custom_social_image) {
+            return '<meta property="og:image" content="' . esc_url($custom_social_image) . '" />';
+        }
+
+        // Fallback to plugin default image (never use featured image or person image)
+        $default_image = plugin_dir_url(__FILE__) . '../assets/images/funeral-notice-social-share.jpg';
+        return '<meta property="og:image" content="' . esc_url($default_image) . '" />';
+    }
+
+    return $image;
+}
+
+/**
+ * Disable Twitter Card Integration for Funeral Notices
+ *
+ * @since 2.2.14
+ * @updated 2.2.17 - Use output buffering to strip Twitter cards from HTML
+ */
+
+/**
+ * Start output buffering to capture and filter wp_head output
+ */
+function wfn_start_head_buffer() {
+    $settings = get_option('wfn_module_settings', []);
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
+        ob_start('wfn_filter_twitter_cards_from_head');
+    }
+}
+add_action('wp_head', 'wfn_start_head_buffer', 0);
+
+/**
+ * Filter Twitter card meta tags from the head output
+ */
+function wfn_filter_twitter_cards_from_head($html) {
+    // Remove all Twitter card meta tags
+    $html = preg_replace('/<meta\s+name="twitter:[^"]*"\s+content="[^"]*"\s*\/?>\s*/i', '', $html);
+    return $html;
+}
+
+/**
+ * End output buffering and output filtered content
+ */
+function wfn_end_head_buffer() {
+    $settings = get_option('wfn_module_settings', []);
+    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
+
+    if (is_singular($single_slug)) {
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+    }
+}
+add_action('wp_head', 'wfn_end_head_buffer', PHP_INT_MAX);
+
