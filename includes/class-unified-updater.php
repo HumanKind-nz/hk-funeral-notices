@@ -118,22 +118,38 @@ class HK_Funeral_Notices_Unified_Updater {
     }
 
     /**
-     * Build hoster URL with stored token
+     * Build hoster URL with stored token (premium) or public endpoint (freemium)
      *
-     * @return string|null Hoster URL with token or null if no token stored
+     * @return string|null Hoster URL with token or public freemium URL
      */
     private function build_hoster_url() {
+        // Try premium token first
         if (class_exists('HK_Funeral_Notices_License_Handler')) {
             $license_handler = HK_Funeral_Notices_License_Handler::init();
             $stored_token = $license_handler->get_stored_token();
 
             if (!empty($stored_token)) {
-                // Replace HOSTER_TOKEN_HERE with actual token
+                // Premium: Use secure token-based URL
                 return str_replace('HOSTER_TOKEN_HERE', $stored_token, $this->hoster_remote_url);
             }
         }
 
-        return null; // No valid token available
+        // Freemium fallback: Use public endpoint without token
+        return $this->build_public_hoster_url();
+    }
+
+    /**
+     * Build public freemium Hoster URL (no authentication required)
+     *
+     * Since the GitHub repo is public, freemium users can get updates directly from GitHub.
+     * Return null to trigger GitHub fallback.
+     *
+     * @return string|null Always returns null to use GitHub for freemium updates
+     */
+    private function build_public_hoster_url() {
+        // Freemium users: Use GitHub directly (repo is public)
+        error_log('WFN: Freemium user - using GitHub updates');
+        return null;
     }
 
     /**
@@ -157,17 +173,18 @@ class HK_Funeral_Notices_Unified_Updater {
             return $this->hoster_response;
         }
 
-        // Build hoster URL with stored token
+        // Build hoster URL (premium token or freemium public endpoint)
         $hoster_url = $this->build_hoster_url();
 
-        // If no token is available, skip hoster and return false (will fallback to GitHub)
         if (empty($hoster_url)) {
-            error_log('WFN: No hoster token available - skipping hoster updates');
-            set_transient(self::HOSTER_CACHE_KEY, ['status' => 'no_token'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
+            error_log('WFN: Unable to build hoster URL - falling back to GitHub');
+            set_transient(self::HOSTER_CACHE_KEY, ['status' => 'error'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
             return false;
         }
 
-        error_log('WFN: Using hoster updates with stored token');
+        // Log whether using premium or freemium endpoint
+        $is_freemium = strpos($hoster_url, 'public-download.php') !== false;
+        error_log('WFN: Using ' . ($is_freemium ? 'freemium public' : 'premium token-based') . ' hoster updates');
 
         $response = wp_remote_get($hoster_url, [
             'timeout' => 15,

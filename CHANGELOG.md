@@ -2,6 +2,20 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
+## [2.2.16] - 2025-10-01
+
+### 🔄 **Update System Improvements**
+
+#### **Fixed**
+- ✅ **Freemium Updates** - Unlicensed sites now receive updates via GitHub (repo is now public)
+- ✅ **Premium Updates** - Licensed sites continue to receive updates via Hoster with enhanced tracking
+
+#### **Technical**
+- Streamlined update flow: Premium users → Hoster (with token), Freemium users → GitHub (public releases)
+- Improved error logging for update diagnostics
+
+---
+
 ## [2.2.15] - 2025-10-01
 
 ### 🔧 **SEO & Configuration Fixes**
