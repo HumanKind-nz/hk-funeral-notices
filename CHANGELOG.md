@@ -2,7 +2,7 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.2.16] - 2025-10-01
+## [2.2.17] - 2025-10-01
 
 ### 🔄 **Update System Improvements**
 
@@ -16,7 +16,7 @@ All notable changes to the HumanKind Funeral Notices plugin will be documented i
 
 ---
 
-## [2.2.15] - 2025-10-01
+## [2.2.16] - 2025-10-01
 
 ### 🔧 **SEO & Configuration Fixes**
 

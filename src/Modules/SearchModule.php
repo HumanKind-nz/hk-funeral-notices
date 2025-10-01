@@ -218,16 +218,6 @@ class SearchModule extends BaseModule {
             $this->get_version()
         );
         
-        // Enqueue search form specific styles
-        if (isset($this->search_form_styles[$settings['search_form_style']])) {
-            wp_enqueue_style(
-                'wfn-search-' . $settings['search_form_style'],
-                WFN_PLUGIN_URL . 'assets/css/search-' . $settings['search_form_style'] . '.css',
-                ['wfn-search'],
-                $this->get_version()
-            );
-        }
-        
         // Enqueue search scripts
         wp_enqueue_script(
             'wfn-search',
