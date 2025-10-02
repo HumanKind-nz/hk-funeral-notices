@@ -2,14 +2,13 @@
 
 All notable changes to the HumanKind Funeral Notices plugin will be documented in this file.
 
-## [2.3.0] - 2025-10-02
+## [2.3.1] - 2025-10-03
 
 ### 📊 **Anonymous Analytics System**
 
 #### **Added**
 - ✨ **Anonymous Usage Analytics** - Plugin now collects anonymous usage statistics to improve features and provide industry insights
 - 📍 **Default Venue/Location** - Sites can now set a default venue that auto-populates for new funeral notices
-
 ---
 
 ## [2.2.16] - 2025-10-01
