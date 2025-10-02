@@ -382,6 +382,82 @@ define('WFN_DEBUG', true);
 
 ---
 
+## 📊 Anonymous Usage Analytics
+
+### Overview
+
+**For Site Administrators and Web Agencies:**
+
+This plugin collects anonymous usage statistics to improve features and provide industry insights. Since HumanKind Funeral Notices is typically managed by web agencies (like Weave Digital Studio) rather than end-users, analytics are enabled by default across all installations.
+
+### What We Collect
+
+**Anonymous Aggregated Data Only:**
+- Number of funeral notices created per month (count only)
+- Percentage using streaming features (count only)
+- Plugin version, WordPress version, PHP version
+- Anonymous site identifier (hashed, non-reversible)
+
+### What We DON'T Collect
+
+**We NEVER collect:**
+- ❌ Deceased persons' names, dates, or biographical information
+- ❌ Funeral notice content or memorial messages
+- ❌ Personal information about site administrators or staff
+- ❌ Website visitor information or analytics
+- ❌ Any personally identifiable information
+
+### Purpose
+
+This data helps us:
+- 🎯 Improve plugin features based on real-world usage patterns
+- 🔧 Ensure compatibility with WordPress/PHP updates
+- 🚀 Plan future development priorities
+
+### Data Usage
+
+- **Plugin Improvements**: Feature development based on actual usage
+- **Industry Insights**: Anonymous aggregate data for blog posts and reports
+
+### For Web Agencies: How to Opt Out
+
+If a client requests analytics be disabled for their specific site:
+
+**Option 1 - WordPress Filter (Recommended):**
+```php
+// Add to child theme functions.php or custom plugin
+add_filter('wfn_enable_analytics', '__return_false');
+```
+
+**Option 2 - wp-config.php Constant:**
+```php
+// Add to wp-config.php for deployment-level control
+define('WFN_DISABLE_ANALYTICS', true);
+```
+
+**Option 3 - Contact Support:**
+Email support@weave.co.nz to disable analytics for specific client sites.
+
+### Data Security & Compliance
+
+- ✅ All data transmitted securely via HTTPS
+- ✅ Complies with New Zealand Privacy Act 2020
+- ✅ Complies with Australian Privacy Principles
+- ✅ No third-party data sharing
+- ✅ Data stored securely in Google Sheets with restricted access
+
+### Manual Analytics Test
+
+For testing or debugging, agencies can manually trigger analytics:
+
+```
+Visit: wp-admin/admin-post.php?action=wfn_test_analytics
+```
+
+(Requires `manage_options` capability)
+
+---
+
 ## 🔄 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)
@@ -398,6 +474,20 @@ This plugin is licensed under the GPLv2 License. See the [LICENSE](LICENSE) file
 
 **Development**: Weave Digital Studio  
 **Special Thanks**: The WordPress community and ACF developers
+
+---
+
+## 📊 Anonymous Analytics Notice
+
+This plugin collects anonymous usage statistics to help improve features and provide industry insights. We collect counts only (number of funeral notices, streaming usage) - **no personal information or funeral details are ever transmitted**.
+
+**What we collect:** Monthly funeral counts, streaming usage percentage, plugin version
+**What we DON'T collect:** Names, funeral content, personal information, site URLs
+
+**Opt-out:** Add this to your theme's functions.php:
+```php
+add_filter('wfn_enable_analytics', '__return_false');
+```
 
 ---
 

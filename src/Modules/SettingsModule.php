@@ -40,7 +40,8 @@ class SettingsModule extends BaseModule {
         'default_memorial_header' => 'In loving memory of',
         'noindex_funeral_notices' => false,
         'social_share_image' => '',
-        'seo_title_suffix' => ' - Funeral Notice'
+        'seo_title_suffix' => ' - Funeral Notice',
+        'default_venue_location' => ''
     ];
     
     /**
@@ -217,7 +218,36 @@ class SettingsModule extends BaseModule {
                         </label>
                         <p class="wfn-form-description">Display pagination controls below funeral notices.</p>
                     </div>
-                    
+
+                    <!-- Venue/Location Settings -->
+                    <h4 style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">Venue/Location Settings</h4>
+
+                    <div class="wfn-form-group">
+                        <label for="default_venue_location">Default Venue/Location</label>
+                        <select name="wfn_module_settings[default_venue_location]" id="default_venue_location">
+                            <option value="">None (no default)</option>
+                            <?php
+                            $venues = get_terms([
+                                'taxonomy' => 'funeral-location',
+                                'hide_empty' => false,
+                                'orderby' => 'name',
+                                'order' => 'ASC'
+                            ]);
+                            if (!empty($venues) && !is_wp_error($venues)) {
+                                foreach ($venues as $venue) {
+                                    printf(
+                                        '<option value="%d" %s>%s</option>',
+                                        esc_attr($venue->term_id),
+                                        selected($settings['default_venue_location'], $venue->term_id, false),
+                                        esc_html($venue->name)
+                                    );
+                                }
+                            }
+                            ?>
+                        </select>
+                        <p class="wfn-form-description">Auto-select a default venue when creating new funeral notices. Users can still change this selection. Only applies to new funeral notices.</p>
+                    </div>
+
                     <!-- Address Field Settings -->
                     <h4 style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">Address Field Settings</h4>
                     
@@ -713,6 +743,10 @@ class SettingsModule extends BaseModule {
         // SEO title suffix validation
         $title_suffix = trim($settings['seo_title_suffix'] ?? ' - Funeral Notice');
         $sanitized['seo_title_suffix'] = sanitize_text_field($title_suffix);
+
+        // Default venue/location validation
+        $default_venue = isset($settings['default_venue_location']) ? absint($settings['default_venue_location']) : 0;
+        $sanitized['default_venue_location'] = $default_venue > 0 ? $default_venue : '';
 
         return $sanitized;
     }

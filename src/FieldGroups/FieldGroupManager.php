@@ -25,6 +25,9 @@ class FieldGroupManager {
             return;
         }
 
+        // Initialize default venue hooks
+        $this->init_default_venue_hooks();
+
         // Register immediately if ACF is already initialized
         if (did_action('acf/init')) {
             $this->register_all_groups();
@@ -708,5 +711,59 @@ class FieldGroupManager {
      */
     private function has_premium_license(): bool {
         return LicenseService::hasValidVideoLicense();
+    }
+
+    /**
+     * Initialize default venue hooks
+     *
+     * Sets up ACF filters to populate default venue on new posts
+     */
+    private function init_default_venue_hooks(): void {
+        // Hook into ACF to set default value for venue field
+        add_filter('acf/load_value/name=location', [$this, 'set_default_venue_value'], 10, 3);
+    }
+
+    /**
+     * Set default venue value for new funeral notices
+     *
+     * @param mixed $value Current value
+     * @param int|string $post_id Post ID
+     * @param array $field Field configuration
+     * @return mixed Default venue term ID or current value
+     */
+    public function set_default_venue_value($value, $post_id, array $field) {
+        // Only apply to funeral-notice post type
+        if (!is_numeric($post_id)) {
+            return $value;
+        }
+
+        $post_type = get_post_type($post_id);
+        if ($post_type !== 'funeral-notice') {
+            return $value;
+        }
+
+        // Don't override existing values
+        if (!empty($value)) {
+            return $value;
+        }
+
+        // Only for new posts (no existing value in database)
+        global $pagenow;
+        $is_new_post = ($pagenow === 'post-new.php');
+
+        if (!$is_new_post) {
+            return $value;
+        }
+
+        // Get default venue from settings
+        $settings = get_option('wfn_module_settings', []);
+        $default_venue = $settings['default_venue_location'] ?? '';
+
+        // Return default venue term ID if set
+        if (!empty($default_venue)) {
+            return (int) $default_venue;
+        }
+
+        return $value;
     }
 }
