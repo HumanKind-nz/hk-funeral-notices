@@ -2058,25 +2058,14 @@ define('WFN_VIDEO_API_KEY', 'your_api_key');</code></pre>
 
     /**
      * Show admin notices for license status on funeral notice edit pages
+     *
+     * NOTE: Banner notice removed per client request - licensing prompts should be more subtle
+     * License validation still occurs via ACF field conditional logic
      */
     public function show_license_notices(): void {
-        $screen = get_current_screen();
-
-        // Only show on funeral notice edit pages
-        if (!$screen || $screen->post_type !== 'funeral-notice' || $screen->base !== 'post') {
-            return;
-        }
-
-        // Only show notice if license is not active
-        if ($this->has_premium_license()) {
-            return;
-        }
-
-        echo '<div class="notice notice-info is-dismissible">';
-        echo '<p><strong>Video Slideshows:</strong> This premium feature requires a license key. ';
-        echo 'The Memorial Video Slideshow field will be disabled until a premium license is activated. ';
-        echo '<a href="' . admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a></p>';
-        echo '</div>';
+        // License status banner removed - more subtle prompting preferred
+        // Field-level prompts handled via ACF conditional logic instead
+        return;
     }
 
     /**
