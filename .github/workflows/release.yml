@@ -3,10 +3,10 @@ name: Build and Release - Dual System (GitHub + Hoster)
 on:
   push:
     tags:
-      - '[0-9]+'  # Matches single-digit tags like 1, 2, 3, etc.
-      - '[0-9]+.[0-9]+'  # Matches tags like 1.0, 1.1, 2.0, etc.
-      - '[0-9]+.[0-9]+.[0-9]+'  # Matches tags like 1.0.0, 1.0.1, 2.0.0, etc.
-      - 'v[0-9]+.[0-9]+.[0-9]+'  # Matches tags like v1.0.0, v1.0.1, v2.0.0, etc.
+      - '[0-9]+'
+      - '[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build-and-release:
@@ -20,7 +20,7 @@ jobs:
       - name: "Setup Node.js"
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Use the latest LTS version of Node.js
+          node-version: '20'
 
       - name: "Install NPM dependencies (if package.json exists)"
         run: |
@@ -86,34 +86,38 @@ jobs:
           body: |
             ## HumanKind Funeral Notices ${{ github.ref_name }}
 
-            Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls.
+            A WordPress plugin built for funeral homes and their digital partners — providing simple, reliable publishing of funeral service details with optional livestreams, tributes, and memorial video slideshows.
 
-            ### 🚀 Installation
-            1. Download the `hk-funeral-notices-${{ env.VERSION }}.zip` file
-            2. Upload via WordPress Admin → Plugins → Add New → Upload Plugin
+            ### ⚙️ Installation
+            1. Download `hk-funeral-notices-${{ env.VERSION }}.zip`
+            2. In WordPress, go to **Plugins → Add New → Upload Plugin**
             3. Activate the plugin
-            4. Ensure ACF Pro is installed and active
+            4. Make sure **ACF Pro** is installed and active
 
-            ### 🔑 Premium Features
-            Video streaming features require a premium license from [humankindwebsites.com](https://humankindwebsites.com/)
+            ### 🎥 Premium Features
+            Upload and host memorial video slideshows directly on funeral pages.  
+            Video hosting uses secure cloud delivery and requires a premium license from [humankindwebsites.com](https://humankindwebsites.com/) or [weave.co.nz](https://weave.co.nz).
 
-            ### 📋 Requirements
-            - WordPress 6.0+
-            - PHP 8.0+
-            - ACF Pro plugin
+            ### 🧱 Requirements
+            - WordPress 6.0 or later  
+            - PHP 8.0+  
+            - ACF Pro (Advanced Custom Fields Pro)
 
-            ### 🎯 Features
-            - 5 professional layout templates
-            - Advanced AJAX search functionality
-            - Premium video streaming (with license)
-            - Comprehensive styling controls
-            - Professional admin dashboard
+            ### 🪧 Key Features
+            - Publish and manage funeral notices in WordPress  
+            - Livestream and tribute link support  
+            - Five layout templates, all mobile friendly  
+            - Optional video slideshow hosting (premium)  
+            - Search and filter tools  
+            - Theme styling integration and colour controls  
 
             ---
 
-            🤖 **Generated with GitHub Actions**
+            🧩 **Build generated automatically with GitHub Actions**
 
-            For support, visit our [repository](https://github.com/HumanKind-nz/hk-funeral-notices) or contact [support@weave.co.nz](mailto:support@weave.co.nz)
+            For documentation and support:  
+            📖 [GitHub Repository](https://github.com/HumanKind-nz/hk-funeral-notices)  
+            📧 [support@weave.co.nz](mailto:support@weave.co.nz)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -124,13 +128,11 @@ jobs:
           echo "🎉 GitHub release created successfully!"
           echo "📦 Release: ${{ github.ref_name }}"
           echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
-          echo ""
-          echo "⚠️  Manual Step Required:"
+          echo "\n⚠️  Manual Step Required:"
           echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
           echo "2. Point download to GitHub release URL above"
           echo "3. Update version number in hoster system"
-          echo ""
-          echo "🔄 Future Enhancement: This could be automated with hoster webhook/API"
+          echo "\n🔄 Future Enhancement: This could be automated with hoster webhook/API"
 
       - name: "Build Summary"
         if: always()
