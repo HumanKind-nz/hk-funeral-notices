@@ -30,7 +30,7 @@ class LoadMoreHandler {
 
         // Get parameters from POST
         $offset = isset($_POST['offset']) ? absint($_POST['offset']) : 0;
-        $posts_per_load = isset($_POST['posts_per_load']) ? absint($_POST['posts_per_load']) : 8;
+        $posts_per_load = isset($_POST['posts_per_load']) ? absint($_POST['posts_per_load']) : 9;
         $layout = isset($_POST['layout']) ? sanitize_text_field($_POST['layout']) : 'modern';
 
         // Get filter parameters

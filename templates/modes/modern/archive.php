@@ -72,8 +72,8 @@ get_header(); ?>
             $shown_posts = $wp_query->post_count;
 
             if ($total_posts > $shown_posts):
-                $settings = get_option('wfn_module_settings_settings', []);
-                $load_more_posts = $settings['load_more_posts'] ?? 8;
+                $settings = get_option('wfn_module_settings', []);
+                $load_more_posts = $settings['load_more_posts'] ?? 9;
                 ?>
                 <div class="wfn-load-more-container">
                     <button class="wfn-load-more-button"

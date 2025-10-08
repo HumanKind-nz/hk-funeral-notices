@@ -409,8 +409,8 @@ class FuneralNoticesShortcode {
         $shown_posts = $query->post_count;
 
         if ($total_posts > $shown_posts) {
-            $settings_option = get_option('wfn_module_settings_settings', []);
-            $load_more_posts = $settings_option['load_more_posts'] ?? 8;
+            $settings_option = get_option('wfn_module_settings', []);
+            $load_more_posts = $settings_option['load_more_posts'] ?? 9;
 
             // Build filters array for AJAX
             $filters = [
