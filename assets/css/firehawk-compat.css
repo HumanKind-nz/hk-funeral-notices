@@ -32,7 +32,7 @@
     align-items: stretch;
     justify-content: stretch;
     flex-wrap: wrap;
-    margin: 0 -15px;
+    margin: 0 -1rem; /* Updated from -15px to -1rem for 2rem total gap */
 }
 
 .firehawk-crm.firehawk-crm-large-grid.loading {
@@ -45,8 +45,8 @@
     max-width: 100%;
     flex-basis: 100%;
     flex-shrink: 0;
-    margin-bottom: 30px;
-    padding: 0 15px;
+    margin-bottom: 2rem; /* Updated from 30px to 2rem */
+    padding: 0 1rem; /* Updated from 15px to 1rem for 2rem total gap */
 }
 
 @media screen and (min-width: 546px) {

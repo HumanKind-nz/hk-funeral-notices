@@ -383,9 +383,53 @@ class FuneralNoticesShortcode {
                 $this->render_firehawk_grid($query, $columns); // Fallback
         }
 
-        // Add pagination if enabled
-        if ($show_pagination && $query->max_num_pages > 1) {
-            $this->render_pagination($query, $paged);
+        // Enqueue Load More assets (always enqueue to avoid issues)
+        wp_enqueue_style(
+            'wfn-load-more',
+            plugin_dir_url(__FILE__) . '../../assets/css/load-more.css',
+            [],
+            '2.4.0'
+        );
+
+        wp_enqueue_script(
+            'wfn-load-more',
+            plugin_dir_url(__FILE__) . '../../assets/js/load-more.js',
+            ['jquery'],
+            '2.4.0',
+            true
+        );
+
+        wp_localize_script('wfn-load-more', 'wfnLoadMore', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wfn_load_more_nonce')
+        ]);
+
+        // Add Load More button if there are more posts
+        $total_posts = $query->found_posts;
+        $shown_posts = $query->post_count;
+
+        if ($total_posts > $shown_posts) {
+            $settings_option = get_option('wfn_module_settings_settings', []);
+            $load_more_posts = $settings_option['load_more_posts'] ?? 8;
+
+            // Build filters array for AJAX
+            $filters = [
+                'type' => $type,
+                'location' => $location_search,
+                'date_from' => $date_from,
+                'date_to' => $date_to,
+                'search_term' => $search_term
+            ];
+
+            echo '<div class="wfn-load-more-container">';
+            echo '<button class="wfn-load-more-button"';
+            echo ' data-offset="' . esc_attr($shown_posts) . '"';
+            echo ' data-per-load="' . esc_attr($load_more_posts) . '"';
+            echo ' data-layout="' . esc_attr($style) . '"';
+            echo ' data-filters="' . esc_attr(json_encode($filters)) . '">';
+            echo 'Load More';
+            echo '</button>';
+            echo '</div>';
         }
 
         $output = ob_get_clean();

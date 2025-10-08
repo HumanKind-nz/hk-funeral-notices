@@ -31,11 +31,14 @@
 
 .wfn-enhancement-search {
     background: var(--wfn-color-card-background, #ffffff);
-    border: 1px solid var(--wfn-color-border, #e1e5e9);
+    border: none; /* Removed border for seamless integration */
+    box-shadow: none; /* Removed shadow for cleaner appearance */
     border-radius: var(--wfn-border-radius, 12px);
     padding: var(--wfn-card-padding, 1.5rem);
     margin-bottom: 2rem;
-    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0, 0, 0, 0.05));
+    max-width: 1000px; /* Constrain width for better readability */
+    margin-left: auto; /* Center the search box */
+    margin-right: auto; /* Center the search box */
 }
 
 .wfn-enhancement-search-form .search-container {

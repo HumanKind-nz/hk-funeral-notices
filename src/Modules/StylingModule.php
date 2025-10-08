@@ -24,7 +24,7 @@ class StylingModule extends BaseModule {
             'text_primary' => '#2d3748',
             'text_secondary' => '#718096',
             'text_muted' => '#a0aec0',
-            'border' => '#e2e8f0',
+            'border' => '#d1d5db',
             'shadow' => 'rgba(0, 0, 0, 0.1)',
             'row_alternate' => '#f8fafc'
         ],

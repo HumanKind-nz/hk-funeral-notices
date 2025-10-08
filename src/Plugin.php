@@ -16,6 +16,7 @@ use WeaveStudios\FuneralNotices\Modules\LicenseModule;
 use WeaveStudios\FuneralNotices\Modules\VideoModule;
 use WeaveStudios\FuneralNotices\Modules\AnalyticsModule;
 use WeaveStudios\FuneralNotices\Fields\GoogleMapsField;
+use WeaveStudios\FuneralNotices\AJAX\LoadMoreHandler;
 
 /**
  * Main Plugin Class
@@ -57,17 +58,20 @@ class Plugin {
     private function init_components(): void {
         $this->template_manager = new TemplateManager();
         $this->shortcode_handler = new FuneralNoticesShortcode($this->template_manager);
-        
+
         // Initialize ACF field groups (critical for admin interface)
         $this->field_group_manager = new FieldGroupManager();
         $this->field_group_manager->register();
-        
+
         // Register custom ACF field types
         add_action('acf/include_field_types', [$this, 'register_custom_fields']);
-        
+
         // Initialize modules
         $this->init_modules();
-        
+
+        // Initialize Load More AJAX handler
+        new LoadMoreHandler();
+
         // Initialize admin dashboard (only in admin area)
         if (is_admin()) {
             $this->admin_dashboard = new Dashboard('hk-funeral-notices', '2.0.0');
@@ -112,7 +116,30 @@ class Plugin {
      * Enqueue modern assets when shortcodes are used
      */
     public function enqueue_modern_assets(): void {
-        // Assets are enqueued conditionally by individual layout renderers
+        // Enqueue Load More assets on archive pages
+        if (is_post_type_archive('funeral-notice') || is_tax('funeral-location')) {
+            wp_enqueue_style(
+                'wfn-load-more',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/css/load-more.css',
+                [],
+                '2.4.0'
+            );
+
+            wp_enqueue_script(
+                'wfn-load-more',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/js/load-more.js',
+                ['jquery'],
+                '2.4.0',
+                true
+            );
+
+            wp_localize_script('wfn-load-more', 'wfnLoadMore', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('wfn_load_more_nonce')
+            ]);
+        }
+
+        // Other assets are enqueued conditionally by individual layout renderers
         // This keeps the system lightweight
     }
 

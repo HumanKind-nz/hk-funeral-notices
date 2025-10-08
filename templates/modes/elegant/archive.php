@@ -64,17 +64,29 @@ get_header(); ?>
                 <?php endwhile; ?>
                 
             </div>
-            
+
             <?php
-            // Pagination
-            the_posts_pagination([
-                'mid_size' => 2,
-                'prev_text' => '&laquo; Previous',
-                'next_text' => 'Next &raquo;',
-                'class' => 'wfn-pagination'
-            ]);
-            ?>
-            
+            // Load More Button
+            global $wp_query;
+            $total_posts = $wp_query->found_posts;
+            $posts_per_page = get_option('posts_per_page', 12);
+            $shown_posts = $wp_query->post_count;
+
+            if ($total_posts > $shown_posts):
+                $settings = get_option('wfn_module_settings_settings', []);
+                $load_more_posts = $settings['load_more_posts'] ?? 8;
+                ?>
+                <div class="wfn-load-more-container">
+                    <button class="wfn-load-more-button"
+                            data-offset="<?php echo esc_attr($shown_posts); ?>"
+                            data-per-load="<?php echo esc_attr($load_more_posts); ?>"
+                            data-layout="elegant"
+                            data-filters="{}">
+                        Load More
+                    </button>
+                </div>
+            <?php endif; ?>
+
         <?php else: ?>
             
             <div class="wfn-no-results">

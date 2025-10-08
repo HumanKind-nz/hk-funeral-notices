@@ -2,493 +2,153 @@
 
 # HumanKind Funeral Notices
 
-A modern WordPress plugin for funeral homes to publish and display funeral notices with beautiful layouts, reliable streaming support, and a simple admin experience.
+HumanKind Funeral Notices makes it simple for funeral homes to publish and share funeral service details online. Notices display beautifully on desktop and mobile, include optional livestream and tribute links, and can easily match the style of your website.
+
+For web developers and digital agencies, the plugin is modular, well-structured, and fully compatible with the wider [HumanKind Funeral Suite](https://github.com/HumanKind-nz/hk-funeral-suite). We use it ourselves on WordPress funeral websites by [Weave Digital Studio](https://weave.co.nz) and [HumanKind Funeral Websites](https://humankindwebsites.com)
 
 ---
 
-## 🚀 What's New
+## Key Features
 
-### Latest Updates (September 2025)
-- **🎥 Video Slideshow Hosting**: Upload funeral slideshows
-- **📝 Tribute Text Update**: Changed to "Send a tribute to the family" for more personal messaging
-- **🎉 Celebration Text**: Beautiful tribute message feature with customizable templates
-- **📅 Smart Ordering**: Funeral notices sorted by service date with publish date fallback
-- **📺 Better Streaming**: "View in new window" links for all video embeds
-- **🎨 Layout Fixes**: Centered single pages, consistent button hovers, proper CSS usage
-- **⚡ Performance**: Optimized CSS loading and removed legacy code
-
-### New Features
-- **4 Professional Layout Options**: From minimal to elegant funeral styling
-- **Advanced Search & Filtering**: Real-time AJAX search with date range filtering
-- **Visual Styling Controls**: Custom colour picker with alpha support
-- **Performance Optimisation**: Caching system, asset optimisation, and lazy loading
-- **Enhanced Shortcode System**: Powerful shortcodes with extensive customisation options
+- **Easy Publishing**: Add and manage funeral notices directly in WordPress.
+- **Flexible Layouts**: Multiple professional designs suited to modern funeral home websites.
+- **Livestream & Tributes**: Add streaming links and tribute messages for families.
+- **Search & Filters**: Visitors can find notices quickly by name, date, or location.
+- **Performance Conscious**: Loads only what’s needed and includes built-in caching options.
+- **Developer Friendly**: Works cleanly with ACF Pro and supports full theme overrides.
+- **🎥 Video Slideshows (Premium)**: Upload and host memorial video slideshows directly on funeral pages. Videos are securely hosted in the cloud for smooth playback and permanent archiving.
+- **📍 Default Venue Setting**: Set a default location for new funeral notices to save time on data entry.
 
 ---
 
-## 📋 Table of Contents
+## Requirements
 
-- [Features](#features)
-- [Installation](#installation)
-- [Migration from v1.x](#migration-from-v1x)
-- [Module Overview](#module-overview)
-- [Shortcode Usage](#shortcode-usage)
-- [Styling & Customisation](#styling--customisation)
-- [Template System](#template-system)
-- [Developer Documentation](#developer-documentation)
-- [Support](#support)
+| Requirement | Minimum Version | Notes |
+|--------------|-----------------|--------|
+| PHP | 8.0 | Required for plugin to run |
+| WordPress | 6.0 | Core CMS compatibility |
+| ACF Pro | Latest | Needed for data fields |
+| ACF Extended | Optional | Adds advanced field types and better UI |
 
----
+*The free version of ACF is not sufficient. ACF Pro is required for all field functionality.*
 
-## ✨ Features
-
-### 🎨 **Professional Layouts**
-- **5 Layout Options**: Current, Firehawk, Modern, Elegant, Minimal
-- **4 Card Styles**: Standard, Elevated, Outlined, Minimal
-- **Responsive Grid System**: 1-4 columns with intelligent breakpoints
-- **Mobile-First Design**: Optimised for all screen sizes
-
-### 🔍 **Advanced Search & Filtering**
-- **Real-time AJAX Search**: Instant results without page refresh
-- **Date Range Filtering**: Custom date ranges with calendar picker (hidden on mobile for better UX)
-- **Text Search**: Names, content, and ACF field searching
-- **Location Filtering**: Integration with funeral location taxonomy
-- **Autocomplete Suggestions**: Enhanced user experience
-
-### 🎨 **Visual Styling System**
-- **Custom Colour Picker**: Alpha transparency support for advanced theming
-- **Typography Controls**: 10+ professional font options including Google Fonts
-- **Layout Customisation**: Spacing, borders, shadows, and aspect ratios
-- **Live CSS Generation**: Real-time preview of styling changes
-
-### ⚡ **Performance Optimisation**
-- **Smart Caching System**: Query caching with automatic purge
-- **Asset Optimisation**: CSS/JS minification and deferring
-- **Lazy Loading**: Images and embeds load on demand
-- **Database Optimisation**: Indexed queries and cleanup tools
-- **Performance Monitoring**: Built-in performance testing tools
-
-### 🔧 **Admin Excellence**
-- **Professional Dashboard**: Module management with toggle controls
-- **Individual Module Settings**: Dedicated configuration pages
-- **Contextual Help**: Descriptions, examples, and best practices
-- **Status Indicators**: Clear active/inactive states for all features
-- **Modern UI**: Professional styling matching premium plugins
+The free [SCF](https://wordpress.org/plugins/secure-custom-fields/) Plugin might be a ACF Pro replacement but has not been tested yet.
 
 ---
 
-## 📦 Installation
+## Installation
 
-### System Requirements
+1. Install and activate **ACF Pro**.
+2. Download the HumanKind Funeral Notices plugin ZIP.
+3. Upload and activate it via **Plugins > Add New > Upload Plugin**.
+4. Go to **Funeral Notices > Dashboard** to set up layouts and options.
 
-**Critical Dependencies:**
-- 🔧 **PHP 8.0+** - Modern PHP features and strict typing
-- 🏠 **WordPress 6.0+** - Latest WordPress functionality
-- 💎 **Advanced Custom Fields PRO** - Essential for all field functionality
-- 🔗 **ACF Extended** (optional) - Enhanced field types and features
-
-**Important:** The free ACF plugin is **not sufficient**. ACF Pro is required for:
-- ✅ Group fields (funeral data organization)
-- ✅ Google Maps fields (location mapping)  
-- ✅ File upload fields (service sheets)
-- ✅ Advanced field layouts
-- ✅ ACF Extended integration (enhanced field types)
-
-### Fresh Installation
-
-1. **Install ACF Pro** first - [Purchase here](https://www.advancedcustomfields.com/pro/)
-2. **Download** the HumanKind Funeral Notices plugin ZIP file
-3. **Upload** to WordPress via Plugins > Add New > Upload
-4. **Activate** the plugin
-5. **Visit** Funeral Notices > Dashboard to configure modules
-
-### Requirements Check
-The plugin automatically verifies:
-- ✅ PHP 8.0 or higher
-- ✅ WordPress 6.0 or higher  
-- ✅ ACF Pro plugin installed and active
-- ⚠️ **Admin notice displayed if ACF Pro is missing**
+If ACF Pro is missing or requirements aren’t met, the plugin will alert you automatically.
 
 ---
 
+## Basic Shortcodes
 
-## 🏗️ Module Overview
-
-The plugin's functionality is organized into 5 professional modules:
-
-### 1. 🔧 **Settings Module**
-- **Purpose**: Core plugin configuration
-- **Features**: Display mode configuration, URL structure management, shortcode documentation
-- **Admin Page**: `Funeral Notices > Settings`
-
-### 2. 🎨 **Layouts Module** 
-- **Purpose**: Template and layout management
-- **Features**: 5 layout options, responsive grid settings, card style variants
-- **Admin Page**: `Funeral Notices > Layouts`
-
-### 3. 🔍 **Search Module**
-- **Purpose**: Advanced search and filtering
-- **Features**: AJAX search, date filtering, autocomplete, location filtering
-- **Admin Page**: `Funeral Notices > Search`
-
-### 4. 🎨 **Styling Module**
-- **Purpose**: Visual customisation and theming
-- **Features**: Colour schemes, typography controls, custom CSS, layout spacing
-- **Admin Page**: `Funeral Notices > Styling`
-
-### 5. ⚡ **Performance Module**
-- **Purpose**: Speed optimisation and caching
-- **Features**: Query caching, asset optimisation, lazy loading, database cleanup
-- **Admin Page**: `Funeral Notices > Performance`
-
-Each module can be enabled/disabled independently and includes comprehensive settings and documentation.
-
----
-
-## 📝 Shortcode Usage
-
-### Basic Usage
+Display all funeral notices:
 ```php
-// Display all funeral notices with default settings
 [funeral_notices]
-
-// Modern layout with 3 columns (layout and style parameters work identically)
-[funeral_notices layout="modern" columns="3"]
-[funeral_notices style="modern" columns="3"]
-
-// Other layout options
-[funeral_notices layout="elegant" columns="3"]
-[funeral_notices layout="firehawk" columns="3"]
-[funeral_notices layout="minimal" columns="1"]
-
-// Show only future funerals with search
-[funeral_notices type="future" show_search="yes"]
 ```
 
-### Available Parameters
-
-| Parameter | Options | Default | Description |
-|-----------|---------|---------|-------------|
-|| `layout`/`style` | `firehawk`, `modern`, `elegant`, `minimal` | `modern` | Layout template |
-| `type` | `all`, `future`, `archived`, `today`, `this_week`, `this_month` | `all` | Filter by date |
-| `columns` | `1`, `2`, `3`, `4` | `3` | Number of columns |
-| `per_page` | number | `12` | Items per page |
-| `show_search` | `yes`, `no` | `yes` | Show search form |
-| `card_style` | `standard`, `elevated`, `outlined`, `minimal` | `standard` | Card appearance |
-| `show_pagination` | `yes`, `no` | `yes` | Show pagination |
-
-### Advanced Examples
-
+Show only upcoming funerals:
 ```php
-// Elegant memorial gallery
-[funeral_notices layout="elegant" columns="2" card_style="elevated" type="all"]
-
-// Minimal list view for archives
-[funeral_notices layout="minimal" columns="1" show_search="no" per_page="20"]
-
-// Firehawk-compatible display
-[funeral_notices layout="firehawk" columns="3" show_pagination="yes"]
+[funeral_notices type="future"]
 ```
+
+For a complete list of shortcode options and parameters, see the [Developer Documentation](./DEVELOPER.md).
 
 ---
 
-## 🎨 Styling & Customisation
+## Compatibility & Integration
 
-### CSS Customisation
-
-Add custom CSS in the Styling Module:
-
-```css
-/* Custom funeral notice styling */
-.wfn-funeral-card {
-	border-left: 4px solid #1f4b8f;
-}
-
-.wfn-funeral-card:hover {
-	transform: scale(1.02);
-}
-
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-	.wfn-layouts-grid {
-		gap: 15px;
-	}
-}
-```
+- Fully compatible with the **HumanKind Funeral Suite** CPTs, roles and permissions.
+- Integrates with the **HumanKind Premium Video Hosting Service** for secure cloud-based video slideshows if required.
+- Uses standard WordPress post types and taxonomies for flexibility and portability.
 
 ---
 
-## 🔧 Template System
+## Performance & Testing
 
-### Template Hierarchy
+HumanKind Funeral Notices is designed to run efficiently on modern WordPress setups. Styles and scripts only load on pages using the plugin’s shortcodes or funeral notice templates. Query caching and lazy loading further reduce page load times.
 
-The plugin uses a flexible template system:
+Video slideshows are hosted offsite using our cloud video platform, ensuring smooth playback and minimal impact on your website’s performance.
 
-```
-templates/
-├── modes/
-│   ├── current/          # Beaver Builder compatibility
-│   ├── firehawk/         # Firehawk Tributes compatible
-│   ├── modern/           # Contemporary memorial design
-│   ├── elegant/          # Formal funeral styling
-│   └── minimal/          # Clean list view
-└── partials/
-	├── search-form.php   # Advanced search form
-	├── funeral-card.php  # Reusable card component
-	└── pagination.php    # Modern pagination
-```
-
-### Custom Templates
-
-Override plugin templates in your theme:
-
-1. Create `funeral-notices/` folder in your theme
-2. Copy template files from plugin
-3. Modify as needed
-
-Example theme structure:
-```
-your-theme/
-└── funeral-notices/
-	├── archive-funeral-notice.php
-	├── single-funeral-notice.php
-	└── modes/
-		└── custom/
-			├── archive.php
-			└── single.php
-```
+*Latest internal tests (September 2025) show average page loads under 250ms for standard funeral listings on a PHP 8.2 / WordPress 6.6 setup with caching enabled.*
 
 ---
 
-## 👨‍💻 Developer Documentation
+## Licensing & Premium Features
 
-### Hooks & Filters
+HumanKind Funeral Notices is free to use with all core features.  
+Premium features require a license key and are billed to cover ongoing cloud hosting and bandwidth costs.
 
-```php
-// Modify available layouts
-add_filter('wfn_available_layouts', function($layouts) {
-	$layouts['custom'] = [
-		'name' => 'Custom Layout',
-		'description' => 'My custom layout',
-		'template' => 'custom-template.php'
-	];
-	return $layouts;
-});
+### Free Features
+- Funeral notice publishing  
+- Livestream and tribute links  
+- Layout and styling controls  
+- Search and filters  
+- Default venue setting
 
-// Add custom search filters
-add_filter('wfn_search_meta_query', function($meta_query, $search_params) {
-	// Add custom search logic
-	return $meta_query;
-}, 10, 2);
+### Premium Features
+- Cloud-hosted video slideshow uploads  
+- Secure streaming with automatic optimisation  
+- Monthly usage statistics and bandwidth reporting
 
-// Modify card data before rendering
-add_filter('wfn_funeral_card_data', function($data, $post_id) {
-	// Customise card data
-	return $data;
-}, 10, 2);
-```
-
-### Action Hooks
-
-```php
-// Before funeral notice display
-add_action('wfn_before_funeral_display', function($post_id) {
-	// Custom logic before display
-});
-
-// After search form render
-add_action('wfn_after_search_form', function() {
-	// Add custom search elements
-});
-
-// Module activation
-add_action('wfn_module_activated', function($module_id) {
-	// Handle module activation
-});
-```
-
-### Database Schema
-
-The plugin uses WordPress native tables plus:
-
-```sql
--- ACF fields are stored in standard wp_postmeta
--- Custom taxonomy for locations in wp_terms/wp_term_taxonomy
--- Plugin settings in wp_options with 'wfn_' prefix
-```
-
-### Performance Considerations
-
-- **Caching**: Smart query caching with auto-purge on data changes
-- **Asset Loading**: CSS/JS loaded only when needed
-- **Database**: Optimised queries with proper indexing
-- **Images**: Lazy loading and responsive image support
+Contact us to purchase or manage a license:  
+🌐 [humankindwebsites.com](https://humankindwebsites.com) or [weave.co.nz](https://weave.co.nz)
 
 ---
 
-## 🛠️ Troubleshooting
+## Privacy & Analytics
 
-### Common Issues
+This plugin collects anonymous usage statistics to help improve features and provide industry insights. Data collected is **aggregated and non-personal** (counts only — e.g. number of funeral notices, percentage using livestream features).
 
-**Plugin not loading modules**
-- Check PHP version (8.0+ required)
-- Verify ACF Pro is active
-- Check for plugin conflicts
+We **never** collect names, personal details, or any content from funeral notices.
 
-**Styling not applying**
-- Clear any caching plugins
-- Check CSS loading in browser developer tools
-- Verify module is enabled in dashboard
-
-**Search not working**
-- Check AJAX errors in browser console
-- Verify Relevanssi plugin compatibility
-- Check WordPress REST API functionality
-
-**Performance issues**
-- Enable Performance Module caching
-- Optimise images and compress assets
-- Check for plugin conflicts
-
-### Debug Mode
-
-Enable debug logging by adding to wp-config.php:
-```php
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-define('WFN_DEBUG', true);
-```
-
----
-
-## 🆘 Support
-
-### Documentation
-- **Plugin Dashboard**: Comprehensive help within WordPress admin
-- **Shortcode Generator**: Built-in examples and documentation
-- **Module Help**: Contextual help on each module page
-
-### Getting Help
-- **Email Support**: [support@weave.co.nz]
-- **Documentation**: [https://github.com/HumanKind-nz/hk-funeral-notices]
-- **GitHub Issues**: [https://github.com/HumanKind-nz/hk-funeral-notices]
-
-### Before Contacting Support
-1. Check the built-in documentation
-2. Review this README
-3. Check for plugin conflicts
-4. Test on staging site
-5. Gather error logs and screenshots
-
----
-
-## 📊 Anonymous Usage Analytics
-
-### Overview
-
-**For Site Administrators and Web Agencies:**
-
-This plugin collects anonymous usage statistics to improve features and provide industry insights. Since HumanKind Funeral Notices is typically managed by web agencies (like Weave Digital Studio) rather than end-users, analytics are enabled by default across all installations.
-
-### What We Collect
-
-**Anonymous Aggregated Data Only:**
-- Number of funeral notices created per month (count only)
-- Percentage using streaming features (count only)
-- Plugin version, WordPress version, PHP version
-- Anonymous site identifier (hashed, non-reversible)
-
-### What We DON'T Collect
-
-**We NEVER collect:**
-- ❌ Deceased persons' names, dates, or biographical information
-- ❌ Funeral notice content or memorial messages
-- ❌ Personal information about site administrators or staff
-- ❌ Website visitor information or analytics
-- ❌ Any personally identifiable information
-
-### Purpose
-
-This data helps us:
-- 🎯 Improve plugin features based on real-world usage patterns
-- 🔧 Ensure compatibility with WordPress/PHP updates
-- 🚀 Plan future development priorities
-
-### Data Usage
-
-- **Plugin Improvements**: Feature development based on actual usage
-- **Industry Insights**: Anonymous aggregate data for blog posts and reports
-
-### For Web Agencies: How to Opt Out
-
-If a client requests analytics be disabled for their specific site:
-
-**Option 1 - WordPress Filter (Recommended):**
-```php
-// Add to child theme functions.php or custom plugin
-add_filter('wfn_enable_analytics', '__return_false');
-```
-
-**Option 2 - wp-config.php Constant:**
-```php
-// Add to wp-config.php for deployment-level control
-define('WFN_DISABLE_ANALYTICS', true);
-```
-
-**Option 3 - Contact Support:**
-Email support@weave.co.nz to disable analytics for specific client sites.
-
-### Data Security & Compliance
-
-- ✅ All data transmitted securely via HTTPS
-- ✅ Complies with New Zealand Privacy Act 2020
-- ✅ Complies with Australian Privacy Principles
-- ✅ No third-party data sharing
-- ✅ Data stored securely in Google Sheets with restricted access
-
-### Manual Analytics Test
-
-For testing or debugging, agencies can manually trigger analytics:
-
-```
-Visit: wp-admin/admin-post.php?action=wfn_test_analytics
-```
-
-(Requires `manage_options` capability)
-
----
-
-## 🔄 Changelog
-
-See [CHANGELOG.md](CHANGELOG.md)
-
----
-
-## 📄 License
-
-This plugin is licensed under the GPLv2 License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Credits
-
-**Development**: Weave Digital Studio  
-**Special Thanks**: The WordPress community and ACF developers
-
----
-
-## 📊 Anonymous Analytics Notice
-
-This plugin collects anonymous usage statistics to help improve features and provide industry insights. We collect counts only (number of funeral notices, streaming usage) - **no personal information or funeral details are ever transmitted**.
-
-**What we collect:** Monthly funeral counts, streaming usage percentage, plugin version
-**What we DON'T collect:** Names, funeral content, personal information, site URLs
-
-**Opt-out:** Add this to your theme's functions.php:
+To disable analytics for a specific site:
 ```php
 add_filter('wfn_enable_analytics', '__return_false');
 ```
 
+Full privacy and analytics details are available in the [Developer Documentation](./DEVELOPER.md).
+
 ---
 
-*Built with ❤️ for funeral homes who serve families with compassion and dignity.*
+## Support
+
+- Built-in contextual help within WordPress admin
+- Email support: **support@weave.co.nz**
+- GitHub Issues: [github.com/HumanKind-nz/hk-funeral-notices](https://github.com/HumanKind-nz/hk-funeral-notices)
+
+Before contacting support, please:
+1. Check the plugin’s help pages
+2. Verify ACF Pro is installed
+3. Test on a staging site
+
+---
+
+## Feature Availability
+
+| Feature | Free | Premium |
+|----------|------|----------|
+| Funeral Notices | ✅ | – |
+| Livestream Links | ✅ | – |
+| Tribute Messages | ✅ | – |
+| Default Venue | ✅ | – |
+| Video Slideshows | – | ✅ |
+| Cloud CDN Video Hosting | – | ✅ |
+
+---
+
+## License
+
+Licensed under the **GPLv2 License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+*Developed by Weave Digital Studio for HumanKind — designed for funeral homes who serve families with care and dignity.*
+

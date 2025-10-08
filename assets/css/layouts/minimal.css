@@ -5,7 +5,7 @@
 
 .wfn-enhancement-minimal-grid {
     display: grid;
-    gap: 0.75rem;
+    gap: 2rem;
     margin: 2rem 0;
 }
 
@@ -84,17 +84,17 @@
     .wfn-enhancement-minimal-grid.wfn-cols-3,
     .wfn-enhancement-minimal-grid.wfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
+        gap: 1.5rem;
     }
-    
+
     .wfn-enhancement-minimal-link {
         padding: 0.75rem;
     }
-    
+
     .wfn-enhancement-minimal-name {
         font-size: 0.95rem;
     }
-    
+
     .wfn-enhancement-minimal-details {
         font-size: 0.8rem;
     }
@@ -103,7 +103,7 @@
 @media (max-width: 480px) {
     .wfn-enhancement-minimal-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.5rem;
+        gap: 1rem;
     }
     
     .wfn-enhancement-minimal-content {

@@ -147,13 +147,32 @@ class VideoModule extends BaseModule {
      * Get video hosting credentials from WordPress constants
      *
      * These should be defined in wp-config.php and never committed to version control:
+     * define('WFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
+     * define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');
+     *
+     * Also supports legacy constant names for backward compatibility:
      * define('WFN_VIDEO_LIBRARY_ID', 'your_library_id');
      * define('WFN_VIDEO_API_KEY', 'your_api_key');
      */
     private function get_bunny_credentials(): array {
+        // Check for new constant names first, fall back to legacy names
+        $library_id = '';
+        if (defined('WFN_BUNNYSTREAM_LIBRARY_ID') && !empty(WFN_BUNNYSTREAM_LIBRARY_ID)) {
+            $library_id = WFN_BUNNYSTREAM_LIBRARY_ID;
+        } elseif (defined('WFN_VIDEO_LIBRARY_ID') && !empty(WFN_VIDEO_LIBRARY_ID)) {
+            $library_id = WFN_VIDEO_LIBRARY_ID;
+        }
+
+        $api_key = '';
+        if (defined('WFN_BUNNYSTREAM_API_KEY') && !empty(WFN_BUNNYSTREAM_API_KEY)) {
+            $api_key = WFN_BUNNYSTREAM_API_KEY;
+        } elseif (defined('WFN_VIDEO_API_KEY') && !empty(WFN_VIDEO_API_KEY)) {
+            $api_key = WFN_VIDEO_API_KEY;
+        }
+
         return [
-            'library_id' => defined('WFN_VIDEO_LIBRARY_ID') ? WFN_VIDEO_LIBRARY_ID : '',
-            'api_key' => defined('WFN_VIDEO_API_KEY') ? WFN_VIDEO_API_KEY : '',
+            'library_id' => $library_id,
+            'api_key' => $api_key,
             'cdn_hostname' => '' // Not needed for basic video hosting
         ];
     }
@@ -840,8 +859,8 @@ class VideoModule extends BaseModule {
                         <div class="wfn-notice wfn-notice-warning">
                             <p><strong>Video hosting not configured.</strong></p>
                             <p>To enable video hosting, add the following constants to your <code>wp-config.php</code> file:</p>
-                            <pre><code>define('WFN_VIDEO_LIBRARY_ID', 'your_library_id');
-define('WFN_VIDEO_API_KEY', 'your_api_key');</code></pre>
+                            <pre><code>define('WFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
+define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                             <p><em>Contact support for hosting service credentials.</em></p>
                         </div>
                     <?php endif; ?>

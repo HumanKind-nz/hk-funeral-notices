@@ -5,7 +5,7 @@
 
 .wfn-enhancement-elegant-grid {
     display: grid;
-    gap: 1rem; /* Reduced for better polish */
+    gap: 2rem; /* Increased for better breathing room */
     margin: 1.5rem 0;
     padding: 0; /* Ensure no padding that would misalign with search */
 }
@@ -122,13 +122,13 @@
     .wfn-enhancement-elegant-grid.wfn-cols-3,
     .wfn-enhancement-elegant-grid.wfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        gap: 1.5rem;
     }
-    
+
     .wfn-enhancement-elegant-header {
         padding: 1rem;
     }
-    
+
     .wfn-enhancement-elegant-service {
         padding: 0 1rem 1rem 1rem;
     }
@@ -137,7 +137,7 @@
 @media (max-width: 480px) {
     .wfn-enhancement-elegant-grid {
         grid-template-columns: 1fr !important;
-        gap: 0.75rem;
+        gap: 1rem;
     }
     
     .wfn-enhancement-elegant-header {

@@ -3,10 +3,14 @@
 .wfn-search-form-container,
 .wfn-shortcode-search-form {
     background: var(--wfn-color-card-background, #f8f9fa);
-    border: 1px solid var(--wfn-color-border, #e9ecef);
+    border: none; /* Removed border for seamless integration */
+    box-shadow: none; /* Removed shadow for cleaner appearance */
     border-radius: var(--wfn-border-radius, 8px);
     padding: var(--wfn-card-padding, 20px);
     margin-bottom: 30px;
+    max-width: 1000px; /* Constrain width for better readability */
+    margin-left: auto; /* Center the search box */
+    margin-right: auto; /* Center the search box */
 }
 
 .wfn-search-form {

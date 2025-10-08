@@ -19,6 +19,7 @@ class SettingsModule extends BaseModule {
     protected array $default_settings = [
         'default_layout' => 'modern',
         'posts_per_page' => 12,
+        'load_more_posts' => 9,
         'columns' => 3,
         'show_search' => true,
         'show_pagination' => true,
@@ -154,15 +155,26 @@ class SettingsModule extends BaseModule {
                     
                     <div class="wfn-form-group">
                         <label for="posts_per_page">Posts Per Page</label>
-                        <input type="number" 
-                               name="wfn_module_settings[posts_per_page]" 
-                               id="posts_per_page" 
-                               value="<?php echo esc_attr($settings['posts_per_page']); ?>" 
-                               min="1" 
+                        <input type="number"
+                               name="wfn_module_settings[posts_per_page]"
+                               id="posts_per_page"
+                               value="<?php echo esc_attr($settings['posts_per_page']); ?>"
+                               min="1"
                                max="50">
-                        <p class="wfn-form-description">Number of funeral notices to display per page.</p>
+                        <p class="wfn-form-description">Number of funeral notices to display initially.</p>
                     </div>
-                    
+
+                    <div class="wfn-form-group">
+                        <label for="load_more_posts">Load More Posts</label>
+                        <input type="number"
+                               name="wfn_module_settings[load_more_posts]"
+                               id="load_more_posts"
+                               value="<?php echo esc_attr($settings['load_more_posts']); ?>"
+                               min="1"
+                               max="50">
+                        <p class="wfn-form-description">Number of additional funeral notices to load when clicking "Load More" button.</p>
+                    </div>
+
                     <div class="wfn-form-group">
                         <label for="columns">Grid Columns</label>
                         <select name="wfn_module_settings[columns]" id="columns">
