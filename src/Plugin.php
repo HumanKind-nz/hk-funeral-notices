@@ -141,10 +141,27 @@ class Plugin {
 
         // Enqueue Flatpickr date range picker (lazy loaded - assets only loaded when user interacts with date field)
         // Check if current page has search functionality (archive pages or shortcode pages)
-        global $post;
-        $has_search = is_post_type_archive('funeral-notice')
-            || is_tax('funeral-location')
-            || ($post && has_shortcode($post->post_content, 'funeral_notices'));
+        $has_search = is_post_type_archive('funeral-notice') || is_tax('funeral-location');
+
+        // Check for shortcode presence (be aggressive about this to ensure it loads)
+        if (!$has_search) {
+            global $post, $wp_query;
+
+            // Check main post
+            if ($post && isset($post->post_content) && has_shortcode($post->post_content, 'funeral_notices')) {
+                $has_search = true;
+            }
+
+            // Fallback: Check all posts in the query (for page builders, etc.)
+            if (!$has_search && isset($wp_query->posts)) {
+                foreach ($wp_query->posts as $queried_post) {
+                    if (isset($queried_post->post_content) && has_shortcode($queried_post->post_content, 'funeral_notices')) {
+                        $has_search = true;
+                        break;
+                    }
+                }
+            }
+        }
 
         if ($has_search) {
             // Enqueue custom Flatpickr theme

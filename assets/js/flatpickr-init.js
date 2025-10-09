@@ -21,6 +21,12 @@
             return;
         }
 
+        // Check if wfnFlatpickr is available
+        if (typeof wfnFlatpickr === 'undefined') {
+            console.error('WFN: Flatpickr configuration not loaded. wfnFlatpickr is undefined.');
+            return;
+        }
+
         var assetsToLoad = 2;
         var assetsLoaded = 0;
 
@@ -37,14 +43,20 @@
         cssLink.rel = 'stylesheet';
         cssLink.href = wfnFlatpickr.cssUrl;
         cssLink.onload = checkAllLoaded;
-        cssLink.onerror = checkAllLoaded;
+        cssLink.onerror = function() {
+            console.error('WFN: Failed to load Flatpickr CSS from ' + wfnFlatpickr.cssUrl);
+            checkAllLoaded();
+        };
         document.head.appendChild(cssLink);
 
         // Load JS
         var script = document.createElement('script');
         script.src = wfnFlatpickr.jsUrl;
         script.onload = checkAllLoaded;
-        script.onerror = checkAllLoaded;
+        script.onerror = function() {
+            console.error('WFN: Failed to load Flatpickr JS from ' + wfnFlatpickr.jsUrl);
+            checkAllLoaded();
+        };
         document.head.appendChild(script);
     }
 
