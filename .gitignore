@@ -29,26 +29,9 @@ node_modules/
 wp-config.php
 .htaccess
 
-# Plugin development
-/working-docs/
-/ui-screenshots/
-/dev-notes/
-*.backup
-*.bak
-*.orig
-process-task-list.mdc
-generate-tasks.mdc
-create-prd.mdc
-archive-funeral-layout.WordPress.2025-05-23.xml
-archive-layout.png
-LOCAL-TRIBUTES-LAYOUT-SYSTEM.md
-firehawk-single-layout.png
-debug-router.php
-tangible-templates-*.json
 
 # PHP
 composer.phar
-vendor/
 
 # Temporary files
 *.tmp
