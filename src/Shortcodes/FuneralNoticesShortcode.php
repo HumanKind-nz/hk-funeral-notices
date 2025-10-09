@@ -760,7 +760,7 @@ class FuneralNoticesShortcode {
                         </div>
                     </div>
                     
-                    <!-- Date Range - Compact -->
+                    <!-- Date Range - Single Flatpickr Field -->
                     <fieldset class="date-range-field">
                         <legend class="visually-hidden">Filter by date range</legend>
                         <div class="input-group">
@@ -772,25 +772,29 @@ class FuneralNoticesShortcode {
                                     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </span>
-                            <label for="wfn_date_from" class="visually-hidden">From date</label>
-                            <input type="date" 
-                                   id="wfn_date_from"
-                                   name="wfn_date_from" 
+                            <label for="wfn-date-range" class="visually-hidden">Select date range</label>
+                            <input type="text"
+                                   id="wfn-date-range"
                                    class="date-input"
-                                   aria-label="Filter from date"
-                                   value="<?php echo esc_attr($_GET['wfn_date_from'] ?? $date_from); ?>" />
-                            <span class="date-separator">to</span>
-                            <label for="wfn_date_to" class="visually-hidden">To date</label>
-                            <input type="date" 
-                                   id="wfn_date_to"
-                                   name="wfn_date_to" 
-                                   class="date-input"
-                                   aria-label="Filter to date"
-                                   value="<?php echo esc_attr($_GET['wfn_date_to'] ?? $date_to); ?>" />
+                                   placeholder="Select date range..."
+                                   aria-label="Select date range for filtering"
+                                   readonly
+                                   value="">
+
+                            <!-- Hidden inputs for backend compatibility -->
+                            <input type="hidden"
+                                   id="wfn-date-from"
+                                   name="wfn_date_from"
+                                   value="<?php echo esc_attr($_GET['wfn_date_from'] ?? $date_from); ?>">
+                            <input type="hidden"
+                                   id="wfn-date-to"
+                                   name="wfn_date_to"
+                                   value="<?php echo esc_attr($_GET['wfn_date_to'] ?? $date_to); ?>">
+
                             <?php if ($date_from || $date_to): ?>
-                            <button type="button" class="clear-btn" 
+                            <button type="button" class="clear-btn wfn-date-clear"
                                     aria-label="Clear date filter"
-                                    onclick="const group = this.parentElement; group.querySelector('[name=wfn_date_from]').value=''; group.querySelector('[name=wfn_date_to]').value=''; group.closest('form').submit();">
+                                    onclick="const group = this.parentElement; group.querySelector('#wfn-date-range').value=''; group.querySelector('#wfn-date-from').value=''; group.querySelector('#wfn-date-to').value=''; group.closest('form').submit();">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
                                     <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>

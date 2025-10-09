@@ -422,19 +422,30 @@ class SearchModule extends BaseModule {
                     
                     <?php if ($settings['enable_date_range']): ?>
                     <div class="wfn-search-field wfn-search-dates">
-                        <label for="wfn-date-from">From Date</label>
-                        <input type="date" 
-                               id="wfn-date-from" 
-                               name="date_from" 
+                        <label for="wfn-date-range" class="screen-reader-text">Date Range</label>
+                        <input type="text"
+                               id="wfn-date-range"
                                class="wfn-date-input"
+                               placeholder="Select date range..."
+                               readonly
+                               value="">
+
+                        <!-- Hidden inputs for backend compatibility -->
+                        <input type="hidden"
+                               id="wfn-date-from"
+                               name="date_from"
                                value="<?php echo esc_attr($_GET['date_from'] ?? ''); ?>">
-                        
-                        <label for="wfn-date-to">To Date</label>
-                        <input type="date" 
-                               id="wfn-date-to" 
-                               name="date_to" 
-                               class="wfn-date-input"
+                        <input type="hidden"
+                               id="wfn-date-to"
+                               name="date_to"
                                value="<?php echo esc_attr($_GET['date_to'] ?? ''); ?>">
+
+                        <button type="button" class="wfn-date-clear" aria-label="Clear date range" style="display: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     </div>
                     <?php endif; ?>
                     

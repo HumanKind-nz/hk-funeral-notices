@@ -69,6 +69,9 @@ class AnalyticsModule extends BaseModule {
     public function init(): void {
         // Don't call parent::init() as we don't need admin pages for this module
 
+        // Register custom monthly cron schedule
+        add_filter('cron_schedules', [$this, 'add_monthly_cron_schedule']);
+
         // Only set up analytics if enabled
         if (!$this->is_analytics_enabled()) {
             return;
@@ -76,15 +79,39 @@ class AnalyticsModule extends BaseModule {
 
         // Schedule monthly analytics report
         if (!wp_next_scheduled('wfn_send_monthly_analytics')) {
-            // Schedule for 2am on the 1st of each month
+            // Schedule for 2am on the 1st of next month
             $next_run = strtotime('first day of next month 02:00:00');
-            wp_schedule_event($next_run, 'monthly', 'wfn_send_monthly_analytics');
+            wp_schedule_event($next_run, 'wfn_monthly', 'wfn_send_monthly_analytics');
+        }
+
+        // Schedule weekly heartbeat to keep Supabase project active (free tier requirement)
+        // Supabase pauses projects after 7 days of inactivity
+        if (!wp_next_scheduled('wfn_supabase_heartbeat')) {
+            wp_schedule_event(time(), 'weekly', 'wfn_supabase_heartbeat');
         }
 
         add_action('wfn_send_monthly_analytics', [$this, 'send_monthly_stats']);
+        add_action('wfn_supabase_heartbeat', [$this, 'send_heartbeat']);
 
         // Allow manual trigger via admin (for testing)
         add_action('admin_post_wfn_test_analytics', [$this, 'handle_test_analytics']);
+    }
+
+    /**
+     * Add custom monthly cron schedule
+     *
+     * WordPress doesn't have a built-in monthly schedule, so we add one.
+     * 30 days = 2592000 seconds
+     *
+     * @param array $schedules Existing cron schedules
+     * @return array Modified schedules
+     */
+    public function add_monthly_cron_schedule(array $schedules): array {
+        $schedules['wfn_monthly'] = [
+            'interval' => 2592000, // 30 days in seconds
+            'display'  => __('Once Monthly (WFN Analytics)', 'hk-funeral-notices'),
+        ];
+        return $schedules;
     }
 
     /**
@@ -202,6 +229,46 @@ class AnalyticsModule extends BaseModule {
 
         } catch (\Exception $e) {
             error_log('WFN Analytics Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send heartbeat to keep Supabase project active
+     *
+     * Supabase free tier pauses projects after 7 days of inactivity.
+     * This weekly heartbeat performs a simple query to keep the project active.
+     *
+     * Since full analytics are sent monthly (1st of month), sites would be
+     * inactive for 29-30 days. This heartbeat runs weekly to prevent pausing.
+     *
+     * We use a simple SELECT query instead of INSERT to avoid polluting data.
+     *
+     * @return bool Success status
+     */
+    public function send_heartbeat(): bool {
+        // Respect opt-out settings
+        if (!$this->is_analytics_enabled()) {
+            return false;
+        }
+
+        try {
+            $service = new SupabaseService();
+
+            // Test connection - this performs a SELECT query which counts as activity
+            // No data is written, just a read to keep the database active
+            $test_result = $service->test_connection();
+
+            if ($test_result['success']) {
+                error_log('WFN Analytics: Heartbeat successful (Supabase project kept active)');
+                return true;
+            }
+
+            error_log('WFN Analytics: Heartbeat failed - ' . $test_result['message']);
+            return false;
+
+        } catch (\Exception $e) {
+            error_log('WFN Analytics Heartbeat Error: ' . $e->getMessage());
             return false;
         }
     }

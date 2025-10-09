@@ -4,6 +4,25 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.4.0] – October 2025
+
+
+### UX & Interface Improvements
+- **Date Range Picker Update** – Replaced dual date fields with a modern, accessible date range picker using Flatpickr.
+Improves usability, keyboard navigation, and consistency with the plugin’s design system.
+- **Load More Button** – Added AJAX “Load More” functionality to replace pagination.
+Keeps search filters active, includes loading feedback, and hides automatically when all results are shown.
+- **Layout & UI Refinements** – Adjusted grid spacing for all layouts, simplified search box styling, and improved overall visual balance.
+
+#### Technical Notes
+- Integrated Flatpickr v4.6.13 with lazy-loaded assets.
+- Improved compatibility for date handling and hidden input fields.
+- Unified CSS variables and hover states.
+- Updated VideoModule configuration checks for both old and new constant names.
+
+
+---
+
 ## [2.3.0 - 2.3.2] – October 2025
 
 ### Major Updates
@@ -55,7 +74,7 @@ This changelog summarises the key improvements, fixes, and features added to the
 - Built-in caching and lazy-loading systems for better speed.
 
 ### Design
-- Five professional layouts (Current, Firehawk, Modern, Elegant, Minimal).
+- Four professional layouts (Modern, Elegant, Minimal, Firehawk clone).
 - Styling module with live preview and colour control.
 - Accessibility and mobile UX improvements.
 
@@ -73,6 +92,7 @@ This changelog summarises the key improvements, fixes, and features added to the
 ### Summary of Evolution
 | Version | Focus | Key Additions |
 |----------|--------|---------------|
+| 2.4.0 | Modern UX Enhancements | Flatpickr date picker, grid spacing, search integration |
 | 2.3.0 | Freemium + Analytics | Cloud video hosting, licensing, analytics system |
 | 2.2.x | Video Hosting Module | CDN integration, admin video tools |
 | 2.1.x | UX Improvements | Smart ordering, tribute messaging |

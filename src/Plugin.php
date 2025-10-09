@@ -139,8 +139,72 @@ class Plugin {
             ]);
         }
 
+        // Enqueue Flatpickr date range picker (lazy loaded - assets only loaded when user interacts with date field)
+        // Check if current page has search functionality (archive pages or shortcode pages)
+        global $post;
+        $has_search = is_post_type_archive('funeral-notice')
+            || is_tax('funeral-location')
+            || ($post && has_shortcode($post->post_content, 'funeral_notices'));
+
+        if ($has_search) {
+            // Enqueue custom Flatpickr theme
+            wp_enqueue_style(
+                'wfn-flatpickr-custom',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/css/flatpickr-custom.css',
+                [],
+                '2.4.0'
+            );
+
+            // Enqueue initialization script (handles lazy loading of Flatpickr library)
+            wp_enqueue_script(
+                'wfn-flatpickr-init',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/js/flatpickr-init.js',
+                [],
+                '2.4.0',
+                true
+            );
+
+            // Get WordPress date format
+            $wp_date_format = get_option('date_format', 'Y-m-d');
+            $flatpickr_format = $this->convert_php_to_flatpickr_format($wp_date_format);
+
+            // Localize script with URLs for lazy loading and settings
+            wp_localize_script('wfn-flatpickr-init', 'wfnFlatpickr', [
+                'jsUrl' => plugin_dir_url(dirname(__FILE__)) . 'assets/js/vendor/flatpickr.min.js',
+                'cssUrl' => plugin_dir_url(dirname(__FILE__)) . 'assets/css/vendor/flatpickr.min.css',
+                'dateFormat' => $flatpickr_format,
+                'placeholder' => 'Select date range...'
+            ]);
+        }
+
         // Other assets are enqueued conditionally by individual layout renderers
         // This keeps the system lightweight
+    }
+
+    /**
+     * Convert PHP date format to Flatpickr date format
+     */
+    private function convert_php_to_flatpickr_format(string $php_format): string {
+        $replacements = [
+            'Y' => 'Y',    // 4-digit year
+            'y' => 'y',    // 2-digit year
+            'm' => 'm',    // Month with leading zero
+            'n' => 'n',    // Month without leading zero
+            'M' => 'M',    // Short month name
+            'F' => 'F',    // Full month name
+            'd' => 'd',    // Day with leading zero
+            'j' => 'j',    // Day without leading zero
+            'D' => 'D',    // Short day name
+            'l' => 'l',    // Full day name
+        ];
+
+        $flatpickr_format = $php_format;
+        foreach ($replacements as $php => $flatpickr) {
+            $flatpickr_format = str_replace($php, $flatpickr, $flatpickr_format);
+        }
+
+        // Default to Y-m-d if conversion fails
+        return !empty($flatpickr_format) ? $flatpickr_format : 'Y-m-d';
     }
 
     /**
