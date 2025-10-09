@@ -139,10 +139,38 @@ class Plugin {
             ]);
         }
 
-        // Enqueue Flatpickr date range picker on all frontend pages (lazy loaded - only activates when date field is clicked)
-        // This ensures it works with page builders, caching, and all WordPress setups
-        // The lazy loading means no performance impact on pages without the date picker
+        // Enqueue Flatpickr date range picker only where search forms appear
+        // Check for archive pages, taxonomy pages, or shortcode presence
+        $should_load_flatpickr = false;
+
         if (!is_admin()) {
+            // Always load on archive and taxonomy pages (search forms present)
+            if (is_post_type_archive('funeral-notice') || is_tax('funeral-location')) {
+                $should_load_flatpickr = true;
+            }
+
+            // Check for shortcode in current post/page content
+            global $post;
+            if ($post && has_shortcode($post->post_content, 'funeral_notices')) {
+                $should_load_flatpickr = true;
+            }
+
+            // Fallback: Check all posts in current query (for page builders)
+            if (!$should_load_flatpickr) {
+                global $wp_query;
+                if (isset($wp_query->posts) && is_array($wp_query->posts)) {
+                    foreach ($wp_query->posts as $query_post) {
+                        if (isset($query_post->post_content) && has_shortcode($query_post->post_content, 'funeral_notices')) {
+                            $should_load_flatpickr = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Only enqueue if search functionality is present
+        if ($should_load_flatpickr) {
             // Enqueue custom Flatpickr theme
             wp_enqueue_style(
                 'wfn-flatpickr-custom',
