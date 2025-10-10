@@ -194,6 +194,19 @@ class LicenseService {
             // Store the license key
             update_option('wfn_license_key', $license_key);
 
+            // Update license status to active
+            update_option('wfn_license_status', [
+                'valid' => true,
+                'features' => ['video_hosting'],
+                'expires' => $response['expires'] ?? '',
+                'message' => 'License activated successfully',
+                'license_type' => 'premium',
+                'site_limit' => $response['site_limit'] ?? 'Unlimited',
+                'customer_name' => $response['customer_name'] ?? '',
+                'last_check' => current_time('mysql'),
+                'validated_at' => current_time('mysql')
+            ]);
+
             // Clear license cache
             $this->clearLicenseCache();
 
@@ -236,6 +249,19 @@ class LicenseService {
 
         // Remove the license key regardless of API response
         delete_option('wfn_license_key');
+
+        // Update license status to invalid
+        update_option('wfn_license_status', [
+            'valid' => false,
+            'features' => [],
+            'expires' => '',
+            'message' => 'License deactivated',
+            'license_type' => '',
+            'site_limit' => '',
+            'customer_name' => '',
+            'last_check' => current_time('mysql'),
+            'validated_at' => ''
+        ]);
 
         // Clear license cache
         $this->clearLicenseCache();

@@ -20,8 +20,21 @@ $media_group = get_field('wfn_media_group', $post_id) ?: [];
 $service_sheet = $media_group['service_sheet'] ?? null;
 $additional_docs = $media_group['additional_documents'] ?? [];
 
+// Check for video slideshow (direct upload system)
+$video_status = get_post_meta($post_id, '_wfn_video_status', true);
+$video_id = get_post_meta($post_id, '_wfn_video_id', true);
+$video_data = get_post_meta($post_id, '_wfn_video_data', true);
+
+// Decode JSON if needed
+if (is_string($video_data)) {
+    $video_data = json_decode($video_data, true);
+}
+
+// Only show video if ready
+$has_video = ($video_status === 'ready' && !empty($video_id) && !empty($video_data));
+
 // Check if we have any documents to show
-$has_documents = !empty($service_sheet) || !empty($additional_docs);
+$has_documents = !empty($service_sheet) || !empty($additional_docs) || $has_video;
 
 if (!$has_documents) {
     return;
@@ -109,8 +122,8 @@ $mode = $args['mode'] ?? 'modern';
                         <p class="wfn-document-description wfn-<?php echo esc_attr($mode); ?>-document-description">Order of service and program details</p>
                     </div>
                     <div class="wfn-document-actions wfn-<?php echo esc_attr($mode); ?>-document-actions">
-                        <a href="<?php echo esc_url($service_sheet['url']); ?>" 
-                           target="_blank" 
+                        <a href="<?php echo esc_url($service_sheet['url']); ?>"
+                           target="_blank"
                            rel="noopener"
                            class="wfn-download-button wfn-<?php echo esc_attr($mode); ?>-download-button">
                            <?php echo wfn_get_document_icon(); ?> Download Service Sheet
@@ -118,7 +131,24 @@ $mode = $args['mode'] ?? 'modern';
                     </div>
                 </div>
             <?php endif; ?>
-            
+
+            <?php if ($has_video): ?>
+                <div class="wfn-document-item wfn-<?php echo esc_attr($mode); ?>-document-item wfn-video-item">
+                    <div class="wfn-document-info wfn-<?php echo esc_attr($mode); ?>-document-info">
+                        <h3 class="wfn-document-title wfn-<?php echo esc_attr($mode); ?>-document-title">Memorial Video Slideshow</h3>
+                        <p class="wfn-document-description wfn-<?php echo esc_attr($mode); ?>-document-description">Watch the memorial video tribute</p>
+                    </div>
+                    <div class="wfn-document-actions wfn-<?php echo esc_attr($mode); ?>-document-actions">
+                        <a href="<?php echo esc_url($video_data['stream_url'] ?? ''); ?>"
+                           target="_blank"
+                           rel="noopener"
+                           class="wfn-download-button wfn-<?php echo esc_attr($mode); ?>-download-button wfn-video-button">
+                           📹 Watch Memorial Video
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($additional_docs)): ?>
                 <?php foreach ($additional_docs as $doc): ?>
                     <?php if (!empty($doc['file'])): ?>

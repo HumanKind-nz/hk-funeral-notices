@@ -526,12 +526,8 @@ class FieldGroupManager {
                             'return_format' => 'array',
                             'library' => 'all',
                             'mime_types' => 'mp4,mov,avi,wmv,webm',
-                            'max_size' => 100, // 100MB limit
-                            'insert' => 'upload', // Default to Upload tab for better UX
-                            'disabled' => !$this->has_premium_license(),
-                            'wrapper' => [
-                                'class' => $this->has_premium_license() ? '' : 'wfn-video-field-unlicensed'
-                            ],
+                            'max_size' => 500, // 500MB limit
+                            'disabled' => !$this->has_premium_license(), // Disable field without license
                         ],
                         [
                             'key' => 'field_wfn_additional_documents',
@@ -698,12 +694,11 @@ class FieldGroupManager {
      */
     private function get_video_field_instructions(): string {
         if (!$this->has_premium_license()) {
-            return '⚠️ <strong>Premium Feature:</strong> Video streaming requires a valid premium license. ' .
-                   'Contact your administrator to activate this feature. <a href="' .
+            return '<strong>Premium Feature:</strong> Video streaming requires a valid premium license. <a href="' .
                    admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>';
         }
 
-        return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 100MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
+        return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 500MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
     }
 
     /**

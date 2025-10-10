@@ -4,6 +4,29 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.4.4] – October 2025
+
+### Bug Fixes
+- **Video Deletion** – Fixed videos not being removed from Bunny CDN when funeral posts are deleted
+- **Video Field Visibility** – Video upload field now completely hidden (not just disabled) when premium license is inactive
+
+---
+
+## [2.4.1] – October 2025
+
+### Bug Fixes
+- **Streaming Service Detection** – Fixed iStream URLs incorrectly showing OneRoom embed containers
+- **Template Logic Simplification** – Simplified all template modes (current, modern, elegant, firehawk) to trust StreamingDetector auto-detection
+- **Migration Improvements** – Enhanced TemplateManager to prefer auto-detected streaming service over stored values
+
+#### Technical Notes
+- Updated `src/Streaming/StreamingDetector.php` with improved service-specific button text
+- Added "Open in YouTube/Vimeo" links to embedded videos
+- Modified `src/Templates/TemplateManager.php` to prioritize auto-detected service types
+- All 4 template modes now use consistent streaming detection logic
+
+---
+
 ## [2.4.0] – October 2025
 
 

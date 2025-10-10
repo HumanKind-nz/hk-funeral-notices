@@ -495,6 +495,28 @@
     outline-offset: 2px;
 }
 
+/* Icon Alignment - Inline SVG icons in buttons */
+.wfn-service-sheet-btn svg,
+.wfn-memorial-video-btn svg,
+.wfn-document-link svg,
+.wfn-stream-btn svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+    position: relative;
+    top: -3px; /* Fine-tune vertical centering */
+}
+
+/* Ensure buttons use flexbox for icon alignment */
+.wfn-service-sheet-btn,
+.wfn-memorial-video-btn,
+.wfn-document-link,
+.wfn-stream-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
 /* OneRoom service sizing (desktop emphasis) */
 .wfn-oneroom .wfn-stream-container {
     max-width: 800px !important;

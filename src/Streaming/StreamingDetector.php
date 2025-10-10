@@ -156,14 +156,21 @@ class StreamingDetector {
             // For live URLs without video ID, create a button link
             return $this->generate_generic_link($original_url, 'YouTube Live');
         }
-        
+
+        $embed_url = "https://www.youtube.com/watch?v=" . $video_id;
+
         return sprintf(
             '<div class="wfn-video-embed wfn-youtube-embed">' .
             '<iframe src="https://www.youtube.com/embed/%s?rel=0&modestbranding=1" ' .
             'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">' .
-            '</iframe></div>',
-            esc_attr($video_id)
+            '</iframe>' .
+            '<div class="wfn-streaming-actions" style="margin-top: 0.75rem;">' .
+            '<a href="%s" target="_blank" rel="noopener" class="wfn-view-external">Open in YouTube</a>' .
+            '</div>' .
+            '</div>',
+            esc_attr($video_id),
+            esc_url($embed_url)
         );
     }
 
@@ -235,13 +242,20 @@ class StreamingDetector {
      * Generate Vimeo embed code
      */
     private function generate_vimeo_embed(string $video_id): string {
+        $vimeo_url = "https://vimeo.com/" . $video_id;
+
         return sprintf(
             '<div class="wfn-video-embed wfn-vimeo-embed">' .
             '<iframe src="https://player.vimeo.com/video/%s?title=0&byline=0&portrait=0" ' .
             'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="autoplay; fullscreen; picture-in-picture">' .
-            '</iframe></div>',
-            esc_attr($video_id)
+            '</iframe>' .
+            '<div class="wfn-streaming-actions" style="margin-top: 0.75rem;">' .
+            '<a href="%s" target="_blank" rel="noopener" class="wfn-view-external">Open in Vimeo</a>' .
+            '</div>' .
+            '</div>',
+            esc_attr($video_id),
+            esc_url($vimeo_url)
         );
     }
 
@@ -280,17 +294,24 @@ class StreamingDetector {
     private function generate_generic_link(string $url, string $service_name = ''): string {
         $domain = parse_url($url, PHP_URL_HOST);
         $clean_domain = str_replace('www.', '', $domain ?? '');
-        
+
         // Use provided service name or auto-detect from domain
         $display_name = $service_name ?: ucfirst($clean_domain);
+
+        // Determine button text based on service
+        $button_text = match(strtolower($display_name)) {
+            'istream' => 'View on iStream',
+            'vimeo' => 'Open in Vimeo',
+            default => 'View in Browser'
+        };
 
         return sprintf(
             '<div class="wfn-streaming-link">' .
             '<a href="%s" target="_blank" rel="noopener noreferrer" class="wfn-stream-button">' .
-            '<span class="wfn-stream-icon">📺</span> Watch Live Stream on %s' .
+            '<span class="wfn-stream-icon">📺</span> %s' .
             '</a></div>',
             esc_url($url),
-            esc_html($display_name)
+            esc_html($button_text)
         );
     }
 

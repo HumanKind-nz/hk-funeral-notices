@@ -789,29 +789,25 @@ class SettingsModule extends BaseModule {
      */
     public function enqueue_admin_assets($hook): void {
         parent::enqueue_admin_assets($hook);
+    }
 
-        // Debug logging removed for production
-
-        // Always add a basic script to test if method works
-        wp_enqueue_script('jquery');
-        wp_add_inline_script('jquery', 'console.log("WFN Settings: Basic script loaded on hook: ' . $hook . '");');
-
+    /**
+     * Enqueue module-specific assets
+     * Only called when on the Settings module page
+     */
+    protected function enqueue_module_assets($hook): void {
         // Load media scripts for settings functionality
-
-        // Enqueue WordPress media library and dependencies
         wp_enqueue_media();
         wp_enqueue_script('jquery');
 
         // Add the media script directly to jQuery instead of creating a separate script
         wp_add_inline_script('jquery', '
             jQuery(document).ready(function($) {
-                console.log("WFN Settings Media JS loaded");
                 var mediaUploader;
 
                 // Handle image upload
                 $(document).on("click", ".wfn-upload-image", function(e) {
                     e.preventDefault();
-                    console.log("Upload button clicked");
 
                     var button = $(this);
                     var targetInput = button.closest(".wfn-image-upload").find("input[type=hidden]");
@@ -835,7 +831,6 @@ class SettingsModule extends BaseModule {
 
                     mediaUploader.on("select", function() {
                         var attachment = mediaUploader.state().get("selection").first().toJSON();
-                        console.log("Image selected:", attachment.url);
                         targetInput.val(attachment.url);
                         preview.html(
                             "<img src=\"" + attachment.url + "\" alt=\"Default person image preview\" style=\"max-width: 150px; height: auto;\">" +
@@ -849,7 +844,6 @@ class SettingsModule extends BaseModule {
                 // Handle image removal
                 $(document).on("click", ".wfn-remove-image", function(e) {
                     e.preventDefault();
-                    console.log("Remove button clicked");
                     var button = $(this);
                     var targetInput = button.closest(".wfn-image-upload").find("input[type=hidden]");
                     var preview = button.closest(".wfn-image-upload").find(".wfn-image-preview");

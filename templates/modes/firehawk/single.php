@@ -200,36 +200,30 @@ $tribute = $data['tribute'];
                 <div class="firehawk-streaming-section">
                     <h3 class="firehawk-section-title">Live Streaming</h3>
                     <div class="firehawk-stream-content">
-                        
-                        <?php if ($streaming['can_embed'] && $streaming['embed_code']): ?>
-                            <!-- Inline embed for recognised services -->
+
+                        <?php if ($streaming['embed_code']): ?>
+                            <!-- StreamingDetector has generated the appropriate embed or button -->
                             <div class="firehawk-video-embed">
                                 <?php echo $streaming['embed_code']; ?>
                             </div>
-                            
-                            <!-- View in new window link -->
-                            <div class="firehawk-streaming-actions">
-                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" 
-                                   target="_blank" 
-                                   rel="noopener" 
-                                   class="firehawk-button firehawk-button-secondary">
-                                   View in new window
-                                </a>
-                            </div>
-                            
+
                         <?php elseif ($streaming['streaming_url']): ?>
-                            <!-- Button for unrecognised services -->
+                            <!-- Fallback: simple button for unrecognized services -->
                             <div class="firehawk-stream-link">
                                 <p class="firehawk-stream-info">Watch the service live online</p>
-                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" 
-                                   target="_blank" 
+                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>"
+                                   target="_blank"
                                    rel="noopener"
                                    class="firehawk-button firehawk-button-primary">
                                    Watch Live Stream
                                 </a>
                             </div>
+
+                        <?php else: ?>
+                            <!-- No URL provided -->
+                            <p class="firehawk-stream-info">Streaming details will be available shortly.</p>
                         <?php endif; ?>
-                        
+
                         <?php if ($streaming['streaming_note']): ?>
                             <p class="firehawk-streaming-note"><?php echo esc_html($streaming['streaming_note']); ?></p>
                         <?php endif; ?>

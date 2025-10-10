@@ -52,30 +52,14 @@ function register_funeral_notice_post_type() {
         'show_ui'               => true,
         'show_in_menu'          => 'hk-funeral-notices',
         'menu_position'         => 5,
-        'show_in_admin_bar'     => false,
+        'show_in_admin_bar'     => false, // We'll add custom admin bar items instead
         'show_in_nav_menus'     => true,
         'can_export'            => true,
         'has_archive'           => true,
         'exclude_from_search'   => false,
         'publicly_queryable'    => true,
-        'capability_type'       => 'funeral_notice',
+        'capability_type'       => 'post', // Simplified to standard WordPress capabilities
         'map_meta_cap'          => true,
-        'capabilities'          => array(
-            'edit_post'              => 'edit_funeral_notice',
-            'read_post'              => 'read_funeral_notice',
-            'delete_post'            => 'delete_funeral_notice',
-            'edit_posts'             => 'edit_funeral_notices',
-            'edit_others_posts'      => 'edit_others_funeral_notices',
-            'publish_posts'          => 'publish_funeral_notices',
-            'read_private_posts'     => 'read_private_funeral_notices',
-            'delete_posts'           => 'delete_funeral_notices',
-            'delete_private_posts'   => 'delete_private_funeral_notices',
-            'delete_published_posts' => 'delete_published_funeral_notices',
-            'delete_others_posts'    => 'delete_others_funeral_notices',
-            'edit_private_posts'     => 'edit_private_funeral_notices',
-            'edit_published_posts'   => 'edit_published_funeral_notices',
-            'create_posts'           => 'create_funeral_notices',
-        ),
         'show_in_rest'          => true,
         'rewrite'               => array('slug' => $single_slug),
     );
@@ -121,8 +105,14 @@ function register_funeral_location_taxonomy() {
         'show_tagcloud'              => false,
         'show_in_rest'               => true,
         'show_in_menu'               => false,
+        'capabilities'               => array(
+            'manage_terms' => 'edit_posts',
+            'edit_terms'   => 'edit_posts',
+            'delete_terms' => 'edit_posts',
+            'assign_terms' => 'edit_posts',
+        ),
     );
-    
+
     register_taxonomy('funeral-location', array('funeral-notice'), $args);
 }
 add_action('init', 'register_funeral_location_taxonomy');

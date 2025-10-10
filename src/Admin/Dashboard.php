@@ -71,7 +71,7 @@ class Dashboard {
             'hk-funeral-notices',
             'Funeral Venues',
             'Venues',
-            'manage_options',
+            'edit_posts',
             'edit-tags.php?taxonomy=funeral-location&post_type=funeral-notice'
         );
 

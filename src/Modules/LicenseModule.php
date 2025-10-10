@@ -372,17 +372,28 @@ class LicenseModule extends BaseModule {
                         <form id="wfn-license-form" method="post">
                             <div class="wfn-form-group">
                                 <label for="license_key">License Key</label>
-                                <input type="text"
-                                       id="license_key"
-                                       name="license_key"
-                                       value="<?php echo esc_attr($license_key); ?>"
-                                       placeholder="12345678901234567890123456789012"
-                                       maxlength="32"
-                                       pattern="[a-fA-F0-9]{32}"
-                                       style="width: 100%; max-width: 400px; font-family: monospace;"
-                                       required>
+                                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                                    <input type="<?php echo $license_status['valid'] ? 'password' : 'text'; ?>"
+                                           id="license_key"
+                                           name="license_key"
+                                           value="<?php echo esc_attr($license_key); ?>"
+                                           placeholder="12345678901234567890123456789012"
+                                           maxlength="32"
+                                           pattern="[a-fA-F0-9]{32}"
+                                           style="width: 100%; max-width: 400px; font-family: monospace;"
+                                           required>
+                                    <?php if ($license_status['valid'] && !empty($license_key)): ?>
+                                        <button type="button" id="toggle-license-visibility" class="button button-secondary" style="min-width: 80px;">
+                                            <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span>
+                                            <span class="toggle-text">Show</span>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                                 <p class="wfn-form-description">
                                     Enter your 32-character premium license key (provided by HumanKind support)
+                                    <?php if ($license_status['valid']): ?>
+                                        <br><em>License key is hidden for security. Click "Show" to reveal it.</em>
+                                    <?php endif; ?>
                                 </p>
                             </div>
 
@@ -465,6 +476,24 @@ class LicenseModule extends BaseModule {
                 let value = $(this).val().replace(/[^a-fA-F0-9]/g, '').toLowerCase();
                 if (value.length > 32) value = value.substr(0, 32);
                 $(this).val(value);
+            });
+
+            // Toggle license key visibility
+            $('#toggle-license-visibility').on('click', function() {
+                const $input = $('#license_key');
+                const $button = $(this);
+                const $icon = $button.find('.dashicons');
+                const $text = $button.find('.toggle-text');
+
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $icon.removeClass('dashicons-visibility').addClass('dashicons-hidden');
+                    $text.text('Hide');
+                } else {
+                    $input.attr('type', 'password');
+                    $icon.removeClass('dashicons-hidden').addClass('dashicons-visibility');
+                    $text.text('Show');
+                }
             });
 
             // Validate license

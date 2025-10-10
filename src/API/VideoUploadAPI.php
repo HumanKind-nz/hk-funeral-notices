@@ -1,0 +1,587 @@
+<?php
+declare(strict_types=1);
+
+namespace WeaveStudios\FuneralNotices\API;
+
+use WeaveStudios\FuneralNotices\Services\BunnyStreamService;
+use WeaveStudios\FuneralNotices\Services\LicenseService;
+use WP_REST_Controller;
+use WP_REST_Server;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_Error;
+
+/**
+ * Video Upload REST API Controller
+ *
+ * Handles direct-to-Bunny video upload coordination:
+ * 1. Client requests upload session (gets Bunny video ID + upload URL)
+ * 2. Client uploads directly to Bunny CDN via JavaScript
+ * 3. Client notifies WordPress when upload completes
+ * 4. WordPress stores video_id in post meta
+ *
+ * @since 2.3.1
+ */
+class VideoUploadAPI extends WP_REST_Controller {
+
+    /**
+     * @var string REST API namespace
+     */
+    protected $namespace = 'wfn/v1';
+
+    /**
+     * @var string Base route
+     */
+    protected $rest_base = 'video';
+
+    /**
+     * @var BunnyStreamService
+     */
+    private BunnyStreamService $bunny_service;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        $this->bunny_service = new BunnyStreamService();
+
+        // Register cleanup hooks
+        add_action('wfn_cleanup_abandoned_uploads', [$this, 'cleanup_abandoned_uploads']);
+
+        // Register post deletion hook to cleanup videos from Bunny
+        add_action('before_delete_post', [$this, 'cleanup_video_on_post_delete']);
+    }
+
+    /**
+     * Register REST API routes
+     */
+    public function register_routes(): void {
+        // Initialize upload session
+        register_rest_route($this->namespace, "/{$this->rest_base}/init-upload", [
+            [
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => [$this, 'init_upload'],
+                'permission_callback' => [$this, 'check_permissions'],
+                'args' => $this->get_init_upload_args()
+            ]
+        ]);
+
+        // Notify upload complete
+        register_rest_route($this->namespace, "/{$this->rest_base}/upload-complete", [
+            [
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => [$this, 'upload_complete'],
+                'permission_callback' => [$this, 'check_permissions'],
+                'args' => $this->get_upload_complete_args()
+            ]
+        ]);
+
+        // Get upload status (for page refreshes/resume)
+        register_rest_route($this->namespace, "/{$this->rest_base}/upload-status/(?P<post_id>\d+)", [
+            [
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => [$this, 'get_upload_status'],
+                'permission_callback' => [$this, 'check_permissions'],
+                'args' => [
+                    'post_id' => [
+                        'required' => true,
+                        'type' => 'integer',
+                        'validate_callback' => function($param) {
+                            return is_numeric($param) && $param > 0;
+                        }
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Initialize upload session
+     *
+     * Creates video entry in Bunny and returns direct upload URL
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function init_upload(WP_REST_Request $request) {
+        $post_id = $request->get_param('post_id');
+        $filename = $request->get_param('filename');
+        $filesize = $request->get_param('filesize');
+
+        // Verify post exists and is funeral-notice type
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'funeral-notice') {
+            return new WP_Error(
+                'invalid_post',
+                'Invalid funeral notice post ID',
+                ['status' => 400]
+            );
+        }
+
+        // Check if user can edit this post
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error(
+                'forbidden',
+                'You do not have permission to upload videos for this post',
+                ['status' => 403]
+            );
+        }
+
+        // Verify license for video streaming
+        if (!LicenseService::hasValidVideoLicense()) {
+            return new WP_Error(
+                'license_required',
+                'Premium license required for video streaming feature',
+                ['status' => 402]
+            );
+        }
+
+        // Check Bunny service is configured
+        if (!$this->bunny_service->is_configured()) {
+            return new WP_Error(
+                'service_not_configured',
+                'Video streaming service is not configured',
+                ['status' => 500]
+            );
+        }
+
+        // Create video entry in Bunny with person's name from ACF fields
+        $video_title = $this->generate_video_title($post_id);
+        $result = $this->bunny_service->create_upload_session([
+            'title' => $video_title,
+            'filename' => $filename,
+            'filesize' => $filesize,
+            'post_id' => $post_id
+        ]);
+
+        if (!$result['success']) {
+            return new WP_Error(
+                'upload_session_failed',
+                $result['message'] ?? 'Failed to create upload session',
+                ['status' => 500]
+            );
+        }
+
+        // Store upload session metadata
+        update_post_meta($post_id, '_wfn_video_upload_session', [
+            'video_id' => $result['video_id'],
+            'filename' => $filename,
+            'filesize' => $filesize,
+            'started_at' => current_time('mysql'),
+            'status' => 'uploading'
+        ]);
+
+        return new WP_REST_Response([
+            'success' => true,
+            'video_id' => $result['video_id'],
+            'upload_url' => $result['upload_url'],
+            'api_key' => $result['api_key'], // Bunny API key for direct upload
+            'library_id' => $result['library_id'],
+            'chunk_size' => $result['chunk_size'] ?? 5242880, // 5MB default
+            'expires_at' => $result['expires_at'] ?? time() + 3600
+        ], 200);
+    }
+
+    /**
+     * Handle upload completion notification
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function upload_complete(WP_REST_Request $request) {
+        $post_id = $request->get_param('post_id');
+        $video_id = $request->get_param('video_id');
+
+        // Verify post exists
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'funeral-notice') {
+            return new WP_Error(
+                'invalid_post',
+                'Invalid funeral notice post ID',
+                ['status' => 400]
+            );
+        }
+
+        // Check permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error(
+                'forbidden',
+                'You do not have permission to update this post',
+                ['status' => 403]
+            );
+        }
+
+        // Verify this video_id matches the session
+        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        if (!$session || $session['video_id'] !== $video_id) {
+            return new WP_Error(
+                'invalid_video_id',
+                'Video ID does not match upload session',
+                ['status' => 400]
+            );
+        }
+
+        // Check if there's an existing video to replace
+        $old_video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        if (!empty($old_video_id) && $old_video_id !== $video_id) {
+            // Delete the old video from Bunny CDN
+            $delete_result = $this->bunny_service->delete_video($old_video_id);
+
+            if ($delete_result['success']) {
+                error_log("WFN: Successfully deleted replaced video {$old_video_id} from Bunny CDN for post {$post_id}");
+            } else {
+                error_log("WFN: Failed to delete replaced video {$old_video_id} from Bunny CDN: " . ($delete_result['message'] ?? 'Unknown error'));
+            }
+        }
+
+        // Store video ID in post meta (matches existing VideoModule pattern)
+        update_post_meta($post_id, '_wfn_video_id', $video_id);
+        update_post_meta($post_id, '_wfn_video_status', 'ready'); // Video is ready for playback immediately
+        update_post_meta($post_id, '_wfn_video_uploaded_at', current_time('mysql'));
+
+        // Track which site uploaded this video (for safe cross-site migrations)
+        update_post_meta($post_id, '_wfn_bunny_video_source_site', get_site_url());
+
+        // Store basic video data for frontend rendering
+        $video_data = [
+            'video_id' => $video_id,
+            'stream_url' => "https://iframe.mediadelivery.net/embed/" . $this->bunny_service->get_library_id() . "/{$video_id}",
+            'thumbnail_url' => "https://vz-" . $this->bunny_service->get_library_id() . ".b-cdn.net/{$video_id}/thumbnail.jpg",
+            'duration' => 0, // Unknown until transcoding completes
+            'uploaded_at' => current_time('mysql')
+        ];
+        update_post_meta($post_id, '_wfn_video_data', json_encode($video_data));
+
+        // Update session status
+        $session['status'] = 'completed';
+        $session['completed_at'] = current_time('mysql');
+        update_post_meta($post_id, '_wfn_video_upload_session', $session);
+
+        // Check transcoding status (async)
+        $transcoding_status = $this->bunny_service->get_video_status($video_id);
+
+        return new WP_REST_Response([
+            'success' => true,
+            'message' => 'Video upload recorded successfully',
+            'video_id' => $video_id,
+            'transcoding_status' => $transcoding_status['status'] ?? 'processing'
+        ], 200);
+    }
+
+    /**
+     * Get upload status for a post
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function get_upload_status(WP_REST_Request $request) {
+        $post_id = $request->get_param('post_id');
+
+        // Verify post exists
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'funeral-notice') {
+            return new WP_Error(
+                'invalid_post',
+                'Invalid funeral notice post ID',
+                ['status' => 400]
+            );
+        }
+
+        // Check permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error(
+                'forbidden',
+                'You do not have permission to view this post',
+                ['status' => 403]
+            );
+        }
+
+        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+
+        return new WP_REST_Response([
+            'success' => true,
+            'status' => $session['status'] ?? 'none',
+            'video_id' => $video_id ?: ($session['video_id'] ?? ''),
+            'session' => $session ?: null
+        ], 200);
+    }
+
+    /**
+     * Check permissions for API access
+     *
+     * @param WP_REST_Request $request
+     * @return bool|WP_Error
+     */
+    public function check_permissions(WP_REST_Request $request): bool {
+        // Must be logged in
+        if (!is_user_logged_in()) {
+            return false;
+        }
+
+        // Must have capability to edit posts
+        return current_user_can('edit_posts');
+    }
+
+    /**
+     * Arguments for init-upload endpoint
+     *
+     * @return array
+     */
+    private function get_init_upload_args(): array {
+        return [
+            'post_id' => [
+                'required' => true,
+                'type' => 'integer',
+                'validate_callback' => function($param) {
+                    return is_numeric($param) && $param > 0;
+                }
+            ],
+            'filename' => [
+                'required' => true,
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_file_name',
+                'validate_callback' => function($param) {
+                    return !empty($param) && strlen($param) < 256;
+                }
+            ],
+            'filesize' => [
+                'required' => true,
+                'type' => 'integer',
+                'validate_callback' => function($param) {
+                    return is_numeric($param) && $param > 0 && $param <= 524288000; // 500MB max
+                }
+            ]
+        ];
+    }
+
+    /**
+     * Arguments for upload-complete endpoint
+     *
+     * @return array
+     */
+    private function get_upload_complete_args(): array {
+        return [
+            'post_id' => [
+                'required' => true,
+                'type' => 'integer',
+                'validate_callback' => function($param) {
+                    return is_numeric($param) && $param > 0;
+                }
+            ],
+            'video_id' => [
+                'required' => true,
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'validate_callback' => function($param) {
+                    return !empty($param) && strlen($param) < 100;
+                }
+            ]
+        ];
+    }
+
+    /**
+     * Cleanup abandoned upload sessions
+     *
+     * Runs via cron to clean up sessions that were started but never completed.
+     * Removes session metadata and optionally deletes video entries from Bunny.
+     *
+     * @param int $max_age_hours Maximum age in hours for abandoned sessions (default: 24)
+     */
+    public function cleanup_abandoned_uploads(int $max_age_hours = 24): void {
+        global $wpdb;
+
+        $cutoff_time = date('Y-m-d H:i:s', strtotime("-{$max_age_hours} hours"));
+
+        // Find all posts with abandoned upload sessions
+        $results = $wpdb->get_results($wpdb->prepare("
+            SELECT post_id, meta_value
+            FROM {$wpdb->postmeta}
+            WHERE meta_key = '_wfn_video_upload_session'
+            AND post_id IN (
+                SELECT ID FROM {$wpdb->posts}
+                WHERE post_type = 'funeral-notice'
+            )
+        "));
+
+        $cleaned = 0;
+        $errors = 0;
+
+        foreach ($results as $row) {
+            $session = maybe_unserialize($row->meta_value);
+
+            // Skip if not an array or already completed
+            if (!is_array($session) || ($session['status'] ?? '') === 'completed') {
+                continue;
+            }
+
+            // Check if session is older than cutoff
+            $started_at = $session['started_at'] ?? '';
+            if (empty($started_at) || $started_at > $cutoff_time) {
+                continue;
+            }
+
+            // Session is abandoned - clean it up
+            $post_id = (int) $row->post_id;
+            $video_id = $session['video_id'] ?? '';
+
+            // Delete video from Bunny if it exists but wasn't completed
+            if (!empty($video_id)) {
+                $delete_result = $this->bunny_service->delete_video($video_id);
+                if (!$delete_result['success']) {
+                    error_log("Failed to delete abandoned Bunny video {$video_id}: " . ($delete_result['message'] ?? 'Unknown error'));
+                    $errors++;
+                }
+            }
+
+            // Remove session metadata
+            delete_post_meta($post_id, '_wfn_video_upload_session');
+            $cleaned++;
+
+            if (defined('WFN_DEBUG') && WFN_DEBUG) {
+                error_log("Cleaned up abandoned upload session for post {$post_id}, video {$video_id}");
+            }
+        }
+
+        if ($cleaned > 0 || $errors > 0) {
+            error_log("WFN Upload Cleanup: Cleaned {$cleaned} abandoned sessions, {$errors} errors");
+        }
+    }
+
+    /**
+     * Cancel an active upload session
+     *
+     * Allows users to cancel an in-progress upload, cleaning up resources.
+     *
+     * @param int $post_id Post ID
+     * @return array Result with success status
+     */
+    public function cancel_upload(int $post_id): array {
+        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+
+        if (!$session || !is_array($session)) {
+            return [
+                'success' => false,
+                'message' => 'No active upload session found'
+            ];
+        }
+
+        $video_id = $session['video_id'] ?? '';
+
+        // Delete video from Bunny if it exists
+        if (!empty($video_id)) {
+            $delete_result = $this->bunny_service->delete_video($video_id);
+            if (!$delete_result['success']) {
+                error_log("Failed to delete cancelled Bunny video {$video_id}: " . ($delete_result['message'] ?? 'Unknown error'));
+            }
+        }
+
+        // Remove session metadata
+        delete_post_meta($post_id, '_wfn_video_upload_session');
+
+        return [
+            'success' => true,
+            'message' => 'Upload cancelled successfully'
+        ];
+    }
+
+    /**
+     * Check if upload session has expired
+     *
+     * @param array $session Session data
+     * @return bool True if expired
+     */
+    private function is_session_expired(array $session): bool {
+        $expires_at = $session['expires_at'] ?? 0;
+        return $expires_at > 0 && $expires_at < time();
+    }
+
+    /**
+     * Clean up video from Bunny when post is deleted
+     *
+     * Only deletes videos that were uploaded by the current site.
+     * This prevents accidental deletion when posts are migrated between sites.
+     *
+     * @param int $post_id Post ID being deleted
+     */
+    public function cleanup_video_on_post_delete(int $post_id): void {
+        // Only process funeral notice posts
+        if (get_post_type($post_id) !== 'funeral-notice') {
+            return;
+        }
+
+        // Get video ID
+        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+
+        if (empty($video_id)) {
+            return; // No video to delete
+        }
+
+        // Check if this site uploaded the video (migration safety)
+        $source_site = get_post_meta($post_id, '_wfn_bunny_video_source_site', true);
+        $current_site = get_site_url();
+
+        if (!empty($source_site) && $source_site !== $current_site) {
+            error_log("WFN: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+            return;
+        }
+
+        // If no source site is recorded, assume current site owns it (backward compatibility)
+        if (empty($source_site)) {
+            error_log("WFN: No source site recorded for video {$video_id} - assuming current site ownership for backward compatibility");
+        }
+
+        // Delete video from Bunny CDN
+        $delete_result = $this->bunny_service->delete_video($video_id);
+
+        if ($delete_result['success']) {
+            error_log("WFN: Successfully deleted video {$video_id} from Bunny CDN when deleting post {$post_id}");
+        } else {
+            error_log("WFN: Failed to delete video {$video_id} from Bunny CDN when deleting post {$post_id}: " . ($delete_result['message'] ?? 'Unknown error'));
+        }
+
+        // Also clean up any incomplete upload session
+        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        if (is_array($session) && !empty($session['video_id']) && $session['video_id'] !== $video_id) {
+            // There's a different video in the session (incomplete upload)
+            $this->bunny_service->delete_video($session['video_id']);
+            error_log("WFN: Also cleaned up incomplete upload session video {$session['video_id']} from Bunny CDN");
+        }
+    }
+
+    /**
+     * Generate video title from person's name (ACF fields)
+     *
+     * Uses ACF person fields to create a proper title even for auto-draft posts.
+     * Fallback to post ID if name fields are empty.
+     *
+     * @param int $post_id Post ID
+     * @return string Video title
+     */
+    private function generate_video_title(int $post_id): string {
+        // Try to get person's name from ACF fields (works even for auto-drafts)
+        $person_group = get_field('wfn_person_group', $post_id);
+
+        // Try grouped format first
+        $first_name = $person_group['firstname'] ?? '';
+        $last_name = $person_group['lastname'] ?? '';
+
+        // Fallback to individual fields
+        if (empty($first_name)) {
+            $first_name = get_field('wfn_person_group_firstname', $post_id) ?? '';
+        }
+        if (empty($last_name)) {
+            $last_name = get_field('wfn_person_group_lastname', $post_id) ?? '';
+        }
+
+        // Build title based on what we have
+        $full_name = trim("{$first_name} {$last_name}");
+
+        if (!empty($full_name)) {
+            return "{$full_name} {$post_id} - Memorial Video";
+        }
+
+        // Ultimate fallback: use post ID only
+        return "Post {$post_id} - Memorial Video";
+    }
+}

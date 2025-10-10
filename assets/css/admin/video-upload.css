@@ -442,3 +442,280 @@
         animation: none;
     }
 }
+
+/* ================================================
+   Direct Upload Styles (New Direct-to-Bunny Upload)
+   @since 2.4.0
+   ================================================ */
+
+/* Upload Container */
+.wfn-video-upload {
+    margin-top: 10px;
+}
+
+/* Dropzone */
+.wfn-upload-dropzone {
+    border: 2px dashed #c3c4c7;
+    border-radius: 4px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.wfn-upload-dropzone:hover {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.wfn-dropzone-content .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #a7aaad;
+    margin-bottom: 10px;
+}
+
+.wfn-dropzone-content p {
+    margin: 8px 0;
+    color: #50575e;
+}
+
+.wfn-dropzone-content p strong {
+    font-size: 14px;
+}
+
+.wfn-dropzone-content p.description {
+    font-size: 13px;
+    color: #646970;
+}
+
+.wfn-dropzone-content .wfn-select-file {
+    margin-top: 15px;
+}
+
+/* Direct Upload Progress Section */
+.wfn-video-upload .wfn-upload-progress {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.wfn-video-upload .wfn-upload-progress h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* Direct Upload Progress Bar Container */
+.wfn-video-upload .wfn-progress-bar-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.wfn-video-upload .wfn-progress-bar-container .wfn-progress-bar {
+    height: 30px;
+    background: #dcdcde;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.wfn-video-upload .wfn-progress-bar-container .wfn-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2271b1 0%, #135e96 100%);
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+/* Animated stripes for active upload */
+.wfn-video-upload .wfn-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 40px 40px;
+    animation: wfn-direct-upload-stripes 1s linear infinite;
+}
+
+@keyframes wfn-direct-upload-stripes {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 40px;
+    }
+}
+
+.wfn-video-upload .wfn-progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    color: #fff;
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+/* Direct Upload Stats */
+.wfn-video-upload .wfn-upload-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.wfn-video-upload .wfn-upload-stats .wfn-stat {
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 3px;
+}
+
+.wfn-video-upload .wfn-upload-stats .wfn-stat .label {
+    display: block;
+    font-size: 12px;
+    color: #646970;
+    margin-bottom: 4px;
+}
+
+.wfn-video-upload .wfn-upload-stats .wfn-stat .value {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* Cancel Button */
+.wfn-video-upload .wfn-cancel-upload {
+    color: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.wfn-video-upload .wfn-cancel-upload:hover {
+    background: #b32d2e;
+    color: #fff;
+    border-color: #8a2424;
+}
+
+/* Success Message */
+.wfn-video-upload .wfn-upload-complete {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.wfn-video-upload .wfn-success-message {
+    text-align: center;
+}
+
+.wfn-video-upload .wfn-success-message .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #00a32a;
+    margin-bottom: 10px;
+}
+
+.wfn-video-upload .wfn-success-message h4 {
+    margin: 0 0 10px 0;
+    color: #00a32a;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wfn-video-upload .wfn-success-message p {
+    margin: 8px 0;
+    color: #50575e;
+}
+
+.wfn-video-upload .wfn-success-message .wfn-video-id {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #646970;
+    background: #f6f7f7;
+    padding: 8px 12px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* Error Message */
+.wfn-video-upload .wfn-upload-error {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.wfn-video-upload .wfn-error-message {
+    text-align: center;
+}
+
+.wfn-video-upload .wfn-error-message .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #d63638;
+    margin-bottom: 10px;
+}
+
+.wfn-video-upload .wfn-error-message h4 {
+    margin: 0 0 10px 0;
+    color: #d63638;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wfn-video-upload .wfn-error-message p {
+    margin: 8px 0;
+    color: #50575e;
+}
+
+.wfn-video-upload .wfn-error-message .wfn-try-again {
+    margin-top: 15px;
+}
+
+/* Responsive Design for Direct Upload */
+@media screen and (max-width: 782px) {
+    .wfn-video-upload .wfn-upload-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .wfn-video-upload .wfn-dropzone-content {
+        padding: 20px 10px;
+    }
+
+    .wfn-video-upload .wfn-dropzone-content .dashicons {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* Integration with ACF Field */
+.acf-field[data-name="video_slideshow"].wfn-direct-upload-initialized .acf-file-uploader {
+    display: none !important;
+}
+
+.acf-field[data-name="video_slideshow"] .wfn-video-upload {
+    margin-top: 0;
+}

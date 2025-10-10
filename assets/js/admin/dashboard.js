@@ -282,9 +282,7 @@ jQuery(document).ready(function($) {
             if (window.performance && window.performance.timing) {
                 const timing = window.performance.timing;
                 const loadTime = timing.loadEventEnd - timing.navigationStart;
-                
-                console.log('WFN Admin Dashboard Load Time:', loadTime + 'ms');
-                
+
                 // Send to analytics if needed
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'admin_performance', {
@@ -306,17 +304,6 @@ jQuery(document).ready(function($) {
 
     // Global WFN object for external access
     window.WFNDashboard = WFNDashboard;
-
-    // Console welcome message
-    console.log(`
-    ╔══════════════════════════════════════╗
-    ║     Weave Funeral Notices v2.0      ║
-    ║      Professional Admin Panel       ║
-    ╚══════════════════════════════════════╝
-    
-    Dashboard loaded successfully!
-    Use WFNDashboard object for interaction.
-    `);
 });
 
 // Additional notification styles

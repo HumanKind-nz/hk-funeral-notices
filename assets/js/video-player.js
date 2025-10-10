@@ -254,7 +254,7 @@
             if ($iframe.length === 0) {
                 const videoSrc = $videoContainer.data('video-src');
                 if (videoSrc) {
-                    const iframeHtml = `<iframe src="${videoSrc}" width="100%" height="450" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+                    const iframeHtml = `<iframe src="${videoSrc}" width="100%" height="450" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
                     $videoContainer.html(iframeHtml);
                     $iframe = $videoContainer.find('iframe');
                 }

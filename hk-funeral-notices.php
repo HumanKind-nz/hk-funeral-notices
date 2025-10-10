@@ -13,7 +13,7 @@
  * Plugin Name:       HumanKind Funeral Notices
  * Plugin URI:        https://humankindwebsites.com/plugins/funeral-notices/
  * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls for funeral homes. Premium video streaming features available.
- * Version:           2.4.0
+ * Version:           2.4.4
  * Author:            Gareth Bissland | Weave Digital Studio
  * Author URI:        https://weave.co.nz
  * License:           GPL-2.0-or-later
@@ -33,7 +33,7 @@ if (!defined("WPINC")) {
 }
 
 // Define plugin constants
-define('WFN_VERSION', '2.4.0');
+define('WFN_VERSION', '2.4.4');
 define('WFN_PLUGIN_FILE', __FILE__);
 define('WFN_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WFN_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -142,6 +142,13 @@ function init_modern_funeral_notices() {
     }
 }
 add_action('plugins_loaded', 'init_modern_funeral_notices');
+
+/**
+ * Load direct upload POC test page (development only)
+ */
+if (defined('WFN_ENABLE_UPLOAD_POC') && WFN_ENABLE_UPLOAD_POC) {
+    require_once plugin_dir_path(__FILE__) . 'direct-upload-test.php';
+}
 
 
 

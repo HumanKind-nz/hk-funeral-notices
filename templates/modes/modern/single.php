@@ -141,40 +141,30 @@ $tribute = $data['tribute'];
             <div class="wfn-modern-streaming">
                 <h2 class="wfn-modern-section-title">Live Stream</h2>
                 <div class="wfn-modern-stream-wrapper">
-                    
-                    <?php if ($streaming['can_embed'] && $streaming['embed_code']): ?>
-                        <!-- Inline embed for recognised services -->
+
+                    <?php if ($streaming['embed_code']): ?>
+                        <!-- StreamingDetector has generated the appropriate embed or button -->
                         <?php echo $streaming['embed_code']; ?>
-                        
-                        <!-- View in new window link -->
-                        <div class="wfn-streaming-actions">
-                            <a href="<?php echo esc_url($streaming['streaming_url']); ?>" 
-                               target="_blank" 
-                               rel="noopener" 
-                               class="wfn-modern-button wfn-view-external">
-                               <?php echo wfn_get_link_icon(); ?> View in new window
-                            </a>
-                        </div>
-                        
+
                     <?php elseif ($streaming['streaming_url']): ?>
-                        <!-- Button for unrecognised services -->
+                        <!-- Fallback: simple button for unrecognized services -->
                         <p>Watch the service live online</p>
-                        <a href="<?php echo esc_url($streaming['streaming_url']); ?>" 
-                           target="_blank" 
+                        <a href="<?php echo esc_url($streaming['streaming_url']); ?>"
+                           target="_blank"
                            rel="noopener"
                            class="wfn-modern-button">
                            📺 View Live Stream
                         </a>
-                        
+
                     <?php else: ?>
                         <!-- Fallback message -->
                         <p>Live streaming will be available during the service.</p>
                     <?php endif; ?>
-                    
+
                     <?php if ($streaming['streaming_note']): ?>
                         <p class="wfn-streaming-note"><?php echo esc_html($streaming['streaming_note']); ?></p>
                     <?php endif; ?>
-                    
+
                 </div>
             </div>
         <?php endif; ?>

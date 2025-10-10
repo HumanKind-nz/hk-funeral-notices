@@ -64,6 +64,9 @@ class VideoModule extends BaseModule {
             add_action('admin_notices', [$this, 'show_license_notices']);
         }
 
+        // Admin hooks for upload progress tracking (always load, even without license)
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+
         // Only initialize premium features if license is active
         if (!$this->has_premium_license()) {
             return;
@@ -108,9 +111,6 @@ class VideoModule extends BaseModule {
         if (!wp_next_scheduled('wfn_video_maintenance')) {
             wp_schedule_event(time(), 'weekly', 'wfn_video_maintenance');
         }
-
-        // Admin hooks for upload progress tracking
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
 
         // Frontend hooks for displaying videos
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
@@ -1158,6 +1158,9 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
     /**
      * Clean up video when post is deleted
+     *
+     * Only deletes videos that were uploaded by the current site.
+     * This prevents accidental deletion when posts are migrated between sites.
      */
     public function cleanup_video_on_post_delete(int $post_id): void {
         if (get_post_type($post_id) !== 'funeral-notice') {
@@ -1165,8 +1168,39 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         $video_id = get_post_meta($post_id, '_wfn_video_id', true);
-        if ($video_id) {
-            $this->bunny_service->delete_video($video_id);
+        if (empty($video_id)) {
+            return; // No video to delete
+        }
+
+        // Check if this site uploaded the video (migration safety)
+        $source_site = get_post_meta($post_id, '_wfn_bunny_video_source_site', true);
+        $current_site = get_site_url();
+
+        if (!empty($source_site) && $source_site !== $current_site) {
+            error_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+            return;
+        }
+
+        // If no source site is recorded, assume current site owns it (backward compatibility)
+        if (empty($source_site)) {
+            error_log("WFN VideoModule: No source site recorded for video {$video_id} - assuming current site ownership for backward compatibility");
+        }
+
+        // Delete video from Bunny CDN
+        $delete_result = $this->bunny_service->delete_video($video_id);
+
+        if ($delete_result['success']) {
+            error_log("WFN: Successfully deleted video {$video_id} from Bunny CDN when deleting post {$post_id}");
+        } else {
+            error_log("WFN: Failed to delete video {$video_id} from Bunny CDN when deleting post {$post_id}: " . ($delete_result['message'] ?? 'Unknown error'));
+        }
+
+        // Also clean up any incomplete upload session from direct upload system
+        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        if (is_array($session) && !empty($session['video_id']) && $session['video_id'] !== $video_id) {
+            // There's a different video in the session (incomplete upload)
+            $this->bunny_service->delete_video($session['video_id']);
+            error_log("WFN: Also cleaned up incomplete upload session video {$session['video_id']} from Bunny CDN");
         }
     }
 
@@ -1567,8 +1601,30 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             $this->get_version()
         );
 
-        // The post-editor.js is already enqueued by WordPress/ACF, we just enhanced it
-        // But let's ensure our nonces are available for AJAX calls
+        // Enqueue direct upload JavaScript
+        wp_enqueue_script(
+            'wfn-video-direct-upload',
+            WFN_PLUGIN_URL . 'assets/js/video-direct-upload.js',
+            ['jquery', 'acf-input'],
+            $this->get_version(),
+            true
+        );
+
+        // Localize script with upload settings and REST API info
+        wp_localize_script('wfn-video-direct-upload', 'wfnVideoUpload', [
+            'postId' => $post->ID,
+            'restUrl' => rest_url(),
+            'nonce' => wp_create_nonce('wp_rest'),
+            'hasLicense' => $this->has_premium_license() ? '1' : '',  // Pass as string for JS boolean check
+            'licenseUrl' => admin_url('admin.php?page=hkfn-module-license'),
+            'settings' => [
+                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 500) * 1024 * 1024, // Convert to bytes
+                'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'webm'],
+                'maxDuration' => ($this->get_settings()['max_duration_minutes'] ?? 30) * 60 // Convert to seconds
+            ]
+        ]);
+
+        // Legacy localization for existing upload progress tracking
         wp_localize_script('acf-input', 'wfnVideo', [
             'postId' => $post->ID,
             'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -1578,8 +1634,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 'delete' => wp_create_nonce('wfn_video_delete_' . $post->ID)
             ],
             'settings' => [
-                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 100) * 1024 * 1024, // Convert to bytes
-                'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'wmv'],
+                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 500) * 1024 * 1024, // Convert to bytes
+                'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'webm'],
                 'maxDuration' => ($this->get_settings()['max_duration_minutes'] ?? 30) * 60 // Convert to seconds
             ]
         ]);

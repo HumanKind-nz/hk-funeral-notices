@@ -226,10 +226,22 @@ class TemplateManager {
         // Streaming detection - simply check if we have a valid URL
         // No need for has_streaming field - URL presence determines availability
         $has_streaming = !empty($streaming_url);
-        
+
         // Use StreamingDetector for comprehensive streaming service detection
         $streaming_info = $this->streaming_detector->detect_service($streaming_url);
-        $streaming_service = $streaming_service_raw ?: $streaming_info['service'];
+
+        // PREFER auto-detected service from URL over old stored value
+        // This prevents issues where old service type (e.g. "oneroom") conflicts with new URL (e.g. iStream)
+        // Only use streaming_service_raw if auto-detection returns 'none' or 'other'
+        $auto_detected_service = $streaming_info['service'] ?? 'none';
+        if (!empty($auto_detected_service) && !in_array($auto_detected_service, ['none', 'other'])) {
+            // Auto-detection found a specific service (youtube, vimeo, oneroom, istream, etc)
+            $streaming_service = $auto_detected_service;
+        } else {
+            // Auto-detection couldn't determine service, use stored value as fallback
+            $streaming_service = $streaming_service_raw ?: $auto_detected_service;
+        }
+
         $embed_code = $streaming_info['embed'] ?? '';
 
         // Location - Enhanced with unified address handling
@@ -322,14 +334,15 @@ class TemplateManager {
             'streaming' => [
                 'has_streaming' => $has_streaming,
                 'is_private' => $is_private,
-                'is_public' => $has_streaming && !$is_private, // Regular streaming always public if not private
+                'is_public' => $has_streaming && !$is_private, // Regular streaming public if not private (videos are handled separately)
                 'streaming_service' => $streaming_service,
                 'streaming_url' => $streaming_url,
                 'embed_code' => $embed_code,
                 'streaming_note' => $streaming_note,
                 'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook']),
                 'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream']),
-                'license_required' => false // Regular streaming URLs don't require license
+                'license_required' => false, // Regular streaming URLs don't require license
+                'has_video_or_license' => LicenseService::hasValidVideoLicense() // For video modal/button display
             ],
             'location' => [
                 'type' => $location_type,

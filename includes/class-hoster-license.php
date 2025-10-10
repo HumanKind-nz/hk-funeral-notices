@@ -214,6 +214,20 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
         public function cleanup_invalid_license() {
             delete_option('wfn_license_key');
             delete_option('wfn_hoster_token');
+
+            // Update license status to invalid
+            update_option('wfn_license_status', [
+                'valid' => false,
+                'features' => [],
+                'expires' => '',
+                'message' => 'License expired or invalid',
+                'license_type' => '',
+                'site_limit' => '',
+                'customer_name' => '',
+                'last_check' => current_time('mysql'),
+                'validated_at' => ''
+            ]);
+
             $this->clear_cache();
             error_log('WFN: Cleaned up invalid/expired license data');
         }

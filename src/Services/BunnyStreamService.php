@@ -65,6 +65,15 @@ class BunnyStreamService {
     }
 
     /**
+     * Get library ID
+     *
+     * @return string
+     */
+    public function get_library_id(): string {
+        return $this->library_id;
+    }
+
+    /**
      * Make HTTP request with retry logic and comprehensive error handling
      *
      * @param string $url Request URL
@@ -2687,5 +2696,94 @@ class BunnyStreamService {
                 'videos' => []
             ];
         }
+    }
+
+    /**
+     * Create upload session for direct client-side upload
+     *
+     * Creates video entry in Bunny and returns direct upload URL
+     * for JavaScript client to upload file chunks directly to CDN.
+     *
+     * @param array $metadata Upload metadata (title, filename, filesize, post_id)
+     * @return array Session data with video_id and upload_url
+     */
+    public function create_upload_session(array $metadata): array {
+        // Check license first
+        if (!$this->is_licensed()) {
+            return [
+                'success' => false,
+                'message' => 'Premium license required for video streaming',
+                'error_code' => 'LICENSE_REQUIRED'
+            ];
+        }
+
+        // Get site domain for collection organization
+        $site_domain = parse_url(get_site_url(), PHP_URL_HOST) ?? 'unknown-site';
+
+        // Create video entry in Bunny Stream
+        $video_title = $metadata['title'] ?? 'Memorial Video - ' . date('Y-m-d H:i:s');
+        $create_result = $this->create_video_entry($video_title, $metadata);
+
+        if (!$create_result['success']) {
+            return $create_result;
+        }
+
+        $video_id = $create_result['video_id'];
+
+        // Add video to site collection for organization
+        $collection_result = $this->add_video_to_collection($video_id, $site_domain);
+
+        // Build direct upload URL
+        $upload_url = self::API_BASE_URL . "/library/{$this->library_id}/videos/{$video_id}";
+
+        return [
+            'success' => true,
+            'video_id' => $video_id,
+            'upload_url' => $upload_url,
+            'api_key' => $this->api_key, // Client needs this for Authorization header
+            'chunk_size' => 5242880, // 5MB chunks
+            'expires_at' => time() + 3600, // 1 hour expiry
+            'library_id' => $this->library_id,
+            'site_domain' => $site_domain,
+            'collection_added' => $collection_result['success'] ?? false
+        ];
+    }
+
+    /**
+     * Get video status and transcoding progress
+     *
+     * @param string $video_id Bunny video ID
+     * @return array Video status information
+     */
+    public function get_video_status(string $video_id): array {
+        $endpoint = "/library/{$this->library_id}/videos/{$video_id}";
+        $response = $this->make_api_request($endpoint, 'GET');
+
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'message' => 'Failed to get video status: ' . $response['message'],
+                'error_code' => 'STATUS_CHECK_FAILED',
+                'status' => 'unknown'
+            ];
+        }
+
+        $video_data = $response['data'];
+
+        return [
+            'success' => true,
+            'status' => $video_data['status'] ?? 'unknown',
+            'video_id' => $video_id,
+            'guid' => $video_data['guid'] ?? '',
+            'title' => $video_data['title'] ?? '',
+            'length' => $video_data['length'] ?? 0,
+            'width' => $video_data['width'] ?? 0,
+            'height' => $video_data['height'] ?? 0,
+            'available_resolutions' => $video_data['availableResolutions'] ?? '',
+            'thumbnail_count' => $video_data['thumbnailCount'] ?? 0,
+            'encoding_progress' => $video_data['encodeProgress'] ?? 0,
+            'storage_size' => $video_data['storageSize'] ?? 0,
+            'has_mp4_fallback' => $video_data['hasMP4Fallback'] ?? false
+        ];
     }
 }

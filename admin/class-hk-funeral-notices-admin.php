@@ -58,6 +58,7 @@ class HK_Funeral_Notices_Admin {
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
+	 * @deprecated Legacy admin CSS removed - modern styling handled by module system
 	 */
 	public function enqueue_styles() {
 
@@ -73,7 +74,9 @@ class HK_Funeral_Notices_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/weave-funeral-notices-admin.css', array(), $this->version, 'all' );
+		// Legacy admin CSS removed - file no longer exists
+		// Modern admin styling is handled by the Dashboard and module system
+		// wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/weave-funeral-notices-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -81,6 +84,7 @@ class HK_Funeral_Notices_Admin {
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
+	 * @deprecated Legacy admin JS removed - modern functionality handled by module system
 	 */
 	public function enqueue_scripts() {
 
@@ -96,7 +100,9 @@ class HK_Funeral_Notices_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/weave-funeral-notices-admin.js', array( 'jquery' ), $this->version, false );
+		// Legacy admin JS removed - file no longer exists (was empty anyway)
+		// Modern admin functionality is handled by the Dashboard and module system
+		// wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/weave-funeral-notices-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
 

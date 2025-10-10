@@ -142,57 +142,32 @@ $tribute = $data['tribute'];
             <div class="wfn-elegant-streaming">
                 <h2 class="wfn-elegant-section-title">Live Service</h2>
                 <div class="wfn-elegant-stream-wrapper">
-                    
-                    <?php if ($streaming['streaming_service'] === 'oneroom' && $streaming['embed_code']): ?>
-                        <!-- OneRoom embed -->
-                        <p class="wfn-elegant-stream-notice">
-                            For those unable to attend in person, the service will be available online.
-                        </p>
+
+                    <p class="wfn-elegant-stream-notice">
+                        For those unable to attend in person, the service will be available online.
+                    </p>
+
+                    <?php if ($streaming['embed_code']): ?>
+                        <!-- StreamingDetector has generated the appropriate embed or button -->
                         <div class="wfn-elegant-stream-embed">
                             <?php echo $streaming['embed_code']; ?>
                         </div>
-                        <?php if (!empty($streaming['streaming_url'])): ?>
-                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem; text-align: center;">
-                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-elegant-external-link">
-                                    Open on OneRoom
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                        
-                    <?php elseif (in_array($streaming['streaming_service'], ['youtube', 'vimeo', 'vimeo_pro']) && $streaming['embed_code']): ?>
-                        <!-- YouTube/Vimeo embed -->
-                        <p class="wfn-elegant-stream-notice">
-                            For those unable to attend in person, the service will be available online.
-                        </p>
-                        <div class="wfn-elegant-stream-embed">
-                            <?php echo $streaming['embed_code']; ?>
-                        </div>
-                        <?php if (!empty($streaming['streaming_url'])): ?>
-                            <div class="wfn-streaming-actions" style="margin-top: 0.75rem; text-align: center;">
-                                <a href="<?php echo esc_url($streaming['streaming_url']); ?>" target="_blank" rel="noopener" class="wfn-elegant-external-link">
-                                    View in new window
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                        
-                    <?php elseif ($streaming['streaming_service'] === 'other' && $streaming['streaming_url']): ?>
-                        <!-- Other streaming service - button link -->
-                        <p class="wfn-elegant-stream-notice">
-                            For those unable to attend in person, the service will be available online.
-                        </p>
+
+                    <?php elseif ($streaming['streaming_url']): ?>
+                        <!-- Fallback: simple button for unrecognized services -->
                         <div class="wfn-elegant-stream-link">
-                            <a href="<?php echo esc_url($streaming['streaming_url']); ?>" 
-                               target="_blank" 
+                            <a href="<?php echo esc_url($streaming['streaming_url']); ?>"
+                               target="_blank"
                                rel="noopener"
                                class="wfn-elegant-tribute-link">
                                Watch Live Service
                             </a>
                         </div>
-                        
+
                     <?php else: ?>
-                        <!-- Fallback message -->
-                        <p class="wfn-elegant-stream-notice">
-                            For those unable to attend in person, the service will be available online.
+                        <!-- No URL provided -->
+                        <p class="wfn-elegant-stream-notice" style="font-style: italic; opacity: 0.8;">
+                            Streaming details will be available shortly.
                         </p>
                     <?php endif; ?>
                     

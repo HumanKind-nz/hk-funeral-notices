@@ -17,6 +17,7 @@ use WeaveStudios\FuneralNotices\Modules\VideoModule;
 use WeaveStudios\FuneralNotices\Modules\AnalyticsModule;
 use WeaveStudios\FuneralNotices\Fields\GoogleMapsField;
 use WeaveStudios\FuneralNotices\AJAX\LoadMoreHandler;
+use WeaveStudios\FuneralNotices\API\VideoUploadAPI;
 
 /**
  * Main Plugin Class
@@ -32,6 +33,7 @@ class Plugin {
     private Dashboard $admin_dashboard;
     private AdminColumns $admin_columns;
     private FieldGroupManager $field_group_manager;
+    private VideoUploadAPI $video_upload_api;
     private array $modules = [];
 
     /**
@@ -72,6 +74,9 @@ class Plugin {
         // Initialize Load More AJAX handler
         new LoadMoreHandler();
 
+        // Initialize Video Upload API (needed for deletion hooks, not just REST routes)
+        $this->video_upload_api = new VideoUploadAPI();
+
         // Initialize admin dashboard (only in admin area)
         if (is_admin()) {
             $this->admin_dashboard = new Dashboard('hk-funeral-notices', '2.0.0');
@@ -85,22 +90,30 @@ class Plugin {
     private function register_hooks(): void {
         // Initialize modern shortcodes as additional options
         add_action('init', [$this, 'register_modern_shortcodes']);
-        
+
         // Enqueue modern assets when needed
         add_action('wp_enqueue_scripts', [$this, 'enqueue_modern_assets']);
-        
+
         // Initialize admin dashboard
         if (is_admin()) {
             add_action('init', [$this, 'init_admin_dashboard']);
         }
-        
+
         // Initialize modules
         add_action('init', [$this, 'init_module_hooks']);
+
+        // Register REST API routes
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
+
+        // Schedule upload cleanup cron
+        if (!wp_next_scheduled('wfn_cleanup_abandoned_uploads')) {
+            wp_schedule_event(time(), 'daily', 'wfn_cleanup_abandoned_uploads');
+        }
 
         // Register template loading hooks
         add_filter('single_template', [$this, 'load_single_template']);
         add_filter('archive_template', [$this, 'load_archive_template']);
-        
+
         // Customize archive query ordering
         add_action('pre_get_posts', [$this, 'customize_archive_query']);
     }
@@ -110,6 +123,14 @@ class Plugin {
      */
     public function register_modern_shortcodes(): void {
         $this->shortcode_handler->register();
+    }
+
+    /**
+     * Register REST API routes
+     */
+    public function register_rest_routes(): void {
+        // Use the already-instantiated VideoUploadAPI instance
+        $this->video_upload_api->register_routes();
     }
 
     /**
