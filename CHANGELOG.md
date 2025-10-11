@@ -4,11 +4,26 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.4.7] – October 2025
+
+### New Features
+- **Shortcode IDs Parameter** – Added `ids` parameter to display specific funeral notices by post ID (e.g., `[funeral_notices ids="123,456"]`)
+- **Shortcode Exclude Parameter** – Added `exclude` parameter to exclude specific posts from shortcode queries (e.g., `[funeral_notices exclude="123,456"]`)
+
+### Improvements
+- **SEOPress Columns** – Automatically remove SEOPress admin columns (noindex, nofollow, title, desc) from funeral notice list view for cleaner interface
+
+---
+
 ## [2.4.6] – October 2025
 
 ### Bug Fixes
 - **License Field Display** – Video upload field now properly hidden when no premium license is active (replaced with minimal upgrade message)
 - **Timezone Accuracy** – Fixed "Last verified" timestamp on license page showing incorrect time due to timezone conversion issue
+
+### Technical Changes
+- Replaced ACF `disabled` parameter with conditional field registration in `FieldGroupManager.php`
+- Added `current_time('timestamp')` to `human_time_diff()` for accurate timezone-aware comparisons in `LicenseModule.php`
 
 ---
 

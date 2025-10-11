@@ -43,11 +43,15 @@ class FuneralNoticesShortcode {
      * - location: Filter by location slug
      * - date_from: Filter from date (Y-m-d format)
      * - date_to: Filter to date (Y-m-d format)
-     * 
+     * - ids: Comma-separated list of post IDs to display (e.g., "123,456,789")
+     * - exclude: Comma-separated list of post IDs to exclude (e.g., "123,456")
+     *
      * Example usage:
      * [funeral_notices layout="modern" columns="3" type="future"]
      * [funeral_notices layout="elegant" per_page="6" show_search="no"]
      * [funeral_notices layout="minimal" columns="2" show_search="yes"]
+     * [funeral_notices ids="123,456" columns="2" layout="modern"]
+     * [funeral_notices exclude="123,456" layout="modern"]
      * 
      * @param array $atts Shortcode attributes
      * @return string HTML output
@@ -64,7 +68,9 @@ class FuneralNoticesShortcode {
             'show_search' => 'yes',    // yes, no - show search form above grid
             'location' => '',          // Filter by specific location slug
             'date_from' => '',         // Filter from specific date (Y-m-d format)
-            'date_to' => ''            // Filter to specific date (Y-m-d format)
+            'date_to' => '',           // Filter to specific date (Y-m-d format)
+            'ids' => '',               // Comma-separated post IDs (e.g., "123,456,789")
+            'exclude' => ''            // Comma-separated post IDs to exclude (e.g., "123,456")
         ], $atts);
 
         // Sanitize inputs
@@ -94,6 +100,34 @@ class FuneralNoticesShortcode {
             'paged' => $paged,
             'post_status' => 'publish'
         ];
+
+        // Handle specific post IDs if provided
+        $specific_ids = !empty($atts['ids']) ? sanitize_text_field($atts['ids']) : '';
+        if (!empty($specific_ids)) {
+            // Parse comma-separated IDs
+            $id_array = array_map('intval', array_filter(explode(',', $specific_ids)));
+
+            if (!empty($id_array)) {
+                $args['post__in'] = $id_array;
+                $args['orderby'] = 'post__in'; // Maintain the order specified in the shortcode
+                $args['posts_per_page'] = -1; // Show all specified IDs
+
+                // Disable pagination and search when showing specific IDs
+                $show_pagination = false;
+                $show_search = false;
+            }
+        }
+
+        // Handle excluded post IDs if provided
+        $exclude_ids = !empty($atts['exclude']) ? sanitize_text_field($atts['exclude']) : '';
+        if (!empty($exclude_ids)) {
+            // Parse comma-separated IDs
+            $exclude_array = array_map('intval', array_filter(explode(',', $exclude_ids)));
+
+            if (!empty($exclude_array)) {
+                $args['post__not_in'] = $exclude_array;
+            }
+        }
         
         // Order by funeral date first (Y-m-d), then fall back to post date for items without a date
         // Notes:

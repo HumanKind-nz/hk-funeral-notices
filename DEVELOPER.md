@@ -33,10 +33,19 @@ The plugin provides the `[funeral_notices]` shortcode to display funeral notices
 | `per_page` | number | `12` | Notices per page |
 | `show_search` | `yes`, `no` | `yes` | Enables search bar |
 | `card_style` | `standard`, `elevated`, `outlined`, `minimal` | `standard` | Card appearance |
+| `ids` | Comma-separated post IDs | none | Display only specific funeral notices (e.g., `"123,456,789"`) |
+| `exclude` | Comma-separated post IDs | none | Exclude specific posts from the query (e.g., `"123,456"`) |
 
-### Advanced Example
+### Advanced Examples
 ```php
+// Elegant layout with elevated cards
 [funeral_notices layout="elegant" columns="2" card_style="elevated" type="future" show_search="no"]
+
+// Display specific funeral notices by ID
+[funeral_notices ids="123,456,789" columns="3" layout="modern"]
+
+// Exclude specific posts from the main query
+[funeral_notices exclude="123,456" type="future"]
 ```
 
 ---

@@ -29,9 +29,23 @@ class AdminColumns {
      * Set custom columns for funeral notice admin
      */
     public function set_columns(array $columns): array {
+        // Remove SEOPress columns if they exist
+        $seopress_columns = [
+            'seopress_noindex',
+            'seopress_nofollow',
+            'seopress_title',
+            'seopress_desc'
+        ];
+
+        foreach ($seopress_columns as $seopress_column) {
+            if (isset($columns[$seopress_column])) {
+                unset($columns[$seopress_column]);
+            }
+        }
+
         // Keep checkbox for bulk actions
         $new_columns = ['cb' => $columns['cb']];
-        
+
         // Add our custom columns first
         $new_columns['image'] = 'Image';
         $new_columns['first_name'] = 'First Name';
@@ -41,12 +55,12 @@ class AdminColumns {
         $new_columns['location'] = 'Location';
         $new_columns['streaming'] = 'Streaming';
         $new_columns['service_sheets'] = 'Service Sheets';
-        
+
         // Only show slideshow column if license is valid
         if ($this->has_video_license()) {
             $new_columns['slideshow'] = 'Slideshow';
         }
-        
+
         // Keep the date column
         $new_columns['date'] = 'Published';
 

@@ -59,6 +59,16 @@ Show only upcoming funerals:
 [funeral_notices type="future"]
 ```
 
+Display specific funeral notices by ID:
+```php
+[funeral_notices ids="123,456" columns="2"]
+```
+
+Exclude specific posts from the grid:
+```php
+[funeral_notices exclude="123,456"]
+```
+
 For a complete list of shortcode options and parameters, see the [Developer Documentation](./DEVELOPER.md).
 
 ---
