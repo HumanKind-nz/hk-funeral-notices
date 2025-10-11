@@ -517,18 +517,8 @@ class FieldGroupManager {
                             'library' => 'all',
                             'mime_types' => 'pdf,doc,docx',
                         ],
-                        [
-                            'key' => 'field_wfn_video_slideshow',
-                            'label' => 'Memorial Video Slideshow',
-                            'name' => 'video_slideshow',
-                            'type' => 'file',
-                            'instructions' => $this->get_video_field_instructions(),
-                            'return_format' => 'array',
-                            'library' => 'all',
-                            'mime_types' => 'mp4,mov,avi,wmv,webm',
-                            'max_size' => 500, // 500MB limit
-                            'disabled' => !$this->has_premium_license(), // Disable field without license
-                        ],
+                        // Conditionally register video field OR upgrade message field
+                        $this->get_video_field_or_upgrade_message(),
                         [
                             'key' => 'field_wfn_additional_documents',
                             'label' => 'Additional Links or Attachments',
@@ -690,7 +680,43 @@ class FieldGroupManager {
     }
 
     /**
+     * Get video field or upgrade message based on license status
+     *
+     * Returns either a functional video upload field (if licensed)
+     * or a message field explaining the premium feature (if unlicensed)
+     */
+    private function get_video_field_or_upgrade_message(): array {
+        if ($this->has_premium_license()) {
+            // Return functional video upload field
+            return [
+                'key' => 'field_wfn_video_slideshow',
+                'label' => 'Memorial Video Slideshow',
+                'name' => 'video_slideshow',
+                'type' => 'file',
+                'instructions' => 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 500MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>',
+                'return_format' => 'array',
+                'library' => 'all',
+                'mime_types' => 'mp4,mov,avi,wmv,webm',
+                'max_size' => 500, // 500MB limit
+            ];
+        } else {
+            // Return minimal message field explaining premium feature
+            return [
+                'key' => 'field_wfn_video_upgrade_message',
+                'label' => 'Memorial Video Slideshow',
+                'name' => 'video_upgrade_message',
+                'type' => 'message',
+                'message' => '<strong>Premium Feature:</strong> Video streaming requires a valid premium license. <a href="' . admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>',
+                'new_lines' => '',
+                'esc_html' => 0,
+            ];
+        }
+    }
+
+    /**
      * Get instructions for video field based on license status
+     *
+     * @deprecated Use get_video_field_or_upgrade_message() instead
      */
     private function get_video_field_instructions(): string {
         if (!$this->has_premium_license()) {

@@ -169,17 +169,28 @@ if (!class_exists('HK_Funeral_Notices_License_Handler')) {
             }
 
             $response_code = wp_remote_retrieve_response_code($response);
+            $body = wp_remote_retrieve_body($response);
+            $decoded = json_decode($body, true);
+
+            // Try to parse the response body even for non-200 responses
+            if (json_last_error() === JSON_ERROR_NONE && isset($decoded['message'])) {
+                // API returned a structured error message
+                if ($response_code !== 200) {
+                    error_log('HK Funeral Notices License API HTTP Error ' . $response_code . ': ' . $decoded['message']);
+                }
+                return $decoded;
+            }
+
+            // Fallback for unparseable responses
             if ($response_code !== 200) {
                 error_log('HK Funeral Notices License API HTTP Error: ' . $response_code);
                 return [
                     'success' => false,
-                    'message' => 'Server error: HTTP ' . $response_code
+                    'message' => 'Server error: HTTP ' . $response_code . ($body ? ' - ' . substr($body, 0, 200) : '')
                 ];
             }
 
-            $body = wp_remote_retrieve_body($response);
-            $decoded = json_decode($body, true);
-
+            // JSON parsing error on success response
             if (json_last_error() !== JSON_ERROR_NONE) {
                 error_log('HK Funeral Notices License API JSON Error: ' . json_last_error_msg());
                 return [

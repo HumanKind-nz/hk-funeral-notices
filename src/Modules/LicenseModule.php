@@ -349,7 +349,7 @@ class LicenseModule extends BaseModule {
 
                                 <?php if (!empty($license_status['last_check'])): ?>
                                     <p style="color: #666; font-size: 12px;">
-                                        Last verified: <?php echo esc_html(human_time_diff(strtotime($license_status['last_check']))); ?> ago
+                                        Last verified: <?php echo esc_html(human_time_diff(strtotime($license_status['last_check']), current_time('timestamp'))); ?> ago
                                     </p>
                                 <?php endif; ?>
                             </div>

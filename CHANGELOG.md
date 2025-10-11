@@ -4,7 +4,15 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
-## [2.4.5] – October 2025
+## [2.4.6] – October 2025
+
+### Bug Fixes
+- **License Field Display** – Video upload field now properly hidden when no premium license is active (replaced with minimal upgrade message)
+- **Timezone Accuracy** – Fixed "Last verified" timestamp on license page showing incorrect time due to timezone conversion issue
+
+---
+
+## [2.4.4] – October 2025
 
 ### Bug Fixes
 - **Video Deletion** – Fixed videos not being removed from Bunny CDN when funeral posts are deleted
