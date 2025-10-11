@@ -305,12 +305,18 @@ class StreamingDetector {
             default => 'View in Browser'
         };
 
+        // Load SVG icon function if not already loaded
+        if (!function_exists('wfn_get_stream_icon')) {
+            require_once plugin_dir_path(dirname(__FILE__, 2)) . 'templates/partials/svg-icons.php';
+        }
+
         return sprintf(
-            '<div class="wfn-streaming-link">' .
-            '<a href="%s" target="_blank" rel="noopener noreferrer" class="wfn-stream-button">' .
-            '<span class="wfn-stream-icon">📺</span> %s' .
+            '<div class="wfn-stream-button-wrapper">' .
+            '<a href="%s" target="_blank" rel="noopener" class="wfn-stream-btn">' .
+            '%s %s' .
             '</a></div>',
             esc_url($url),
+            wfn_get_stream_icon(),
             esc_html($button_text)
         );
     }
