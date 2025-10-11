@@ -68,6 +68,9 @@ $mode = $args['mode'] ?? 'modern';
             <?php if ($service_sheet): ?>
                 <p><strong>Service Sheet:</strong> <a href="<?php echo esc_url($service_sheet['url']); ?>" target="_blank" rel="noopener"><?php echo wfn_get_document_icon(); ?> Download Service Sheet</a></p>
             <?php endif; ?>
+            <?php if ($has_video): ?>
+                <p><strong>Memorial Video Slideshow:</strong> <a href="<?php echo esc_url($video_data['stream_url'] ?? ''); ?>" target="_blank" rel="noopener">📹 Watch Memorial Video</a></p>
+            <?php endif; ?>
             <?php if (!empty($additional_docs)): ?>
                 <?php foreach ($additional_docs as $doc): ?>
                     <?php if (!empty($doc['file'])): ?>
@@ -84,11 +87,24 @@ $mode = $args['mode'] ?? 'modern';
                 <div class="firehawk-detail-row">
                     <span class="firehawk-detail-label">Service Sheet:</span>
                     <span class="firehawk-detail-value">
-                        <a href="<?php echo esc_url($service_sheet['url']); ?>" 
-                           target="_blank" 
+                        <a href="<?php echo esc_url($service_sheet['url']); ?>"
+                           target="_blank"
                            rel="noopener"
                            class="firehawk-maps-button">
                            <?php echo wfn_get_document_icon(); ?> Download Service Sheet
+                        </a>
+                    </span>
+                </div>
+            <?php endif; ?>
+            <?php if ($has_video): ?>
+                <div class="firehawk-detail-row">
+                    <span class="firehawk-detail-label">Memorial Video:</span>
+                    <span class="firehawk-detail-value">
+                        <a href="<?php echo esc_url($video_data['stream_url'] ?? ''); ?>"
+                           target="_blank"
+                           rel="noopener"
+                           class="firehawk-maps-button">
+                           📹 Watch Memorial Video
                         </a>
                     </span>
                 </div>
@@ -99,8 +115,8 @@ $mode = $args['mode'] ?? 'modern';
                         <div class="firehawk-detail-row">
                             <span class="firehawk-detail-label"><?php echo esc_html($doc['title'] ?: 'Document'); ?>:</span>
                             <span class="firehawk-detail-value">
-                                <a href="<?php echo esc_url($doc['file']['url']); ?>" 
-                                   target="_blank" 
+                                <a href="<?php echo esc_url($doc['file']['url']); ?>"
+                                   target="_blank"
                                    rel="noopener"
                                    class="firehawk-maps-button">
                                    <?php echo wfn_get_document_icon(); ?> Download

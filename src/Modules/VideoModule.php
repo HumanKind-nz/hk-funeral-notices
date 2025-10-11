@@ -1651,12 +1651,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         global $post;
 
-        // Check if VideoModule is enabled and video is ready
-        $enabled_modules = get_option('wfn_enabled_modules', []);
-        if (empty($enabled_modules['video'])) {
-            return;
-        }
-
+        // Check if video is ready (license check happens in TemplateManager)
         $video_status = get_post_meta($post->ID, '_wfn_video_status', true);
         if ($video_status !== 'ready') {
             return;

@@ -192,7 +192,7 @@ $post_content = get_the_content();
                 <?php endif; ?>
 
                 <!-- Memorial Video Slideshow Button -->
-                <?php if (!empty($documents['video_slideshow']) && $streaming['has_video_or_license']): ?>
+                <?php if (!empty($documents['video_slideshow'])): ?>
                     <div class="wfn-current-video-slideshow">
                         <button type="button"
                                 class="wfn-memorial-video-btn"
@@ -297,7 +297,7 @@ $post_content = get_the_content();
         <?php endif; ?>
 
         <!-- Video Modal -->
-        <?php if (!empty($documents['video_slideshow']) && $streaming['has_video_or_license']): ?>
+        <?php if (!empty($documents['video_slideshow'])): ?>
             <?php $video = $documents['video_slideshow']; ?>
             <div id="<?php echo esc_attr($video['modal_id']); ?>"
                  class="wfn-video-modal"

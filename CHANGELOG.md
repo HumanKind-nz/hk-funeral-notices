@@ -4,6 +4,18 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.4.10] – October 2025
+
+### Bug Fixes
+- **Video Modal Display** – Fixed video modal CSS/JS assets not loading on frontend due to redundant module enabled check
+
+### Technical Changes
+- Removed `$enabled_modules['video']` check from `VideoModule::enqueue_frontend_assets()` - license validation in TemplateManager is sufficient gatekeeper
+- Changed `Dashboard.php` video module to always show as enabled (controlled by license, not toggle)
+- Video module now fully license-gated with no manual enable/disable toggle
+
+---
+
 ## [2.4.7] – October 2025
 
 ### New Features

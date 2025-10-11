@@ -606,9 +606,8 @@ class TemplateManager {
      * Get video slideshow data
      */
     private function get_video_slideshow_data($post_id): ?array {
-        // Check if VideoModule is enabled and has premium license
-        $enabled_modules = get_option('wfn_enabled_modules', []);
-        if (empty($enabled_modules['video'])) {
+        // Check if site has valid video license (license check is the real gatekeeper)
+        if (!LicenseService::hasValidVideoLicense()) {
             return null;
         }
 

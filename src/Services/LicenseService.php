@@ -72,9 +72,10 @@ class LicenseService {
             return $cached_status['valid'] ?? false;
         }
 
-        // If no license handler is available, deny access
+        // If no license handler is available, fallback to stored license status
         if ($this->license_handler === null) {
-            return false;
+            $license_status = get_option('wfn_license_status', []);
+            return ($license_status['valid'] ?? false) === true;
         }
 
         // Check license with API

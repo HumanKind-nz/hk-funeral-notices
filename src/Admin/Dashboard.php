@@ -470,7 +470,7 @@ class Dashboard {
                 'description' => 'Upload and manage memorial video slideshows with professional hosting.',
                 'icon' => 'dashicons-video-alt3',
                 'icon_color' => '#9b59b6',
-                'enabled' => $enabled_modules['video'] ?? false,
+                'enabled' => true, // Always enabled when license is valid (no toggle)
                 'settings_page' => 'hkfn-module-video',
                 'premium_required' => true,
                 'no_toggle' => true, // Don't show toggle switch

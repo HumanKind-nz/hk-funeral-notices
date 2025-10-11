@@ -16,7 +16,8 @@ class AdminColumns {
      * Initialize admin columns functionality
      */
     public function __construct() {
-        add_filter('manage_funeral-notice_posts_columns', [$this, 'set_columns']);
+        // Use priority 999 to run after SEOPress and other plugins
+        add_filter('manage_funeral-notice_posts_columns', [$this, 'set_columns'], 999);
         add_action('manage_funeral-notice_posts_custom_column', [$this, 'populate_columns'], 10, 2);
         add_filter('manage_edit-funeral-notice_sortable_columns', [$this, 'sortable_columns']);
         add_action('admin_head', [$this, 'add_column_styles']);
