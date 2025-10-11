@@ -4,7 +4,7 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
-## [2.4.4] – October 2025
+## [2.4.5] – October 2025
 
 ### Bug Fixes
 - **Video Deletion** – Fixed videos not being removed from Bunny CDN when funeral posts are deleted
