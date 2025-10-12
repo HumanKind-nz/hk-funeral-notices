@@ -53,12 +53,12 @@
 }
 
 .wfn-enhancement-elegant-portrait {
-    width: 60px !important;
-    height: 60px !important;
+    width: 150px !important;
+    height: 150px !important;
     border-radius: 50% !important;
     object-fit: cover !important;
     object-position: center 15% !important; /* Focus on upper portion to center faces better */
-    border: 2px solid var(--wfn-color-border, #f0f0f0) !important;
+    border: 6px solid #d4af37 !important; /* Gold border 6px */
 }
 
 .wfn-enhancement-elegant-details {
@@ -91,11 +91,27 @@
     margin-top: 0.75rem;
     padding-top: 0.75rem;
     font-family: var(--wfn-font-body, inherit);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .wfn-enhancement-elegant-service strong {
     color: var(--wfn-color-text-primary, #34495e);
     font-weight: 600;
+}
+
+/* Streaming icon in service info (elegant) */
+.wfn-enhancement-elegant-service .wfn-streaming-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.wfn-enhancement-elegant-service .wfn-streaming-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--wfn-color-primary, #8B0000);
 }
 
 /* Floating streaming icon when date/time/venue hidden (elegant) */

@@ -57,11 +57,15 @@ class FuneralNoticesShortcode {
      * @return string HTML output
      */
     public function render_funeral_grid($atts = []): string {
+        // Get default layout from settings
+        $settings = get_option('wfn_module_settings', []);
+        $default_layout = $settings['default_layout'] ?? 'modern';
+
         // Parse shortcode attributes
         $atts = shortcode_atts([
             'type' => 'all',           // all, future, archived, today, this_week, this_month
             'per_page' => 12,          // Number of items per page
-            'style' => $this->template_manager->get_archive_mode(),     // Use archive setting as default
+            'style' => $default_layout,     // Use default layout from settings
             'layout' => '',           // Alternative parameter name for style (documented usage)
             'columns' => 3,            // 1, 2, 3, 4
             'show_pagination' => 'yes', // yes, no
@@ -76,7 +80,7 @@ class FuneralNoticesShortcode {
         // Sanitize inputs
         $type = sanitize_text_field($atts['type']);
         $per_page = (int) $atts['per_page'];
-        
+
         // Support both 'layout' and 'style' parameters (layout takes precedence if provided)
         $style = !empty($atts['layout']) ? sanitize_text_field($atts['layout']) : sanitize_text_field($atts['style']);
         
@@ -1075,9 +1079,19 @@ class FuneralNoticesShortcode {
                     $formatted_time = date('g:i A', strtotime($funeral_time));
                     echo ' at ' . esc_html($formatted_time);
                 }
+
+                // Check for streaming and add icon
+                if ($streaming['is_public'] && !empty($streaming['streaming_url'])) {
+                    echo '<span class="wfn-streaming-icon" title="Live streaming available">';
+                    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
+                    echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
+                    echo '</svg>';
+                    echo '</span>';
+                }
+
                 echo '</div>';
             }
-            
+
             echo '</a></article>';
         }
 

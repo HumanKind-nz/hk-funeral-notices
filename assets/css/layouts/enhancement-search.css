@@ -30,7 +30,7 @@
 }
 
 .wfn-enhancement-search {
-    background: var(--wfn-color-card-background, #ffffff);
+    background: transparent; /* Transparent background to sit on the page */
     border: none; /* Removed border for seamless integration */
     box-shadow: none; /* Removed shadow for cleaner appearance */
     border-radius: var(--wfn-border-radius, 12px);

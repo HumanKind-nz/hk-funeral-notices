@@ -4,7 +4,7 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
-## [2.4.10] – October 2025
+## [2.4.11] – October 2025
 
 ### Bug Fixes
 - **Video Modal Display** – Fixed video modal CSS/JS assets not loading on frontend due to redundant module enabled check
