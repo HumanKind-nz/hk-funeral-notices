@@ -14,15 +14,6 @@ This changelog summarises the key improvements, fixes, and features added to the
   - Side-by-side comparison view (toggled via button)
   - Click thumbnail to open crop modal after uploading
 
-#### Technical Notes
-- Added `ImageCropHandler.php` for backend crop management
-- Custom image size `wfn-grid-crop` registered (800x600, 4:3 aspect ratio)
-- REST API integration for attachment data loading
-- Event capturing to intercept WordPress media handlers
-- Physical cropped files generated in same directory as original
-- Updated shortcode to use `wfn-grid-crop` size for grid/list displays
-- Removed CSS `object-position` hacks from modern and elegant layouts
-
 ---
 
 ## [2.4.10] – October 2025
