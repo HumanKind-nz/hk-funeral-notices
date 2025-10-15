@@ -216,7 +216,7 @@ class FieldGroupManager {
                             'label' => 'Person\'s Image',
                             'name' => '',
                             'type' => 'acfe_post_field',
-                            'instructions' => 'Upload a photo of the person. <strong>Photo Tips:</strong> Use a close-up headshot where the person\'s face takes up most of the image. Square or landscape photos work best. Avoid full-body photos as the face may be too small in card layouts.',
+                            'instructions' => 'Upload a photo of the person. After uploading, <strong>click the thumbnail image below</strong> to crop it for grid/list pages (full image shows on funeral page).',
                             'wrapper' => ['width' => '100'],
                             'field_type' => 'featured_image',
                             'instruction_placement' => 'above_field',

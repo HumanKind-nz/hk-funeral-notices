@@ -1,0 +1,294 @@
+/**
+ * Funeral Notice Image Crop Tool Styles
+ *
+ * @since 2.4.0
+ */
+
+/* Modal Container */
+.wfn-crop-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100000;
+}
+
+.wfn-crop-modal.wfn-crop-active {
+    display: block;
+}
+
+/* Backdrop */
+.wfn-crop-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Modal Content */
+.wfn-crop-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    margin: 5vh auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.wfn-crop-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+.wfn-crop-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    color: #23282d;
+}
+
+.wfn-crop-description {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.wfn-crop-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+.wfn-crop-close:hover {
+    color: #d63638;
+}
+
+/* Body */
+.wfn-crop-body {
+    flex: 1;
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    overflow: hidden;
+}
+
+/* Workspace */
+.wfn-crop-workspace {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6f7f7;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wfn-crop-image-container {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.wfn-crop-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+}
+
+/* Crop Overlay */
+.wfn-crop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.wfn-crop-area {
+    position: absolute;
+    border: 2px dashed #3582c4;
+    background: rgba(53, 130, 196, 0.1);
+    cursor: move;
+    pointer-events: all;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.wfn-crop-area.wfn-crop-dragging {
+    cursor: grabbing;
+}
+
+/* Crop Handles */
+.wfn-crop-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #3582c4;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.wfn-crop-handle-nw {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+}
+
+.wfn-crop-handle-ne {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+}
+
+.wfn-crop-handle-sw {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+}
+
+.wfn-crop-handle-se {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+}
+
+/* Preview Panel */
+.wfn-crop-preview-panel {
+    width: 340px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.wfn-crop-preview-panel h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.wfn-crop-preview-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wfn-crop-preview-image {
+    aspect-ratio: 4/3;
+    background: #f6f7f7;
+    overflow: hidden;
+}
+
+.wfn-crop-preview-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.wfn-crop-preview-content {
+    padding: 16px;
+}
+
+.wfn-crop-preview-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 4px;
+}
+
+.wfn-crop-preview-dates {
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+}
+
+.wfn-crop-preview-note {
+    margin: 12px 0 0 0;
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Footer */
+.wfn-crop-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wfn-crop-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .wfn-crop-body {
+        flex-direction: column;
+    }
+
+    .wfn-crop-preview-panel {
+        width: 100%;
+    }
+
+    .wfn-crop-workspace {
+        max-height: 50vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .wfn-crop-modal-content {
+        width: 95%;
+        height: 95vh;
+        margin: 2.5vh auto;
+    }
+
+    .wfn-crop-header {
+        padding: 16px;
+    }
+
+    .wfn-crop-body {
+        padding: 16px;
+    }
+
+    .wfn-crop-footer {
+        padding: 12px 16px;
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+
+    .wfn-crop-reset {
+        width: 100%;
+    }
+
+    .wfn-crop-actions {
+        width: 100%;
+    }
+
+    .wfn-crop-actions button {
+        flex: 1;
+    }
+}

@@ -4,7 +4,28 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
-## [2.4.11] – October 2025
+## [2.4.12] – October 2025
+
+### New Features
+- **Image Crop Tool** – Added user-controlled image cropping for funeral notice featured images. Solves portrait photo issues in grid layouts (heads being cut off).
+  - Full original image displays on single funeral pages
+  - Custom 4:3 cropped version (800x600) displays on grid/list pages
+  - Live preview with draggable crop area
+  - Side-by-side comparison view (toggled via button)
+  - Click thumbnail to open crop modal after uploading
+
+#### Technical Notes
+- Added `ImageCropHandler.php` for backend crop management
+- Custom image size `wfn-grid-crop` registered (800x600, 4:3 aspect ratio)
+- REST API integration for attachment data loading
+- Event capturing to intercept WordPress media handlers
+- Physical cropped files generated in same directory as original
+- Updated shortcode to use `wfn-grid-crop` size for grid/list displays
+- Removed CSS `object-position` hacks from modern and elegant layouts
+
+---
+
+## [2.4.10] – October 2025
 
 ### Bug Fixes
 - **Video Modal Display** – Fixed video modal CSS/JS assets not loading on frontend due to redundant module enabled check

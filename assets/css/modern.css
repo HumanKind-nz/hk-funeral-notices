@@ -55,7 +55,7 @@
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    object-position: center 20% !important; /* Focus on upper portion for better face positioning */
+    object-position: center center !important; /* User-controlled crop handles positioning */
     transition: transform 0.3s ease !important;
 }
 

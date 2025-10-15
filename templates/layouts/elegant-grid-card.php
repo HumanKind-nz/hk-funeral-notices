@@ -26,8 +26,13 @@ $funeral_date = $event['funeral_date'];
 $funeral_time = $event['funeral_time'];
 $hide_details = $event['hide_time'] ?? false;
 
-// Get image
-$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+// Get image - use grid crop if available, fallback to medium size
+$featured_image = get_the_post_thumbnail_url($post_id, 'wfn-grid-crop');
+if (!$featured_image) {
+    // Fallback for images without grid crop (backward compatibility)
+    $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+}
+
 $settings = get_option('wfn_module_settings', []);
 $fallback_url = $settings['default_person_image'] ?? '';
 if (empty($fallback_url)) {

@@ -7,6 +7,7 @@ use WeaveStudios\FuneralNotices\Templates\TemplateManager;
 use WeaveStudios\FuneralNotices\Shortcodes\FuneralNoticesShortcode;
 use WeaveStudios\FuneralNotices\Admin\Dashboard;
 use WeaveStudios\FuneralNotices\Admin\AdminColumns;
+use WeaveStudios\FuneralNotices\Admin\ImageCropHandler;
 use WeaveStudios\FuneralNotices\FieldGroups\FieldGroupManager;
 use WeaveStudios\FuneralNotices\Modules\SettingsModule;
 use WeaveStudios\FuneralNotices\Modules\LayoutsModule;
@@ -34,6 +35,7 @@ class Plugin {
     private AdminColumns $admin_columns;
     private FieldGroupManager $field_group_manager;
     private VideoUploadAPI $video_upload_api;
+    private ImageCropHandler $image_crop_handler;
     private array $modules = [];
 
     /**
@@ -76,6 +78,9 @@ class Plugin {
 
         // Initialize Video Upload API (needed for deletion hooks, not just REST routes)
         $this->video_upload_api = new VideoUploadAPI();
+
+        // Initialize Image Crop Handler
+        $this->image_crop_handler = new ImageCropHandler();
 
         // Initialize admin dashboard (only in admin area)
         if (is_admin()) {

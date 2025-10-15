@@ -57,7 +57,7 @@
     height: 150px !important;
     border-radius: 50% !important;
     object-fit: cover !important;
-    object-position: center 15% !important; /* Focus on upper portion to center faces better */
+    object-position: center center !important; /* User-controlled crop handles positioning */
     border: 6px solid #d4af37 !important; /* Gold border 6px */
 }
 

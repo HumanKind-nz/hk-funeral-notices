@@ -941,9 +941,13 @@ class FuneralNoticesShortcode {
             // Get funeral date and time for service info
             $funeral_date = $event['funeral_date'];
             $funeral_time = $event['funeral_time'];
-            
-            // Get image
-            $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+
+            // Get image - use grid crop if available, fallback to medium size
+            $featured_image = get_the_post_thumbnail_url($post_id, 'wfn-grid-crop');
+            if (!$featured_image) {
+                // Fallback for images without grid crop (backward compatibility)
+                $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+            }
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 
@@ -1039,8 +1043,12 @@ class FuneralNoticesShortcode {
             $funeral_date = $event['funeral_date'];
             $funeral_time = $event['funeral_time'];
             
-            // Get image
-            $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+            // Get image - use grid crop if available, fallback to medium size
+            $featured_image = get_the_post_thumbnail_url($post_id, 'wfn-grid-crop');
+            if (!$featured_image) {
+                // Fallback for images without grid crop (backward compatibility)
+                $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+            }
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 
