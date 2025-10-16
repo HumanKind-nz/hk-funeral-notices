@@ -210,31 +210,45 @@ class GoogleMapsField extends \acf_field {
         }
         
         // Debug logging removed for production
-        
-        // Enqueue Google Maps API with Places library
-        wp_enqueue_script(
-            'wfn-google-maps-api',
-            "https://maps.googleapis.com/maps/api/js?key={$api_key}&libraries=places&callback=initWFNGoogleMaps",
-            [],
-            null,
-            true
-        );
+
+        // Feature flag for modern vs legacy API loading (rollback capability)
+        $use_modern_api = apply_filters('wfn_use_modern_google_maps_api', true);
+
+        if ($use_modern_api) {
+            // Modern async loading (no callback, better performance)
+            wp_enqueue_script(
+                'wfn-google-maps-api',
+                "https://maps.googleapis.com/maps/api/js?key={$api_key}&libraries=places&loading=async",
+                [],
+                null,
+                true
+            );
+        } else {
+            // Legacy callback method (fallback for compatibility)
+            wp_enqueue_script(
+                'wfn-google-maps-api',
+                "https://maps.googleapis.com/maps/api/js?key={$api_key}&libraries=places&callback=initWFNGoogleMaps",
+                [],
+                null,
+                true
+            );
+        }
         
         // Enqueue our custom field JavaScript
         wp_enqueue_script(
             'wfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/js/admin/google-maps-field.js',
             ['wfn-google-maps-api', 'jquery'],
-            '2.0.0',
+            '2.4.13',
             true
         );
-        
+
         // Enqueue field styles
         wp_enqueue_style(
             'wfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/css/admin/google-maps-field.css',
             [],
-            '2.0.0'
+            '2.4.13'
         );
     }
     

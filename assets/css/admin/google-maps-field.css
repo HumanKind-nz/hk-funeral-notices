@@ -1,7 +1,8 @@
 /**
  * Google Maps Field Admin Styles
- * 
+ *
  * @since 2.0.0
+ * @updated 2.4.0 - Added Place Autocomplete Element styling
  */
 
 .wfn-google-maps-field {
@@ -38,6 +39,30 @@
 
 .wfn-address-autocomplete::placeholder {
     color: #a0a5aa;
+}
+
+/* Place Autocomplete Element (web component) styling */
+gmp-place-autocomplete.wfn-place-autocomplete-element {
+    display: block;
+    width: 100%;
+}
+
+gmp-place-autocomplete.wfn-place-autocomplete-element input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+    background-color: #fff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+gmp-place-autocomplete.wfn-place-autocomplete-element input:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
 }
 
 .wfn-map-container {

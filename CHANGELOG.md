@@ -4,6 +4,45 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.4.13] – October 16, 2025
+
+### Technical Improvements
+- **Google Maps API Modernization** – Updated Google Maps integration to use modern async loading pattern for improved performance while maintaining full backward compatibility with existing API keys.
+
+#### What Changed
+- ✅ Replaced deprecated callback-based loading (`callback=initWFNGoogleMaps`) with `loading=async` parameter
+- ✅ Improved page load performance with non-blocking async script loading
+- ✅ Implemented proper library loading using `importLibrary()` for Places and Maps libraries
+- ✅ Added feature flag (`wfn_use_modern_google_maps_api` filter) for easy rollback if needed
+- ✅ Polling-based initialization with 10-second timeout for better reliability
+- ✅ Legacy Autocomplete widget remains in use (works with existing API keys - no changes required)
+- ✅ Place Autocomplete Element ready but disabled by default (can be enabled when Places API (New) is available)
+- ✅ 100% backward compatible with existing address data structure (all 14 fields preserved)
+- ✅ No frontend or user-facing changes
+
+#### Technical Notes
+- Updated `src/Fields/GoogleMapsField.php` with conditional script loading and feature flag
+- Complete rewrite of `assets/js/admin/google-maps-field.js` for async initialization (568 lines)
+- Added Place Autocomplete Element styling in `assets/css/admin/google-maps-field.css`
+- Maintains ACFE Pro address data compatibility
+- Enhanced error handling and console logging for debugging
+- Works with ACF repeaters and dynamically added fields
+- Script version updated to 2.4.13 for cache busting
+
+#### Impact
+- **Users:** No visible changes - address autocomplete works identically
+- **Performance:** Improved page load times with async script loading
+- **Developers:** Cleaner console with modern loading pattern
+- **Compatibility:** Works on all 40+ sites with zero configuration changes
+- **API Keys:** No changes required - existing API keys continue to work perfectly
+
+#### Future Enhancement
+- Place Autocomplete Element can be enabled (one-line code change) when API keys have "Places API (New)" enabled
+- Google provides 12+ months notice before legacy API discontinuation
+- Plenty of time to plan systematic migration when needed
+
+---
+
 ## [2.4.12] – October 2025
 
 ### New Features
@@ -13,6 +52,15 @@ This changelog summarises the key improvements, fixes, and features added to the
   - Live preview with draggable crop area
   - Side-by-side comparison view (toggled via button)
   - Click thumbnail to open crop modal after uploading
+
+#### Technical Notes
+- Added `ImageCropHandler.php` for backend crop management
+- Custom image size `wfn-grid-crop` registered (800x600, 4:3 aspect ratio)
+- REST API integration for attachment data loading
+- Event capturing to intercept WordPress media handlers
+- Physical cropped files generated in same directory as original
+- Updated shortcode to use `wfn-grid-crop` size for grid/list displays
+- Removed CSS `object-position` hacks from modern and elegant layouts
 
 ---
 

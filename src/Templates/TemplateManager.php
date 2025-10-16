@@ -308,6 +308,21 @@ class TemplateManager {
             $formatted_address = $this->address_manager->get_formatted_address($custom_address);
         }
 
+        // Determine display_venue with duplicate check
+        // For custom addresses, check if venue name is just the street address to avoid duplication
+        $display_venue = '';
+        if ($location_type === 'existing') {
+            $display_venue = $location_name;
+        } elseif ($location_type === 'custom') {
+            $venue_name = $address_components['venue_name'] ?? '';
+            // Prevent duplicate: if venue name appears at start of formatted address, it's a street address, not a business
+            if ($venue_name && $formatted_address && stripos($formatted_address, $venue_name) === 0) {
+                $display_venue = ''; // Don't show duplicate street address as venue name
+            } else {
+                $display_venue = $venue_name;
+            }
+        }
+
         return [
             'post_id' => $post_id,
             'post_url' => get_permalink($post_id),
@@ -348,7 +363,7 @@ class TemplateManager {
                 'type' => $location_type,
                 'taxonomy_location' => $location_name,
                 'custom_address' => $custom_address,
-                'display_venue' => ($location_type === 'existing') ? $location_name : '',
+                'display_venue' => $display_venue,
                 'display_address' => ($location_type === 'custom') ? $custom_address : [],
                 'formatted_address' => $formatted_address,
                 'address_components' => $address_components,

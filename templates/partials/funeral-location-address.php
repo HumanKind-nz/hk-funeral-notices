@@ -25,7 +25,7 @@ if ($data['location']['is_other_location'] && !empty($data['location']['custom_a
     // Use enhanced address structure if available, fallback to legacy
     $address_name = $components['venue_name'] ?? $address['name'] ?? '';
     $display_address = $formatted_address ?: ($address['address'] ?? '');
-    
+
     // Fallback for legacy structure
     if (!$display_address && is_array($address)) {
         $street_number = $address['street_number'] ?? '';
@@ -33,6 +33,15 @@ if ($data['location']['is_other_location'] && !empty($data['location']['custom_a
         $city = $address['city'] ?? '';
         $post_code = $address['post_code'] ?? '';
         $display_address = trim("{$street_number} {$street_name}, {$city}, {$post_code}");
+    }
+
+    // Prevent duplicate display: if venue name is just the street address, don't show it separately
+    // This happens when Google Places returns the street address as the "name" for residential addresses
+    if ($address_name && $display_address) {
+        // Check if venue name appears at the start of the formatted address (case-insensitive)
+        if (stripos($display_address, $address_name) === 0) {
+            $address_name = ''; // Clear venue name to avoid duplication
+        }
     }
     ?>
     <h5 class="details">WHERE</h5>
