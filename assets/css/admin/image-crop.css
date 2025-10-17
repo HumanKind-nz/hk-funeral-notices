@@ -94,8 +94,7 @@
 .wfn-crop-workspace {
     flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     background: #f6f7f7;
     border-radius: 4px;
     overflow: hidden;
@@ -103,15 +102,28 @@
 
 .wfn-crop-image-container {
     position: relative;
-    max-width: 100%;
-    max-height: 100%;
+    flex: 1;
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.wfn-crop-image-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
 .wfn-crop-image {
     display: block;
     max-width: 100%;
-    max-height: 70vh;
+    max-height: 60vh;
     height: auto;
+    transform-origin: center center;
+    transition: transform 0.2s ease-out;
+    will-change: transform;
 }
 
 /* Crop Overlay */
@@ -244,6 +256,139 @@
     gap: 8px;
 }
 
+/* Zoom Controls */
+.wfn-crop-zoom-controls {
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 4px 4px;
+}
+
+.wfn-zoom-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 8px;
+}
+
+.wfn-zoom-display {
+    color: #3582c4;
+    font-weight: 700;
+}
+
+.wfn-zoom-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.wfn-zoom-btn {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: #2c3338;
+    transition: all 0.15s ease;
+}
+
+.wfn-zoom-btn:hover {
+    background: #dcdcde;
+    border-color: #8c8f94;
+}
+
+.wfn-zoom-btn:active {
+    background: #c3c4c7;
+}
+
+.wfn-zoom-btn:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+.wfn-zoom-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #ddd;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Slider Thumb */
+.wfn-zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #3582c4;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.15s ease;
+}
+
+.wfn-zoom-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #3582c4;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.15s ease;
+}
+
+.wfn-zoom-slider::-webkit-slider-thumb:hover {
+    background: #2271b1;
+    transform: scale(1.1);
+}
+
+.wfn-zoom-slider::-moz-range-thumb:hover {
+    background: #2271b1;
+    transform: scale(1.1);
+}
+
+.wfn-zoom-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(53, 130, 196, 0.3);
+}
+
+.wfn-zoom-slider:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px rgba(53, 130, 196, 0.3);
+}
+
+/* Slider Track Fill */
+.wfn-zoom-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #3582c4 0%, #3582c4 var(--value, 0%), #ddd var(--value, 0%), #ddd 100%);
+}
+
+.wfn-zoom-slider::-moz-range-track {
+    background: #ddd;
+}
+
+.wfn-zoom-slider::-moz-range-progress {
+    background: #3582c4;
+}
+
+.wfn-zoom-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+    padding: 0 4px;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .wfn-crop-body {
@@ -290,5 +435,9 @@
 
     .wfn-crop-actions button {
         flex: 1;
+    }
+
+    .wfn-zoom-controls {
+        padding: 12px 16px;
     }
 }

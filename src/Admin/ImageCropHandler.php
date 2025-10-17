@@ -49,6 +49,10 @@ class ImageCropHandler {
         // Enqueue crop tool assets on funeral notice edit screen
         add_action('admin_enqueue_scripts', [$this, 'enqueue_crop_assets']);
 
+        // Force media uploader to default to Upload tab
+        add_action('admin_footer-post.php', [$this, 'force_media_upload_tab']);
+        add_action('admin_footer-post-new.php', [$this, 'force_media_upload_tab']);
+
         // AJAX handler for saving crop coordinates
         add_action('wp_ajax_wfn_save_crop_coordinates', [$this, 'ajax_save_crop_coordinates']);
 
@@ -117,7 +121,7 @@ class ImageCropHandler {
      * Generate cropped image file using user-defined coordinates
      *
      * @param string $source_path Path to source image
-     * @param array $crop_data Crop coordinates [src_x, src_y, src_w, src_h]
+     * @param array $crop_data Crop coordinates [src_x, src_y, src_w, src_h] and optional zoom_level
      * @return array|false Cropped image data or false on failure
      */
     private function generate_cropped_image(string $source_path, array $crop_data) {
@@ -129,7 +133,30 @@ class ImageCropHandler {
             return false;
         }
 
-        // Apply crop using user coordinates
+        // Get zoom level (default to 100 = no zoom)
+        $zoom_level = isset($crop_data['zoom_level']) ? (int) $crop_data['zoom_level'] : 100;
+
+        // Apply zoom before crop if zoom level > 100
+        if ($zoom_level > 100) {
+            $zoom_scale = $zoom_level / 100; // Convert 150 to 1.5, 200 to 2.0, etc.
+
+            // Get current image dimensions
+            $current_size = $image_editor->get_size();
+            if (!is_wp_error($current_size)) {
+                $new_width = (int) round($current_size['width'] * $zoom_scale);
+                $new_height = (int) round($current_size['height'] * $zoom_scale);
+
+                // Resize image to zoomed dimensions
+                $resize_result = $image_editor->resize($new_width, $new_height, false);
+
+                if (is_wp_error($resize_result)) {
+                    error_log('WFN Image Crop: Zoom operation failed - ' . $resize_result->get_error_message());
+                    // Continue without zoom rather than failing completely
+                }
+            }
+        }
+
+        // Apply crop using user coordinates (coordinates are already calculated for zoomed image)
         $crop_result = $image_editor->crop(
             (int) $crop_data['src_x'],
             (int) $crop_data['src_y'],
@@ -216,12 +243,18 @@ class ImageCropHandler {
             return;
         }
 
-        // Get crop coordinates
+        // Get crop coordinates and zoom level
+        $zoom_level = isset($_POST['zoom_level']) ? (int) $_POST['zoom_level'] : 100;
+
+        // Validate zoom level (100-300 range)
+        $zoom_level = max(100, min(300, $zoom_level));
+
         $crop_data = [
             'src_x' => isset($_POST['src_x']) ? (float) $_POST['src_x'] : 0,
             'src_y' => isset($_POST['src_y']) ? (float) $_POST['src_y'] : 0,
             'src_w' => isset($_POST['src_w']) ? (float) $_POST['src_w'] : 0,
             'src_h' => isset($_POST['src_h']) ? (float) $_POST['src_h'] : 0,
+            'zoom_level' => $zoom_level,
             'aspect_ratio' => '4:3',
             'created_at' => current_time('mysql'),
         ];
@@ -318,6 +351,9 @@ class ImageCropHandler {
             'gridWidth' => self::GRID_WIDTH,
             'gridHeight' => self::GRID_HEIGHT,
             'aspectRatio' => '4:3',
+            'zoomMin' => 100,
+            'zoomMax' => 300,
+            'zoomIncrement' => 10,
         ]);
     }
 
@@ -350,5 +386,30 @@ class ImageCropHandler {
     public static function has_grid_crop(int $attachment_id): bool {
         $metadata = wp_get_attachment_metadata($attachment_id);
         return isset($metadata['sizes'][self::GRID_CROP_SIZE]);
+    }
+
+    /**
+     * Force media uploader to default to Upload tab
+     *
+     * Outputs JavaScript to modify WordPress media library defaults
+     * to always open on the Upload tab instead of Media Library tab
+     */
+    public function force_media_upload_tab(): void {
+        // Only on funeral-notice post type
+        global $post;
+        if (!$post || get_post_type($post) !== 'funeral-notice') {
+            return;
+        }
+
+        ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                // Force media library to default to upload tab
+                if (typeof wp !== 'undefined' && wp.media && wp.media.controller && wp.media.controller.Library) {
+                    wp.media.controller.Library.prototype.defaults.contentUserSetting = false;
+                }
+            });
+        </script>
+        <?php
     }
 }

@@ -243,11 +243,6 @@ function wfn_hide_title_field_for_funeral_notices() {
         }
         
         /* Add visual indicator that title is auto-generated */
-        .acf-field[data-name="wfn_person_group"] .acf-label:before {
-            content: "ℹ️ ";
-            margin-right: 5px;
-        }
-        
         .acf-field[data-name="wfn_person_group"] .acf-label:after {
             content: " (Title auto-generated from names)";
             font-size: 11px;
@@ -260,6 +255,46 @@ function wfn_hide_title_field_for_funeral_notices() {
 }
 add_action('admin_head-post.php', 'wfn_hide_title_field_for_funeral_notices');
 add_action('admin_head-post-new.php', 'wfn_hide_title_field_for_funeral_notices');
+
+/**
+ * Force media uploader to default to Upload tab
+ *
+ * When clicking "Set Person's Photo", the WordPress media library
+ * defaults to the "Media Library" tab. This forces it to open on the
+ * "Upload Files" tab for better UX.
+ *
+ * Note: This respects user preference - once a user switches to Upload tab,
+ * WordPress remembers that choice for subsequent opens.
+ */
+function wfn_force_media_upload_tab() {
+    // Get current screen to check post type
+    $screen = get_current_screen();
+
+    // Only apply to funeral notice post type edit screens
+    if (!$screen || $screen->post_type !== 'funeral-notice') {
+        return;
+    }
+
+    ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Force media library to default to upload tab
+            if (typeof wp !== 'undefined' && wp.media && wp.media.controller && wp.media.controller.Library) {
+                wp.media.controller.Library.prototype.defaults.contentUserSetting = false;
+            }
+        });
+    </script>
+    <?php
+}
+
+/**
+ * Register the media upload tab hooks after WordPress is fully loaded
+ */
+function wfn_register_media_upload_hooks() {
+    add_action('admin_footer-post.php', 'wfn_force_media_upload_tab');
+    add_action('admin_footer-post-new.php', 'wfn_force_media_upload_tab');
+}
+add_action('admin_init', 'wfn_register_media_upload_hooks');
 
 /**
  * Enqueue post editor JavaScript for funeral notices

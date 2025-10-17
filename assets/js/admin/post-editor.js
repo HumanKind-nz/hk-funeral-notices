@@ -471,12 +471,97 @@
         }
     }
 
+    /**
+     * Add duplicate Publish/Update button at bottom of page for better UX
+     */
+    function addBottomPublishButton() {
+        // Only add for funeral notice post type
+        if (!$('body').hasClass('post-type-funeral-notice')) {
+            return;
+        }
+
+        // Find the last ACF field group (metabox)
+        const $lastMetabox = $('#normal-sortables .postbox').last();
+
+        // Find the original publish button
+        const $originalButton = $('#publishing-action #publish');
+
+        if (!$lastMetabox.length || !$originalButton.length) {
+            return;
+        }
+
+        // Check if button already exists
+        if ($('#wfn-bottom-publish').length) {
+            return;
+        }
+
+        // Clone the button text and state
+        const buttonText = $originalButton.val();
+        const isDisabled = $originalButton.prop('disabled');
+
+        // Create bottom publish button container
+        const $bottomPublish = $(`
+            <div id="wfn-bottom-publish" style="
+                margin: 20px 0 0 0;
+                padding: 15px 20px;
+                background: #f6f7f7;
+                border: 1px solid #c3c4c7;
+                border-radius: 4px;
+                text-align: right;
+                box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+            ">
+                <button type="button" class="button button-primary button-large" ${isDisabled ? 'disabled' : ''}>
+                    ${buttonText}
+                </button>
+            </div>
+        `);
+
+        // Insert after the last metabox
+        $lastMetabox.after($bottomPublish);
+
+        // Click handler - trigger the real publish button
+        $bottomPublish.find('button').on('click', function(e) {
+            e.preventDefault();
+
+            // Show saving indicator
+            $(this).prop('disabled', true).text('Saving...');
+
+            // Trigger the actual publish button
+            $originalButton.trigger('click');
+        });
+
+        // Keep button state synchronized with original
+        const syncButtonState = function() {
+            const $bottomBtn = $bottomPublish.find('button');
+            const newText = $originalButton.val();
+            const newDisabled = $originalButton.prop('disabled');
+
+            $bottomBtn.text(newText).prop('disabled', newDisabled);
+        };
+
+        // Watch for changes to the original button
+        const observer = new MutationObserver(syncButtonState);
+        observer.observe($originalButton[0], {
+            attributes: true,
+            attributeFilter: ['disabled', 'value']
+        });
+
+        // Also sync on various WordPress events
+        $(document).on('heartbeat-tick', syncButtonState);
+        $('#post').on('submit', function() {
+            $bottomPublish.find('button').prop('disabled', true).text('Saving...');
+        });
+    }
+
     // Initialize when document is ready
     $(document).ready(function() {
         // Initialize video upload tracker for funeral notice posts
         if ($('body').hasClass('post-type-funeral-notice') && $('#post').length) {
             window.wfnVideoTracker = new WFNVideoUploadTracker();
         }
+
+        // Add bottom publish button for better UX
+        addBottomPublishButton();
     });
 
     // Cleanup on page unload

@@ -4,14 +4,24 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.5.1] – October 18, 2025
+
+### UX Improvements
+- **Media Library Tab Default** – Media uploader now respects user's last tab choice (Upload vs Library) for better workflow continuity
+- **Bottom Publish Button** – Added duplicate Update/Publish button at bottom of post editor for improved user experience on long forms
+
+---
+
 ## [2.5.0] – October 16, 2025
 
 ### Technical Improvements
 - **Google Maps API Modernisation** – Updated Google Maps integration to use modern async loading pattern for improved performance while maintaining full backward compatibility with existing API keys.
+- **Image Crop & Zoom Feature** – Enhanced image cropping tool with zoom functionality and coordinate calculations for precise control over featured image display
 
 #### What Changed
 - ✅ Replaced deprecated callback-based loading (`callback=initWFNGoogleMaps`) with `loading=async` parameter
 - ✅ Improved page load performance with non-blocking async script loading
+- ✅ Added zoom controls to image crop interface with real-time coordinate tracking
 
 ---
 

@@ -35,6 +35,16 @@
         },
 
         /**
+         * Current zoom level (100-300)
+         */
+        currentZoom: 100,
+
+        /**
+         * Preview update timeout
+         */
+        previewTimeout: null,
+
+        /**
          * Initialize crop tool
          */
         init() {
@@ -64,6 +74,7 @@
         initACFIntegration() {
             const self = this;
 
+            // Note: Media uploader default tab is handled via PHP in ImageCropHandler.php
             // Note: Intentionally NOT hooking into media frame selection
             // Let WordPress handle image selection normally
             // Users can crop by clicking the thumbnail after selection
@@ -207,14 +218,37 @@
                         <div class="wfn-crop-body">
                             <div class="wfn-crop-workspace">
                                 <div class="wfn-crop-image-container">
-                                    <img class="wfn-crop-image" src="" alt="Image to crop">
-                                    <div class="wfn-crop-overlay">
-                                        <div class="wfn-crop-area">
-                                            <div class="wfn-crop-handle wfn-crop-handle-nw"></div>
-                                            <div class="wfn-crop-handle wfn-crop-handle-ne"></div>
-                                            <div class="wfn-crop-handle wfn-crop-handle-sw"></div>
-                                            <div class="wfn-crop-handle wfn-crop-handle-se"></div>
+                                    <div class="wfn-crop-image-wrapper">
+                                        <img class="wfn-crop-image" src="" alt="Image to crop">
+                                        <div class="wfn-crop-overlay">
+                                            <div class="wfn-crop-area">
+                                                <div class="wfn-crop-handle wfn-crop-handle-nw"></div>
+                                                <div class="wfn-crop-handle wfn-crop-handle-ne"></div>
+                                                <div class="wfn-crop-handle wfn-crop-handle-sw"></div>
+                                                <div class="wfn-crop-handle wfn-crop-handle-se"></div>
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="wfn-crop-zoom-controls">
+                                    <label for="wfn-zoom-slider" class="wfn-zoom-label">
+                                        Zoom: <span class="wfn-zoom-display">100%</span>
+                                    </label>
+                                    <div class="wfn-zoom-slider-container">
+                                        <button type="button" class="wfn-zoom-btn wfn-zoom-out" aria-label="Zoom out" title="Zoom out (-)">−</button>
+                                        <input type="range"
+                                               id="wfn-zoom-slider"
+                                               class="wfn-zoom-slider"
+                                               min="100"
+                                               max="300"
+                                               step="10"
+                                               value="100"
+                                               aria-label="Zoom level, 100 to 300 percent">
+                                        <button type="button" class="wfn-zoom-btn wfn-zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button>
+                                    </div>
+                                    <div class="wfn-zoom-range-labels">
+                                        <span>100%</span>
+                                        <span>300%</span>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +271,7 @@
                         </div>
 
                         <div class="wfn-crop-footer">
-                            <button class="button wfn-crop-reset">Reset Crop</button>
+                            <button class="button wfn-crop-reset">Reset Crop & Zoom</button>
                             <div class="wfn-crop-actions">
                                 <button class="button wfn-crop-cancel">Cancel</button>
                                 <button class="button button-primary wfn-crop-apply">Apply Crop</button>
@@ -329,8 +363,9 @@
                 self.closeCropModal();
             });
 
-            // Reset crop
+            // Reset crop and zoom
             this.$cropModal.find('.wfn-crop-reset').on('click', function() {
+                self.resetZoom();
                 self.initializeCropArea();
                 self.updatePreview();
             });
@@ -342,6 +377,18 @@
 
             // Make crop area draggable
             this.makeCropAreaDraggable();
+
+            // Bind zoom events
+            this.bindZoomEvents();
+
+            // Bind keyboard shortcuts
+            this.bindKeyboardShortcuts();
+
+            // Bind mouse wheel zoom
+            this.bindMouseWheelZoom();
+
+            // Bind touch gestures
+            this.bindTouchGestures();
         },
 
         /**
@@ -376,13 +423,26 @@
                 const newLeft = startLeft + deltaX;
                 const newTop = startTop + deltaY;
 
-                const $container = self.$cropModal.find('.wfn-crop-image-container');
-                const maxLeft = $container.width() - $cropArea.width();
-                const maxTop = $container.height() - $cropArea.height();
+                // Get the actual zoomed image dimensions
+                const $img = self.$cropModal.find('.wfn-crop-image');
+                const zoomScale = self.currentZoom / 100;
 
-                // Constrain to image bounds
-                const constrainedLeft = Math.max(0, Math.min(newLeft, maxLeft));
-                const constrainedTop = Math.max(0, Math.min(newTop, maxTop));
+                // The image's visual dimensions after zoom transform
+                const visualWidth = $img.width() * zoomScale;
+                const visualHeight = $img.height() * zoomScale;
+
+                // Calculate the offset from centering (transform scales from center)
+                const offsetX = ($img.width() * (zoomScale - 1)) / 2;
+                const offsetY = ($img.height() * (zoomScale - 1)) / 2;
+
+                // Constrain to zoomed image bounds
+                const minLeft = -offsetX;
+                const minTop = -offsetY;
+                const maxLeft = $img.width() - $cropArea.width() + offsetX;
+                const maxTop = $img.height() - $cropArea.height() + offsetY;
+
+                const constrainedLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+                const constrainedTop = Math.max(minTop, Math.min(newTop, maxTop));
 
                 $cropArea.css({
                     left: constrainedLeft + 'px',
@@ -403,26 +463,50 @@
 
         /**
          * Update crop data based on current crop area position
+         *
+         * IMPORTANT: At zoom 100%, position.left is relative to the image top-left.
+         * At zoom > 100%, CSS transform creates negative space, so position.left can be negative.
+         * We need to remove the offset to get back to the actual image coordinates.
          */
         updateCropData() {
             const $cropArea = this.$cropModal.find('.wfn-crop-area');
+            const $img = this.$cropModal.find('.wfn-crop-image');
             const position = $cropArea.position();
 
-            // Calculate scale factor between displayed image and original
-            const scaleX = this.originalWidth / this.displayWidth;
-            const scaleY = this.originalHeight / this.displayHeight;
+            // Get current displayed dimensions (without zoom transform)
+            const imgWidth = $img.width();
+            const imgHeight = $img.height();
 
-            // Convert displayed coordinates to original image coordinates
+            // Calculate scale factor between displayed image and original
+            const scaleX = this.originalWidth / imgWidth;
+            const scaleY = this.originalHeight / imgHeight;
+
+            // At zoom 100%: position is directly relative to image
+            // At zoom > 100%: CSS transform creates offset, position includes that offset
+            // We need to remove the offset to get true image-relative coordinates
+            const zoomScale = this.currentZoom / 100;
+            const offsetX = (imgWidth * (zoomScale - 1)) / 2;
+            const offsetY = (imgHeight * (zoomScale - 1)) / 2;
+
+            // Remove zoom offset to get coordinates relative to original image position
+            const imageRelativeLeft = position.left - offsetX;
+            const imageRelativeTop = position.top - offsetY;
+
+            // Convert to original image pixel coordinates
             this.cropData = {
-                src_x: Math.round(position.left * scaleX),
-                src_y: Math.round(position.top * scaleY),
+                src_x: Math.round(imageRelativeLeft * scaleX),
+                src_y: Math.round(imageRelativeTop * scaleY),
                 src_w: Math.round($cropArea.width() * scaleX),
                 src_h: Math.round($cropArea.height() * scaleY)
             };
         },
 
         /**
-         * Update live preview
+         * Update live preview - directly extract from original image
+         *
+         * The backend PHP will handle zoom by zooming the original image first,
+         * then cropping. We simulate that here by extracting directly from the
+         * original image at the calculated crop coordinates.
          */
         updatePreview() {
             const $canvas = this.$cropModal.find('.wfn-crop-preview-canvas');
@@ -436,16 +520,21 @@
             canvas.width = previewWidth;
             canvas.height = previewHeight;
 
-            // Draw cropped portion of image to canvas
+            // Clear canvas
+            ctx.clearRect(0, 0, previewWidth, previewHeight);
+
+            // Extract directly from the original image using crop coordinates
+            // cropData already contains coordinates in original image space
+            // This matches what the backend PHP will do: zoom first, then crop
             ctx.drawImage(
                 $img,
-                this.cropData.src_x, // Source X
-                this.cropData.src_y, // Source Y
-                this.cropData.src_w, // Source width
-                this.cropData.src_h, // Source height
-                0, 0, // Destination X, Y
-                previewWidth, // Destination width
-                previewHeight // Destination height
+                this.cropData.src_x,     // Source X in original image
+                this.cropData.src_y,     // Source Y in original image
+                this.cropData.src_w,     // Source width in original image
+                this.cropData.src_h,     // Source height in original image
+                0, 0,                    // Destination X, Y on canvas
+                previewWidth,            // Destination width (scales to preview)
+                previewHeight            // Destination height (scales to preview)
             );
         },
 
@@ -477,7 +566,8 @@
                     src_x: this.cropData.src_x,
                     src_y: this.cropData.src_y,
                     src_w: this.cropData.src_w,
-                    src_h: this.cropData.src_h
+                    src_h: this.cropData.src_h,
+                    zoom_level: this.currentZoom
                 },
                 success: (response) => {
                     if (response.success) {
@@ -832,6 +922,180 @@
                     }
                 }, delay);
             });
+        },
+
+        /**
+         * Bind zoom events
+         */
+        bindZoomEvents() {
+            const self = this;
+
+            // Zoom slider input
+            this.$cropModal.find('#wfn-zoom-slider').on('input', function() {
+                const zoomLevel = parseInt($(this).val());
+                self.applyZoom(zoomLevel);
+            });
+
+            // Zoom in button
+            this.$cropModal.find('.wfn-zoom-in').on('click', function() {
+                self.zoomIn();
+            });
+
+            // Zoom out button
+            this.$cropModal.find('.wfn-zoom-out').on('click', function() {
+                self.zoomOut();
+            });
+        },
+
+        /**
+         * Bind keyboard shortcuts for zoom
+         */
+        bindKeyboardShortcuts() {
+            const self = this;
+
+            $(document).on('keydown.wfn-crop', function(e) {
+                // Only active when crop tool is visible
+                if (!self.$cropModal || !self.$cropModal.hasClass('wfn-crop-active')) {
+                    return;
+                }
+
+                // Check for zoom keys
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    self.zoomIn();
+                } else if (e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    self.zoomOut();
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    self.resetZoom();
+                }
+            });
+        },
+
+        /**
+         * Bind mouse wheel zoom (Ctrl+Scroll)
+         */
+        bindMouseWheelZoom() {
+            const self = this;
+
+            this.$cropModal.find('.wfn-crop-image-container').on('wheel', function(e) {
+                // Only zoom if Ctrl key held (Cmd on Mac)
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+
+                    const delta = e.originalEvent.deltaY;
+                    if (delta < 0) {
+                        // Scroll up = zoom in
+                        self.zoomIn();
+                    } else {
+                        // Scroll down = zoom out
+                        self.zoomOut();
+                    }
+                }
+            });
+        },
+
+        /**
+         * Bind touch gestures for pinch-to-zoom
+         */
+        bindTouchGestures() {
+            const self = this;
+            let touchStartDistance = 0;
+            let initialZoomLevel = 100;
+
+            const $cropContainer = this.$cropModal.find('.wfn-crop-image-container');
+
+            $cropContainer.on('touchstart', function(e) {
+                if (e.touches && e.touches.length === 2) {
+                    touchStartDistance = self.getTouchDistance(e.touches[0], e.touches[1]);
+                    initialZoomLevel = self.currentZoom;
+                }
+            });
+
+            $cropContainer.on('touchmove', function(e) {
+                if (e.touches && e.touches.length === 2) {
+                    e.preventDefault(); // Prevent browser zoom
+
+                    const currentDistance = self.getTouchDistance(e.touches[0], e.touches[1]);
+                    const scale = currentDistance / touchStartDistance;
+
+                    // Map scale to zoom level (100-300%)
+                    let newZoom = Math.round(initialZoomLevel * scale);
+                    newZoom = Math.max(100, Math.min(300, newZoom)); // Clamp to range
+
+                    // Snap to 10% increments
+                    newZoom = Math.round(newZoom / 10) * 10;
+
+                    self.applyZoom(newZoom);
+                    self.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+                }
+            });
+        },
+
+        /**
+         * Calculate distance between two touch points
+         */
+        getTouchDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        },
+
+        /**
+         * Apply zoom to image
+         */
+        applyZoom(zoomLevel) {
+            this.currentZoom = zoomLevel;
+
+            // Update zoom display
+            this.$cropModal.find('.wfn-zoom-display').text(zoomLevel + '%');
+
+            // Apply CSS transform to image
+            const scale = zoomLevel / 100;
+            this.$cropModal.find('.wfn-crop-image').css('transform', `scale(${scale})`);
+
+            // Update crop data and preview (debounced)
+            this.updateCropData();
+            this.debouncedUpdatePreview();
+        },
+
+        /**
+         * Zoom in by 10%
+         */
+        zoomIn() {
+            const currentZoom = parseInt(this.$cropModal.find('#wfn-zoom-slider').val());
+            const newZoom = Math.min(300, currentZoom + 10);
+            this.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+            this.applyZoom(newZoom);
+        },
+
+        /**
+         * Zoom out by 10%
+         */
+        zoomOut() {
+            const currentZoom = parseInt(this.$cropModal.find('#wfn-zoom-slider').val());
+            const newZoom = Math.max(100, currentZoom - 10);
+            this.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+            this.applyZoom(newZoom);
+        },
+
+        /**
+         * Reset zoom to 100%
+         */
+        resetZoom() {
+            this.$cropModal.find('#wfn-zoom-slider').val(100);
+            this.applyZoom(100);
+        },
+
+        /**
+         * Debounced preview update for performance
+         */
+        debouncedUpdatePreview() {
+            clearTimeout(this.previewTimeout);
+            this.previewTimeout = setTimeout(() => {
+                this.updatePreview();
+            }, 100); // Reduced to 100ms for snappier feedback during zoom
         },
 
         /**
