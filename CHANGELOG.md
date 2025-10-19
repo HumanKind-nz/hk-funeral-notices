@@ -4,6 +4,65 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.5.3] – October 19, 2025
+
+### Bug Fixes
+- **Crop Preview Refresh** – Added clear user messaging that post must be saved after cropping to see updated preview due to browser caching limitations
+
+### Enhancements
+- **User Instructions** – Updated ACF field instructions and preview titles to guide users to save post after cropping
+- **Preview Messaging** – Added "(Save post to see updated crop)" notice to preview title for clarity
+
+### Technical Notes
+- Event handler infrastructure in place (`cropThumbnailModalClosed`) but browser caching prevents immediate preview refresh
+- Documented preview refresh limitation in technical notes
+- Implemented user-friendly workaround with clear messaging instead of unreliable auto-refresh
+
+---
+
+## [2.5.2] – October 18, 2025
+
+### New Features
+- **Crop-Thumbnails Plugin Integration** – Replaced custom crop tool with proven third-party Crop-Thumbnails plugin (30k+ active installs) for professional image cropping interface. Users can now crop featured images to 4:3 ratio for grid/card display while keeping full images on single funeral pages.
+  - Solves portrait photo issues in grid layouts (heads being cut off)
+  - Professional crop editor with zoom, pan, and visual guides
+  - Mobile-friendly interface with undo/redo functionality
+  - No custom JavaScript bugs or coordinate calculation issues
+  - Custom button text: "Crop for Grid/Cards"
+
+### Bug Fixes
+- **Grid Crop Display** – Fixed cropped images not displaying in grid layouts (modern, elegant, shortcodes)
+- **Image Retrieval Method** – Changed from `get_the_post_thumbnail_url()` to `wp_get_attachment_image_url()` for proper crop size detection
+- **Custom Crop Tool Issues** – Removed buggy custom zoom crop coordinate calculations that caused image distortion
+- **Crop Preview Display** – Fixed side-by-side preview not showing cropped images by using PHP-generated URLs and AJAX refresh
+- **Event Handler Fix** – Corrected Crop-Thumbnails event from `cropThumbnailModalClose` to `cropThumbnailModalClosed` for proper preview refresh
+
+### Enhancements
+- **Side-by-Side Preview** – Shows both full image and cropped grid version in a comparison view below the crop button for instant visual feedback
+- **Improved Button Styling** – Crop-Thumbnails button now styled consistently with WordPress admin interface (blue button with proper spacing)
+- **Thumbnail Click Opens Crop** – Clicking the featured image thumbnail now opens the Crop-Thumbnails modal instead of media library for better UX
+- **Preview Update Messaging** – Clear instructions that users should save the post after cropping to see the updated preview (due to browser caching)
+- **Automatic Cache Purging** – Image crops now trigger cache purge automatically when Weave Cache Purge Helper plugin is active
+- **Crop-Thumbnails Configuration** – Added setup documentation in DEVELOPER.md for configuring which image sizes appear in crop modal (Settings → Crop-Thumbnails)
+- **Cache Integration Examples** – Added cache purge hook examples for WP Rocket, W3 Total Cache, and LiteSpeed Cache
+
+### Technical Notes
+- **Custom ImageCropHandler disabled** - Initialization commented out in `src/Plugin.php` to prevent conflicts
+- **Image size registration** - `wfn-grid-crop` (800x600, 4:3) now registered in `includes/class-acf.php` via `wfn_register_image_sizes()`
+- Crop-Thumbnails plugin provides all cropping functionality - no custom crop modal
+- Filter `crop_thumbnails_button_text` customizes button label to "Crop for Grid/Cards"
+- Filter `crop_thumbnails_image_sizes` explicitly exposes `wfn-grid-crop` to Crop-Thumbnails plugin
+- Filter `crop_thumbnails_size_label` provides friendly name "Grid Crop (4:3)" in crop interface
+- Action `crop_thumbnails_after_crop` triggers cache purge when Weave Cache Purge Helper is active
+- Generic action `wfn_after_image_crop` available for other cache plugin integrations
+- AJAX endpoint `wfn_get_image_urls` retrieves proper WordPress-generated URLs for both full and cropped sizes
+- Side-by-side comparison uses PHP-generated URLs passed to JavaScript for accurate image detection
+- **Preview refresh limitation**: Browser caching prevents instant preview updates after cropping; users must save post to see updated crop (event handler ready but timing/caching prevents immediate update)
+- User instructions updated to clarify that saving post is required to see updated preview
+- ImageCropHandler class preserved in codebase for reference but not instantiated
+
+---
+
 ## [2.5.1] – October 18, 2025
 
 ### UX Improvements

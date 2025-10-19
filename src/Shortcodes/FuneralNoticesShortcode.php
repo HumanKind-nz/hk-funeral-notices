@@ -943,11 +943,19 @@ class FuneralNoticesShortcode {
             $funeral_time = $event['funeral_time'];
 
             // Get image - use grid crop if available, fallback to medium size
-            $featured_image = get_the_post_thumbnail_url($post_id, 'wfn-grid-crop');
-            if (!$featured_image) {
-                // Fallback for images without grid crop (backward compatibility)
-                $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+            $thumbnail_id = get_post_thumbnail_id($post_id);
+            $featured_image = false;
+
+            if ($thumbnail_id) {
+                // Try to get the grid crop size first
+                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+
+                // If no grid crop exists, fall back to medium size
+                if (!$featured_image) {
+                    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'medium');
+                }
             }
+
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 
@@ -1044,11 +1052,19 @@ class FuneralNoticesShortcode {
             $funeral_time = $event['funeral_time'];
             
             // Get image - use grid crop if available, fallback to medium size
-            $featured_image = get_the_post_thumbnail_url($post_id, 'wfn-grid-crop');
-            if (!$featured_image) {
-                // Fallback for images without grid crop (backward compatibility)
-                $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
+            $thumbnail_id = get_post_thumbnail_id($post_id);
+            $featured_image = false;
+
+            if ($thumbnail_id) {
+                // Try to get the grid crop size first
+                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+
+                // If no grid crop exists, fall back to medium size
+                if (!$featured_image) {
+                    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'medium');
+                }
             }
+
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 

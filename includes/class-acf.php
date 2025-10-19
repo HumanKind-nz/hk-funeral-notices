@@ -297,6 +297,430 @@ function wfn_register_media_upload_hooks() {
 add_action('admin_init', 'wfn_register_media_upload_hooks');
 
 /**
+ * Customize Crop-Thumbnails plugin integration for funeral notices
+ *
+ * NOTE: Image size visibility (which sizes appear in crop modal) is configured
+ * via Crop-Thumbnails settings page at Settings → Crop-Thumbnails.
+ * For funeral notices, ensure only "Grid Crop (4:3)" is checked.
+ */
+
+/**
+ * Customize the crop button text for funeral notices
+ */
+function wfn_customize_crop_button_text($text) {
+    global $post;
+    if ($post && get_post_type($post) === 'funeral-notice') {
+        return __('Crop for Grid/Cards', 'hk-funeral-notices');
+    }
+    return $text;
+}
+add_filter('crop_thumbnails_button_text', 'wfn_customize_crop_button_text');
+
+/**
+ * Ensure wfn-grid-crop image size is available in Crop-Thumbnails
+ * This filter explicitly tells Crop-Thumbnails plugin about our custom image size
+ */
+function wfn_add_grid_crop_to_crop_thumbnails($sizes) {
+    // Make sure our grid crop size is in the list
+    if (!in_array('wfn-grid-crop', $sizes)) {
+        $sizes[] = 'wfn-grid-crop';
+    }
+    return $sizes;
+}
+add_filter('crop_thumbnails_image_sizes', 'wfn_add_grid_crop_to_crop_thumbnails');
+
+/**
+ * Add friendly name for wfn-grid-crop in Crop-Thumbnails interface
+ */
+function wfn_crop_thumbnails_size_label($size_name) {
+    if ($size_name === 'wfn-grid-crop') {
+        return 'Grid Crop (4:3)';
+    }
+    return $size_name;
+}
+add_filter('crop_thumbnails_size_label', 'wfn_crop_thumbnails_size_label');
+
+/**
+ * Trigger cache purge after cropping (if Weave Cache Purge Helper plugin is active)
+ */
+function wfn_purge_cache_after_crop($attachment_id) {
+    // If Weave Cache Purge Helper plugin is active, trigger purge
+    if (function_exists('weave_purge_post_cache')) {
+        // Get the post this image is attached to
+        $post_id = get_post_meta($attachment_id, '_thumbnail_id', true);
+        if ($post_id) {
+            weave_purge_post_cache($post_id);
+        }
+    }
+
+    // Trigger generic WordPress action for other cache plugins
+    do_action('wfn_after_image_crop', $attachment_id);
+}
+add_action('crop_thumbnails_after_crop', 'wfn_purge_cache_after_crop');
+
+/**
+ * Add CSS and JavaScript for Crop-Thumbnails button positioning and preview toggle
+ */
+function wfn_crop_thumbnails_styling() {
+    global $post_type, $post;
+
+    // Only apply to funeral notice post type
+    if ($post_type !== 'funeral-notice') return;
+
+    // Get featured image URLs for comparison
+    $thumbnail_id = get_post_thumbnail_id($post->ID ?? 0);
+    $full_size_url = '';
+    $grid_crop_url = '';
+
+    if ($thumbnail_id) {
+        $full_size_url = wp_get_attachment_image_url($thumbnail_id, 'full');
+        $grid_crop_url = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+    }
+
+    ?>
+    <style type="text/css">
+        /* Better positioning for Crop-Thumbnails button */
+        body.post-type-funeral-notice .cropFeaturedImageWrap {
+            margin: 10px 0 0 0 !important;
+            padding: 0 !important;
+        }
+
+        body.post-type-funeral-notice .cropThumbnailsLink {
+            display: inline-block;
+            text-decoration: none;
+            background: #2271b1;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 3px;
+            font-size: 13px;
+            line-height: 1.4;
+            transition: background-color 0.2s;
+        }
+
+        body.post-type-funeral-notice .cropThumbnailsLink:hover {
+            background: #135e96;
+            color: #fff;
+        }
+
+        body.post-type-funeral-notice .cropThumbnailsLink .wp-media-buttons-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            vertical-align: text-top;
+            margin-right: 5px;
+        }
+
+        /* Crop preview comparison */
+        body.post-type-funeral-notice .wfn-crop-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-preview-title {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d2327;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-comparison-item {
+            text-align: center;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-comparison-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #50575e;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-comparison-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            background: #fff;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-comparison-info {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-no-preview {
+            text-align: center;
+            padding: 30px;
+            background: #fff;
+            border: 2px dashed #ddd;
+            border-radius: 3px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        body.post-type-funeral-notice .wfn-crop-no-preview strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #1d2327;
+        }
+    </style>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // PHP-generated image URLs (if available)
+            var wfnImageUrls = {
+                fullSize: <?php echo json_encode($full_size_url); ?>,
+                gridCrop: <?php echo json_encode($grid_crop_url); ?>
+            };
+
+            // Override thumbnail click to open Crop-Thumbnails modal instead of media library
+            function setupThumbnailClickOverride() {
+                var $thumbnail = $('#postimagediv .inside img, #postimagediv .inside .components-button');
+
+                if ($thumbnail.length) {
+                    // Remove WordPress default click handlers
+                    $thumbnail.off('click.wp-media-featured-image');
+
+                    // Add custom click to trigger Crop-Thumbnails
+                    $('#postimagediv .inside').on('click', 'img, .components-button', function(e) {
+                        var $cropButton = $('.cropThumbnailsLink');
+                        if ($cropButton.length) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            $cropButton[0].click();
+                        }
+                    });
+                }
+            }
+
+            // Build side-by-side comparison preview
+            function buildCropComparison(bustCache) {
+                var $cropWrap = $('.cropFeaturedImageWrap');
+
+                if (!$cropWrap.length) {
+                    console.log('WFN: Crop wrap not found');
+                    return;
+                }
+
+                // Remove existing preview if any
+                $('.wfn-crop-preview').remove();
+
+                // Add cache busting parameter if requested (after cropping)
+                var cacheBuster = bustCache ? '?v=' + Date.now() : '';
+
+                console.log('WFN: Building comparison with bustCache=' + bustCache + ', cacheBuster=' + cacheBuster);
+
+                // Use PHP-generated URLs if available, otherwise show message
+                if (wfnImageUrls.fullSize && wfnImageUrls.gridCrop) {
+                    console.log('WFN: Full size URL:', wfnImageUrls.fullSize + cacheBuster);
+                    console.log('WFN: Grid crop URL:', wfnImageUrls.gridCrop + cacheBuster);
+
+                    // Show side-by-side comparison
+                    var fullImageUrl = wfnImageUrls.fullSize + cacheBuster;
+                    var gridCropUrl = wfnImageUrls.gridCrop + cacheBuster;
+
+                    var comparisonHtml = '<div class="wfn-crop-preview">' +
+                        '<div class="wfn-crop-preview-title">Image Preview Comparison <span style="font-size: 11px; font-weight: normal; color: #666;">(Save post to see updated crop)</span></div>' +
+                        '<div class="wfn-crop-comparison">' +
+                            '<div class="wfn-crop-comparison-item">' +
+                                '<span class="wfn-crop-comparison-label">Full Image (Single Page)</span>' +
+                                '<img src="' + fullImageUrl + '" class="wfn-crop-comparison-image" alt="Full size preview">' +
+                                '<div class="wfn-crop-comparison-info">Shows complete image on funeral page</div>' +
+                            '</div>' +
+                            '<div class="wfn-crop-comparison-item">' +
+                                '<span class="wfn-crop-comparison-label">Cropped Version (Grid/Cards)</span>' +
+                                '<img src="' + gridCropUrl + '" class="wfn-crop-comparison-image" alt="Cropped preview">' +
+                                '<div class="wfn-crop-comparison-info">4:3 ratio for grid and card layouts</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+
+                    $cropWrap.after(comparisonHtml);
+                } else if (wfnImageUrls.fullSize && !wfnImageUrls.gridCrop) {
+                    // Has full image but no crop yet
+                    console.log('WFN: No grid crop found yet');
+
+                    var noCropHtml = '<div class="wfn-crop-preview">' +
+                        '<div class="wfn-crop-preview-title">Crop Preview</div>' +
+                        '<div class="wfn-crop-no-preview">' +
+                            '<strong>No cropped version yet</strong>' +
+                            'Click "Crop for Grid/Cards" above to create a 4:3 cropped version for grid and card layouts. ' +
+                            '<em>Save the post after cropping to see the updated preview.</em>' +
+                        '</div>' +
+                    '</div>';
+
+                    $cropWrap.after(noCropHtml);
+                } else {
+                    // No featured image set yet
+                    console.log('WFN: No featured image set');
+                }
+            }
+
+            // Initialize on page load
+            function initializeCropFeatures() {
+                var $featuredImageDiv = $('#postimagediv .inside');
+
+                if ($featuredImageDiv.length && $featuredImageDiv.find('img').length) {
+                    // Setup thumbnail click override
+                    setupThumbnailClickOverride();
+
+                    // Build comparison preview
+                    buildCropComparison();
+                }
+            }
+
+            // Run initialization after short delay for page load
+            setTimeout(initializeCropFeatures, 1000);
+
+            // Refresh image URLs after media selection or cropping
+            function refreshImageUrls(callback) {
+                var postId = $('#post_ID').val();
+                if (!postId) {
+                    console.log('WFN: No post ID found');
+                    if (callback) callback();
+                    return;
+                }
+
+                // Get the thumbnail ID from the WordPress featured image
+                var $img = $('#postimagediv .inside img');
+                if (!$img.length) {
+                    console.log('WFN: No featured image found');
+                    wfnImageUrls.fullSize = '';
+                    wfnImageUrls.gridCrop = '';
+                    if (callback) callback();
+                    return;
+                }
+
+                // Extract attachment ID from img element classes (WordPress adds attachment-{ID} class)
+                var classes = $img.attr('class');
+                var attachmentIdMatch = classes.match(/wp-post-image-(\d+)/);
+                var thumbnailId = $('#_thumbnail_id').val(); // Try hidden input first
+
+                if (!thumbnailId && attachmentIdMatch) {
+                    thumbnailId = attachmentIdMatch[1];
+                }
+
+                console.log('WFN: Thumbnail ID:', thumbnailId);
+
+                // Use WordPress AJAX to get proper image URLs
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'wfn_get_image_urls',
+                        thumbnail_id: thumbnailId,
+                        nonce: '<?php echo wp_create_nonce('wfn_get_image_urls'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            wfnImageUrls.fullSize = response.data.full_size || '';
+                            wfnImageUrls.gridCrop = response.data.grid_crop || '';
+                            console.log('WFN: Updated URLs - Full:', wfnImageUrls.fullSize, 'Crop:', wfnImageUrls.gridCrop);
+                        }
+                        if (callback) callback();
+                    },
+                    error: function() {
+                        console.log('WFN: Error refreshing image URLs');
+                        if (callback) callback();
+                    }
+                });
+            }
+
+            // Hook into WordPress media frame events to detect when featured image is set
+            if (typeof wp !== 'undefined' && wp.media) {
+                wp.media.featuredImage.frame().on('select', function() {
+                    console.log('WFN: Featured image selected, refreshing URLs');
+                    setTimeout(function() {
+                        refreshImageUrls(function() {
+                            setupThumbnailClickOverride();
+                            buildCropComparison();
+                        });
+                    }, 1000);
+                });
+            }
+
+            // Re-setup when image changes via buttons
+            $(document).on('click', '#set-post-thumbnail, #remove-post-thumbnail', function() {
+                setTimeout(function() {
+                    refreshImageUrls(function() {
+                        setupThumbnailClickOverride();
+                        buildCropComparison();
+                    });
+                }, 1000);
+            });
+
+            // Rebuild comparison when returning from crop modal
+            // Note: Crop-Thumbnails plugin triggers 'cropThumbnailModalClosed' event on body
+            $('body').on('cropThumbnailModalClosed', function() {
+                console.log('WFN: *** Crop modal closed event detected ***, refreshing preview in 1.5s');
+
+                // Show temporary loading indicator
+                $('.wfn-crop-preview').html('<div class="wfn-crop-preview-title">Refreshing preview...</div>');
+
+                setTimeout(function() {
+                    console.log('WFN: Starting image URL refresh');
+                    refreshImageUrls(function() {
+                        console.log('WFN: URLs refreshed, rebuilding comparison with cache busting');
+                        // Pass true to bust cache after cropping
+                        buildCropComparison(true);
+                    });
+                }, 1500); // Slightly longer delay to ensure crop file is written
+            });
+
+            // Fallback: Also listen for clicks on the modal close button and backdrop
+            // In case the cropThumbnailModalClosed event doesn't fire
+            $(document).on('click', '.crop-thumbnails-modal-close, .crop-thumbnails-modal-backdrop', function() {
+                console.log('WFN: Modal close button clicked (fallback detection)');
+                setTimeout(function() {
+                    refreshImageUrls(function() {
+                        buildCropComparison(true);
+                    });
+                }, 2000);
+            });
+        });
+    </script>
+    <?php
+}
+add_action('admin_head-post.php', 'wfn_crop_thumbnails_styling');
+add_action('admin_head-post-new.php', 'wfn_crop_thumbnails_styling');
+
+/**
+ * AJAX handler to get image URLs for comparison preview
+ */
+function wfn_ajax_get_image_urls() {
+    // Verify nonce
+    check_ajax_referer('wfn_get_image_urls', 'nonce');
+
+    $thumbnail_id = intval($_POST['thumbnail_id'] ?? 0);
+
+    if (!$thumbnail_id) {
+        wp_send_json_error(['message' => 'No thumbnail ID provided']);
+    }
+
+    // Get image URLs
+    $full_size_url = wp_get_attachment_image_url($thumbnail_id, 'full');
+    $grid_crop_url = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+
+    // Return URLs
+    wp_send_json_success([
+        'full_size' => $full_size_url ?: '',
+        'grid_crop' => $grid_crop_url ?: ''
+    ]);
+}
+add_action('wp_ajax_wfn_get_image_urls', 'wfn_ajax_get_image_urls');
+
+/**
  * Enqueue post editor JavaScript for funeral notices
  */
 function wfn_enqueue_post_editor_scripts($hook) {
@@ -805,12 +1229,17 @@ add_action('admin_head', 'oneroom_fields_show_hide');
 
 
 /**
- * Add a new image size: funeral-image
+ * Register custom image sizes for funeral notices
  */
-function add_funeral_image_size() {
+function wfn_register_image_sizes() {
+	// Legacy 1:1 square size (500x500)
 	add_image_size( 'funeral-image', 500, 500, true );
+
+	// Grid crop size for card/grid layouts (4:3 ratio, 800x600)
+	// Used by Crop-Thumbnails plugin
+	add_image_size( 'wfn-grid-crop', 800, 600, true );
 }
-add_action( 'init', 'add_funeral_image_size' );
+add_action( 'init', 'wfn_register_image_sizes' );
 
 function remove_editor_buttons_from_funeral_notice_editor($settings, $editor_id) {
 	if (function_exists('get_current_screen') && get_current_screen()->post_type === 'funeral-notice') {

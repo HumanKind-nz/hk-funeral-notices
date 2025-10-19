@@ -302,6 +302,13 @@ class ImageCropHandler {
             $cropped_image['path']
         ));
 
+        // Trigger cache purge if Weave Cache Purge Helper is active
+        // This ensures grid pages show the new cropped image immediately
+        if (function_exists('wcph_direct_purge')) {
+            wcph_direct_purge();
+            error_log('WFN Image Crop: Cache purge triggered after successful crop');
+        }
+
         wp_send_json_success([
             'message' => 'Crop saved successfully',
             'crop_data' => $crop_data,
