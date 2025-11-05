@@ -229,6 +229,24 @@ class Plugin {
             ]);
         }
 
+        // Enqueue social share assets on single funeral notice pages
+        if (is_singular('funeral-notice')) {
+            wp_enqueue_style(
+                'wfn-social-share',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/css/social-share.css',
+                [],
+                '2.4.0'
+            );
+
+            wp_enqueue_script(
+                'wfn-social-share',
+                plugin_dir_url(dirname(__FILE__)) . 'assets/js/social-share.js',
+                [],
+                '2.4.0',
+                true
+            );
+        }
+
         // Other assets are enqueued conditionally by individual layout renderers
         // This keeps the system lightweight
     }

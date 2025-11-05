@@ -390,6 +390,79 @@ class TemplateManager {
                 'service_sheet' => $this->get_service_sheet_data($post_id),
                 'video_slideshow' => $this->get_video_slideshow_data($post_id),
                 'additional' => $this->get_additional_documents($post_id)
+            ],
+            'share' => $this->get_share_data($post_id)
+        ];
+    }
+
+    /**
+     * Get share data for social sharing
+     *
+     * @param int $post_id
+     * @return array Share data including URL, message template, and metadata
+     * @since 2.4.0
+     */
+    public function get_share_data(int $post_id): array {
+        // Get settings
+        $settings = get_option('wfn_module_settings', []);
+        $message_template = $settings['social_share_message'] ?? 'Please join us in remembering {fullname}\'s funeral service on {date}';
+
+        // Get person details
+        $person_group = get_field('wfn_person_group', $post_id) ?: [];
+        $first_name = $person_group['firstname'] ?? get_field('wfn_person_group_firstname', $post_id) ?? '';
+        $last_name = $person_group['lastname'] ?? get_field('wfn_person_group_lastname', $post_id) ?? '';
+        $full_name = trim("{$first_name} {$last_name}");
+
+        // Get event details
+        $details_group = get_field('wfn_details_group', $post_id) ?: [];
+        $funeral_date = $details_group['funeral_date'] ?? get_field('wfn_details_group_funeral_date', $post_id) ?? '';
+        $funeral_time = $details_group['funeral_time'] ?? get_field('wfn_details_group_funeral_time', $post_id) ?? '';
+
+        // Get location
+        $location_type = $details_group['location_type'] ?? get_field('wfn_details_group_location_type', $post_id) ?? null;
+        $location_taxonomy = $details_group['location'] ?? get_field('wfn_details_group_location', $post_id) ?? null;
+        $location_name = '';
+
+        if ($location_taxonomy) {
+            if (is_object($location_taxonomy)) {
+                $location_name = $location_taxonomy->name;
+            } else {
+                $location_term = get_term($location_taxonomy, 'funeral-location');
+                if ($location_term && !is_wp_error($location_term)) {
+                    $location_name = $location_term->name;
+                }
+            }
+        }
+
+        // Format date and time for display
+        $formatted_date = $funeral_date ? date('M j, Y', strtotime($funeral_date)) : '';
+        $formatted_time = $funeral_time ? date('g:i A', strtotime($funeral_time)) : '';
+
+        // Replace template variables in message
+        $message = str_replace(
+            ['{fullname}', '{firstname}', '{lastname}', '{date}', '{time}', '{location}'],
+            [$full_name, $first_name, $last_name, $formatted_date, $formatted_time, $location_name],
+            $message_template
+        );
+
+        // Clean up message: remove empty variables and fix spacing
+        $message = preg_replace('/\s+/', ' ', $message); // Multiple spaces to single
+        $message = preg_replace('/\s+([.,!?])/', '$1', $message); // Remove space before punctuation
+        $message = trim($message);
+
+        return [
+            'url' => get_permalink($post_id),
+            'title' => $full_name,
+            'message' => $message,
+            'person' => [
+                'full_name' => $full_name,
+                'first_name' => $first_name,
+                'last_name' => $last_name
+            ],
+            'event' => [
+                'date' => $formatted_date,
+                'time' => $formatted_time,
+                'location' => $location_name
             ]
         ];
     }

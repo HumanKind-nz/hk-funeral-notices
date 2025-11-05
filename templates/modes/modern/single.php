@@ -25,6 +25,7 @@ $streaming = $data['streaming'];
 $location = $data['location'];
 $image = $data['image'];
 $tribute = $data['tribute'];
+$share = $data['share'];
 ?>
 
 <div class="wfn-modern-single">
@@ -75,7 +76,17 @@ $tribute = $data['tribute'];
         <!-- Service Information -->
         <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
             <div class="wfn-modern-service">
-                <h2 class="wfn-modern-section-title">Service Information</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="wfn-modern-section-title" style="margin: 0;">Service Information</h2>
+                    <button class="wfn-share-button"
+                            data-url="<?php echo esc_attr($share['url']); ?>"
+                            data-title="<?php echo esc_attr($share['title']); ?>"
+                            data-message="<?php echo esc_attr($share['message']); ?>"
+                            aria-label="Share this funeral notice">
+                        <?php echo wfn_get_share_icon('', 18); ?>
+                        <span>Share</span>
+                    </button>
+                </div>
                 <div class="wfn-modern-service-details">
                     <?php if ($event['formatted_date']): ?>
                         <div class="wfn-modern-detail">

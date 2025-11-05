@@ -24,6 +24,10 @@ $streaming = $data['streaming'];
 $location = $data['location'];
 $image = $data['image'];
 $tribute = $data['tribute'];
+$share = $data['share'];
+
+// Load SVG icon functions
+require_once __DIR__ . '/../../partials/svg-icons.php';
 ?>
 
 <div class="firehawk-crm firehawk-single-page">
@@ -141,7 +145,17 @@ $tribute = $data['tribute'];
             <!-- Service Details -->
             <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
                 <div class="firehawk-service-section">
-                    <h3 class="firehawk-section-title">Service Details</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 class="firehawk-section-title" style="margin: 0;">Service Details</h3>
+                        <button class="wfn-share-button"
+                                data-url="<?php echo esc_attr($share['url']); ?>"
+                                data-title="<?php echo esc_attr($share['title']); ?>"
+                                data-message="<?php echo esc_attr($share['message']); ?>"
+                                aria-label="Share this funeral notice">
+                            <?php echo wfn_get_share_icon('', 18); ?>
+                            <span>Share</span>
+                        </button>
+                    </div>
                     <div class="firehawk-service-details">
                         <?php if ($event['formatted_date']): ?>
                             <div class="firehawk-detail-row">

@@ -4,6 +4,35 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.0] – November 5, 2025
+
+### New Feature
+- **Social Share** – Added social sharing buttons to single funeral notice pages with support for Facebook, Email, SMS, and WhatsApp. Uses Web Share API on mobile with fallback menu on desktop.
+
+---
+
+## [2.5.4] – October 20, 2025
+
+### CRITICAL Bug Fixes
+- **🚨 VIDEO DELETION INCIDENT FIX** – Disabled automatic video maintenance system that caused catastrophic video deletion across all sites on 2025-10-20
+  - Removed automatic weekly cron job `wfn_video_maintenance` that ran `cleanup_orphaned_videos()`
+  - Removed maintenance UI from admin interface completely
+  - Disabled all AJAX handlers for maintenance tasks
+  - Added emergency disable constant: `WFN_DISABLE_AUTO_VIDEO_CLEANUP`
+  - Root cause: Maintenance only checked current site's database for video IDs, causing videos from other sites to appear "orphaned" and be deleted from shared Bunny library
+
+### New Tools
+- **cleanup-broken-video-references.php** – Script to remove WordPress metadata for videos that no longer exist in BunnyStream
+  - Safely removes broken video references without touching actual videos
+  - Hides video buttons on frontend for missing videos
+  - Requires confirmation before proceeding
+  - Generates cleanup log and CSV export
+
+### Breaking Changes
+- **Manual cleanup only** – Video maintenance must now be triggered manually via WP-CLI scripts, not automatic cron jobs
+
+---
+
 ## [2.5.3] – October 19, 2025
 
 ### Bug Fixes

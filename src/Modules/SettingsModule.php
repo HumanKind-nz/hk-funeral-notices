@@ -41,6 +41,7 @@ class SettingsModule extends BaseModule {
         'default_memorial_header' => 'In loving memory of',
         'noindex_funeral_notices' => false,
         'social_share_image' => '',
+        'social_share_message' => 'Please join us in remembering {fullname}\'s funeral service on {date}',
         'seo_title_suffix' => ' - Funeral Notice',
         'default_venue_location' => ''
     ];
@@ -404,7 +405,26 @@ class SettingsModule extends BaseModule {
                             <em>Legacy: URLs without placeholders will have ?tribute=First+Last automatically appended</em>
                         </p>
                     </div>
-                    
+
+                    <div class="wfn-form-group">
+                        <label for="social_share_message">Social Share Message Template</label>
+                        <textarea name="wfn_module_settings[social_share_message]"
+                                  id="social_share_message"
+                                  rows="3"
+                                  class="wfn-wide-input"
+                                  placeholder="Please join us in remembering {fullname}'s funeral service on {date}"><?php echo esc_textarea($settings['social_share_message']); ?></textarea>
+                        <p class="wfn-form-description">
+                            Message template for social sharing. Available placeholders:<br>
+                            <strong>{fullname}</strong> - person's full name<br>
+                            <strong>{firstname}</strong> - person's first name<br>
+                            <strong>{lastname}</strong> - person's last name<br>
+                            <strong>{date}</strong> - funeral service date<br>
+                            <strong>{time}</strong> - funeral service time<br>
+                            <strong>{location}</strong> - funeral service location<br>
+                            Empty placeholders will be removed automatically from the final message.
+                        </p>
+                    </div>
+
                     <div class="wfn-form-group">
                         <label class="wfn-toggle-switch">
                             <input type="checkbox"
@@ -743,6 +763,10 @@ class SettingsModule extends BaseModule {
         // Social share image validation
         $social_image = trim($settings['social_share_image'] ?? '');
         $sanitized['social_share_image'] = !empty($social_image) && filter_var($social_image, FILTER_VALIDATE_URL) ? $social_image : '';
+
+        // Social share message validation
+        $share_message = trim($settings['social_share_message'] ?? 'Please join us in remembering {fullname}\'s funeral service on {date}');
+        $sanitized['social_share_message'] = !empty($share_message) ? sanitize_textarea_field($share_message) : 'Please join us in remembering {fullname}\'s funeral service on {date}';
 
         // Location name validation
         $location_name = trim($settings['location_name'] ?? '');

@@ -82,10 +82,10 @@ class VideoModule extends BaseModule {
         add_action('wp_ajax_wfn_video_delete', [$this, 'ajax_delete_video']);
         add_action('wp_ajax_wfn_video_replace', [$this, 'ajax_replace_video']);
 
-        // Ajax handlers for maintenance tasks
-        add_action('wp_ajax_wfn_run_video_maintenance', [$this, 'ajax_run_maintenance']);
-        add_action('wp_ajax_wfn_cleanup_orphaned_videos', [$this, 'ajax_cleanup_orphaned_videos']);
-        add_action('wp_ajax_wfn_cleanup_stuck_uploads', [$this, 'ajax_cleanup_stuck_uploads']);
+        // REMOVED: Ajax handlers for maintenance tasks (feature permanently disabled after incident)
+        // add_action('wp_ajax_wfn_run_video_maintenance', [$this, 'ajax_run_maintenance']);
+        // add_action('wp_ajax_wfn_cleanup_orphaned_videos', [$this, 'ajax_cleanup_orphaned_videos']);
+        // add_action('wp_ajax_wfn_cleanup_stuck_uploads', [$this, 'ajax_cleanup_stuck_uploads']);
 
         // Manual trigger for testing/debugging
         add_action('wp_ajax_wfn_manual_process_video', [$this, 'ajax_manual_process_video']);
@@ -99,17 +99,29 @@ class VideoModule extends BaseModule {
 
         // Cleanup hooks
         add_action('before_delete_post', [$this, 'cleanup_video_on_post_delete']);
-        add_action('wfn_cleanup_failed_uploads', [$this, 'cleanup_failed_uploads']);
-        add_action('wfn_video_maintenance', [$this, 'run_scheduled_maintenance']);
+        // DISABLED: Automatic cleanup caused catastrophic video deletion across all sites
+        // add_action('wfn_cleanup_failed_uploads', [$this, 'cleanup_failed_uploads']);
+        // add_action('wfn_video_maintenance', [$this, 'run_scheduled_maintenance']);
 
-        // Schedule cleanup if not already scheduled
-        if (!wp_next_scheduled('wfn_cleanup_failed_uploads')) {
-            wp_schedule_event(time(), 'daily', 'wfn_cleanup_failed_uploads');
-        }
+        // DISABLED: Schedule cleanup if not already scheduled
+        // Safety: Removed automatic scheduling after incident where orphaned video cleanup
+        // deleted all videos from BunnyStream on 2025-10-20. Manual cleanup only via admin.
+        // if (!wp_next_scheduled('wfn_cleanup_failed_uploads')) {
+        //     wp_schedule_event(time(), 'daily', 'wfn_cleanup_failed_uploads');
+        // }
 
-        // Schedule comprehensive maintenance (weekly)
-        if (!wp_next_scheduled('wfn_video_maintenance')) {
-            wp_schedule_event(time(), 'weekly', 'wfn_video_maintenance');
+        // DISABLED: Schedule comprehensive maintenance (weekly)
+        // if (!wp_next_scheduled('wfn_video_maintenance')) {
+        //     wp_schedule_event(time(), 'weekly', 'wfn_video_maintenance');
+        // }
+
+        // Clear any existing schedules (cleanup from old installs)
+        if (defined('WFN_DISABLE_AUTO_VIDEO_CLEANUP') && WFN_DISABLE_AUTO_VIDEO_CLEANUP) {
+            $timestamp = wp_next_scheduled('wfn_cleanup_failed_uploads');
+            if ($timestamp) wp_unschedule_event($timestamp, 'wfn_cleanup_failed_uploads');
+
+            $timestamp = wp_next_scheduled('wfn_video_maintenance');
+            if ($timestamp) wp_unschedule_event($timestamp, 'wfn_video_maintenance');
         }
 
         // Frontend hooks for displaying videos
@@ -961,7 +973,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         <?php $this->render_video_statistics(); ?>
 
         <!-- Maintenance Controls -->
-        <?php $this->render_maintenance_controls(); ?>
+        <?php // REMOVED: Maintenance UI disabled after 2025-10-20 incident - manual-only cleanup via scripts ?>
+        <?php // $this->render_maintenance_controls(); ?>
         <?php
     }
 

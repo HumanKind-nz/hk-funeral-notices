@@ -26,6 +26,7 @@ $location = $data['location'];
 $image = $data['image'];
 $tribute = $data['tribute'];
 $documents = $data['documents'];
+$share = $data['share'];
 
 // Legacy: Get post content
 $post_content = get_the_content();
@@ -133,7 +134,17 @@ $post_content = get_the_content();
 
                 <?php if (($event['formatted_date'] || $event['formatted_time']) && !$event['hide_time']): ?>
                     <div class="wfn-current-when">
-                        <h3>WHEN</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h3 style="margin: 0;">WHEN</h3>
+                            <button class="wfn-share-button"
+                                    data-url="<?php echo esc_attr($share['url']); ?>"
+                                    data-title="<?php echo esc_attr($share['title']); ?>"
+                                    data-message="<?php echo esc_attr($share['message']); ?>"
+                                    aria-label="Share this funeral notice">
+                                <?php echo wfn_get_share_icon('', 18); ?>
+                                <span>Share</span>
+                            </button>
+                        </div>
                         <div class="wfn-service-datetime">
                             <?php if ($event['formatted_date']): ?>
                                 <span class="wfn-service-date"><?php echo esc_html($event['formatted_date']); ?></span>
