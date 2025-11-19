@@ -4,6 +4,13 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.1] – November 19, 2025
+
+### Bug Fixes
+- **Social Share Escaping** – Fixed excessive backslash escaping in email/SMS share messages (e.g., "Mangan\\\\\\\\'s" now displays correctly as "Mangan's") by using `wp_unslash()` to remove WordPress-added slashes before output
+
+---
+
 ## [2.6.0] – November 5, 2025
 
 ### New Feature
