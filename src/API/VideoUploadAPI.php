@@ -478,69 +478,33 @@ class VideoUploadAPI extends WP_REST_Controller {
     /**
      * Cleanup abandoned upload sessions
      *
-     * Runs via cron to clean up sessions that were started but never completed.
-     * Removes session metadata and optionally deletes video entries from Bunny.
+     * ⚠️ DEPRECATED AND DISABLED - November 21, 2025
+     *
+     * This function was permanently disabled after the third video deletion incident.
+     * Automatic cleanup is too dangerous for irreplaceable memorial content.
+     *
+     * INCIDENT TIMELINE:
+     * - Oct 20, 2025: First deletion incident (VideoModule cleanup)
+     * - Nov 21, 2025 (AM): Second deletion incident (Lychgate video)
+     * - Nov 21, 2025 (6:44 AM cron): Third deletion incident (ALL videos)
+     *
+     * ROOT CAUSE: This function deletes videos from shared Bunny library without
+     * checking which collection they belong to. All 20 sites share library 499405,
+     * so one site's cleanup can delete other sites' videos.
+     *
+     * SAFE ALTERNATIVES:
+     * - Manual cleanup via admin Video Management page
+     * - Contact support for assistance with stuck uploads
      *
      * @param int $max_age_hours Maximum age in hours for abandoned sessions (default: 24)
+     * @deprecated Since v2.6.4 - Permanently disabled for safety
      */
     public function cleanup_abandoned_uploads(int $max_age_hours = 24): void {
-        global $wpdb;
-
-        $cutoff_time = date('Y-m-d H:i:s', strtotime("-{$max_age_hours} hours"));
-
-        // Find all posts with abandoned upload sessions
-        $results = $wpdb->get_results($wpdb->prepare("
-            SELECT post_id, meta_value
-            FROM {$wpdb->postmeta}
-            WHERE meta_key = '_wfn_video_upload_session'
-            AND post_id IN (
-                SELECT ID FROM {$wpdb->posts}
-                WHERE post_type = 'funeral-notice'
-            )
-        "));
-
-        $cleaned = 0;
-        $errors = 0;
-
-        foreach ($results as $row) {
-            $session = maybe_unserialize($row->meta_value);
-
-            // Skip if not an array or already completed
-            if (!is_array($session) || ($session['status'] ?? '') === 'completed') {
-                continue;
-            }
-
-            // Check if session is older than cutoff
-            $started_at = $session['started_at'] ?? '';
-            if (empty($started_at) || $started_at > $cutoff_time) {
-                continue;
-            }
-
-            // Session is abandoned - clean it up
-            $post_id = (int) $row->post_id;
-            $video_id = $session['video_id'] ?? '';
-
-            // Delete video from Bunny if it exists but wasn't completed
-            if (!empty($video_id)) {
-                $delete_result = $this->bunny_service->delete_video($video_id);
-                if (!$delete_result['success']) {
-                    error_log("Failed to delete abandoned Bunny video {$video_id}: " . ($delete_result['message'] ?? 'Unknown error'));
-                    $errors++;
-                }
-            }
-
-            // Remove session metadata
-            delete_post_meta($post_id, '_wfn_video_upload_session');
-            $cleaned++;
-
-            if (defined('WFN_DEBUG') && WFN_DEBUG) {
-                error_log("Cleaned up abandoned upload session for post {$post_id}, video {$video_id}");
-            }
-        }
-
-        if ($cleaned > 0 || $errors > 0) {
-            error_log("WFN Upload Cleanup: Cleaned {$cleaned} abandoned sessions, {$errors} errors");
-        }
+        // PERMANENTLY DISABLED - Too dangerous for production
+        error_log('WFN: cleanup_abandoned_uploads() called but permanently disabled for safety (v2.6.4)');
+        error_log('WFN: Automatic video cleanup disabled due to data loss incidents in Oct/Nov 2025');
+        error_log('WFN: Use manual cleanup via admin interface if needed');
+        return; // Early exit - function does nothing
     }
 
     /**
@@ -594,54 +558,27 @@ class VideoUploadAPI extends WP_REST_Controller {
     /**
      * Clean up video from Bunny when post is deleted
      *
-     * Only deletes videos that were uploaded by the current site.
-     * This prevents accidental deletion when posts are migrated between sites.
+     * ⚠️ DEPRECATED AND DISABLED - November 21, 2025
+     *
+     * This function was permanently disabled after the third video deletion incident.
+     * Automatic cleanup is too dangerous for irreplaceable memorial content.
+     *
+     * RISK: The "backward compatibility" fallback (line 589) assumes current site owns
+     * videos without source_site metadata. With 20 sites sharing library 499405, this
+     * could cause one site to delete another site's videos during post cleanup.
+     *
+     * SAFE ALTERNATIVE: Users should manually delete videos via the "Remove Video"
+     * button before deleting posts if needed.
      *
      * @param int $post_id Post ID being deleted
+     * @deprecated Since v2.6.4 - Permanently disabled for safety
      */
     public function cleanup_video_on_post_delete(int $post_id): void {
-        // Only process funeral notice posts
-        if (get_post_type($post_id) !== 'funeral-notice') {
-            return;
-        }
-
-        // Get video ID
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
-
-        if (empty($video_id)) {
-            return; // No video to delete
-        }
-
-        // Check if this site uploaded the video (migration safety)
-        $source_site = get_post_meta($post_id, '_wfn_bunny_video_source_site', true);
-        $current_site = get_site_url();
-
-        if (!empty($source_site) && $source_site !== $current_site) {
-            error_log("WFN: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
-            return;
-        }
-
-        // If no source site is recorded, assume current site owns it (backward compatibility)
-        if (empty($source_site)) {
-            error_log("WFN: No source site recorded for video {$video_id} - assuming current site ownership for backward compatibility");
-        }
-
-        // Delete video from Bunny CDN
-        $delete_result = $this->bunny_service->delete_video($video_id);
-
-        if ($delete_result['success']) {
-            error_log("WFN: Successfully deleted video {$video_id} from Bunny CDN when deleting post {$post_id}");
-        } else {
-            error_log("WFN: Failed to delete video {$video_id} from Bunny CDN when deleting post {$post_id}: " . ($delete_result['message'] ?? 'Unknown error'));
-        }
-
-        // Also clean up any incomplete upload session
-        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
-        if (is_array($session) && !empty($session['video_id']) && $session['video_id'] !== $video_id) {
-            // There's a different video in the session (incomplete upload)
-            $this->bunny_service->delete_video($session['video_id']);
-            error_log("WFN: Also cleaned up incomplete upload session video {$session['video_id']} from Bunny CDN");
-        }
+        // PERMANENTLY DISABLED - Too dangerous for production
+        error_log('WFN: cleanup_video_on_post_delete() called but permanently disabled for safety (v2.6.4)');
+        error_log("WFN: Post {$post_id} is being deleted, but automatic video cleanup is disabled");
+        error_log('WFN: Users should manually delete videos before deleting posts if needed');
+        return; // Early exit - function does nothing
     }
 
     /**

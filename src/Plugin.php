@@ -112,9 +112,16 @@ class Plugin {
         // Register REST API routes
         add_action('rest_api_init', [$this, 'register_rest_routes']);
 
-        // Schedule upload cleanup cron
-        if (!wp_next_scheduled('wfn_cleanup_abandoned_uploads')) {
-            wp_schedule_event(time(), 'daily', 'wfn_cleanup_abandoned_uploads');
+        // Schedule upload cleanup cron - DISABLED v2.6.4 (Nov 21, 2025)
+        // REASON: Automatic cleanup too dangerous - caused 3 video deletion incidents
+        // if (!wp_next_scheduled('wfn_cleanup_abandoned_uploads')) {
+        //     wp_schedule_event(time(), 'daily', 'wfn_cleanup_abandoned_uploads');
+        // }
+
+        // Unschedule any existing cleanup crons (v2.6.4 safety measure)
+        $timestamp = wp_next_scheduled('wfn_cleanup_abandoned_uploads');
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'wfn_cleanup_abandoned_uploads');
         }
 
         // Register template loading hooks

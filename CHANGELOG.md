@@ -4,9 +4,9 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
-## [2.6.3] – November 21, 2025
+## [2.6.4] – November 21, 2025
 
-### 🚨 CRITICAL FIX - Permanently Disable Automatic Video Cleanup
+### BUG FIX - Permanently Disable Automatic Video Cleanup
 
 **Second incident:** Another video deletion occurred Nov 21, affecting Lychgate. This release permanently disables all automatic video cleanup.
 
@@ -14,22 +14,23 @@ This changelog summarises the key improvements, fixes, and features added to the
 - **Disabled 3 cleanup functions** - `cleanup_orphaned_videos()`, `run_maintenance()`, `run_scheduled_maintenance()` now return immediately and do nothing
 - **Why:** Videos are irreplaceable memorial content. Automated deletion is too dangerous.
 - **Safe operations preserved:** Manual delete button still works (one video at a time). Post deletion hook still works.
+- **Disabled 2 more cleanup functions** in `VideoUploadAPI.php`:
+- `cleanup_abandoned_uploads()` - Ran daily via cron, deleted incomplete uploads
+- `cleanup_video_on_post_delete()` - Ran when posts deleted
 
 ### Breaking Changes
 - ❌ Automatic video cleanup is permanently disabled
 - ✅ Manual deletion via post editor still works
 - ✅ Collection deletion for churned customers still available (manual only)
 
-### Deployment
-Deploy to all sites and delete any remaining crons:
-```bash
-wp cron event delete wfn_video_maintenance
-wp cron event delete wfn_cleanup_failed_uploads
-```
+### Auto-Cleanup Feature
+- Plugin now automatically unschedules `wfn_cleanup_abandoned_uploads` cron on every load
+- No manual cron deletion needed after v2.6.4 deploymentvent delete wfn_cleanup_failed_uploads
 
 ### Files Modified
 - `src/Modules/VideoModule.php` - 3 cleanup functions disabled
-- Added documentation: `SAFE-VIDEO-CLEANUP-PROCESS.md`
+- `src/API/VideoUploadAPI.php` - 2 cleanup functions disabled
+- `src/Plugin.php` - Auto-scheduling of cleanup cron disabled + auto-unscheduling added
 
 ---
 
