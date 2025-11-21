@@ -719,3 +719,44 @@
 .acf-field[data-name="video_slideshow"] .wfn-video-upload {
     margin-top: 0;
 }
+
+/* Delete Video Button Styling */
+.wfn-delete-video-btn.button-link-delete {
+    color: #d63638 !important;
+    text-decoration: none;
+    padding: 5px 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.wfn-delete-video-btn.button-link-delete:hover,
+.wfn-delete-video-btn.button-link-delete:focus {
+    color: #b32d2e !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.wfn-delete-video-btn.button-link-delete:active {
+    color: #8a2424 !important;
+}
+
+.wfn-delete-video-btn.button-link-delete .dashicons,
+.wfn-delete-video-btn.button-link-delete .dashicons::before {
+    color: inherit;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.wfn-delete-video-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

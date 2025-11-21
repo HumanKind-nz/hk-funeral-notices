@@ -1259,31 +1259,79 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
     /**
      * Clean up orphaned videos (videos in Bunny Stream with no corresponding WordPress post)
+     *
+     * ⚠️ DEPRECATED AND DISABLED - November 2025
+     *
+     * This function is too dangerous for production use. It has caused multiple incidents
+     * of accidental video deletion across shared library configurations.
+     *
+     * INCIDENTS:
+     * - October 20, 2025: Deleted all videos from Gee & Hickton
+     * - November 21, 2025: Deleted videos from Lychgate
+     *
+     * REPLACEMENT: Use manual admin review tool for orphaned video management.
+     * Videos are precious, irreplaceable memorial content. Automated deletion is unacceptable risk.
+     *
+     * @deprecated 2.5.3 Use manual cleanup via admin dashboard only
+     * @return array Empty result - function disabled
      */
     public function cleanup_orphaned_videos(): array {
         $results = [
             'found' => 0,
             'deleted' => 0,
             'errors' => 0,
-            'messages' => []
+            'messages' => ['⚠️ AUTOMATIC CLEANUP PERMANENTLY DISABLED - Use manual admin review instead']
         ];
 
-        try {
-            // Get all videos from Bunny Stream
-            $bunny_videos = $this->bunny_service->list_all_videos();
+        // PERMANENTLY DISABLED - Too dangerous for production
+        error_log('WFN: cleanup_orphaned_videos() called but permanently disabled for safety');
+        return $results;
 
-            if (!$bunny_videos['success']) {
+        try {
+            // COLLECTION-AWARE CLEANUP: Only check videos in THIS site's collection
+            // This prevents deleting videos from other sites in the shared library
+            $site_domain = parse_url(get_site_url(), PHP_URL_HOST);
+
+            // Get this site's collection ID
+            $site_collections = $this->bunny_service->get_site_collections();
+
+            if (!$site_collections['success']) {
                 $results['errors']++;
-                $results['messages'][] = 'Failed to fetch videos from hosting service: ' . $bunny_videos['message'];
+                $results['messages'][] = 'Failed to fetch site collections: ' . $site_collections['message'];
                 return $results;
             }
 
-            $results['found'] = count($bunny_videos['videos']);
+            // Find this site's collection
+            $site_collection_id = null;
+            foreach ($site_collections['site_collections'] as $collection) {
+                if ($collection['site_domain'] === $site_domain) {
+                    $site_collection_id = $collection['collection_id'];
+                    break;
+                }
+            }
 
-            foreach ($bunny_videos['videos'] as $video) {
+            if (!$site_collection_id) {
+                $results['messages'][] = "No collection found for site: {$site_domain} - skipping cleanup";
+                return $results;
+            }
+
+            // Get only videos in THIS site's collection
+            $collection_stats = $this->bunny_service->get_collection_statistics($site_collection_id);
+
+            if (!$collection_stats['success']) {
+                $results['errors']++;
+                $results['messages'][] = 'Failed to fetch collection videos: ' . $collection_stats['message'];
+                return $results;
+            }
+
+            $bunny_videos = $collection_stats['videos'] ?? [];
+            $results['found'] = count($bunny_videos);
+            $results['messages'][] = "Checking {$results['found']} videos in collection for site: {$site_domain}";
+
+            foreach ($bunny_videos as $video) {
                 $video_id = $video['guid'];
 
-                // Check if this video ID exists in any post
+                // Check if this video ID exists in any post on THIS site
                 $posts = get_posts([
                     'post_type' => 'funeral-notice',
                     'meta_query' => [
@@ -1297,13 +1345,13 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                     'fields' => 'ids'
                 ]);
 
-                // If no posts found, this video is orphaned
+                // If no posts found, this video is orphaned IN THIS SITE'S COLLECTION
                 if (empty($posts)) {
                     $delete_result = $this->bunny_service->delete_video($video_id);
 
                     if ($delete_result['success']) {
                         $results['deleted']++;
-                        $results['messages'][] = "Deleted orphaned video: {$video_id} ({$video['title']})";
+                        $results['messages'][] = "Deleted orphaned video from {$site_domain} collection: {$video_id} ({$video['title']})";
                     } else {
                         $results['errors']++;
                         $results['messages'][] = "Failed to delete orphaned video {$video_id}: {$delete_result['message']}";
@@ -1403,8 +1451,24 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
     /**
      * Run comprehensive maintenance tasks
+     *
+     * ⚠️ DEPRECATED AND DISABLED - November 2025
+     *
+     * @deprecated 2.5.3 Automatic maintenance disabled - manual cleanup only
+     * @return array Empty result - function disabled
      */
     public function run_maintenance(): array {
+        error_log('WFN: run_maintenance() called but permanently disabled for safety');
+
+        return [
+            'started_at' => current_time('mysql'),
+            'completed_at' => current_time('mysql'),
+            'total_errors' => 0,
+            'tasks' => [],
+            'disabled' => true,
+            'message' => '⚠️ AUTOMATIC MAINTENANCE PERMANENTLY DISABLED - Too dangerous for production use'
+        ];
+
         $overall_results = [
             'started_at' => current_time('mysql'),
             'completed_at' => null,
@@ -2108,12 +2172,17 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
     /**
      * Run scheduled maintenance via WordPress cron
+     *
+     * ⚠️ DEPRECATED AND DISABLED - November 2025
+     *
+     * @deprecated 2.5.3 Cron-based maintenance permanently disabled
+     * @return void
      */
     public function run_scheduled_maintenance(): void {
-        // Only run if we have a premium license
-        if (!$this->has_premium_license()) {
-            return;
-        }
+        // PERMANENTLY DISABLED - Too dangerous for automatic execution
+        error_log('WFN: run_scheduled_maintenance() called but permanently disabled for safety');
+        error_log('WFN: Automatic video cleanup has been removed due to data loss incidents in Oct/Nov 2025');
+        return;
 
         try {
             // Run comprehensive maintenance

@@ -4,6 +4,46 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.3] – November 21, 2025
+
+### 🚨 CRITICAL FIX - Permanently Disable Automatic Video Cleanup
+
+**Second incident:** Another video deletion occurred Nov 21, affecting Lychgate. This release permanently disables all automatic video cleanup.
+
+### What Changed
+- **Disabled 3 cleanup functions** - `cleanup_orphaned_videos()`, `run_maintenance()`, `run_scheduled_maintenance()` now return immediately and do nothing
+- **Why:** Videos are irreplaceable memorial content. Automated deletion is too dangerous.
+- **Safe operations preserved:** Manual delete button still works (one video at a time). Post deletion hook still works.
+
+### Breaking Changes
+- ❌ Automatic video cleanup is permanently disabled
+- ✅ Manual deletion via post editor still works
+- ✅ Collection deletion for churned customers still available (manual only)
+
+### Deployment
+Deploy to all sites and delete any remaining crons:
+```bash
+wp cron event delete wfn_video_maintenance
+wp cron event delete wfn_cleanup_failed_uploads
+```
+
+### Files Modified
+- `src/Modules/VideoModule.php` - 3 cleanup functions disabled
+- Added documentation: `SAFE-VIDEO-CLEANUP-PROCESS.md`
+
+---
+
+## [2.6.2] – November 19, 2025
+
+### New Features
+- **Video Deletion UI** – Added "Remove Video" button to post edit screen for easy video management directly from the funeral notice editor
+- **Graceful Video Removal** – Video deletion now follows a safe workflow: unlinks from post first, clears all metadata, then removes from BunnyStream CDN
+
+### Bug Fixes
+- **Missing Delete Handler** – Fixed non-functional delete button in admin Video Management section by implementing proper REST API endpoint and JavaScript handler
+
+---
+
 ## [2.6.1] – November 19, 2025
 
 ### Bug Fixes

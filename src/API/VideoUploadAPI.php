@@ -93,6 +93,24 @@ class VideoUploadAPI extends WP_REST_Controller {
                 ]
             ]
         ]);
+
+        // Delete video
+        register_rest_route($this->namespace, "/{$this->rest_base}/delete/(?P<post_id>\d+)", [
+            [
+                'methods' => WP_REST_Server::DELETABLE,
+                'callback' => [$this, 'delete_video'],
+                'permission_callback' => [$this, 'check_permissions'],
+                'args' => [
+                    'post_id' => [
+                        'required' => true,
+                        'type' => 'integer',
+                        'validate_callback' => function($param) {
+                            return is_numeric($param) && $param > 0;
+                        }
+                    ]
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -304,6 +322,83 @@ class VideoUploadAPI extends WP_REST_Controller {
             'status' => $session['status'] ?? 'none',
             'video_id' => $video_id ?: ($session['video_id'] ?? ''),
             'session' => $session ?: null
+        ], 200);
+    }
+
+    /**
+     * Delete video from post and Bunny CDN
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function delete_video(WP_REST_Request $request) {
+        $post_id = $request->get_param('post_id');
+
+        // Verify post exists
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'funeral-notice') {
+            return new WP_Error(
+                'invalid_post',
+                'Invalid funeral notice post ID',
+                ['status' => 400]
+            );
+        }
+
+        // Check permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error(
+                'forbidden',
+                'You do not have permission to edit this post',
+                ['status' => 403]
+            );
+        }
+
+        // Get video ID
+        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+
+        if (!$video_id) {
+            return new WP_Error(
+                'no_video',
+                'No video found for this post',
+                ['status' => 404]
+            );
+        }
+
+        // Step 1: Unlink from post - clear meta fields first (graceful degradation)
+        delete_post_meta($post_id, '_wfn_video_id');
+        delete_post_meta($post_id, '_wfn_video_metadata');
+        delete_post_meta($post_id, '_wfn_video_status');
+        delete_post_meta($post_id, '_wfn_video_upload_status');
+        delete_post_meta($post_id, '_wfn_video_upload_session');
+        delete_post_meta($post_id, '_wfn_video_data');
+
+        // Clear the ACF field value as well
+        $media_group = get_field('wfn_media_group', $post_id);
+        if (is_array($media_group)) {
+            $media_group['video_slideshow'] = null;
+            update_field('wfn_media_group', $media_group, $post_id);
+        }
+
+        // Step 2: Delete from BunnyStream (gracefully handle failures)
+        $delete_result = $this->bunny_service->delete_video($video_id);
+
+        if (!$delete_result['success']) {
+            // Log the error but don't fail the request - video is already unlinked
+            error_log("WFN: Failed to delete video {$video_id} from Bunny: " . ($delete_result['message'] ?? 'Unknown error'));
+
+            return new WP_REST_Response([
+                'success' => true,
+                'message' => 'Video removed from post. Note: Video could not be deleted from hosting service, but will no longer appear on the funeral notice.',
+                'video_id' => $video_id,
+                'bunny_deleted' => false
+            ], 200);
+        }
+
+        return new WP_REST_Response([
+            'success' => true,
+            'message' => 'Video removed successfully',
+            'video_id' => $video_id,
+            'bunny_deleted' => true
         ], 200);
     }
 

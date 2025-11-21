@@ -302,6 +302,11 @@
                         <p class="wfn-license-notice" style="display: none; color: #d63638; margin-top: 8px;">
                             <strong>Note:</strong> A valid premium license is required to display this video on the front end. <a href="#" class="wfn-license-link">Manage License</a>
                         </p>
+                        <div class="wfn-video-actions" style="margin-top: 16px;">
+                            <button type="button" class="button button-link-delete wfn-delete-video-btn">
+                                <span class="dashicons dashicons-trash"></span> Remove Video
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -515,6 +520,49 @@
                 // Show default UI on error
             }
         }
+
+        /**
+         * Handle delete video button
+         */
+        $videoField.on('click', '.wfn-delete-video-btn', async function() {
+            const $btn = $(this);
+
+            if (!confirm('Are you sure you want to remove this video?\n\nThis will:\n1. Remove the video from this funeral notice\n2. Delete the video from the hosting service\n\nThis action cannot be undone.')) {
+                return;
+            }
+
+            // Disable button and show loading state
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float: none; margin: 0;"></span> Removing...');
+
+            try {
+                // Call REST API to delete video
+                const response = await fetch(wfnVideoUpload.restUrl + 'wfn/v1/video/delete/' + postId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-WP-Nonce': wfnVideoUpload.nonce
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show success message
+                    showNotice('Video removed successfully', 'success');
+
+                    // Reset UI to initial state
+                    resetUI();
+                } else {
+                    throw new Error(result.message || 'Failed to delete video');
+                }
+
+            } catch (error) {
+                console.error('WFN Delete Error:', error);
+                showNotice('Error removing video: ' + error.message, 'error');
+
+                // Re-enable button
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span> Remove Video');
+            }
+        });
     }
 
     // Initialize when DOM is ready
