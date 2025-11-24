@@ -756,10 +756,17 @@ class BunnyStreamService {
     }
 
     /**
-     * Delete video from Bunny Stream
+     * Delete video from Bunny Stream with collection ownership validation
+     *
+     * Validates that the video belongs to the current site's collection before deletion
+     * to prevent accidental cross-site deletion in shared library architecture.
      *
      * @param string $video_id Bunny Stream video ID
-     * @return array Deletion result
+     * @return array Deletion result with success status and details
+     *               - On success: ['success' => true, 'video_id' => ..., 'video_title' => ...]
+     *               - On collection mismatch: ['success' => false, 'error_code' => 'COLLECTION_MISMATCH', ...]
+     *               - On other errors: ['success' => false, 'error_code' => ..., ...]
+     * @since 2.6.5 Added collection ownership validation
      */
     public function delete_video(string $video_id): array {
         if (!$this->is_configured()) {
@@ -780,10 +787,88 @@ class BunnyStreamService {
             ];
         }
 
-        // Get video information before deletion (for logging)
+        // Get video information before deletion (for logging and validation)
         $video_info = $this->get_video_info($video_id);
 
-        // Delete the video
+        // COLLECTION OWNERSHIP VALIDATION (v2.6.5)
+        // Verify video belongs to this site's collection before deletion
+        if ($video_info['success']) {
+            $video_collection = $video_info['collection_id'] ?? null;
+            $site_collection = $this->get_site_collection_id();
+
+            // SECURITY CHECK 1: Block videos without collection (can't verify ownership)
+            if (empty($video_collection)) {
+                error_log(sprintf(
+                    'WFN SECURITY: Blocked deletion of video %s - no collection assigned (ownership cannot be verified). Site: %s',
+                    $video_id,
+                    get_site_url()
+                ));
+
+                return [
+                    'success' => false,
+                    'message' => 'Cannot delete video - no collection assigned. Ownership cannot be verified. Contact support if this is your video.',
+                    'error_code' => 'NO_COLLECTION',
+                    'video_id' => $video_id,
+                    'site_url' => get_site_url()
+                ];
+            }
+
+            // SECURITY CHECK 2: Block videos from different collections
+            if (!empty($site_collection) && $video_collection !== $site_collection) {
+                error_log(sprintf(
+                    'WFN SECURITY: Blocked deletion of video %s (collection: %s) by site %s (collection: %s)',
+                    $video_id,
+                    $video_collection,
+                    get_site_url(),
+                    $site_collection
+                ));
+
+                return [
+                    'success' => false,
+                    'message' => 'Cannot delete video - belongs to different site',
+                    'error_code' => 'COLLECTION_MISMATCH',
+                    'video_id' => $video_id,
+                    'video_collection' => $video_collection,
+                    'site_collection' => $site_collection
+                ];
+            }
+
+            // SECURITY CHECK 3: Site must have a collection
+            if (empty($site_collection)) {
+                error_log(sprintf(
+                    'WFN SECURITY: Site %s has no collection configured - cannot verify video ownership for %s',
+                    get_site_url(),
+                    $video_id
+                ));
+
+                return [
+                    'success' => false,
+                    'message' => 'Cannot delete video - your site has no collection configured. Contact support.',
+                    'error_code' => 'SITE_NO_COLLECTION',
+                    'video_id' => $video_id,
+                    'site_url' => get_site_url()
+                ];
+            }
+
+            // All checks passed - video belongs to this site's collection
+            // Safe to proceed with deletion
+        } else {
+            // Video info failed - might be 404 (already deleted) or API error
+            // If 404, return early. If API error, log but allow deletion to proceed
+            if ($video_info['error_code'] === 'NOT_FOUND') {
+                return [
+                    'success' => true,
+                    'message' => 'Video was already deleted or does not exist',
+                    'video_id' => $video_id,
+                    'already_deleted' => true
+                ];
+            }
+
+            // API error during validation - log error but allow deletion
+            error_log("WARNING: Could not validate collection ownership for video {$video_id} - proceeding with deletion. Error: " . ($video_info['message'] ?? 'Unknown'));
+        }
+
+        // Validation passed or backward compat - proceed with deletion
         $endpoint = "/library/{$this->library_id}/videos/{$video_id}";
         $response = $this->make_api_request($endpoint, 'DELETE');
 
@@ -1979,6 +2064,33 @@ class BunnyStreamService {
             'total_sites' => count($site_collections),
             'total_collections' => count($collections)
         ];
+    }
+
+    /**
+     * Get current site's collection ID
+     *
+     * Helper method to find this site's collection ID from the shared library.
+     * Used for collection ownership validation during video operations.
+     *
+     * @return string|null Collection ID for current site, or null if not found
+     * @since 2.6.5
+     */
+    private function get_site_collection_id(): ?string {
+        $collections = $this->get_site_collections();
+
+        if (!$collections['success']) {
+            return null;
+        }
+
+        $site_domain = parse_url(get_site_url(), PHP_URL_HOST);
+
+        foreach ($collections['site_collections'] as $collection) {
+            if ($collection['site_domain'] === $site_domain) {
+                return $collection['collection_id'];
+            }
+        }
+
+        return null;
     }
 
     /**

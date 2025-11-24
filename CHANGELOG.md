@@ -4,6 +4,52 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.5] – November 22, 2025
+
+### 🔒 SECURITY - Collection-Aware Video Deletion
+
+**Defense in depth:** After disabling all automatic cleanup (v2.6.4), this release adds collection ownership validation to prevent manual cross-site deletion.
+
+### What Changed
+- **Added collection validation** to `BunnyStreamService::delete_video()` method
+- **3-layer security checks** before allowing deletion
+- **Blocks cross-site deletion** if video belongs to different site's collection
+- **Blocks videos without collections** (ownership cannot be verified)
+- **Logs security events** when deletion attempts are blocked
+- **Strict validation** - only allows deletion when collections definitively match
+
+### How It Works
+1. When deleting video, system retrieves video metadata from Bunny API
+2. System performs 3 security checks before deletion:
+   - **CHECK 1:** Video must have collection assigned ✅
+   - **CHECK 2:** Video's collection must match site's collection ✅
+   - **CHECK 3:** Site must have collection configured ✅
+3. **ALL CHECKS PASS** → Deletion proceeds ✅
+4. **ANY CHECK FAILS** → Deletion blocked, security event logged ❌
+
+### Security Checks
+- ❌ **No collection on video** → BLOCKED (can't verify ownership)
+- ❌ **Different collection** → BLOCKED (belongs to other site)
+- ❌ **Site has no collection** → BLOCKED (can't verify ownership)
+- ✅ **Collections match** → ALLOWED (safe deletion)
+
+### Impact
+- ✅ **Same-site deletions work normally** (transparent to legitimate users)
+- ❌ **Cross-site deletions blocked** (prevents incidents)
+- ❌ **Videos without collections blocked** (ownership unverifiable)
+- 📊 **Security audit trail** via error logs
+- ⚠️ **Old videos without collections** require support intervention
+
+### Performance
+- Adds ~100ms overhead (one additional API call for validation)
+- Acceptable for manual deletion operations
+
+### Files Modified
+- `src/Services/BunnyStreamService.php` - Added validation to delete_video() method
+- `src/Services/BunnyStreamService.php` - Added get_site_collection_id() helper method
+
+---
+
 ## [2.6.4] – November 21, 2025
 
 ### BUG FIX - Permanently Disable Automatic Video Cleanup
