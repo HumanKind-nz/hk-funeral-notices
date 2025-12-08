@@ -77,7 +77,7 @@ class StreamingDetector {
                 return [
                     'service' => 'vimeo',
                     'video_id' => $video_id,
-                    'embed' => $this->generate_vimeo_embed($video_id),
+                    'embed' => $this->generate_vimeo_embed($video_id, $url),
                     'url' => $url,
                     'thumbnail' => $this->get_vimeo_thumbnail($video_id)
                 ];
@@ -240,13 +240,42 @@ class StreamingDetector {
 
     /**
      * Generate Vimeo embed code
+     * Handles both regular and privacy-protected Vimeo URLs
      */
-    private function generate_vimeo_embed(string $video_id): string {
-        $vimeo_url = "https://vimeo.com/" . $video_id;
+    private function generate_vimeo_embed(string $video_id, string $original_url = ''): string {
+        // Extract privacy hash if present in URL
+        // Vimeo privacy URLs can be:
+        // - vimeo.com/VIDEO_ID/HASH
+        // - vimeo.com/VIDEO_ID?h=HASH
+        // - player.vimeo.com/video/VIDEO_ID?h=HASH
+
+        $privacy_hash = '';
+
+        // Check for hash in path (e.g., /1142878313/dc414dd32c)
+        if (preg_match('/vimeo\.com\/\d+\/([a-zA-Z0-9]+)/', $original_url, $matches)) {
+            $privacy_hash = $matches[1];
+        }
+        // Check for hash in query parameter (e.g., ?h=dc414dd32c)
+        elseif (preg_match('/[?&]h=([a-zA-Z0-9]+)/', $original_url, $matches)) {
+            $privacy_hash = $matches[1];
+        }
+
+        // Build iframe src with privacy hash if present
+        $iframe_src = "https://player.vimeo.com/video/{$video_id}";
+        $iframe_params = ['title' => '0', 'byline' => '0', 'portrait' => '0'];
+
+        if (!empty($privacy_hash)) {
+            $iframe_params['h'] = $privacy_hash;
+        }
+
+        $iframe_src .= '?' . http_build_query($iframe_params);
+
+        // Use original URL for button if available, otherwise reconstruct
+        $vimeo_url = !empty($original_url) ? $original_url : "https://vimeo.com/" . $video_id;
 
         return sprintf(
             '<div class="wfn-video-embed wfn-vimeo-embed">' .
-            '<iframe src="https://player.vimeo.com/video/%s?title=0&byline=0&portrait=0" ' .
+            '<iframe src="%s" ' .
             'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="autoplay; fullscreen; picture-in-picture">' .
             '</iframe>' .
@@ -254,7 +283,7 @@ class StreamingDetector {
             '<a href="%s" target="_blank" rel="noopener" class="wfn-view-external">Open in Vimeo</a>' .
             '</div>' .
             '</div>',
-            esc_attr($video_id),
+            esc_attr($iframe_src),
             esc_url($vimeo_url)
         );
     }

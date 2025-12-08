@@ -4,6 +4,35 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.6] – December 8, 2025
+
+### 🐛 BUG FIX - Vimeo Privacy URL Truncation
+
+**Fixed:** Vimeo URLs with privacy hashes were being truncated when displayed on funeral notice pages, breaking both embeds and "Open in Vimeo" buttons.
+
+### What Changed
+- **Fixed URL handling** in `StreamingDetector::generate_vimeo_embed()` to preserve privacy hashes
+- **Added hash extraction** for both path-based (`/VIDEO_ID/HASH`) and query-based (`?h=HASH`) Vimeo privacy URLs
+- **Preserved original URLs** in button links instead of reconstructing from video ID only
+- **Enhanced iframe embeds** to include privacy hash parameter when present
+- **Verified all streaming services** (YouTube, Facebook, OneRoom, iStream) for similar issues - none found
+
+### The Problem
+- URLs like `https://vimeo.com/1142878313/dc414dd32c` were saved correctly but displayed as `https://vimeo.com/1142878313`
+- Privacy hash (`dc414dd32c`) was lost during URL reconstruction
+- Resulted in broken embeds and non-functional "Open in Vimeo" buttons
+
+### The Fix
+- Modified method signature to accept original URL: `generate_vimeo_embed(string $video_id, string $original_url = '')`
+- Extract privacy hash from URL using regex patterns
+- Include hash in iframe embed: `player.vimeo.com/video/{ID}?h={HASH}`
+- Use original URL for button links (preserves all parameters)
+
+### Files Modified
+- `src/Streaming/StreamingDetector.php` - Updated `generate_vimeo_embed()` method and its usage
+
+---
+
 ## [2.6.5] – November 22, 2025
 
 ### 🔒 SECURITY - Collection-Aware Video Deletion
