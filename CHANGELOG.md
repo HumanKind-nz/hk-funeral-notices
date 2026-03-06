@@ -4,6 +4,19 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [2.6.7] – March 6, 2026
+
+### Increased Video Upload Limit
+
+Increased the maximum video upload file size from 500MB to 900MB across all validation layers, at the request of funeral home clients needing to upload larger memorial videos.
+
+- Updated server-side validation in `BunnyStreamService` and `VideoUploadAPI`
+- Updated client-side validation and UI messaging in the video upload dropzone
+- Updated ACF field configuration and instructions
+- Updated `VideoModule` default settings and JS-passed limits
+
+---
+
 ## [2.6.6] – December 8, 2025
 
 ### 🐛 BUG FIX - Vimeo Privacy URL Truncation

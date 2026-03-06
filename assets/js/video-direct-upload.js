@@ -264,7 +264,7 @@
                     <div class="wfn-dropzone-content">
                         <span class="dashicons dashicons-video-alt2"></span>
                         <p><strong>Choose a video file or drag it here</strong></p>
-                        <p class="description">Maximum file size: 500MB. Supported formats: MP4, MOV, AVI, WEBM</p>
+                        <p class="description">Maximum file size: 900MB. Supported formats: MP4, MOV, AVI, WEBM</p>
                         <button type="button" class="button button-primary wfn-select-file">Select Video File</button>
                     </div>
                 </div>
@@ -359,9 +359,9 @@
          */
         function startUpload(file) {
             // Validate file size
-            const maxSize = 524288000; // 500MB
+            const maxSize = 943718400; // 900MB
             if (file.size > maxSize) {
-                showError('File size exceeds 500MB maximum. Please choose a smaller file.');
+                showError('File size exceeds 900MB maximum. Please choose a smaller file.');
                 return;
             }
 

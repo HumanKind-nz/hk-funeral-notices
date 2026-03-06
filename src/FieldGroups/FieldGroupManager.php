@@ -693,11 +693,11 @@ class FieldGroupManager {
                 'label' => 'Memorial Video Slideshow',
                 'name' => 'video_slideshow',
                 'type' => 'file',
-                'instructions' => 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 500MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>',
+                'instructions' => 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 900MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>',
                 'return_format' => 'array',
                 'library' => 'all',
                 'mime_types' => 'mp4,mov,avi,wmv,webm',
-                'max_size' => 500, // 500MB limit
+                'max_size' => 900, // 900MB limit
             ];
         } else {
             // Return minimal message field explaining premium feature
@@ -724,7 +724,7 @@ class FieldGroupManager {
                    admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>';
         }
 
-        return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 500MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
+        return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 900MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
     }
 
     /**

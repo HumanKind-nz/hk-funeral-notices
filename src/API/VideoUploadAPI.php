@@ -444,7 +444,7 @@ class VideoUploadAPI extends WP_REST_Controller {
                 'required' => true,
                 'type' => 'integer',
                 'validate_callback' => function($param) {
-                    return is_numeric($param) && $param > 0 && $param <= 524288000; // 500MB max
+                    return is_numeric($param) && $param > 0 && $param <= 943718400; // 900MB max
                 }
             ]
         ];
