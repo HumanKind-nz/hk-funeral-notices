@@ -18,7 +18,7 @@ class VideoModule extends BaseModule {
     private BunnyStreamService $bunny_service;
 
     protected array $default_settings = [
-        'max_file_size_mb' => 500,
+        'max_file_size_mb' => 900,
         'allowed_formats' => ['mp4', 'mov', 'avi', 'webm'],
         'max_duration_minutes' => 30,
         'auto_transcode' => true,
@@ -1695,7 +1695,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             'hasLicense' => $this->has_premium_license() ? '1' : '',  // Pass as string for JS boolean check
             'licenseUrl' => admin_url('admin.php?page=hkfn-module-license'),
             'settings' => [
-                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 500) * 1024 * 1024, // Convert to bytes
+                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 900) * 1024 * 1024, // Convert to bytes
                 'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'webm'],
                 'maxDuration' => ($this->get_settings()['max_duration_minutes'] ?? 30) * 60 // Convert to seconds
             ]
@@ -1711,7 +1711,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 'delete' => wp_create_nonce('wfn_video_delete_' . $post->ID)
             ],
             'settings' => [
-                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 500) * 1024 * 1024, // Convert to bytes
+                'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 900) * 1024 * 1024, // Convert to bytes
                 'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'webm'],
                 'maxDuration' => ($this->get_settings()['max_duration_minutes'] ?? 30) * 60 // Convert to seconds
             ]

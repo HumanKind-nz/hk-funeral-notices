@@ -488,14 +488,14 @@ class BunnyStreamService {
             ];
         }
 
-        // Validate file size (max 500MB as per PRD)
+        // Validate file size (max 900MB)
         $file_size = filesize($file_path);
-        $max_size = 500 * 1024 * 1024; // 500MB in bytes
+        $max_size = 900 * 1024 * 1024; // 900MB in bytes
 
         if ($file_size > $max_size) {
             return [
                 'success' => false,
-                'message' => 'File size exceeds maximum limit of 500MB. Current size: ' . $this->format_file_size($file_size),
+                'message' => 'File size exceeds maximum limit of 900MB. Current size: ' . $this->format_file_size($file_size),
                 'error_code' => 'FILE_TOO_LARGE'
             ];
         }
@@ -2324,7 +2324,7 @@ class BunnyStreamService {
             403 => 'Access denied. Your API key may not have sufficient permissions.',
             404 => 'Resource not found. The video or library may not exist.',
             409 => 'Conflict occurred. The video may already exist or be processing.',
-            413 => 'File too large. Please use a smaller video file (max 500MB).',
+            413 => 'File too large. Please use a smaller video file (max 900MB).',
             429 => 'Too many requests. Please wait before trying again.',
             500, 502, 503, 504 => 'Bunny Stream server error. Please try again later.',
             default => $error_message ?: 'An unexpected error occurred while communicating with Bunny Stream.'
