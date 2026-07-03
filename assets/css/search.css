@@ -1,23 +1,23 @@
 /* Funeral Notices Search Styles */
 
-.wfn-search-form-container,
-.wfn-shortcode-search-form {
-    background: var(--wfn-color-card-background, #f8f9fa);
+.hkfn-search-form-container,
+.hkfn-shortcode-search-form {
+    background: var(--hkfn-color-card-background, #f8f9fa);
     border: none; /* Removed border for seamless integration */
     box-shadow: none; /* Removed shadow for cleaner appearance */
-    border-radius: var(--wfn-border-radius, 8px);
-    padding: var(--wfn-card-padding, 20px);
+    border-radius: var(--hkfn-border-radius, 8px);
+    padding: var(--hkfn-card-padding, 20px);
     margin-bottom: 30px;
     max-width: 1000px; /* Constrain width for better readability */
     margin-left: auto; /* Center the search box */
     margin-right: auto; /* Center the search box */
 }
 
-.wfn-search-form {
+.hkfn-search-form {
     max-width: 100%;
 }
 
-.wfn-search-row {
+.hkfn-search-row {
     display: flex;
     gap: 15px;
     margin-bottom: 15px;
@@ -25,85 +25,85 @@
     align-items: end;
 }
 
-.wfn-search-field {
+.hkfn-search-field {
     flex: 1;
     min-width: 200px;
 }
 
-.wfn-search-field label {
+.hkfn-search-field label {
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
-    color: var(--wfn-color-text-primary, #495057);
-    font-size: var(--wfn-text-size, 14px);
+    color: var(--hkfn-color-text-primary, #495057);
+    font-size: var(--hkfn-text-size, 14px);
 }
 
-.wfn-search-field input,
-.wfn-search-field select {
+.hkfn-search-field input,
+.hkfn-search-field select {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid var(--wfn-color-border, #ced4da);
-    border-radius: var(--wfn-border-radius, 6px);
+    border: 1px solid var(--hkfn-color-border, #ced4da);
+    border-radius: var(--hkfn-border-radius, 6px);
     font-size: 14px;
-    background: var(--wfn-color-card-background, #ffffff);
+    background: var(--hkfn-color-card-background, #ffffff);
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    font-family: var(--wfn-font-body, inherit);
-    color: var(--wfn-color-text-primary, inherit);
+    font-family: var(--hkfn-font-body, inherit);
+    color: var(--hkfn-color-text-primary, inherit);
 }
 
-.wfn-search-field input:focus,
-.wfn-search-field select:focus {
+.hkfn-search-field input:focus,
+.hkfn-search-field select:focus {
     outline: none;
-    border-color: var(--wfn-color-primary, #2563eb);
-    box-shadow: 0 0 0 3px var(--wfn-color-shadow, rgba(37, 99, 235, 0.1));
+    border-color: var(--hkfn-color-primary, #2563eb);
+    box-shadow: 0 0 0 3px var(--hkfn-color-shadow, rgba(37, 99, 235, 0.1));
 }
 
-.wfn-search-actions {
+.hkfn-search-actions {
     display: flex;
     gap: 10px;
     align-items: end;
     flex-shrink: 0;
 }
 
-.wfn-btn {
+.hkfn-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     padding: 10px 16px;
     border: none;
-    border-radius: var(--wfn-border-radius, 6px);
-    font-size: var(--wfn-text-size, 14px);
+    border-radius: var(--hkfn-border-radius, 6px);
+    font-size: var(--hkfn-text-size, 14px);
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
-    transition: all var(--wfn-transition-speed, 0.15s) ease-in-out;
+    transition: all var(--hkfn-transition-speed, 0.15s) ease-in-out;
     white-space: nowrap;
-    font-family: var(--wfn-font-body, inherit);
+    font-family: var(--hkfn-font-body, inherit);
 }
 
-.wfn-btn-primary {
-    background: var(--wfn-color-primary, #2563eb);
+.hkfn-btn-primary {
+    background: var(--hkfn-color-primary, #2563eb);
     color: #ffffff;
 }
 
-.wfn-btn-primary:hover {
-    background: var(--wfn-color-accent, #1d4ed8);
-    color: #ffffff;
-    text-decoration: none;
-}
-
-.wfn-btn-secondary {
-    background: var(--wfn-color-secondary, #6b7280);
-    color: #ffffff;
-}
-
-.wfn-btn-secondary:hover {
-    background: var(--wfn-color-accent, #4b5563);
+.hkfn-btn-primary:hover {
+    background: var(--hkfn-color-accent, #1d4ed8);
     color: #ffffff;
     text-decoration: none;
 }
 
-.wfn-btn .dashicons {
+.hkfn-btn-secondary {
+    background: var(--hkfn-color-secondary, #6b7280);
+    color: #ffffff;
+}
+
+.hkfn-btn-secondary:hover {
+    background: var(--hkfn-color-accent, #4b5563);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.hkfn-btn .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
@@ -111,62 +111,62 @@
 }
 
 /* Date filters row */
-.wfn-date-filters {
-    border-top: 1px solid var(--wfn-color-border, #e9ecef);
+.hkfn-date-filters {
+    border-top: 1px solid var(--hkfn-color-border, #e9ecef);
     padding-top: 15px;
     margin-top: 5px;
 }
 
 /* Quick filters */
-.wfn-quick-filters {
+.hkfn-quick-filters {
     display: flex;
     gap: 10px;
     align-items: center;
     flex-wrap: wrap;
     margin-top: 15px;
     padding-top: 15px;
-    border-top: 1px solid var(--wfn-color-border, #e9ecef);
+    border-top: 1px solid var(--hkfn-color-border, #e9ecef);
 }
 
-.wfn-quick-label {
+.hkfn-quick-label {
     font-weight: 600;
-    color: var(--wfn-color-text-primary, #495057);
-    font-size: var(--wfn-text-size, 14px);
+    color: var(--hkfn-color-text-primary, #495057);
+    font-size: var(--hkfn-text-size, 14px);
 }
 
-.wfn-quick-filter {
+.hkfn-quick-filter {
     padding: 6px 12px;
-    background: var(--wfn-color-card-background, #ffffff);
-    border: 1px solid var(--wfn-color-border, #ced4da);
-    border-radius: var(--wfn-border-radius, 4px);
-    color: var(--wfn-color-text-primary, #495057);
+    background: var(--hkfn-color-card-background, #ffffff);
+    border: 1px solid var(--hkfn-color-border, #ced4da);
+    border-radius: var(--hkfn-border-radius, 4px);
+    color: var(--hkfn-color-text-primary, #495057);
     text-decoration: none;
     font-size: 13px;
     transition: all 0.15s ease-in-out;
-    font-family: var(--wfn-font-body, inherit);
+    font-family: var(--hkfn-font-body, inherit);
 }
 
-.wfn-quick-filter:hover {
-    background: var(--wfn-color-primary, #2563eb);
+.hkfn-quick-filter:hover {
+    background: var(--hkfn-color-primary, #2563eb);
     color: #ffffff;
-    border-color: var(--wfn-color-primary, #2563eb);
+    border-color: var(--hkfn-color-primary, #2563eb);
     text-decoration: none;
 }
 
 /* No results message */
-.wfn-no-results {
+.hkfn-no-results {
     text-align: center;
     padding: 40px 20px;
-    color: var(--wfn-color-text-secondary, #6b7280);
+    color: var(--hkfn-color-text-secondary, #6b7280);
     font-style: italic;
 }
 
 /* Loading state */
-.wfn-search-loading {
+.hkfn-search-loading {
     position: relative;
 }
 
-.wfn-search-loading::after {
+.hkfn-search-loading::after {
     content: '';
     position: absolute;
     top: 0;
@@ -180,7 +180,7 @@
     z-index: 10;
 }
 
-.wfn-search-loading::before {
+.hkfn-search-loading::before {
     content: 'Searching...';
     position: absolute;
     top: 50%;
@@ -188,58 +188,58 @@
     transform: translate(-50%, -50%);
     z-index: 11;
     font-weight: 600;
-    color: var(--wfn-color-text-primary, #495057);
+    color: var(--hkfn-color-text-primary, #495057);
 }
 
 /* Responsive breakpoint - when fields start wrapping */
 @media screen and (max-width: 900px) {
-    .wfn-search-form-container,
-    .wfn-shortcode-search-form {
+    .hkfn-search-form-container,
+    .hkfn-shortcode-search-form {
         width: 100%;
         max-width: 100%;
         padding: 15px;
         box-sizing: border-box;
     }
     
-    .wfn-search-form {
+    .hkfn-search-form {
         width: 100%;
         max-width: 100%;
     }
     
-    .wfn-search-row {
+    .hkfn-search-row {
         flex-direction: column;
         gap: 10px;
         width: 100%;
     }
     
-    .wfn-search-field {
+    .hkfn-search-field {
         min-width: auto !important;
         width: 100% !important; /* Force full width when stacked */
         flex: none !important;
         max-width: 100% !important;
     }
     
-    .wfn-search-field input,
-    .wfn-search-field select {
+    .hkfn-search-field input,
+    .hkfn-search-field select {
         width: 100% !important;
         box-sizing: border-box;
         max-width: 100% !important;
     }
     
     /* Hide date fields on smaller screens for better UX */
-    .wfn-search-field.wfn-date-field,
-    .wfn-date-filters,
+    .hkfn-search-field.hkfn-date-field,
+    .hkfn-date-filters,
     .date-range-field,
     input[type="date"],
-    input[name="wfn_date_from"],
-    input[name="wfn_date_to"],
-    label[for="wfn_date_from"],
-    label[for="wfn_date_to"],
-    .wfn-search-dates {
+    input[name="hkfn_date_from"],
+    input[name="hkfn_date_to"],
+    label[for="hkfn_date_from"],
+    label[for="hkfn_date_to"],
+    .hkfn-search-dates {
         display: none !important;
     }
     
-    .wfn-search-actions {
+    .hkfn-search-actions {
         flex-direction: row;
         align-items: center;
         justify-content: center;
@@ -248,7 +248,7 @@
         margin-top: 10px;
     }
     
-    .wfn-btn {
+    .hkfn-btn {
         flex: 1;
         justify-content: center;
         max-width: 150px;
@@ -256,31 +256,31 @@
 }
 
 @media screen and (max-width: 768px) {
-    .wfn-quick-filters {
+    .hkfn-quick-filters {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
     
-    .wfn-quick-filter {
+    .hkfn-quick-filter {
         display: block;
         text-align: center;
     }
 }
 
 @media screen and (max-width: 480px) {
-    .wfn-search-form-container,
-    .wfn-shortcode-search-form {
+    .hkfn-search-form-container,
+    .hkfn-shortcode-search-form {
         padding: 15px;
         margin-bottom: 20px;
     }
     
-    .wfn-search-field input,
-    .wfn-search-field select {
+    .hkfn-search-field input,
+    .hkfn-search-field select {
         padding: 8px 10px;
     }
     
-    .wfn-btn {
+    .hkfn-btn {
         padding: 8px 12px;
         font-size: 13px;
     }
@@ -289,36 +289,36 @@
 /* Cache bust: v2.0.1 - Force reload */
 
 /* Integration with existing grid styles */
-.wfn-modern-grid,
-.wfn-elegant-grid,
+.hkfn-modern-grid,
+.hkfn-elegant-grid,
 .firehawk-crm {
     margin-top: 20px;
 }
 
 /* Search results highlighting */
-.wfn-search-highlight {
-    background: var(--wfn-color-secondary, #fff3cd);
-    color: var(--wfn-color-text-primary, #2d3748);
+.hkfn-search-highlight {
+    background: var(--hkfn-color-secondary, #fff3cd);
+    color: var(--hkfn-color-text-primary, #2d3748);
     padding: 1px 3px;
-    border-radius: var(--wfn-border-radius, 2px);
+    border-radius: var(--hkfn-border-radius, 2px);
 }
 
 /* Archive page specific styles */
-.post-type-archive-funeral-notice .wfn-search-form-container {
+.post-type-archive-funeral-notice .hkfn-search-form-container {
     margin-bottom: 40px;
 }
 
 /* Shortcode search form variations */
-.wfn-shortcode-search-form {
-    background: var(--wfn-color-card-background, #ffffff);
-    border: 2px solid var(--wfn-color-border, #e9ecef);
+.hkfn-shortcode-search-form {
+    background: var(--hkfn-color-card-background, #ffffff);
+    border: 2px solid var(--hkfn-color-border, #e9ecef);
 }
 
-.wfn-shortcode-search-form .wfn-search-row {
+.hkfn-shortcode-search-form .hkfn-search-row {
     margin-bottom: 10px;
 }
 
-.wfn-shortcode-search-form .wfn-quick-filters {
+.hkfn-shortcode-search-form .hkfn-quick-filters {
     margin-top: 10px;
     padding-top: 10px;
 } 

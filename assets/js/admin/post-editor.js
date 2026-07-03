@@ -10,7 +10,7 @@
     /**
      * Video Upload Progress Tracker for Admin Post Editor
      */
-    class WFNVideoUploadTracker {
+    class HKFNVideoUploadTracker {
         constructor() {
             this.postId = this.getPostId();
             this.progressContainer = null;
@@ -41,11 +41,11 @@
          * Setup progress container in the ACF media group
          */
         setupProgressContainer() {
-            const $mediaGroup = $('.acf-field[data-name="wfn_media_group"]');
+            const $mediaGroup = $('.acf-field[data-name="hkfn_media_group"]');
             const $videoField = $('.acf-field[data-name="video_slideshow"]');
 
-            if ($videoField.length && !$('.wfn-video-upload-progress').length) {
-                this.progressContainer = $('<div class="wfn-video-upload-progress" style="display: none;"></div>');
+            if ($videoField.length && !$('.hkfn-video-upload-progress').length) {
+                this.progressContainer = $('<div class="hkfn-video-upload-progress" style="display: none;"></div>');
                 $videoField.after(this.progressContainer);
             }
         }
@@ -61,10 +61,10 @@
             $(document).on('click', '#publish, #save-post', this.handlePostSave.bind(this));
 
             // Manual refresh button
-            $(document).on('click', '.wfn-refresh-video-status', this.checkVideoStatus.bind(this));
+            $(document).on('click', '.hkfn-refresh-video-status', this.checkVideoStatus.bind(this));
 
             // Retry upload button
-            $(document).on('click', '.wfn-retry-upload', this.retryUpload.bind(this));
+            $(document).on('click', '.hkfn-retry-upload', this.retryUpload.bind(this));
         }
 
         /**
@@ -155,9 +155,9 @@
                 url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_video_upload_status',
+                    action: 'hkfn_video_upload_status',
                     post_id: this.postId,
-                    nonce: wfnVideo?.nonces?.status || ''
+                    nonce: hkfnVideo?.nonces?.status || ''
                 },
                 success: (response) => {
                     if (response.success && response.data) {
@@ -214,18 +214,18 @@
             const stage = status.stage || 'upload';
 
             const html = `
-                <div class="wfn-upload-progress-container">
-                    <div class="wfn-progress-header">
+                <div class="hkfn-upload-progress-container">
+                    <div class="hkfn-progress-header">
                         <h4>Video Upload Progress</h4>
-                        <span class="wfn-progress-stage">${this.getStageLabel(stage)}</span>
+                        <span class="hkfn-progress-stage">${this.getStageLabel(stage)}</span>
                     </div>
-                    <div class="wfn-progress-bar">
-                        <div class="wfn-progress-fill" style="width: ${progress}%"></div>
-                        <span class="wfn-progress-text">${progress}%</span>
+                    <div class="hkfn-progress-bar">
+                        <div class="hkfn-progress-fill" style="width: ${progress}%"></div>
+                        <span class="hkfn-progress-text">${progress}%</span>
                     </div>
-                    <p class="wfn-progress-message">${message}</p>
-                    <div class="wfn-progress-actions">
-                        <button type="button" class="button button-secondary wfn-refresh-video-status">
+                    <p class="hkfn-progress-message">${message}</p>
+                    <div class="hkfn-progress-actions">
+                        <button type="button" class="button button-secondary hkfn-refresh-video-status">
                             Refresh Status
                         </button>
                     </div>
@@ -240,25 +240,25 @@
          */
         showVideoReady(videoData) {
             const html = `
-                <div class="wfn-upload-success">
-                    <div class="wfn-success-header">
+                <div class="hkfn-upload-success">
+                    <div class="hkfn-success-header">
                         <span class="dashicons dashicons-yes-alt"></span>
                         <h4>Video Upload Complete!</h4>
                     </div>
-                    <div class="wfn-video-details">
+                    <div class="hkfn-video-details">
                         <p><strong>Duration:</strong> ${this.formatDuration(videoData.duration)}</p>
                         <p><strong>Size:</strong> ${this.formatFileSize(videoData.file_size)}</p>
                         <p><strong>Resolution:</strong> ${videoData.width}x${videoData.height}</p>
                     </div>
-                    <div class="wfn-video-actions">
+                    <div class="hkfn-video-actions">
                         <a href="${videoData.stream_url}" target="_blank" class="button button-secondary">
                             Preview Video
                         </a>
-                        <button type="button" class="button button-secondary wfn-refresh-video-status">
+                        <button type="button" class="button button-secondary hkfn-refresh-video-status">
                             Refresh
                         </button>
                     </div>
-                    <p class="wfn-success-note">
+                    <p class="hkfn-success-note">
                         The memorial video is now ready and will be displayed to visitors with a "View Slideshow" button.
                     </p>
                 </div>
@@ -272,14 +272,14 @@
          */
         showProcessingState(videoData) {
             const html = `
-                <div class="wfn-upload-processing">
-                    <div class="wfn-processing-header">
-                        <div class="wfn-spinner"></div>
+                <div class="hkfn-upload-processing">
+                    <div class="hkfn-processing-header">
+                        <div class="hkfn-spinner"></div>
                         <h4>Processing Video...</h4>
                     </div>
                     <p>Your video has been uploaded successfully and is being processed. This may take a few minutes.</p>
-                    <div class="wfn-progress-actions">
-                        <button type="button" class="button button-secondary wfn-refresh-video-status">
+                    <div class="hkfn-progress-actions">
+                        <button type="button" class="button button-secondary hkfn-refresh-video-status">
                             Check Status
                         </button>
                     </div>
@@ -294,14 +294,14 @@
          */
         showUploadedState(videoData) {
             const html = `
-                <div class="wfn-upload-uploaded">
-                    <div class="wfn-uploaded-header">
+                <div class="hkfn-upload-uploaded">
+                    <div class="hkfn-uploaded-header">
                         <span class="dashicons dashicons-cloud-upload"></span>
                         <h4>Video Uploaded Successfully</h4>
                     </div>
                     <p>Your video has been uploaded and will begin processing shortly.</p>
-                    <div class="wfn-progress-actions">
-                        <button type="button" class="button button-secondary wfn-refresh-video-status">
+                    <div class="hkfn-progress-actions">
+                        <button type="button" class="button button-secondary hkfn-refresh-video-status">
                             Check Status
                         </button>
                     </div>
@@ -319,19 +319,19 @@
             const canRetry = status?.retryable !== false;
 
             const html = `
-                <div class="wfn-upload-error">
-                    <div class="wfn-error-header">
+                <div class="hkfn-upload-error">
+                    <div class="hkfn-error-header">
                         <span class="dashicons dashicons-warning"></span>
                         <h4>Upload Error</h4>
                     </div>
-                    <p class="wfn-error-message">${message}</p>
-                    <div class="wfn-error-actions">
-                        ${canRetry ? '<button type="button" class="button button-primary wfn-retry-upload">Retry Upload</button>' : ''}
-                        <button type="button" class="button button-secondary wfn-refresh-video-status">
+                    <p class="hkfn-error-message">${message}</p>
+                    <div class="hkfn-error-actions">
+                        ${canRetry ? '<button type="button" class="button button-primary hkfn-retry-upload">Retry Upload</button>' : ''}
+                        <button type="button" class="button button-secondary hkfn-refresh-video-status">
                             Check Status
                         </button>
                     </div>
-                    <p class="wfn-error-help">
+                    <p class="hkfn-error-help">
                         If the problem persists, please check that your video file is under 100MB and in MP4, MOV, AVI, or WMV format.
                     </p>
                 </div>
@@ -352,9 +352,9 @@
                 url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_retry_video_upload',
+                    action: 'hkfn_retry_video_upload',
                     post_id: this.postId,
-                    nonce: wfnVideo?.nonces?.retry || ''
+                    nonce: hkfnVideo?.nonces?.retry || ''
                 },
                 success: (response) => {
                     if (response.success) {
@@ -403,11 +403,11 @@
          */
         showMessage(message, type = 'info', duration = 5000) {
             // Remove existing messages
-            $('.wfn-temp-message').remove();
+            $('.hkfn-temp-message').remove();
 
             // Create new message
             const $message = $(`
-                <div class="wfn-temp-message wfn-message-${type}">
+                <div class="hkfn-temp-message hkfn-message-${type}">
                     ${message}
                 </div>
             `);
@@ -491,7 +491,7 @@
         }
 
         // Check if button already exists
-        if ($('#wfn-bottom-publish').length) {
+        if ($('#hkfn-bottom-publish').length) {
             return;
         }
 
@@ -501,7 +501,7 @@
 
         // Create bottom publish button container
         const $bottomPublish = $(`
-            <div id="wfn-bottom-publish" style="
+            <div id="hkfn-bottom-publish" style="
                 margin: 20px 0 0 0;
                 padding: 15px 20px;
                 background: #f6f7f7;
@@ -557,7 +557,7 @@
     $(document).ready(function() {
         // Initialize video upload tracker for funeral notice posts
         if ($('body').hasClass('post-type-funeral-notice') && $('#post').length) {
-            window.wfnVideoTracker = new WFNVideoUploadTracker();
+            window.hkfnVideoTracker = new HKFNVideoUploadTracker();
         }
 
         // Add bottom publish button for better UX
@@ -566,8 +566,8 @@
 
     // Cleanup on page unload
     $(window).on('beforeunload', function() {
-        if (window.wfnVideoTracker) {
-            window.wfnVideoTracker.destroy();
+        if (window.hkfnVideoTracker) {
+            window.hkfnVideoTracker.destroy();
         }
     });
 

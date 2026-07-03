@@ -15,7 +15,7 @@
     }
 
     function init() {
-        const shareButtons = document.querySelectorAll('.wfn-share-button');
+        const shareButtons = document.querySelectorAll('.hkfn-share-button');
         shareButtons.forEach(button => {
             button.addEventListener('click', handleShareClick);
         });
@@ -67,7 +67,7 @@
 
         // Create share menu
         const menu = document.createElement('div');
-        menu.className = 'wfn-share-menu';
+        menu.className = 'hkfn-share-menu';
         menu.setAttribute('role', 'menu');
         menu.setAttribute('aria-label', 'Share options');
 
@@ -102,13 +102,13 @@
         // Build menu items
         options.forEach((option, index) => {
             const item = document.createElement('button');
-            item.className = 'wfn-share-menu-item';
+            item.className = 'hkfn-share-menu-item';
             item.setAttribute('role', 'menuitem');
             item.setAttribute('tabindex', index === 0 ? '0' : '-1');
 
             // Create icon wrapper with SVG
             const iconWrapper = document.createElement('span');
-            iconWrapper.className = `wfn-share-icon wfn-share-icon-${option.icon}`;
+            iconWrapper.className = `hkfn-share-icon hkfn-share-icon-${option.icon}`;
             iconWrapper.innerHTML = option.svg;
 
             // Create text node
@@ -137,7 +137,7 @@
 
         // Focus first menu item
         setTimeout(() => {
-            const firstItem = menu.querySelector('.wfn-share-menu-item');
+            const firstItem = menu.querySelector('.hkfn-share-menu-item');
             if (firstItem) firstItem.focus();
         }, 10);
     }
@@ -146,7 +146,7 @@
      * Handle keyboard navigation in menu
      */
     function handleMenuKeyboard(e, menu) {
-        const items = Array.from(menu.querySelectorAll('.wfn-share-menu-item'));
+        const items = Array.from(menu.querySelectorAll('.hkfn-share-menu-item'));
         const currentIndex = items.indexOf(document.activeElement);
 
         if (e.key === 'ArrowDown') {
@@ -170,7 +170,7 @@
      * Close all share menus
      */
     function closeAllShareMenus() {
-        const menus = document.querySelectorAll('.wfn-share-menu');
+        const menus = document.querySelectorAll('.hkfn-share-menu');
         menus.forEach(menu => menu.remove());
     }
 
@@ -178,7 +178,7 @@
      * Handle outside click to close menu
      */
     function handleOutsideClick(e) {
-        if (!e.target.closest('.wfn-share-button') && !e.target.closest('.wfn-share-menu')) {
+        if (!e.target.closest('.hkfn-share-button') && !e.target.closest('.hkfn-share-menu')) {
             closeAllShareMenus();
         }
     }

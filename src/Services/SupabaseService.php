@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Services;
+namespace HumanKind\FuneralNotices\Services;
 
 /**
  * Supabase Service

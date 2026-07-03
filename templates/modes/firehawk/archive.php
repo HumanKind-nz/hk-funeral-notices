@@ -3,7 +3,7 @@
  * Firehawk Archive Funeral Notice Template
  * Clean, modern grid layout compatible with Firehawk themes
  * 
- * @package WeaveStudios\FuneralNotices
+ * @package HumanKind\FuneralNotices
  * @since 2.0.0
  */
 
@@ -13,47 +13,47 @@ if (!defined('ABSPATH')) {
 
 get_header(); ?>
 
-<div class="wfn-firehawk-archive">
-    <div class="wfn-container">
+<div class="hkfn-firehawk-archive">
+    <div class="hkfn-container">
         
         <?php if (have_posts()): ?>
             
-            <header class="wfn-archive-header">
-                <h1 class="wfn-archive-title"><?php post_type_archive_title(); ?></h1>
+            <header class="hkfn-archive-header">
+                <h1 class="hkfn-archive-title"><?php post_type_archive_title(); ?></h1>
             </header>
             
-            <div class="wfn-firehawk-grid wfn-cols-3">
+            <div class="hkfn-firehawk-grid hkfn-cols-3">
                 
                 <?php while (have_posts()): the_post(); ?>
                     
-                    <article class="wfn-firehawk-card">
-                        <a href="<?php the_permalink(); ?>" class="wfn-firehawk-link">
+                    <article class="hkfn-firehawk-card">
+                        <a href="<?php the_permalink(); ?>" class="hkfn-firehawk-link">
                             
-                            <div class="wfn-firehawk-header">
+                            <div class="hkfn-firehawk-header">
                                 <?php if (has_post_thumbnail()): ?>
                                     <img src="<?php echo esc_url(get_the_post_thumbnail_url(get_the_ID(), 'thumbnail')); ?>" 
                                          alt="<?php echo esc_attr(get_the_title()); ?>" 
-                                         class="wfn-firehawk-portrait">
+                                         class="hkfn-firehawk-portrait">
                                 <?php endif; ?>
                                 
-                                <div class="wfn-firehawk-details">
-                                    <h2 class="wfn-firehawk-name"><?php the_title(); ?></h2>
+                                <div class="hkfn-firehawk-details">
+                                    <h2 class="hkfn-firehawk-name"><?php the_title(); ?></h2>
                                     
                                     <?php 
-                                    $person_group = get_field('wfn_person_group') ?: [];
+                                    $person_group = get_field('hkfn_person_group') ?: [];
                                     $birth_year = $person_group['birth_year'] ?? '';
                                     $death_year = $person_group['death_year'] ?? '';
                                     if ($birth_year && $death_year): ?>
-                                        <p class="wfn-firehawk-years"><?php echo esc_html("{$birth_year} - {$death_year}"); ?></p>
+                                        <p class="hkfn-firehawk-years"><?php echo esc_html("{$birth_year} - {$death_year}"); ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
                             
                             <?php 
-                            $details_group = get_field('wfn_details_group') ?: [];
+                            $details_group = get_field('hkfn_details_group') ?: [];
                             $funeral_date = $details_group['funeral_date'] ?? '';
                             if ($funeral_date): ?>
-                                <div class="wfn-firehawk-date">
+                                <div class="hkfn-firehawk-date">
                                     <strong>Service:</strong> <?php echo esc_html(date('F j, Y', strtotime($funeral_date))); ?>
                                 </div>
                             <?php endif; ?>
@@ -71,13 +71,13 @@ get_header(); ?>
                 'mid_size' => 2,
                 'prev_text' => '&laquo; Previous',
                 'next_text' => 'Next &raquo;',
-                'class' => 'wfn-pagination'
+                'class' => 'hkfn-pagination'
             ]);
             ?>
             
         <?php else: ?>
             
-            <div class="wfn-no-results">
+            <div class="hkfn-no-results">
                 <h2>No funeral notices found</h2>
                 <p>There are currently no funeral notices to display.</p>
             </div>

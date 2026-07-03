@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Admin;
+namespace HumanKind\FuneralNotices\Admin;
 
 /**
  * Image Crop Handler
@@ -16,7 +16,7 @@ class ImageCropHandler {
     /**
      * Custom image size name for grid display
      */
-    private const GRID_CROP_SIZE = 'wfn-grid-crop';
+    private const GRID_CROP_SIZE = 'hkfn-grid-crop';
 
     /**
      * Grid crop dimensions (4:3 aspect ratio)
@@ -27,7 +27,7 @@ class ImageCropHandler {
     /**
      * Metadata key for storing user crop coordinates
      */
-    private const CROP_META_KEY = 'wfn_grid_crop_data';
+    private const CROP_META_KEY = 'hkfn_grid_crop_data';
 
     /**
      * Initialize the image crop handler
@@ -54,7 +54,7 @@ class ImageCropHandler {
         add_action('admin_footer-post-new.php', [$this, 'force_media_upload_tab']);
 
         // AJAX handler for saving crop coordinates
-        add_action('wp_ajax_wfn_save_crop_coordinates', [$this, 'ajax_save_crop_coordinates']);
+        add_action('wp_ajax_hkfn_save_crop_coordinates', [$this, 'ajax_save_crop_coordinates']);
 
         // Add custom image sizes to media library dropdown
         add_filter('image_size_names_choose', [$this, 'add_grid_crop_to_media_sizes']);
@@ -228,7 +228,7 @@ class ImageCropHandler {
      */
     public function ajax_save_crop_coordinates(): void {
         // Verify nonce
-        check_ajax_referer('wfn_crop_nonce', 'nonce');
+        check_ajax_referer('hkfn_crop_nonce', 'nonce');
 
         // Verify user capability
         if (!current_user_can('edit_posts')) {
@@ -335,25 +335,25 @@ class ImageCropHandler {
 
         // Enqueue JavaScript with timestamp for cache busting during development
         wp_enqueue_script(
-            'wfn-image-crop',
+            'hkfn-image-crop',
             plugins_url('assets/js/admin/image-crop.js', dirname(__DIR__, 1)),
             ['jquery', 'acf-input'],
-            WFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/js/admin/image-crop.js'),
+            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/js/admin/image-crop.js'),
             true
         );
 
         // Enqueue CSS with timestamp for cache busting
         wp_enqueue_style(
-            'wfn-image-crop',
+            'hkfn-image-crop',
             plugins_url('assets/css/admin/image-crop.css', dirname(__DIR__, 1)),
             [],
-            WFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/css/admin/image-crop.css')
+            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/css/admin/image-crop.css')
         );
 
         // Localize script with AJAX URL and nonces
-        wp_localize_script('wfn-image-crop', 'wfnCrop', [
+        wp_localize_script('hkfn-image-crop', 'hkfnCrop', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_crop_nonce'),
+            'nonce' => wp_create_nonce('hkfn_crop_nonce'),
             'restNonce' => wp_create_nonce('wp_rest'),
             'gridWidth' => self::GRID_WIDTH,
             'gridHeight' => self::GRID_HEIGHT,

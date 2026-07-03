@@ -6,7 +6,7 @@
 (function($) {
     'use strict';
 
-    const WFNStylingAdmin = {
+    const HKFNStylingAdmin = {
         
         init: function() {
             this.initColorPickers();
@@ -15,7 +15,7 @@
 
         initColorPickers: function() {
             // Initialize WordPress color pickers
-            $('.wfn-color-picker').wpColorPicker({
+            $('.hkfn-color-picker').wpColorPicker({
                 defaultColor: false,
                 hide: true,
                 palettes: [
@@ -34,7 +34,7 @@
 
         bindEvents: function() {
             // Handle range input changes
-            $(document).on('input change', '.wfn-range-input', function() {
+            $(document).on('input change', '.hkfn-range-input', function() {
                 const $input = $(this);
                 const $valueSpan = $input.siblings('.range-value');
                 const value = $input.val();
@@ -50,21 +50,21 @@
             });
 
             // Handle reset button
-            $(document).on('click', '#wfn-reset-styles', function(e) {
+            $(document).on('click', '#hkfn-reset-styles', function(e) {
                 e.preventDefault();
-                WFNStylingAdmin.resetStyles();
+                HKFNStylingAdmin.resetStyles();
             });
 
             // Handle form submission
             $(document).on('submit', 'form', function() {
                 // Update hidden inputs with current values before submission
-                WFNStylingAdmin.updateHiddenInputs();
+                HKFNStylingAdmin.updateHiddenInputs();
             });
         },
 
         updateHiddenInputs: function() {
             // Ensure all color picker values are synced to their inputs
-            $('.wfn-color-picker').each(function() {
+            $('.hkfn-color-picker').each(function() {
                 const $input = $(this);
                 const color = $input.wpColorPicker('color');
                 if (color) {
@@ -74,36 +74,36 @@
         },
 
         resetStyles: function() {
-            if (!confirm(wfnStyling.resetConfirm)) {
+            if (!confirm(hkfnStyling.resetConfirm)) {
                 return;
             }
 
             // Show loading state
-            const $button = $('#wfn-reset-styles');
+            const $button = $('#hkfn-reset-styles');
             const originalText = $button.html();
             $button.html('<span class="dashicons dashicons-update spin"></span> Resetting...').prop('disabled', true);
 
             // Perform AJAX reset
             $.ajax({
-                url: wfnStyling.ajaxUrl,
+                url: hkfnStyling.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_reset_styles',
-                    nonce: wfnStyling.nonce
+                    action: 'hkfn_reset_styles',
+                    nonce: hkfnStyling.nonce
                 },
                 success: function(response) {
                     if (response.success) {
                         // Reset form values to defaults
-                        WFNStylingAdmin.setDefaultValues();
+                        HKFNStylingAdmin.setDefaultValues();
                         
                         // Show success message
-                        WFNStylingAdmin.showMessage(wfnStyling.resetSuccess, 'success');
+                        HKFNStylingAdmin.showMessage(hkfnStyling.resetSuccess, 'success');
                     } else {
-                        WFNStylingAdmin.showMessage('Reset failed. Please try again.', 'error');
+                        HKFNStylingAdmin.showMessage('Reset failed. Please try again.', 'error');
                     }
                 },
                 error: function() {
-                    WFNStylingAdmin.showMessage('Reset failed. Please try again.', 'error');
+                    HKFNStylingAdmin.showMessage('Reset failed. Please try again.', 'error');
                 },
                 complete: function() {
                     $button.html(originalText).prop('disabled', false);
@@ -138,9 +138,9 @@
             // Update color pickers
             Object.keys(defaults).forEach(function(key) {
                 const $input = $('input[name="' + key + '"]');
-                if ($input.hasClass('wfn-color-picker')) {
+                if ($input.hasClass('hkfn-color-picker')) {
                     $input.wpColorPicker('color', defaults[key]);
-                } else if ($input.hasClass('wfn-range-input')) {
+                } else if ($input.hasClass('hkfn-range-input')) {
                     $input.val(defaults[key]);
                     // Update range value display
                     const suffix = (key.includes('radius') || key.includes('padding')) ? 'px' : '';
@@ -170,7 +170,7 @@
 
     // Initialize when document is ready
     $(document).ready(function() {
-        WFNStylingAdmin.init();
+        HKFNStylingAdmin.init();
     });
 
 })(jQuery); 

@@ -13,14 +13,14 @@
     'use strict';
 
     // Global namespace
-    window.WFNLayouts = window.WFNLayouts || {};
+    window.HKFNLayouts = window.HKFNLayouts || {};
 
     /**
      * Main Layouts Controller
      */
     class LayoutsController {
         constructor() {
-            this.settings = window.wfnLayouts || {};
+            this.settings = window.hkfnLayouts || {};
             this.isLoading = false;
             this.searchTimeout = null;
             
@@ -47,7 +47,7 @@
 
         bindEvents() {
             // Search form events
-            $(document).on('submit', '.wfn-search-form', (e) => {
+            $(document).on('submit', '.hkfn-search-form', (e) => {
                 this.handleSearchSubmit(e);
             });
 
@@ -69,11 +69,11 @@
             });
 
             // Card events
-            $(document).on('mouseenter', '.wfn-funeral-card', (e) => {
+            $(document).on('mouseenter', '.hkfn-funeral-card', (e) => {
                 this.handleCardHover(e, true);
             });
 
-            $(document).on('mouseleave', '.wfn-funeral-card', (e) => {
+            $(document).on('mouseleave', '.hkfn-funeral-card', (e) => {
                 this.handleCardHover(e, false);
             });
 
@@ -92,7 +92,7 @@
          * Search functionality
          */
         initializeSearch() {
-            const $searchForm = $('.wfn-search-form');
+            const $searchForm = $('.hkfn-search-form');
             if (!$searchForm.length) return;
 
             // Add loading indicators
@@ -162,7 +162,7 @@
             e.preventDefault();
             
             // Clear all search fields
-            const $form = $('.wfn-search-form');
+            const $form = $('.hkfn-search-form');
             $form.find('input[type="text"], input[type="hidden"]').val('');
             
             // Redirect to clean URL
@@ -237,7 +237,7 @@
             if (!$grid.length) return;
 
             const columns = parseInt($grid.data('columns') || 3);
-            const cards = $grid.find('.wfn-funeral-card').length;
+            const cards = $grid.find('.hkfn-funeral-card').length;
             
             // Adjust grid for fewer items
             if (cards < columns && window.innerWidth > 1024) {
@@ -326,13 +326,13 @@
 
         addCardAnimations() {
             // Add staggered animation for card entrance
-            $('.wfn-funeral-card').each(function(index) {
+            $('.hkfn-funeral-card').each(function(index) {
                 $(this).css('animation-delay', `${index * 0.1}s`);
             });
         }
 
         initializeCardAccessibility() {
-            $('.wfn-funeral-card').each(function() {
+            $('.hkfn-funeral-card').each(function() {
                 const $card = $(this);
                 const $link = $card.find('.funeral-name-link').first();
                 
@@ -398,7 +398,7 @@
 
         initializeFocusManagement() {
             // Return focus to search after form submission
-            const $searchForm = $('.wfn-search-form');
+            const $searchForm = $('.hkfn-search-form');
             if ($searchForm.length) {
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('search_name') || urlParams.has('search_date_from')) {
@@ -432,12 +432,12 @@
             // Escape key handling
             if (e.key === 'Escape') {
                 // Clear search if focused on search form
-                if ($(e.target).closest('.wfn-modern-search').length) {
+                if ($(e.target).closest('.hkfn-modern-search').length) {
                     $('.modern-reset').trigger('click');
                 }
                 
                 // Close any open modals (future enhancement)
-                $('.wfn-modal.active').removeClass('active');
+                $('.hkfn-modal.active').removeClass('active');
             }
             
             // Arrow key navigation for cards
@@ -448,9 +448,9 @@
 
         handleCardNavigation(e) {
             const $focused = $(document.activeElement);
-            if (!$focused.hasClass('wfn-funeral-card')) return;
+            if (!$focused.hasClass('hkfn-funeral-card')) return;
             
-            const $cards = $('.wfn-funeral-card');
+            const $cards = $('.hkfn-funeral-card');
             const currentIndex = $cards.index($focused);
             let newIndex = currentIndex;
             
@@ -504,9 +504,9 @@
         showMessage(message, type = 'info') {
             // Show notification (simple implementation)
             const $message = $(`
-                <div class="wfn-message wfn-message-${type}">
+                <div class="hkfn-message hkfn-message-${type}">
                     ${message}
-                    <button type="button" class="wfn-message-close">×</button>
+                    <button type="button" class="hkfn-message-close">×</button>
                 </div>
             `);
             
@@ -520,7 +520,7 @@
             }, 5000);
             
             // Manual close
-            $message.find('.wfn-message-close').on('click', () => {
+            $message.find('.hkfn-message-close').on('click', () => {
                 $message.fadeOut(() => {
                     $message.remove();
                 });
@@ -557,6 +557,6 @@
     const layoutsController = new LayoutsController();
     
     // Expose to global scope
-    window.WFNLayouts.controller = layoutsController;
+    window.HKFNLayouts.controller = layoutsController;
 
 })(jQuery); 

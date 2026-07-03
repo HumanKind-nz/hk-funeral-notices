@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\AJAX;
+namespace HumanKind\FuneralNotices\AJAX;
 
 /**
  * Load More Handler
@@ -17,8 +17,8 @@ class LoadMoreHandler {
      * Constructor - Register AJAX hooks
      */
     public function __construct() {
-        add_action('wp_ajax_wfn_load_more', [$this, 'handle_load_more']);
-        add_action('wp_ajax_nopriv_wfn_load_more', [$this, 'handle_load_more']);
+        add_action('wp_ajax_hkfn_load_more', [$this, 'handle_load_more']);
+        add_action('wp_ajax_nopriv_hkfn_load_more', [$this, 'handle_load_more']);
     }
 
     /**
@@ -26,7 +26,7 @@ class LoadMoreHandler {
      */
     public function handle_load_more(): void {
         // Verify nonce
-        check_ajax_referer('wfn_load_more_nonce', 'nonce');
+        check_ajax_referer('hkfn_load_more_nonce', 'nonce');
 
         // Get parameters from POST
         $offset = isset($_POST['offset']) ? absint($_POST['offset']) : 0;
@@ -108,12 +108,12 @@ class LoadMoreHandler {
             $search_meta_query = [
                 'relation' => 'OR',
                 [
-                    'key' => 'wfn_person_group_firstname',
+                    'key' => 'hkfn_person_group_firstname',
                     'value' => $filters['search_term'],
                     'compare' => 'LIKE'
                 ],
                 [
-                    'key' => 'wfn_person_group_lastname',
+                    'key' => 'hkfn_person_group_lastname',
                     'value' => $filters['search_term'],
                     'compare' => 'LIKE'
                 ]
@@ -310,7 +310,7 @@ class LoadMoreHandler {
         ];
 
         $template_file = $template_map[$layout] ?? $template_map['modern'];
-        $template_path = WFN_PLUGIN_DIR . 'templates/' . $template_file;
+        $template_path = HKFN_PLUGIN_DIR . 'templates/' . $template_file;
 
         // Check if template exists
         if (file_exists($template_path)) {
@@ -325,8 +325,8 @@ class LoadMoreHandler {
      * Render fallback card if template not found
      */
     private function render_fallback_card(int $post_id): void {
-        $person_group = get_field('wfn_person_group', $post_id);
-        $details_group = get_field('wfn_details_group', $post_id);
+        $person_group = get_field('hkfn_person_group', $post_id);
+        $details_group = get_field('hkfn_details_group', $post_id);
 
         $firstname = $person_group['firstname'] ?? '';
         $lastname = $person_group['lastname'] ?? '';
@@ -335,12 +335,12 @@ class LoadMoreHandler {
         $funeral_date = $details_group['funeral_date'] ?? '';
 
         ?>
-        <div class="wfn-funeral-card">
+        <div class="hkfn-funeral-card">
             <h3><?php echo esc_html($full_name); ?></h3>
             <?php if ($funeral_date): ?>
                 <p class="funeral-date"><?php echo esc_html(date('F j, Y', strtotime($funeral_date))); ?></p>
             <?php endif; ?>
-            <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="wfn-read-more">View Tribute</a>
+            <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="hkfn-read-more">View Tribute</a>
         </div>
         <?php
     }

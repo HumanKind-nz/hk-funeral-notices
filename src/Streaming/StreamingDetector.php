@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Streaming;
+namespace HumanKind\FuneralNotices\Streaming;
 
 /**
  * Streaming Service Detector
@@ -160,13 +160,13 @@ class StreamingDetector {
         $embed_url = "https://www.youtube.com/watch?v=" . $video_id;
 
         return sprintf(
-            '<div class="wfn-video-embed wfn-youtube-embed">' .
+            '<div class="hkfn-video-embed hkfn-youtube-embed">' .
             '<iframe src="https://www.youtube.com/embed/%s?rel=0&modestbranding=1" ' .
             'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">' .
             '</iframe>' .
-            '<div class="wfn-streaming-actions" style="margin-top: 0.75rem;">' .
-            '<a href="%s" target="_blank" rel="noopener" class="wfn-view-external">Open in YouTube</a>' .
+            '<div class="hkfn-streaming-actions" style="margin-top: 0.75rem;">' .
+            '<a href="%s" target="_blank" rel="noopener" class="hkfn-view-external">Open in YouTube</a>' .
             '</div>' .
             '</div>',
             esc_attr($video_id),
@@ -186,7 +186,7 @@ class StreamingDetector {
      */
     private function generate_oneroom_embed(string $url): string {
         return sprintf(
-            '<div class="wfn-video-embed wfn-oneroom-embed">' .
+            '<div class="hkfn-video-embed hkfn-oneroom-embed">' .
             '<iframe class="livestream-video" src="%s" ' .
             'width="100%%" height="1000" frameborder="0" ' .
             'allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" ' .
@@ -274,13 +274,13 @@ class StreamingDetector {
         $vimeo_url = !empty($original_url) ? $original_url : "https://vimeo.com/" . $video_id;
 
         return sprintf(
-            '<div class="wfn-video-embed wfn-vimeo-embed">' .
+            '<div class="hkfn-video-embed hkfn-vimeo-embed">' .
             '<iframe src="%s" ' .
             'width="100%%" height="450" frameborder="0" allowfullscreen ' .
             'allow="autoplay; fullscreen; picture-in-picture">' .
             '</iframe>' .
-            '<div class="wfn-streaming-actions" style="margin-top: 0.75rem;">' .
-            '<a href="%s" target="_blank" rel="noopener" class="wfn-view-external">Open in Vimeo</a>' .
+            '<div class="hkfn-streaming-actions" style="margin-top: 0.75rem;">' .
+            '<a href="%s" target="_blank" rel="noopener" class="hkfn-view-external">Open in Vimeo</a>' .
             '</div>' .
             '</div>',
             esc_attr($iframe_src),
@@ -308,7 +308,7 @@ class StreamingDetector {
      */
     private function generate_facebook_embed(string $url): string {
         return sprintf(
-            '<div class="wfn-video-embed wfn-facebook-embed">' .
+            '<div class="hkfn-video-embed hkfn-facebook-embed">' .
             '<iframe src="https://www.facebook.com/plugins/video.php?href=%s&show_text=false&width=560" ' .
             'width="100%%" height="450" style="border:none;overflow:hidden" scrolling="no" frameborder="0" ' .
             'allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">' .
@@ -335,17 +335,17 @@ class StreamingDetector {
         };
 
         // Load SVG icon function if not already loaded
-        if (!function_exists('wfn_get_stream_icon')) {
+        if (!function_exists('hkfn_get_stream_icon')) {
             require_once plugin_dir_path(dirname(__FILE__, 2)) . 'templates/partials/svg-icons.php';
         }
 
         return sprintf(
-            '<div class="wfn-stream-button-wrapper">' .
-            '<a href="%s" target="_blank" rel="noopener" class="wfn-stream-btn">' .
+            '<div class="hkfn-stream-button-wrapper">' .
+            '<a href="%s" target="_blank" rel="noopener" class="hkfn-stream-btn">' .
             '%s %s' .
             '</a></div>',
             esc_url($url),
-            wfn_get_stream_icon(),
+            hkfn_get_stream_icon(),
             esc_html($button_text)
         );
     }
@@ -364,14 +364,14 @@ class StreamingDetector {
 
         // Check privacy settings
         if ($is_private && !is_user_logged_in()) {
-            return '<div class="wfn-streaming-private">Live streaming available for family and friends. Please log in to view.</div>';
+            return '<div class="hkfn-streaming-private">Live streaming available for family and friends. Please log in to view.</div>';
         }
 
         $output = '';
 
         // Add streaming note if provided
         if (!empty($note)) {
-            $output .= sprintf('<div class="wfn-streaming-note">%s</div>', esc_html($note));
+            $output .= sprintf('<div class="hkfn-streaming-note">%s</div>', esc_html($note));
         }
 
         switch ($streaming_type) {
@@ -379,7 +379,7 @@ class StreamingDetector {
                 $oneroom_code = $streaming_data['oneroom_code'] ?? '';
                 if (!empty($oneroom_code)) {
                     // Wrap OneRoom code in responsive container
-                    $output .= '<div class="wfn-video-embed wfn-oneroom-embed">' . $oneroom_code . '</div>';
+                    $output .= '<div class="hkfn-video-embed hkfn-oneroom-embed">' . $oneroom_code . '</div>';
                 }
                 break;
 
@@ -397,7 +397,7 @@ class StreamingDetector {
         }
 
         if (!empty($output)) {
-            return '<div class="wfn-streaming-section">' . $output . '</div>';
+            return '<div class="hkfn-streaming-section">' . $output . '</div>';
         }
 
         return '';

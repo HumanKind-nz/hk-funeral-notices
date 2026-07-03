@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Helpers;
+namespace HumanKind\FuneralNotices\Helpers;
 
 /**
  * Button Helper
@@ -16,7 +16,7 @@ class ButtonHelper {
      */
     public static function primary_button(string $text, string $url, array $attributes = []): string {
         $default_attributes = [
-            'class' => 'wfn-btn wfn-btn-primary',
+            'class' => 'hkfn-btn hkfn-btn-primary',
             'target' => '_self'
         ];
         
@@ -36,7 +36,7 @@ class ButtonHelper {
      */
     public static function secondary_button(string $text, string $url, array $attributes = []): string {
         $default_attributes = [
-            'class' => 'wfn-btn wfn-btn-secondary',
+            'class' => 'hkfn-btn hkfn-btn-secondary',
             'target' => '_self'
         ];
         
@@ -56,7 +56,7 @@ class ButtonHelper {
      */
     public static function download_button(string $text, string $file_url, array $attributes = []): string {
         $default_attributes = [
-            'class' => 'wfn-btn wfn-btn-primary wfn-download-btn',
+            'class' => 'hkfn-btn hkfn-btn-primary hkfn-download-btn',
             'target' => '_blank',
             'download' => ''
         ];
@@ -77,7 +77,7 @@ class ButtonHelper {
      */
     public static function card_action_button(string $text, string $url, array $attributes = []): string {
         $default_attributes = [
-            'class' => 'wfn-card-action wfn-btn wfn-btn-primary',
+            'class' => 'hkfn-card-action hkfn-btn hkfn-btn-primary',
             'target' => '_self'
         ];
         
@@ -97,7 +97,7 @@ class ButtonHelper {
      */
     public static function tribute_button(string $text, string $url, array $attributes = []): string {
         $default_attributes = [
-            'class' => 'wfn-btn wfn-btn-primary wfn-tribute-btn',
+            'class' => 'hkfn-btn hkfn-btn-primary hkfn-tribute-btn',
             'target' => '_blank'
         ];
         
@@ -126,7 +126,7 @@ class ButtonHelper {
         }
 
         $default_attributes = [
-            'class' => 'wfn-btn wfn-btn-secondary wfn-edit-btn',
+            'class' => 'hkfn-btn hkfn-btn-secondary hkfn-edit-btn',
             'target' => '_blank'
         ];
         
@@ -165,7 +165,7 @@ class ButtonHelper {
      * Get customizable button text from styling options
      */
     public static function get_button_text(string $key, string $default = ''): string {
-        $text_settings = get_option('wfn_styling_text', []);
+        $text_settings = hkfn_get_option('styling_text', []);
         return $text_settings[$key] ?? $default;
     }
 } 

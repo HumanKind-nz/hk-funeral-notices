@@ -1,24 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices;
+namespace HumanKind\FuneralNotices;
 
-use WeaveStudios\FuneralNotices\Templates\TemplateManager;
-use WeaveStudios\FuneralNotices\Shortcodes\FuneralNoticesShortcode;
-use WeaveStudios\FuneralNotices\Admin\Dashboard;
-use WeaveStudios\FuneralNotices\Admin\AdminColumns;
-use WeaveStudios\FuneralNotices\Admin\ImageCropHandler;
-use WeaveStudios\FuneralNotices\FieldGroups\FieldGroupManager;
-use WeaveStudios\FuneralNotices\Modules\SettingsModule;
-use WeaveStudios\FuneralNotices\Modules\LayoutsModule;
-use WeaveStudios\FuneralNotices\Modules\SearchModule;
-use WeaveStudios\FuneralNotices\Modules\StylingModule;
-use WeaveStudios\FuneralNotices\Modules\LicenseModule;
-use WeaveStudios\FuneralNotices\Modules\VideoModule;
-use WeaveStudios\FuneralNotices\Modules\AnalyticsModule;
-use WeaveStudios\FuneralNotices\Fields\GoogleMapsField;
-use WeaveStudios\FuneralNotices\AJAX\LoadMoreHandler;
-use WeaveStudios\FuneralNotices\API\VideoUploadAPI;
+use HumanKind\FuneralNotices\Templates\TemplateManager;
+use HumanKind\FuneralNotices\Shortcodes\FuneralNoticesShortcode;
+use HumanKind\FuneralNotices\Admin\Dashboard;
+use HumanKind\FuneralNotices\Admin\AdminColumns;
+use HumanKind\FuneralNotices\Admin\ImageCropHandler;
+use HumanKind\FuneralNotices\FieldGroups\FieldGroupManager;
+use HumanKind\FuneralNotices\Modules\SettingsModule;
+use HumanKind\FuneralNotices\Modules\LayoutsModule;
+use HumanKind\FuneralNotices\Modules\SearchModule;
+use HumanKind\FuneralNotices\Modules\StylingModule;
+use HumanKind\FuneralNotices\Modules\LicenseModule;
+use HumanKind\FuneralNotices\Modules\VideoModule;
+use HumanKind\FuneralNotices\Modules\AnalyticsModule;
+use HumanKind\FuneralNotices\Fields\GoogleMapsField;
+use HumanKind\FuneralNotices\AJAX\LoadMoreHandler;
+use HumanKind\FuneralNotices\API\VideoUploadAPI;
 
 /**
  * Main Plugin Class
@@ -114,14 +114,14 @@ class Plugin {
 
         // Schedule upload cleanup cron - DISABLED v2.6.4 (Nov 21, 2025)
         // REASON: Automatic cleanup too dangerous - caused 3 video deletion incidents
-        // if (!wp_next_scheduled('wfn_cleanup_abandoned_uploads')) {
-        //     wp_schedule_event(time(), 'daily', 'wfn_cleanup_abandoned_uploads');
+        // if (!wp_next_scheduled('hkfn_cleanup_abandoned_uploads')) {
+        //     wp_schedule_event(time(), 'daily', 'hkfn_cleanup_abandoned_uploads');
         // }
 
         // Unschedule any existing cleanup crons (v2.6.4 safety measure)
-        $timestamp = wp_next_scheduled('wfn_cleanup_abandoned_uploads');
+        $timestamp = wp_next_scheduled('hkfn_cleanup_abandoned_uploads');
         if ($timestamp) {
-            wp_unschedule_event($timestamp, 'wfn_cleanup_abandoned_uploads');
+            wp_unschedule_event($timestamp, 'hkfn_cleanup_abandoned_uploads');
         }
 
         // Register template loading hooks
@@ -154,23 +154,23 @@ class Plugin {
         // Enqueue Load More assets on archive pages
         if (is_post_type_archive('funeral-notice') || is_tax('funeral-location')) {
             wp_enqueue_style(
-                'wfn-load-more',
+                'hkfn-load-more',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/load-more.css',
                 [],
                 '2.4.0'
             );
 
             wp_enqueue_script(
-                'wfn-load-more',
+                'hkfn-load-more',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/load-more.js',
                 ['jquery'],
                 '2.4.0',
                 true
             );
 
-            wp_localize_script('wfn-load-more', 'wfnLoadMore', [
+            wp_localize_script('hkfn-load-more', 'hkfnLoadMore', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('wfn_load_more_nonce')
+                'nonce' => wp_create_nonce('hkfn_load_more_nonce')
             ]);
         }
 
@@ -208,7 +208,7 @@ class Plugin {
         if ($should_load_flatpickr) {
             // Enqueue custom Flatpickr theme
             wp_enqueue_style(
-                'wfn-flatpickr-custom',
+                'hkfn-flatpickr-custom',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/flatpickr-custom.css',
                 [],
                 '2.4.0'
@@ -216,7 +216,7 @@ class Plugin {
 
             // Enqueue initialization script (handles lazy loading of Flatpickr library)
             wp_enqueue_script(
-                'wfn-flatpickr-init',
+                'hkfn-flatpickr-init',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/flatpickr-init.js',
                 [],
                 '2.4.0',
@@ -228,7 +228,7 @@ class Plugin {
             $flatpickr_format = $this->convert_php_to_flatpickr_format($wp_date_format);
 
             // Localize script with URLs for lazy loading and settings
-            wp_localize_script('wfn-flatpickr-init', 'wfnFlatpickr', [
+            wp_localize_script('hkfn-flatpickr-init', 'hkfnFlatpickr', [
                 'jsUrl' => plugin_dir_url(dirname(__FILE__)) . 'assets/js/vendor/flatpickr.min.js',
                 'cssUrl' => plugin_dir_url(dirname(__FILE__)) . 'assets/css/vendor/flatpickr.min.css',
                 'dateFormat' => $flatpickr_format,
@@ -239,14 +239,14 @@ class Plugin {
         // Enqueue social share assets on single funeral notice pages
         if (is_singular('funeral-notice')) {
             wp_enqueue_style(
-                'wfn-social-share',
+                'hkfn-social-share',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/social-share.css',
                 [],
                 '2.4.0'
             );
 
             wp_enqueue_script(
-                'wfn-social-share',
+                'hkfn-social-share',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/social-share.js',
                 [],
                 '2.4.0',

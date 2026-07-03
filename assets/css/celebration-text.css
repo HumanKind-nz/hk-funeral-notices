@@ -8,36 +8,36 @@
  */
 
 /* Celebration Text Common Styles */
-.wfn-celebration-text {
+.hkfn-celebration-text {
     margin: 30px auto;
     text-align: center;
     padding: 20px 30px;
     max-width: 900px;
 }
 
-.wfn-celebration-text h2 {
+.hkfn-celebration-text h2 {
     margin: 0;
     font-size: 1.65rem;
     font-weight: 300;
     line-height: 1.5;
-    color: var(--wfn-text-primary, #212529);
+    color: var(--hkfn-text-primary, #212529);
     font-family: 'Georgia', 'Times New Roman', serif;
 }
 
 /* Modern Layout Specific */
-.wfn-modern-single .wfn-modern-intro {
+.hkfn-modern-single .hkfn-modern-intro {
     font-size: 1.25rem;
-    color: var(--wfn-text-secondary, #6c757d);
+    color: var(--hkfn-text-secondary, #6c757d);
     margin: 15px 0 25px;
     font-style: italic;
     text-align: center;
 }
 
 /* Elegant Layout Specific */
-.wfn-elegant-single .wfn-elegant-invitation {
+.hkfn-elegant-single .hkfn-elegant-invitation {
     font-size: 1.35rem;
     line-height: 1.6;
-    color: var(--wfn-text-primary, #212529);
+    color: var(--hkfn-text-primary, #212529);
     font-family: 'Playfair Display', 'Georgia', serif;
     font-style: italic;
     text-align: center;
@@ -59,32 +59,32 @@
 }
 
 /* Current/Default Layout Specific */
-.wfn-current-single .wfn-celebration-text {
+.hkfn-current-single .hkfn-celebration-text {
     margin: 40px auto;
     max-width: 850px;
 }
 
-.wfn-current-single .wfn-celebration-text h2 {
+.hkfn-current-single .hkfn-celebration-text h2 {
     font-size: 1.625rem;
     font-weight: 300;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .wfn-celebration-text {
+    .hkfn-celebration-text {
         margin: 20px auto;
         padding: 20px 15px;
     }
     
-    .wfn-celebration-text h2 {
+    .hkfn-celebration-text h2 {
         font-size: 1.375rem;
     }
     
-    .wfn-modern-single .wfn-modern-intro {
+    .hkfn-modern-single .hkfn-modern-intro {
         font-size: 1.125rem;
     }
     
-    .wfn-elegant-single .wfn-elegant-invitation {
+    .hkfn-elegant-single .hkfn-elegant-invitation {
         font-size: 1.2rem;
     }
     
@@ -92,18 +92,18 @@
         font-size: 1.25rem;
     }
     
-    .wfn-current-single .wfn-celebration-text h2 {
+    .hkfn-current-single .hkfn-celebration-text h2 {
         font-size: 1.375rem;
     }
 }
 
 /* Print Styles */
 @media print {
-    .wfn-celebration-text {
+    .hkfn-celebration-text {
         margin: 20px auto;
     }
     
-    .wfn-celebration-text h2 {
+    .hkfn-celebration-text h2 {
         font-size: 1.5rem;
     }
 }

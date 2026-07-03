@@ -11,9 +11,9 @@ if (!defined('ABSPATH')) {
 
 get_header(); ?>
 
-<main id="main" class="site-main wfn-fullwidth-main">
+<main id="main" class="site-main hkfn-fullwidth-main">
         <?php
-        use WeaveStudios\FuneralNotices\Templates\TemplateManager;
+        use HumanKind\FuneralNotices\Templates\TemplateManager;
 
         // Get the template manager
         $template_manager = new TemplateManager();
@@ -36,7 +36,7 @@ get_header(); ?>
             } else {
                 // Ultimate fallback - basic display
                 ?>
-                <div class="wfn-single-fallback">
+                <div class="hkfn-single-fallback">
                     <h1><?php the_title(); ?></h1>
                     <div class="content">
                         <?php the_content(); ?>

@@ -147,8 +147,8 @@
             const self = this;
 
             // Get the REST nonce
-            const restNonce = (typeof wfnCrop !== 'undefined' && wfnCrop.restNonce)
-                ? wfnCrop.restNonce
+            const restNonce = (typeof hkfnCrop !== 'undefined' && hkfnCrop.restNonce)
+                ? hkfnCrop.restNonce
                 : null;
 
             // Use REST API to get attachment data
@@ -188,14 +188,14 @@
             }
 
             // Reset button state to enabled
-            const $applyButton = this.$cropModal.find('.wfn-crop-apply');
+            const $applyButton = this.$cropModal.find('.hkfn-crop-apply');
             $applyButton.prop('disabled', false).text('Apply Crop');
 
             // Load image and initialize crop area
             this.loadImage(attachment);
 
             // Show modal
-            this.$cropModal.addClass('wfn-crop-active');
+            this.$cropModal.addClass('hkfn-crop-active');
         },
 
         /**
@@ -203,78 +203,78 @@
          */
         createCropModal() {
             const modalHTML = `
-                <div class="wfn-crop-modal">
-                    <div class="wfn-crop-modal-backdrop"></div>
-                    <div class="wfn-crop-modal-content">
-                        <div class="wfn-crop-header">
+                <div class="hkfn-crop-modal">
+                    <div class="hkfn-crop-modal-backdrop"></div>
+                    <div class="hkfn-crop-modal-content">
+                        <div class="hkfn-crop-header">
                             <h2>Crop Image for Grid/List Display</h2>
-                            <p class="wfn-crop-description">
+                            <p class="hkfn-crop-description">
                                 This crop will be shown on grid and list pages only.
                                 The full image will be shown on the funeral page.
                             </p>
-                            <button class="wfn-crop-close" title="Close">&times;</button>
+                            <button class="hkfn-crop-close" title="Close">&times;</button>
                         </div>
 
-                        <div class="wfn-crop-body">
-                            <div class="wfn-crop-workspace">
-                                <div class="wfn-crop-image-container">
-                                    <div class="wfn-crop-image-wrapper">
-                                        <img class="wfn-crop-image" src="" alt="Image to crop">
-                                        <div class="wfn-crop-overlay">
-                                            <div class="wfn-crop-area">
-                                                <div class="wfn-crop-handle wfn-crop-handle-nw"></div>
-                                                <div class="wfn-crop-handle wfn-crop-handle-ne"></div>
-                                                <div class="wfn-crop-handle wfn-crop-handle-sw"></div>
-                                                <div class="wfn-crop-handle wfn-crop-handle-se"></div>
+                        <div class="hkfn-crop-body">
+                            <div class="hkfn-crop-workspace">
+                                <div class="hkfn-crop-image-container">
+                                    <div class="hkfn-crop-image-wrapper">
+                                        <img class="hkfn-crop-image" src="" alt="Image to crop">
+                                        <div class="hkfn-crop-overlay">
+                                            <div class="hkfn-crop-area">
+                                                <div class="hkfn-crop-handle hkfn-crop-handle-nw"></div>
+                                                <div class="hkfn-crop-handle hkfn-crop-handle-ne"></div>
+                                                <div class="hkfn-crop-handle hkfn-crop-handle-sw"></div>
+                                                <div class="hkfn-crop-handle hkfn-crop-handle-se"></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="wfn-crop-zoom-controls">
-                                    <label for="wfn-zoom-slider" class="wfn-zoom-label">
-                                        Zoom: <span class="wfn-zoom-display">100%</span>
+                                <div class="hkfn-crop-zoom-controls">
+                                    <label for="hkfn-zoom-slider" class="hkfn-zoom-label">
+                                        Zoom: <span class="hkfn-zoom-display">100%</span>
                                     </label>
-                                    <div class="wfn-zoom-slider-container">
-                                        <button type="button" class="wfn-zoom-btn wfn-zoom-out" aria-label="Zoom out" title="Zoom out (-)">−</button>
+                                    <div class="hkfn-zoom-slider-container">
+                                        <button type="button" class="hkfn-zoom-btn hkfn-zoom-out" aria-label="Zoom out" title="Zoom out (-)">−</button>
                                         <input type="range"
-                                               id="wfn-zoom-slider"
-                                               class="wfn-zoom-slider"
+                                               id="hkfn-zoom-slider"
+                                               class="hkfn-zoom-slider"
                                                min="100"
                                                max="300"
                                                step="10"
                                                value="100"
                                                aria-label="Zoom level, 100 to 300 percent">
-                                        <button type="button" class="wfn-zoom-btn wfn-zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button>
+                                        <button type="button" class="hkfn-zoom-btn hkfn-zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button>
                                     </div>
-                                    <div class="wfn-zoom-range-labels">
+                                    <div class="hkfn-zoom-range-labels">
                                         <span>100%</span>
                                         <span>300%</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="wfn-crop-preview-panel">
+                            <div class="hkfn-crop-preview-panel">
                                 <h3>Grid/List Preview (4:3)</h3>
-                                <div class="wfn-crop-preview-card">
-                                    <div class="wfn-crop-preview-image">
-                                        <canvas class="wfn-crop-preview-canvas"></canvas>
+                                <div class="hkfn-crop-preview-card">
+                                    <div class="hkfn-crop-preview-image">
+                                        <canvas class="hkfn-crop-preview-canvas"></canvas>
                                     </div>
-                                    <div class="wfn-crop-preview-content">
-                                        <div class="wfn-crop-preview-title">Person Name</div>
-                                        <div class="wfn-crop-preview-dates">1950 - 2025</div>
+                                    <div class="hkfn-crop-preview-content">
+                                        <div class="hkfn-crop-preview-title">Person Name</div>
+                                        <div class="hkfn-crop-preview-dates">1950 - 2025</div>
                                     </div>
                                 </div>
-                                <p class="wfn-crop-preview-note">
+                                <p class="hkfn-crop-preview-note">
                                     Preview of how the image will appear on grid and list pages.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="wfn-crop-footer">
-                            <button class="button wfn-crop-reset">Reset Crop & Zoom</button>
-                            <div class="wfn-crop-actions">
-                                <button class="button wfn-crop-cancel">Cancel</button>
-                                <button class="button button-primary wfn-crop-apply">Apply Crop</button>
+                        <div class="hkfn-crop-footer">
+                            <button class="button hkfn-crop-reset">Reset Crop & Zoom</button>
+                            <div class="hkfn-crop-actions">
+                                <button class="button hkfn-crop-cancel">Cancel</button>
+                                <button class="button button-primary hkfn-crop-apply">Apply Crop</button>
                             </div>
                         </div>
                     </div>
@@ -282,7 +282,7 @@
             `;
 
             $('body').append(modalHTML);
-            this.$cropModal = $('.wfn-crop-modal');
+            this.$cropModal = $('.hkfn-crop-modal');
 
             // Bind events
             this.bindCropEvents();
@@ -293,7 +293,7 @@
          */
         loadImage(attachment) {
             const imageUrl = attachment.url;
-            const $img = this.$cropModal.find('.wfn-crop-image');
+            const $img = this.$cropModal.find('.hkfn-crop-image');
 
             $img.attr('src', imageUrl);
 
@@ -308,8 +308,8 @@
          * Initialize crop area with default 4:3 ratio
          */
         initializeCropArea() {
-            const $img = this.$cropModal.find('.wfn-crop-image');
-            const $cropArea = this.$cropModal.find('.wfn-crop-area');
+            const $img = this.$cropModal.find('.hkfn-crop-image');
+            const $cropArea = this.$cropModal.find('.hkfn-crop-area');
 
             const imgWidth = $img.width();
             const imgHeight = $img.height();
@@ -359,19 +359,19 @@
             const self = this;
 
             // Close modal
-            this.$cropModal.find('.wfn-crop-close, .wfn-crop-cancel, .wfn-crop-modal-backdrop').on('click', function() {
+            this.$cropModal.find('.hkfn-crop-close, .hkfn-crop-cancel, .hkfn-crop-modal-backdrop').on('click', function() {
                 self.closeCropModal();
             });
 
             // Reset crop and zoom
-            this.$cropModal.find('.wfn-crop-reset').on('click', function() {
+            this.$cropModal.find('.hkfn-crop-reset').on('click', function() {
                 self.resetZoom();
                 self.initializeCropArea();
                 self.updatePreview();
             });
 
             // Apply crop
-            this.$cropModal.find('.wfn-crop-apply').on('click', function() {
+            this.$cropModal.find('.hkfn-crop-apply').on('click', function() {
                 self.applyCrop();
             });
 
@@ -396,12 +396,12 @@
          */
         makeCropAreaDraggable() {
             const self = this;
-            const $cropArea = this.$cropModal.find('.wfn-crop-area');
+            const $cropArea = this.$cropModal.find('.hkfn-crop-area');
             let isDragging = false;
             let startX, startY, startLeft, startTop;
 
             $cropArea.on('mousedown', function(e) {
-                if ($(e.target).hasClass('wfn-crop-handle')) {
+                if ($(e.target).hasClass('hkfn-crop-handle')) {
                     return; // Let handle events take priority
                 }
 
@@ -411,7 +411,7 @@
                 startLeft = $cropArea.position().left;
                 startTop = $cropArea.position().top;
 
-                $cropArea.addClass('wfn-crop-dragging');
+                $cropArea.addClass('hkfn-crop-dragging');
                 e.preventDefault();
             });
 
@@ -424,7 +424,7 @@
                 const newTop = startTop + deltaY;
 
                 // Get the actual zoomed image dimensions
-                const $img = self.$cropModal.find('.wfn-crop-image');
+                const $img = self.$cropModal.find('.hkfn-crop-image');
                 const zoomScale = self.currentZoom / 100;
 
                 // The image's visual dimensions after zoom transform
@@ -456,7 +456,7 @@
             $(document).on('mouseup', function() {
                 if (isDragging) {
                     isDragging = false;
-                    $cropArea.removeClass('wfn-crop-dragging');
+                    $cropArea.removeClass('hkfn-crop-dragging');
                 }
             });
         },
@@ -469,8 +469,8 @@
          * We need to remove the offset to get back to the actual image coordinates.
          */
         updateCropData() {
-            const $cropArea = this.$cropModal.find('.wfn-crop-area');
-            const $img = this.$cropModal.find('.wfn-crop-image');
+            const $cropArea = this.$cropModal.find('.hkfn-crop-area');
+            const $img = this.$cropModal.find('.hkfn-crop-image');
             const position = $cropArea.position();
 
             // Get current displayed dimensions (without zoom transform)
@@ -509,10 +509,10 @@
          * original image at the calculated crop coordinates.
          */
         updatePreview() {
-            const $canvas = this.$cropModal.find('.wfn-crop-preview-canvas');
+            const $canvas = this.$cropModal.find('.hkfn-crop-preview-canvas');
             const canvas = $canvas[0];
             const ctx = canvas.getContext('2d');
-            const $img = this.$cropModal.find('.wfn-crop-image')[0];
+            const $img = this.$cropModal.find('.hkfn-crop-image')[0];
 
             // Set canvas size to grid crop dimensions (4:3 ratio)
             const previewWidth = 300;
@@ -546,7 +546,7 @@
                 return;
             }
 
-            const $applyButton = this.$cropModal.find('.wfn-crop-apply');
+            const $applyButton = this.$cropModal.find('.hkfn-crop-apply');
 
             // Don't allow double-clicks
             if ($applyButton.prop('disabled')) {
@@ -557,11 +557,11 @@
 
             // Send crop data to server via AJAX
             $.ajax({
-                url: wfnCrop.ajaxUrl,
+                url: hkfnCrop.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_save_crop_coordinates',
-                    nonce: wfnCrop.nonce,
+                    action: 'hkfn_save_crop_coordinates',
+                    nonce: hkfnCrop.nonce,
                     attachment_id: this.currentAttachment.id,
                     src_x: this.cropData.src_x,
                     src_y: this.cropData.src_y,
@@ -580,7 +580,7 @@
                         // Make sure comparison is visible after cropping
                         setTimeout(() => {
                             const $field = this.findFeaturedImageField();
-                            const $comparison = $field.find('.wfn-image-comparison');
+                            const $comparison = $field.find('.hkfn-image-comparison');
                             if ($comparison.length && $comparison.is(':hidden')) {
                                 $comparison.slideDown(300);
                             }
@@ -602,7 +602,7 @@
          */
         closeCropModal() {
             if (this.$cropModal) {
-                this.$cropModal.removeClass('wfn-crop-active');
+                this.$cropModal.removeClass('hkfn-crop-active');
             }
         },
 
@@ -632,9 +632,9 @@
                         }
 
                         // Use WordPress REST API to get attachment data
-                        // Get the proper REST nonce - prioritize wfnCrop.restNonce
-                        const restNonce = (typeof wfnCrop !== 'undefined' && wfnCrop.restNonce)
-                            ? wfnCrop.restNonce
+                        // Get the proper REST nonce - prioritize hkfnCrop.restNonce
+                        const restNonce = (typeof hkfnCrop !== 'undefined' && hkfnCrop.restNonce)
+                            ? hkfnCrop.restNonce
                             : (typeof wpApiSettings !== 'undefined' && wpApiSettings.nonce)
                                 ? wpApiSettings.nonce
                                 : (wp.media.view.settings && wp.media.view.settings.post && wp.media.view.settings.post.nonce)
@@ -653,12 +653,12 @@
                                 const fullUrl = attachmentData.source_url; // Full size original
                                 const gridCropUrl = attachmentData.media_details &&
                                                     attachmentData.media_details.sizes &&
-                                                    attachmentData.media_details.sizes['wfn-grid-crop']
-                                    ? attachmentData.media_details.sizes['wfn-grid-crop'].source_url
+                                                    attachmentData.media_details.sizes['hkfn-grid-crop']
+                                    ? attachmentData.media_details.sizes['hkfn-grid-crop'].source_url
                                     : null;
 
                                 // Remove any existing preview comparison
-                                $field.find('.wfn-image-comparison').remove();
+                                $field.find('.hkfn-image-comparison').remove();
 
                                 // Create side-by-side preview
                                 const cacheBuster = '?v=' + new Date().getTime();
@@ -666,7 +666,7 @@
                                 const height = attachmentData.media_details ? attachmentData.media_details.height : 'Unknown';
 
                                 const comparisonHTML = `
-                                    <div class="wfn-image-comparison" style="
+                                    <div class="hkfn-image-comparison" style="
                                         display: grid;
                                         grid-template-columns: 1fr 1fr;
                                         gap: 20px;
@@ -811,12 +811,12 @@
                 const $field = self.findFeaturedImageField();
 
                 // Check if button already exists globally
-                if (!$field || $('.wfn-manual-preview-btn').length > 0) {
+                if (!$field || $('.hkfn-manual-preview-btn').length > 0) {
                     return;
                 }
 
                 const $button = $(`
-                    <button type="button" class="button wfn-manual-preview-btn" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;">
+                    <button type="button" class="button hkfn-manual-preview-btn" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;">
                         <span class="dashicons dashicons-visibility" style="margin-top: 0;"></span>
                         <span>Toggle Image Preview</span>
                     </button>
@@ -826,7 +826,7 @@
                     e.preventDefault();
 
                     // Check if comparison already exists
-                    const $existingComparison = $field.find('.wfn-image-comparison');
+                    const $existingComparison = $field.find('.hkfn-image-comparison');
 
                     if ($existingComparison.length) {
                         // Toggle visibility
@@ -916,7 +916,7 @@
 
                     if (attachmentId && parseInt(attachmentId) > 0) {
                         // Check if comparison already exists
-                        if ($field.find('.wfn-image-comparison').length === 0) {
+                        if ($field.find('.hkfn-image-comparison').length === 0) {
                             self.refreshAdminPreview(parseInt(attachmentId));
                         }
                     }
@@ -931,18 +931,18 @@
             const self = this;
 
             // Zoom slider input
-            this.$cropModal.find('#wfn-zoom-slider').on('input', function() {
+            this.$cropModal.find('#hkfn-zoom-slider').on('input', function() {
                 const zoomLevel = parseInt($(this).val());
                 self.applyZoom(zoomLevel);
             });
 
             // Zoom in button
-            this.$cropModal.find('.wfn-zoom-in').on('click', function() {
+            this.$cropModal.find('.hkfn-zoom-in').on('click', function() {
                 self.zoomIn();
             });
 
             // Zoom out button
-            this.$cropModal.find('.wfn-zoom-out').on('click', function() {
+            this.$cropModal.find('.hkfn-zoom-out').on('click', function() {
                 self.zoomOut();
             });
         },
@@ -953,9 +953,9 @@
         bindKeyboardShortcuts() {
             const self = this;
 
-            $(document).on('keydown.wfn-crop', function(e) {
+            $(document).on('keydown.hkfn-crop', function(e) {
                 // Only active when crop tool is visible
-                if (!self.$cropModal || !self.$cropModal.hasClass('wfn-crop-active')) {
+                if (!self.$cropModal || !self.$cropModal.hasClass('hkfn-crop-active')) {
                     return;
                 }
 
@@ -979,7 +979,7 @@
         bindMouseWheelZoom() {
             const self = this;
 
-            this.$cropModal.find('.wfn-crop-image-container').on('wheel', function(e) {
+            this.$cropModal.find('.hkfn-crop-image-container').on('wheel', function(e) {
                 // Only zoom if Ctrl key held (Cmd on Mac)
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
@@ -1004,7 +1004,7 @@
             let touchStartDistance = 0;
             let initialZoomLevel = 100;
 
-            const $cropContainer = this.$cropModal.find('.wfn-crop-image-container');
+            const $cropContainer = this.$cropModal.find('.hkfn-crop-image-container');
 
             $cropContainer.on('touchstart', function(e) {
                 if (e.touches && e.touches.length === 2) {
@@ -1028,7 +1028,7 @@
                     newZoom = Math.round(newZoom / 10) * 10;
 
                     self.applyZoom(newZoom);
-                    self.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+                    self.$cropModal.find('#hkfn-zoom-slider').val(newZoom);
                 }
             });
         },
@@ -1049,11 +1049,11 @@
             this.currentZoom = zoomLevel;
 
             // Update zoom display
-            this.$cropModal.find('.wfn-zoom-display').text(zoomLevel + '%');
+            this.$cropModal.find('.hkfn-zoom-display').text(zoomLevel + '%');
 
             // Apply CSS transform to image
             const scale = zoomLevel / 100;
-            this.$cropModal.find('.wfn-crop-image').css('transform', `scale(${scale})`);
+            this.$cropModal.find('.hkfn-crop-image').css('transform', `scale(${scale})`);
 
             // Update crop data and preview (debounced)
             this.updateCropData();
@@ -1064,9 +1064,9 @@
          * Zoom in by 10%
          */
         zoomIn() {
-            const currentZoom = parseInt(this.$cropModal.find('#wfn-zoom-slider').val());
+            const currentZoom = parseInt(this.$cropModal.find('#hkfn-zoom-slider').val());
             const newZoom = Math.min(300, currentZoom + 10);
-            this.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+            this.$cropModal.find('#hkfn-zoom-slider').val(newZoom);
             this.applyZoom(newZoom);
         },
 
@@ -1074,9 +1074,9 @@
          * Zoom out by 10%
          */
         zoomOut() {
-            const currentZoom = parseInt(this.$cropModal.find('#wfn-zoom-slider').val());
+            const currentZoom = parseInt(this.$cropModal.find('#hkfn-zoom-slider').val());
             const newZoom = Math.max(100, currentZoom - 10);
-            this.$cropModal.find('#wfn-zoom-slider').val(newZoom);
+            this.$cropModal.find('#hkfn-zoom-slider').val(newZoom);
             this.applyZoom(newZoom);
         },
 
@@ -1084,7 +1084,7 @@
          * Reset zoom to 100%
          */
         resetZoom() {
-            this.$cropModal.find('#wfn-zoom-slider').val(100);
+            this.$cropModal.find('#hkfn-zoom-slider').val(100);
             this.applyZoom(100);
         },
 

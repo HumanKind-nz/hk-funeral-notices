@@ -9,7 +9,7 @@
  */
 
 /* ===== ADMIN RESET & BASE ===== */
-.wfn-admin-dashboard {
+.hkfn-admin-dashboard {
     margin-left: -20px;
     margin-right: -20px;
     margin-top: -10px;
@@ -20,12 +20,12 @@
 
 /* Toggle switches now use the existing dashboard structure and CSS */
 
-.wfn-admin-dashboard * {
+.hkfn-admin-dashboard * {
     box-sizing: border-box;
 }
 
 /* ===== FORM BUTTONS ===== */
-.wfn-form-actions {
+.hkfn-form-actions {
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #e1e5e9;
@@ -34,7 +34,7 @@
     align-items: center;
 }
 
-.wfn-form-actions .button-primary {
+.hkfn-form-actions .button-primary {
     background: #667eea;
     border-color: #5a6fd8;
     color: white;
@@ -45,14 +45,14 @@
     transition: all 0.2s ease;
 }
 
-.wfn-form-actions .button-primary:hover {
+.hkfn-form-actions .button-primary:hover {
     background: #5a6fd8;
     border-color: #4c63d2;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
-.wfn-form-actions .button-secondary {
+.hkfn-form-actions .button-secondary {
     background: #f7fafc;
     border-color: #e2e8f0;
     color: #4a5568;
@@ -62,14 +62,14 @@
     transition: all 0.2s ease;
 }
 
-.wfn-form-actions .button-secondary:hover {
+.hkfn-form-actions .button-secondary:hover {
     background: #edf2f7;
     border-color: #cbd5e0;
     color: #2d3748;
 }
 
 /* ===== HEADER SECTION ===== */
-.wfn-admin-header {
+.hkfn-admin-header {
     background: linear-gradient(135deg, #1f4b8f 0%, #0e2f5b 100%);
     padding: 40px 20px;
     position: relative;
@@ -78,7 +78,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.wfn-admin-header::before {
+.hkfn-admin-header::before {
     content: '';
     position: absolute;
     top: 0;
@@ -90,7 +90,7 @@
     pointer-events: none;
 }
 
-.wfn-header-content {
+.hkfn-header-content {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
@@ -101,7 +101,7 @@
     z-index: 1;
 }
 
-.wfn-header-text h1 {
+.hkfn-header-text h1 {
     font-size: 2.5rem;
     font-weight: 300;
     margin: 0 0 10px 0;
@@ -110,14 +110,14 @@
     color: white;
 }
 
-.wfn-header-description {
+.hkfn-header-description {
     font-size: 1.2rem;
     margin: 0 0 15px 0;
     opacity: 0.9;
     font-weight: 300;
 }
 
-.wfn-header-version {
+.hkfn-header-version {
     font-size: 0.9rem;
     opacity: 0.7;
     font-weight: 500;
@@ -126,7 +126,7 @@
 }
 
 /* ===== HEADER LOGO ===== */
-.wfn-plugin-logo {
+.hkfn-plugin-logo {
     width: 150px;
     height: 150px;
     background: rgba(255, 255, 255, 0.15);
@@ -141,7 +141,7 @@
     overflow: hidden;
 }
 
-.wfn-plugin-logo::before {
+.hkfn-plugin-logo::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -154,12 +154,12 @@
     opacity: 0;
 }
 
-.wfn-plugin-logo:hover::before {
+.hkfn-plugin-logo:hover::before {
     opacity: 1;
     animation: shimmer 1.5s ease-in-out;
 }
 
-.wfn-logo-image {
+.hkfn-logo-image {
     max-width: 100%;
     max-height: 100%;
     width: auto;
@@ -174,17 +174,17 @@
 }
 
 /* ===== DASHBOARD CONTENT ===== */
-.wfn-dashboard-content {
+.hkfn-dashboard-content {
     padding: 40px 20px;
 }
 
-.wfn-container {
+.hkfn-container {
     max-width: 1200px;
     margin: 0 auto;
 }
 
 /* ===== WELCOME SECTION ===== */
-.wfn-welcome-section {
+.hkfn-welcome-section {
     background: white;
     padding: 30px;
     border-radius: 12px;
@@ -193,14 +193,14 @@
     border: 1px solid #e1e1e1;
 }
 
-.wfn-welcome-section h2 {
+.hkfn-welcome-section h2 {
     font-size: 1.8rem;
     font-weight: 600;
     color: #1f4b8f;
     margin: 0 0 15px 0;
 }
 
-.wfn-welcome-section p {
+.hkfn-welcome-section p {
     font-size: 1rem;
     line-height: 1.6;
     color: #666;
@@ -208,7 +208,7 @@
 }
 
 /* ===== MODULES GRID ===== */
-.wfn-modules-grid {
+.hkfn-modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 25px;
@@ -216,7 +216,7 @@
 }
 
 /* ===== ALWAYS ACTIVE STATUS ===== */
-.wfn-always-active-label {
+.hkfn-always-active-label {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -229,7 +229,7 @@
     font-size: 0.9rem;
 }
 
-.wfn-status-indicator {
+.hkfn-status-indicator {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -238,7 +238,7 @@
 }
 
 /* ===== MODULE CARDS ===== */
-.wfn-module-card {
+.hkfn-module-card {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -251,19 +251,19 @@
     height: 100%;
 }
 
-.wfn-module-card:hover {
+.hkfn-module-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.wfn-module-header {
+.hkfn-module-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px 25px 0 25px;
 }
 
-.wfn-module-icon {
+.hkfn-module-icon {
     width: 50px;
     height: 50px;
     border-radius: 12px;
@@ -275,7 +275,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.wfn-status-indicator {
+.hkfn-status-indicator {
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -284,47 +284,47 @@
     letter-spacing: 0.5px;
 }
 
-.wfn-status-indicator.active {
+.hkfn-status-indicator.active {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
 
-.wfn-status-indicator.inactive {
+.hkfn-status-indicator.inactive {
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
 
-.wfn-module-content {
+.hkfn-module-content {
     padding: 20px 25px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.wfn-module-content h3 {
+.hkfn-module-content h3 {
     font-size: 1.3rem;
     font-weight: 600;
     color: #1f4b8f;
     margin: 0 0 10px 0;
 }
 
-.wfn-module-content p {
+.hkfn-module-content p {
     font-size: 0.95rem;
     line-height: 1.6;
     color: #666;
     margin: 0 0 15px 0;
 }
 
-.wfn-module-features {
+.hkfn-module-features {
     list-style: none;
     padding: 0;
     margin: 0;
     flex: 1;
 }
 
-.wfn-module-features li {
+.hkfn-module-features li {
     font-size: 0.9rem;
     color: #555;
     padding: 4px 0;
@@ -332,7 +332,7 @@
     padding-left: 20px;
 }
 
-.wfn-module-features li::before {
+.hkfn-module-features li::before {
     content: '✓';
     position: absolute;
     left: 0;
@@ -340,7 +340,7 @@
     font-weight: bold;
 }
 
-.wfn-module-actions {
+.hkfn-module-actions {
     padding: 20px 25px;
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
@@ -352,7 +352,7 @@
 }
 
 /* ===== TOGGLE SWITCHES ===== */
-.wfn-toggle-switch {
+.hkfn-toggle-switch {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -361,12 +361,12 @@
     font-weight: 500;
 }
 
-.wfn-admin-dashboard .wfn-toggle-switch input[type="checkbox"],
-.wfn-module-admin .wfn-toggle-switch input[type="checkbox"] {
+.hkfn-admin-dashboard .hkfn-toggle-switch input[type="checkbox"],
+.hkfn-module-admin .hkfn-toggle-switch input[type="checkbox"] {
     display: none;
 }
 
-.wfn-toggle-slider {
+.hkfn-toggle-slider {
     position: relative;
     width: 50px;
     height: 24px;
@@ -376,7 +376,7 @@
     cursor: pointer;
 }
 
-.wfn-toggle-slider::before {
+.hkfn-toggle-slider::before {
     content: '';
     position: absolute;
     height: 18px;
@@ -389,16 +389,16 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-input:checked ~ .wfn-toggle-slider {
+input:checked ~ .hkfn-toggle-slider {
     background: linear-gradient(135deg, #1f4b8f 0%, #0e2f5b 100%);
 }
 
-input:checked ~ .wfn-toggle-slider::before {
+input:checked ~ .hkfn-toggle-slider::before {
     transform: translateX(26px);
 }
 
 /* ===== STATS SECTION ===== */
-.wfn-stats-section {
+.hkfn-stats-section {
     background: white;
     padding: 30px;
     border-radius: 12px;
@@ -408,7 +408,7 @@ input:checked ~ .wfn-toggle-slider::before {
 }
 
 /* ===== HELP SECTION ===== */
-.wfn-help-section {
+.hkfn-help-section {
     background: white;
     padding: 30px;
     border-radius: 12px;
@@ -417,26 +417,26 @@ input:checked ~ .wfn-toggle-slider::before {
     margin-top: 30px;
 }
 
-.wfn-stats-section h3,
-.wfn-help-section h3 {
+.hkfn-stats-section h3,
+.hkfn-help-section h3 {
     font-size: 1.5rem;
     font-weight: 600;
     color: #1f4b8f;
     margin: 0 0 20px 0;
 }
 
-.wfn-stats-grid,
-.wfn-help-grid {
+.hkfn-stats-grid,
+.hkfn-help-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
 }
 
-.wfn-help-grid {
+.hkfn-help-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-.wfn-stat-card {
+.hkfn-stat-card {
     background: #f8f9fa;
     padding: 25px 20px;
     border-radius: 8px;
@@ -445,7 +445,7 @@ input:checked ~ .wfn-toggle-slider::before {
     transition: all 0.3s ease;
 }
 
-.wfn-stat-card:hover {
+.hkfn-stat-card:hover {
     background: #e9ecef;
     transform: translateY(-2px);
 }
@@ -467,7 +467,7 @@ input:checked ~ .wfn-toggle-slider::before {
 }
 
 /* ===== HELP CARDS ===== */
-.wfn-help-card {
+.hkfn-help-card {
     background: #f8f9fa;
     padding: 25px;
     border-radius: 8px;
@@ -478,13 +478,13 @@ input:checked ~ .wfn-toggle-slider::before {
     gap: 20px;
 }
 
-.wfn-help-card:hover {
+.hkfn-help-card:hover {
     background: #e9ecef;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.wfn-help-icon {
+.hkfn-help-icon {
     width: 50px;
     height: 50px;
     background: linear-gradient(135deg, #1f4b8f 0%, #0e2f5b 100%);
@@ -498,21 +498,21 @@ input:checked ~ .wfn-toggle-slider::before {
     box-shadow: 0 4px 12px rgba(31, 75, 143, 0.3);
 }
 
-.wfn-help-content h4 {
+.hkfn-help-content h4 {
     font-size: 1.2rem;
     font-weight: 600;
     color: #1f4b8f;
     margin: 0 0 10px 0;
 }
 
-.wfn-help-content p {
+.hkfn-help-content p {
     font-size: 0.95rem;
     line-height: 1.5;
     color: #666;
     margin: 0 0 15px 0;
 }
 
-.wfn-help-content .button {
+.hkfn-help-content .button {
     font-size: 0.9rem;
     padding: 8px 16px;
 }
@@ -550,69 +550,69 @@ input:checked ~ .wfn-toggle-slider::before {
 
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1024px) {
-    .wfn-modules-grid {
+    .hkfn-modules-grid {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
     }
     
-    .wfn-header-content {
+    .hkfn-header-content {
         grid-template-columns: 1fr;
         text-align: center;
         gap: 30px;
     }
     
-    .wfn-stats-grid {
+    .hkfn-stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 15px;
     }
     
-    .wfn-help-grid {
+    .hkfn-help-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
-    .wfn-admin-header {
+    .hkfn-admin-header {
         padding: 30px 15px;
     }
     
-    .wfn-dashboard-content {
+    .hkfn-dashboard-content {
         padding: 20px 15px;
     }
     
-    .wfn-header-text h1 {
+    .hkfn-header-text h1 {
         font-size: 2rem;
     }
     
-    .wfn-header-description {
+    .hkfn-header-description {
         font-size: 1rem;
     }
     
-    .wfn-plugin-logo {
+    .hkfn-plugin-logo {
         width: 100px;
         height: 100px;
     }
     
-    .wfn-modules-grid {
+    .hkfn-modules-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
     
-    .wfn-module-actions {
+    .hkfn-module-actions {
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
     }
     
-    .wfn-stats-grid {
+    .hkfn-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .wfn-help-grid {
+    .hkfn-help-grid {
         grid-template-columns: 1fr;
     }
     
-    .wfn-help-card {
+    .hkfn-help-card {
         flex-direction: column;
         text-align: center;
         gap: 15px;
@@ -620,14 +620,14 @@ input:checked ~ .wfn-toggle-slider::before {
 }
 
 @media (max-width: 480px) {
-    .wfn-welcome-section,
-    .wfn-stats-section {
+    .hkfn-welcome-section,
+    .hkfn-stats-section {
         padding: 20px;
     }
     
-    .wfn-module-header,
-    .wfn-module-content,
-    .wfn-module-actions {
+    .hkfn-module-header,
+    .hkfn-module-content,
+    .hkfn-module-actions {
         padding-left: 20px;
         padding-right: 20px;
     }
@@ -636,20 +636,20 @@ input:checked ~ .wfn-toggle-slider::before {
         font-size: 2rem;
     }
     
-    .wfn-stats-grid,
-    .wfn-help-grid {
+    .hkfn-stats-grid,
+    .hkfn-help-grid {
         grid-template-columns: 1fr;
     }
 }
 
 /* ===== LOADING STATES ===== */
-.wfn-loading {
+.hkfn-loading {
     opacity: 0.6;
     pointer-events: none;
     position: relative;
 }
 
-.wfn-loading::after {
+.hkfn-loading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -669,7 +669,7 @@ input:checked ~ .wfn-toggle-slider::before {
 }
 
 /* ===== NOTIFICATIONS ===== */
-.wfn-notification {
+.hkfn-notification {
     position: fixed;
     top: 32px;
     right: 20px;
@@ -683,43 +683,43 @@ input:checked ~ .wfn-toggle-slider::before {
     transition: all 0.3s ease;
 }
 
-.wfn-notification.show {
+.hkfn-notification.show {
     transform: translateX(0);
 }
 
-.wfn-notification.success {
+.hkfn-notification.success {
     background: #27ae60;
 }
 
-.wfn-notification.error {
+.hkfn-notification.error {
     background: #e74c3c;
 }
 
-.wfn-notification.warning {
+.hkfn-notification.warning {
     background: #f39c12;
 }
 
 /* ===== ACCESSIBILITY ===== */
-.wfn-admin-dashboard *:focus,
-.wfn-module-admin *:focus {
+.hkfn-admin-dashboard *:focus,
+.hkfn-module-admin *:focus {
     outline: 2px solid #1f4b8f;
     outline-offset: 2px;
 }
 
-.wfn-toggle-switch:focus-within .wfn-toggle-slider {
+.hkfn-toggle-switch:focus-within .hkfn-toggle-slider {
     box-shadow: 0 0 0 3px rgba(31, 75, 143, 0.3);
 }
 
 /* ===== PRINT STYLES ===== */
 @media print {
-    .wfn-admin-header {
+    .hkfn-admin-header {
         background: #2c3e50 !important;
         color: white !important;
         -webkit-print-color-adjust: exact;
         color-adjust: exact;
     }
     
-    .wfn-module-card {
+    .hkfn-module-card {
         break-inside: avoid;
         page-break-inside: avoid;
     }

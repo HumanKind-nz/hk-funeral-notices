@@ -24,17 +24,17 @@ jQuery(document).ready(function($) {
         // Bind event handlers
         bindEvents: function() {
             // Module toggle switches
-            $(document).on('change', '.wfn-module-toggle', this.handleModuleToggle.bind(this));
+            $(document).on('change', '.hkfn-module-toggle', this.handleModuleToggle.bind(this));
             
             // Module card hover effects
-            $(document).on('mouseenter', '.wfn-module-card', this.handleCardHover);
-            $(document).on('mouseleave', '.wfn-module-card', this.handleCardLeave);
+            $(document).on('mouseenter', '.hkfn-module-card', this.handleCardHover);
+            $(document).on('mouseleave', '.hkfn-module-card', this.handleCardLeave);
             
             // Toggle label updates
-            $(document).on('change', '.wfn-module-toggle', this.updateToggleLabel);
+            $(document).on('change', '.hkfn-module-toggle', this.updateToggleLabel);
             
             // Header logo interaction
-            $(document).on('click', '.wfn-plugin-logo', this.handleLogoClick);
+            $(document).on('click', '.hkfn-plugin-logo', this.handleLogoClick);
             
             // Keyboard navigation
             $(document).on('keydown', this.handleKeyboard);
@@ -43,17 +43,17 @@ jQuery(document).ready(function($) {
         // Initialize animations
         initAnimations: function() {
             // Stagger animation for module cards
-            $('.wfn-module-card').each(function(index) {
+            $('.hkfn-module-card').each(function(index) {
                 $(this).css({
                     'animation-delay': (index * 0.1) + 's',
-                    'animation': 'wfnFadeInUp 0.6s ease forwards'
+                    'animation': 'hkfnFadeInUp 0.6s ease forwards'
                 });
             });
 
             // Add CSS animation keyframes
-            if (!$('#wfn-animations').length) {
-                $('<style id="wfn-animations">').text(`
-                    @keyframes wfnFadeInUp {
+            if (!$('#hkfn-animations').length) {
+                $('<style id="hkfn-animations">').text(`
+                    @keyframes hkfnFadeInUp {
                         0% {
                             opacity: 0;
                             transform: translateY(20px);
@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
                         }
                     }
                     
-                    @keyframes wfnPulse {
+                    @keyframes hkfnPulse {
                         0%, 100% {
                             transform: scale(1);
                         }
@@ -81,21 +81,21 @@ jQuery(document).ready(function($) {
             const $toggle = $(e.target);
             const moduleId = $toggle.data('module');
             const enabled = $toggle.is(':checked');
-            const $card = $toggle.closest('.wfn-module-card');
+            const $card = $toggle.closest('.hkfn-module-card');
 
             // Add loading state
-            $card.addClass('wfn-loading');
+            $card.addClass('hkfn-loading');
             
             // Disable toggle temporarily
             $toggle.prop('disabled', true);
 
             // Send AJAX request
             $.ajax({
-                url: wfnAdmin.ajax_url,
+                url: hkfnAdmin.ajax_url,
                 type: 'POST',
                 data: {
-                    action: 'wfn_toggle_module',
-                    nonce: wfnAdmin.nonce,
+                    action: 'hkfn_toggle_module',
+                    nonce: hkfnAdmin.nonce,
                     module_id: moduleId,
                     enabled: enabled
                 },
@@ -114,7 +114,7 @@ jQuery(document).ready(function($) {
                     $toggle.prop('checked', !enabled); // Revert toggle
                 },
                 complete: () => {
-                    $card.removeClass('wfn-loading');
+                    $card.removeClass('hkfn-loading');
                     $toggle.prop('disabled', false);
                 }
             });
@@ -122,7 +122,7 @@ jQuery(document).ready(function($) {
 
         // Update module card appearance
         updateModuleCard: function($card, enabled) {
-            const $status = $card.find('.wfn-status-indicator');
+            const $status = $card.find('.hkfn-status-indicator');
             const $configButton = $card.find('.button-secondary');
             
             if (enabled) {
@@ -136,7 +136,7 @@ jQuery(document).ready(function($) {
             }
 
             // Add success animation
-            $card.css('animation', 'wfnPulse 0.6s ease');
+            $card.css('animation', 'hkfnPulse 0.6s ease');
             setTimeout(() => {
                 $card.css('animation', '');
             }, 600);
@@ -145,7 +145,7 @@ jQuery(document).ready(function($) {
         // Update toggle label
         updateToggleLabel: function(e) {
             const $toggle = $(e.target);
-            const $label = $toggle.siblings('.wfn-toggle-label');
+            const $label = $toggle.siblings('.hkfn-toggle-label');
             const enabled = $toggle.is(':checked');
             
             $label.text(enabled ? 'Enabled' : 'Disabled');
@@ -153,23 +153,23 @@ jQuery(document).ready(function($) {
 
         // Update statistics
         updateStats: function() {
-            const activeModules = $('.wfn-module-toggle:checked').length;
-            $('.wfn-stat-card').eq(2).find('.stat-number').text(activeModules);
+            const activeModules = $('.hkfn-module-toggle:checked').length;
+            $('.hkfn-stat-card').eq(2).find('.stat-number').text(activeModules);
         },
 
         // Card hover effects
         handleCardHover: function() {
-            $(this).find('.wfn-module-icon').css('animation', 'wfnPulse 1s ease infinite');
+            $(this).find('.hkfn-module-icon').css('animation', 'hkfnPulse 1s ease infinite');
         },
 
         handleCardLeave: function() {
-            $(this).find('.wfn-module-icon').css('animation', '');
+            $(this).find('.hkfn-module-icon').css('animation', '');
         },
 
         // Logo click easter egg
         handleLogoClick: function() {
-            const $logo = $('.wfn-plugin-logo');
-            $logo.css('animation', 'wfnPulse 0.8s ease');
+            const $logo = $('.hkfn-plugin-logo');
+            $logo.css('animation', 'hkfnPulse 0.8s ease');
             
             setTimeout(() => {
                 $logo.css('animation', '');
@@ -182,7 +182,7 @@ jQuery(document).ready(function($) {
             if (e.ctrlKey || e.metaKey) {
                 const keyNum = parseInt(e.key);
                 if (keyNum >= 1 && keyNum <= 9) {
-                    const $moduleToggle = $('.wfn-module-toggle').eq(keyNum - 1);
+                    const $moduleToggle = $('.hkfn-module-toggle').eq(keyNum - 1);
                     if ($moduleToggle.length) {
                         $moduleToggle.click();
                         e.preventDefault();
@@ -194,21 +194,21 @@ jQuery(document).ready(function($) {
         // Notification system
         setupNotifications: function() {
             // Create notification container if it doesn't exist
-            if (!$('#wfn-notifications').length) {
-                $('<div id="wfn-notifications">').appendTo('body');
+            if (!$('#hkfn-notifications').length) {
+                $('<div id="hkfn-notifications">').appendTo('body');
             }
         },
 
         showNotification: function(message, type = 'success', duration = 4000) {
             const $notification = $(`
-                <div class="wfn-notification ${type}">
+                <div class="hkfn-notification ${type}">
                     ${message}
-                    <button type="button" class="wfn-notification-close" aria-label="Close">×</button>
+                    <button type="button" class="hkfn-notification-close" aria-label="Close">×</button>
                 </div>
             `);
 
             // Add to container
-            $('#wfn-notifications').append($notification);
+            $('#hkfn-notifications').append($notification);
 
             // Show notification
             setTimeout(() => {
@@ -221,7 +221,7 @@ jQuery(document).ready(function($) {
             }, duration);
 
             // Manual close
-            $notification.find('.wfn-notification-close').on('click', () => {
+            $notification.find('.hkfn-notification-close').on('click', () => {
                 this.hideNotification($notification);
             });
         },
@@ -235,7 +235,7 @@ jQuery(document).ready(function($) {
 
         // Module management helpers
         enableAllModules: function() {
-            $('.wfn-module-toggle:not(:checked)').each((index, toggle) => {
+            $('.hkfn-module-toggle:not(:checked)').each((index, toggle) => {
                 setTimeout(() => {
                     $(toggle).click();
                 }, index * 200);
@@ -243,7 +243,7 @@ jQuery(document).ready(function($) {
         },
 
         disableAllModules: function() {
-            $('.wfn-module-toggle:checked').each((index, toggle) => {
+            $('.hkfn-module-toggle:checked').each((index, toggle) => {
                 setTimeout(() => {
                     $(toggle).click();
                 }, index * 200);
@@ -258,7 +258,7 @@ jQuery(document).ready(function($) {
                 version: '2.0.0'
             };
 
-            $('.wfn-module-toggle').each(function() {
+            $('.hkfn-module-toggle').each(function() {
                 const moduleId = $(this).data('module');
                 settings.modules[moduleId] = $(this).is(':checked');
             });
@@ -270,7 +270,7 @@ jQuery(document).ready(function($) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'wfn-settings.json';
+            a.download = 'hkfn-settings.json';
             a.click();
             URL.revokeObjectURL(url);
 
@@ -308,9 +308,9 @@ jQuery(document).ready(function($) {
 
 // Additional notification styles
 jQuery(document).ready(function($) {
-    if (!$('#wfn-notification-styles').length) {
-        $('<style id="wfn-notification-styles">').text(`
-            #wfn-notifications {
+    if (!$('#hkfn-notification-styles').length) {
+        $('<style id="hkfn-notification-styles">').text(`
+            #hkfn-notifications {
                 position: fixed;
                 top: 32px;
                 right: 20px;
@@ -318,7 +318,7 @@ jQuery(document).ready(function($) {
                 pointer-events: none;
             }
             
-            .wfn-notification {
+            .hkfn-notification {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -335,24 +335,24 @@ jQuery(document).ready(function($) {
                 opacity: 0;
             }
             
-            .wfn-notification.show {
+            .hkfn-notification.show {
                 transform: translateX(0);
                 opacity: 1;
             }
             
-            .wfn-notification.success {
+            .hkfn-notification.success {
                 background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
             }
             
-            .wfn-notification.error {
+            .hkfn-notification.error {
                 background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             }
             
-            .wfn-notification.warning {
+            .hkfn-notification.warning {
                 background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             }
             
-            .wfn-notification-close {
+            .hkfn-notification-close {
                 background: none;
                 border: none;
                 color: white;
@@ -364,7 +364,7 @@ jQuery(document).ready(function($) {
                 transition: opacity 0.2s ease;
             }
             
-            .wfn-notification-close:hover {
+            .hkfn-notification-close:hover {
                 opacity: 1;
             }
         `).appendTo('head');

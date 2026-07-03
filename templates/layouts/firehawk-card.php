@@ -3,7 +3,7 @@
  * Firehawk Grid Card Template
  * Used by Load More AJAX handler
  *
- * @package WeaveStudios\FuneralNotices
+ * @package HumanKind\FuneralNotices
  * @since 2.4.0
  */
 
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 $post_id = get_the_ID();
 
 // Use TemplateManager for unified data access
-$template_manager = new \WeaveStudios\FuneralNotices\Templates\TemplateManager();
+$template_manager = new \HumanKind\FuneralNotices\Templates\TemplateManager();
 $data = $template_manager->get_funeral_data($post_id);
 $person = $data['person'];
 
@@ -27,7 +27,7 @@ $formatted_name = strtoupper($last_name) . ', ' . $first_name;
 
 // Get image
 $featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-$settings = get_option('wfn_module_settings', []);
+$settings = hkfn_get_option('module_settings', []);
 $fallback_url = $settings['default_person_image'] ?? '';
 if (empty($fallback_url)) {
     $fallback_url = plugin_dir_url(dirname(__FILE__, 2)) . 'assets/images/fallback.webp';

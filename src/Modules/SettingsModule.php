@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
-use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
+use HumanKind\FuneralNotices\Address\AddressFieldManager;
 
 /**
  * Settings Module
@@ -96,7 +96,7 @@ class SettingsModule extends BaseModule {
      * Override to use simpler option name for core settings
      */
     protected function get_settings_option_name(): string {
-        return 'wfn_module_settings';
+        return 'hkfn_module_settings';
     }
 
     /**
@@ -104,7 +104,7 @@ class SettingsModule extends BaseModule {
      */
     public function register_settings(): void {
         register_setting(
-            'wfn_settings_group',
+            'hkfn_settings_group',
             $this->get_settings_option_name(),
             [
                 'type' => 'array',
@@ -131,7 +131,7 @@ class SettingsModule extends BaseModule {
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>
             
-            <div class="wfn-settings-tabs">
+            <div class="hkfn-settings-tabs">
                 <nav class="nav-tab-wrapper">
                     <a href="#general" class="nav-tab nav-tab-active">General</a>
                     <a href="#display" class="nav-tab">Display</a>
@@ -143,101 +143,101 @@ class SettingsModule extends BaseModule {
                 <div id="general" class="tab-content active">
                     <h3>General Settings</h3>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="default_layout">Default Layout</label>
-                        <select name="wfn_module_settings[default_layout]" id="default_layout">
+                        <select name="hkfn_module_settings[default_layout]" id="default_layout">
                             <option value="firehawk" <?php selected($settings['default_layout'], 'firehawk'); ?>>Firehawk Compatible</option>
                             <option value="modern" <?php selected($settings['default_layout'], 'modern'); ?>>Modern Memorial Grid</option>
                             <option value="elegant" <?php selected($settings['default_layout'], 'elegant'); ?>>Elegant Funeral Grid</option>
                             <option value="minimal" <?php selected($settings['default_layout'], 'minimal'); ?>>Simple Memorial List</option>
                         </select>
-                        <p class="wfn-form-description">Default layout for funeral notices when no layout is specified in shortcode.</p>
+                        <p class="hkfn-form-description">Default layout for funeral notices when no layout is specified in shortcode.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="posts_per_page">Posts Per Page</label>
                         <input type="number"
-                               name="wfn_module_settings[posts_per_page]"
+                               name="hkfn_module_settings[posts_per_page]"
                                id="posts_per_page"
                                value="<?php echo esc_attr($settings['posts_per_page']); ?>"
                                min="1"
                                max="50">
-                        <p class="wfn-form-description">Number of funeral notices to display initially.</p>
+                        <p class="hkfn-form-description">Number of funeral notices to display initially.</p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="load_more_posts">Load More Posts</label>
                         <input type="number"
-                               name="wfn_module_settings[load_more_posts]"
+                               name="hkfn_module_settings[load_more_posts]"
                                id="load_more_posts"
                                value="<?php echo esc_attr($settings['load_more_posts']); ?>"
                                min="1"
                                max="50">
-                        <p class="wfn-form-description">Number of additional funeral notices to load when clicking "Load More" button.</p>
+                        <p class="hkfn-form-description">Number of additional funeral notices to load when clicking "Load More" button.</p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="columns">Grid Columns</label>
-                        <select name="wfn_module_settings[columns]" id="columns">
+                        <select name="hkfn_module_settings[columns]" id="columns">
                             <option value="2" <?php selected($settings['columns'], 2); ?>>2 Columns</option>
                             <option value="3" <?php selected($settings['columns'], 3); ?>>3 Columns</option>
                             <option value="4" <?php selected($settings['columns'], 4); ?>>4 Columns</option>
                         </select>
-                        <p class="wfn-form-description">Default number of columns for grid layouts.</p>
+                        <p class="hkfn-form-description">Default number of columns for grid layouts.</p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="default_person_image">Default Person Image</label>
-                        <div class="wfn-image-upload">
+                        <div class="hkfn-image-upload">
                             <input type="hidden"
-                                   name="wfn_module_settings[default_person_image]"
+                                   name="hkfn_module_settings[default_person_image]"
                                    id="default_person_image"
                                    value="<?php echo esc_attr($settings['default_person_image']); ?>">
-                            <div class="wfn-image-preview">
+                            <div class="hkfn-image-preview">
                                 <?php if (!empty($settings['default_person_image'])): ?>
                                     <img src="<?php echo esc_url($settings['default_person_image']); ?>" alt="Default person image preview" style="max-width: 150px; height: auto;">
-                                    <button type="button" class="wfn-remove-image" style="display: block;">Remove Image</button>
+                                    <button type="button" class="hkfn-remove-image" style="display: block;">Remove Image</button>
                                 <?php else: ?>
                                     <p>No image selected</p>
                                 <?php endif; ?>
                             </div>
-                            <button type="button" class="wfn-upload-image button">Choose Image</button>
+                            <button type="button" class="hkfn-upload-image button">Choose Image</button>
                         </div>
-                        <p class="wfn-form-description">Default image to show when no person image is uploaded. This appears in listings and single pages.</p>
+                        <p class="hkfn-form-description">Default image to show when no person image is uploaded. This appears in listings and single pages.</p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[show_search]"
+                                   name="hkfn_module_settings[show_search]"
                                    id="show_search"
                                    value="1"
                                    <?php checked($settings['show_search']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Enable Search Form</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Enable Search Form</span>
                         </label>
-                        <p class="wfn-form-description">Display search form above funeral notices.</p>
+                        <p class="hkfn-form-description">Display search form above funeral notices.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[show_pagination]"
+                                   name="hkfn_module_settings[show_pagination]"
                                    id="show_pagination"
                                    value="1"
                                    <?php checked($settings['show_pagination']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Enable Pagination</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Enable Pagination</span>
                         </label>
-                        <p class="wfn-form-description">Display pagination controls below funeral notices.</p>
+                        <p class="hkfn-form-description">Display pagination controls below funeral notices.</p>
                     </div>
 
                     <!-- Venue/Location Settings -->
                     <h4 style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">Venue/Location Settings</h4>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="default_venue_location">Default Venue/Location</label>
-                        <select name="wfn_module_settings[default_venue_location]" id="default_venue_location">
+                        <select name="hkfn_module_settings[default_venue_location]" id="default_venue_location">
                             <option value="">None (no default)</option>
                             <?php
                             $venues = get_terms([
@@ -258,7 +258,7 @@ class SettingsModule extends BaseModule {
                             }
                             ?>
                         </select>
-                        <p class="wfn-form-description">Auto-select a default venue when creating new funeral notices. Users can still change this selection. Only applies to new funeral notices.</p>
+                        <p class="hkfn-form-description">Auto-select a default venue when creating new funeral notices. Users can still change this selection. Only applies to new funeral notices.</p>
                     </div>
 
                     <!-- Address Field Settings -->
@@ -266,25 +266,25 @@ class SettingsModule extends BaseModule {
                     
                     <?php $this->render_address_field_status(); ?>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="address_field_mode">Address Field Mode</label>
-                        <select name="wfn_module_settings[address_field_mode]" id="address_field_mode">
+                        <select name="hkfn_module_settings[address_field_mode]" id="address_field_mode">
                             <option value="auto" <?php selected($settings['address_field_mode'], 'auto'); ?>>Auto-detect (Recommended)</option>
                             <option value="acfe" <?php selected($settings['address_field_mode'], 'acfe'); ?>>Force ACFE Pro (requires ACFE Pro plugin)</option>
                             <option value="custom" <?php selected($settings['address_field_mode'], 'custom'); ?>>Force Native Fields (no dependencies)</option>
                         </select>
-                        <p class="wfn-form-description">Choose which address field system to use. Auto-detect will use ACFE Pro if available, otherwise use native fields.</p>
+                        <p class="hkfn-form-description">Choose which address field system to use. Auto-detect will use ACFE Pro if available, otherwise use native fields.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="google_places_api_key">Google Places API Key</label>
                         <input type="password" 
-                               name="wfn_module_settings[google_places_api_key]" 
+                               name="hkfn_module_settings[google_places_api_key]" 
                                id="google_places_api_key" 
                                value="<?php echo esc_attr($settings['google_places_api_key']); ?>" 
                                placeholder="AIzaSyD..."
                                style="width: 100%; max-width: 400px;">
-                        <p class="wfn-form-description">
+                        <p class="hkfn-form-description">
                             Required for both ACFE Pro and Native address fields. 
                             <a href="https://developers.google.com/maps/documentation/places/web-service/get-api-key" target="_blank">Get API Key</a>
                             <?php if (!empty($settings['google_places_api_key'])): ?>
@@ -298,50 +298,50 @@ class SettingsModule extends BaseModule {
                 <div id="display" class="tab-content">
                     <h3>Display Settings</h3>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="date_format">Date Format</label>
-                        <select name="wfn_module_settings[date_format]" id="date_format">
+                        <select name="hkfn_module_settings[date_format]" id="date_format">
                             <option value="F j, Y" <?php selected($settings['date_format'], 'F j, Y'); ?>>January 1, 2025</option>
                             <option value="j F Y" <?php selected($settings['date_format'], 'j F Y'); ?>>1 January 2025</option>
                             <option value="Y-m-d" <?php selected($settings['date_format'], 'Y-m-d'); ?>>2025-01-01</option>
                             <option value="d/m/Y" <?php selected($settings['date_format'], 'd/m/Y'); ?>>01/01/2025</option>
                             <option value="m/d/Y" <?php selected($settings['date_format'], 'm/d/Y'); ?>>01/01/2025</option>
                         </select>
-                        <p class="wfn-form-description">Format for displaying dates in funeral notices.</p>
+                        <p class="hkfn-form-description">Format for displaying dates in funeral notices.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="time_format">Time Format</label>
-                        <select name="wfn_module_settings[time_format]" id="time_format">
+                        <select name="hkfn_module_settings[time_format]" id="time_format">
                             <option value="g:i a" <?php selected($settings['time_format'], 'g:i a'); ?>>2:30 pm</option>
                             <option value="G:i" <?php selected($settings['time_format'], 'G:i'); ?>>14:30</option>
                             <option value="h:i A" <?php selected($settings['time_format'], 'h:i A'); ?>>02:30 PM</option>
                         </select>
-                        <p class="wfn-form-description">Format for displaying times in funeral notices.</p>
+                        <p class="hkfn-form-description">Format for displaying times in funeral notices.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[show_featured_image]"
+                                   name="hkfn_module_settings[show_featured_image]"
                                    id="show_featured_image"
                                    value="1"
                                    <?php checked($settings['show_featured_image']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Show Featured Images</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Show Featured Images</span>
                         </label>
-                        <p class="wfn-form-description">Display featured images in funeral notice cards.</p>
+                        <p class="hkfn-form-description">Display featured images in funeral notice cards.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="image_size">Image Size</label>
-                        <select name="wfn_module_settings[image_size]" id="image_size">
+                        <select name="hkfn_module_settings[image_size]" id="image_size">
                             <option value="thumbnail" <?php selected($settings['image_size'], 'thumbnail'); ?>>Thumbnail</option>
                             <option value="medium" <?php selected($settings['image_size'], 'medium'); ?>>Medium</option>
                             <option value="large" <?php selected($settings['image_size'], 'large'); ?>>Large</option>
                             <option value="full" <?php selected($settings['image_size'], 'full'); ?>>Full Size</option>
                         </select>
-                        <p class="wfn-form-description">Size of featured images in funeral notice displays.</p>
+                        <p class="hkfn-form-description">Size of featured images in funeral notice displays.</p>
                     </div>
                 </div>
                 
@@ -349,54 +349,54 @@ class SettingsModule extends BaseModule {
                 <div id="content" class="tab-content">
                     <h3>Content Settings</h3>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="default_memorial_header">Default Memorial Header Text</label>
                         <input type="text" 
-                               name="wfn_module_settings[default_memorial_header]" 
+                               name="hkfn_module_settings[default_memorial_header]" 
                                id="default_memorial_header" 
                                value="<?php echo esc_attr($settings['default_memorial_header']); ?>" 
                                placeholder="In loving memory of"
-                               class="wfn-wide-input">
-                        <p class="wfn-form-description">
+                               class="hkfn-wide-input">
+                        <p class="hkfn-form-description">
                             Default text that appears at the top of single funeral notice pages above the person's name.<br>
                             Examples: "In loving memory of", "Celebrating the life of", "In remembrance of"<br>
                             Individual notices can override this default. Leave blank for no header text.
                         </p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="excerpt_length">Excerpt Length</label>
                         <input type="number" 
-                               name="wfn_module_settings[excerpt_length]" 
+                               name="hkfn_module_settings[excerpt_length]" 
                                id="excerpt_length" 
                                value="<?php echo esc_attr($settings['excerpt_length']); ?>" 
                                min="50" 
                                max="500">
-                        <p class="wfn-form-description">Maximum number of characters for excerpt text.</p>
+                        <p class="hkfn-form-description">Maximum number of characters for excerpt text.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[enable_streaming]"
+                                   name="hkfn_module_settings[enable_streaming]"
                                    id="enable_streaming"
                                    value="1"
                                    <?php checked($settings['enable_streaming']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Enable Streaming Integration</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Enable Streaming Integration</span>
                         </label>
-                        <p class="wfn-form-description">Show streaming service information and links.</p>
+                        <p class="hkfn-form-description">Show streaming service information and links.</p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="tribute_form_url">Tribute Form URL</label>
                         <input type="url"
-                               name="wfn_module_settings[tribute_form_url]"
+                               name="hkfn_module_settings[tribute_form_url]"
                                id="tribute_form_url"
                                value="<?php echo esc_attr($settings['tribute_form_url']); ?>"
                                placeholder="https://yoursite.com/contact/"
-                               class="wfn-wide-input">
-                        <p class="wfn-form-description">
+                               class="hkfn-wide-input">
+                        <p class="hkfn-form-description">
                             URL for tribute form page. Use placeholders for dynamic values:<br>
                             <strong>{firstname}</strong> - person's first name<br>
                             <strong>{lastname}</strong> - person's last name<br>
@@ -406,14 +406,14 @@ class SettingsModule extends BaseModule {
                         </p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="social_share_message">Social Share Message Template</label>
-                        <textarea name="wfn_module_settings[social_share_message]"
+                        <textarea name="hkfn_module_settings[social_share_message]"
                                   id="social_share_message"
                                   rows="3"
-                                  class="wfn-wide-input"
+                                  class="hkfn-wide-input"
                                   placeholder="Please join us in remembering {fullname}'s funeral service on {date}"><?php echo esc_textarea($settings['social_share_message']); ?></textarea>
-                        <p class="wfn-form-description">
+                        <p class="hkfn-form-description">
                             Message template for social sharing. Available placeholders:<br>
                             <strong>{fullname}</strong> - person's full name<br>
                             <strong>{firstname}</strong> - person's first name<br>
@@ -425,71 +425,71 @@ class SettingsModule extends BaseModule {
                         </p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[enable_seo]"
+                                   name="hkfn_module_settings[enable_seo]"
                                    id="enable_seo"
                                    value="1"
                                    <?php checked($settings['enable_seo']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Enable SEO Features</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Enable SEO Features</span>
                         </label>
-                        <p class="wfn-form-description">Generate meta descriptions and structured data.</p>
+                        <p class="hkfn-form-description">Generate meta descriptions and structured data.</p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[noindex_funeral_notices]"
+                                   name="hkfn_module_settings[noindex_funeral_notices]"
                                    id="noindex_funeral_notices"
                                    value="1"
                                    <?php checked($settings['noindex_funeral_notices']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Hide Funeral Notices from Search Engines</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Hide Funeral Notices from Search Engines</span>
                         </label>
-                        <p class="wfn-form-description">
+                        <p class="hkfn-form-description">
                             Add noindex meta tag to prevent search engines from indexing individual funeral notice pages.<br>
                             <strong>Default:</strong> Funeral notices are indexed for SEO benefits. Enable this for privacy concerns.
                         </p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="meta_description_length">Meta Description Length</label>
                         <input type="number"
-                               name="wfn_module_settings[meta_description_length]"
+                               name="hkfn_module_settings[meta_description_length]"
                                id="meta_description_length"
                                value="<?php echo esc_attr($settings['meta_description_length']); ?>"
                                min="120"
                                max="200">
-                        <p class="wfn-form-description">Maximum length for generated meta descriptions.</p>
+                        <p class="hkfn-form-description">Maximum length for generated meta descriptions.</p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="seo_title_suffix">SEO Title Suffix</label>
                         <input type="text"
-                               name="wfn_module_settings[seo_title_suffix]"
+                               name="hkfn_module_settings[seo_title_suffix]"
                                id="seo_title_suffix"
                                value="<?php echo esc_attr($settings['seo_title_suffix']); ?>"
                                placeholder=" - Funeral Notice"
-                               class="wfn-wide-input">
-                        <p class="wfn-form-description">
+                               class="hkfn-wide-input">
+                        <p class="hkfn-form-description">
                             Text added after the person's name in SEO titles.<br>
                             <strong>Example:</strong> "John Smith<em> - Funeral Notice</em> | Your Funeral Home"<br>
                             Leave blank for no suffix.
                         </p>
                     </div>
 
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="social_share_image">Social Share Image</label>
-                        <div class="wfn-image-upload-wrapper">
+                        <div class="hkfn-image-upload-wrapper">
                             <input type="url"
-                                   name="wfn_module_settings[social_share_image]"
+                                   name="hkfn_module_settings[social_share_image]"
                                    id="social_share_image"
                                    value="<?php echo esc_attr($settings['social_share_image']); ?>"
                                    placeholder="https://yoursite.com/image.jpg"
-                                   class="wfn-wide-input">
-                            <div class="wfn-image-upload-buttons">
+                                   class="hkfn-wide-input">
+                            <div class="hkfn-image-upload-buttons">
                                 <button type="button" class="button" id="upload_social_image_button">
                                     <?php echo $settings['social_share_image'] ? 'Change Image' : 'Upload Image'; ?>
                                 </button>
@@ -498,14 +498,14 @@ class SettingsModule extends BaseModule {
                                 <?php endif; ?>
                             </div>
                             <?php if ($settings['social_share_image']): ?>
-                            <div class="wfn-image-preview">
+                            <div class="hkfn-image-preview">
                                 <img src="<?php echo esc_url($settings['social_share_image']); ?>"
                                      alt="Social share preview"
                                      style="max-width: 300px; height: auto; margin-top: 10px;">
                             </div>
                             <?php endif; ?>
                         </div>
-                        <p class="wfn-form-description">
+                        <p class="hkfn-form-description">
                             Custom image for social media sharing when funeral notices are shared.<br>
                             <strong>Fallback order:</strong> This custom image → Plugin default<br>
                             <strong>Recommended size:</strong> 1200x630px for best social media compatibility<br>
@@ -521,46 +521,46 @@ class SettingsModule extends BaseModule {
                 <div id="advanced" class="tab-content">
                     <h3>Advanced Settings</h3>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="cache_duration">Cache Duration (seconds)</label>
                         <input type="number" 
-                               name="wfn_module_settings[cache_duration]" 
+                               name="hkfn_module_settings[cache_duration]" 
                                id="cache_duration" 
                                value="<?php echo esc_attr($settings['cache_duration']); ?>" 
                                min="300" 
                                max="86400">
-                        <p class="wfn-form-description">How long to cache funeral notice data (3600 = 1 hour).</p>
+                        <p class="hkfn-form-description">How long to cache funeral notice data (3600 = 1 hour).</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="single_slug">Single Funeral Notice URL Slug</label>
                         <input type="text" 
-                               name="wfn_module_settings[single_slug]" 
+                               name="hkfn_module_settings[single_slug]" 
                                id="single_slug" 
                                value="<?php echo esc_attr($settings['single_slug']); ?>" 
                                pattern="[a-z0-9-]+"
                                maxlength="50">
-                        <p class="wfn-form-description">
+                        <p class="hkfn-form-description">
                             URL slug for individual funeral notices (e.g., "funeral-notice", "memorial", "tribute"). 
                             Only lowercase letters, numbers, and hyphens allowed. 
                             <strong>Note:</strong> After changing this, go to Settings → Permalinks and click "Save Changes" to update WordPress permalinks.
                         </p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <label for="location_name">Location/Business Name</label>
                         <input type="text"
-                               name="wfn_module_settings[location_name]"
+                               name="hkfn_module_settings[location_name]"
                                id="location_name"
                                value="<?php echo esc_attr($settings['location_name']); ?>"
                                placeholder="e.g., Morrison's Funeral Home"
-                               class="wfn-wide-input">
-                        <p class="wfn-form-description">Your funeral home or business name. Used in SEO titles and meta descriptions for the funeral notices archive page. If left empty, your WordPress site name will be used instead.</p>
+                               class="hkfn-wide-input">
+                        <p class="hkfn-form-description">Your funeral home or business name. Used in SEO titles and meta descriptions for the funeral notices archive page. If left empty, your WordPress site name will be used instead.</p>
                     </div>
                     
-                    <div class="wfn-form-group">
+                    <div class="hkfn-form-group">
                         <h4>Shortcode Documentation</h4>
-                        <div class="wfn-shortcode-docs">
+                        <div class="hkfn-shortcode-docs">
                             <p><strong>Basic Usage:</strong></p>
                             <code>[funeral_notices]</code>
                             
@@ -584,7 +584,7 @@ class SettingsModule extends BaseModule {
         </form>
         
         <style>
-            .wfn-settings-tabs {
+            .hkfn-settings-tabs {
                 margin-top: 20px;
             }
             
@@ -600,25 +600,25 @@ class SettingsModule extends BaseModule {
                 display: block;
             }
             
-            .wfn-shortcode-docs {
+            .hkfn-shortcode-docs {
                 background: #f9f9f9;
                 padding: 15px;
                 border-radius: 4px;
                 margin-top: 10px;
             }
             
-            .wfn-shortcode-docs code {
+            .hkfn-shortcode-docs code {
                 background: #fff;
                 padding: 4px 8px;
                 border-radius: 3px;
                 font-size: 13px;
             }
             
-            .wfn-shortcode-docs ul {
+            .hkfn-shortcode-docs ul {
                 margin-left: 20px;
             }
             
-            .wfn-shortcode-docs li {
+            .hkfn-shortcode-docs li {
                 margin-bottom: 5px;
             }
         </style>
@@ -660,7 +660,7 @@ class SettingsModule extends BaseModule {
         $warnings = $status_info['warnings'];
         
         ?>
-        <div class="wfn-address-field-status" style="margin: 15px 0; padding: 15px; border-left: 4px solid <?php echo esc_attr($info['color']); ?>; background: #f9f9f9;">
+        <div class="hkfn-address-field-status" style="margin: 15px 0; padding: 15px; border-left: 4px solid <?php echo esc_attr($info['color']); ?>; background: #f9f9f9;">
             <h4 style="margin: 0 0 8px 0;">
                 <?php echo esc_html($info['icon']); ?> Current Mode: <?php echo esc_html($info['label']); ?>
             </h4>
@@ -830,12 +830,12 @@ class SettingsModule extends BaseModule {
                 var mediaUploader;
 
                 // Handle image upload
-                $(document).on("click", ".wfn-upload-image", function(e) {
+                $(document).on("click", ".hkfn-upload-image", function(e) {
                     e.preventDefault();
 
                     var button = $(this);
-                    var targetInput = button.closest(".wfn-image-upload").find("input[type=hidden]");
-                    var preview = button.closest(".wfn-image-upload").find(".wfn-image-preview");
+                    var targetInput = button.closest(".hkfn-image-upload").find("input[type=hidden]");
+                    var preview = button.closest(".hkfn-image-upload").find(".hkfn-image-preview");
 
                     if (mediaUploader) {
                         mediaUploader.open();
@@ -858,7 +858,7 @@ class SettingsModule extends BaseModule {
                         targetInput.val(attachment.url);
                         preview.html(
                             "<img src=\"" + attachment.url + "\" alt=\"Default person image preview\" style=\"max-width: 150px; height: auto;\">" +
-                            "<button type=\"button\" class=\"wfn-remove-image\" style=\"display: block;\">Remove Image</button>"
+                            "<button type=\"button\" class=\"hkfn-remove-image\" style=\"display: block;\">Remove Image</button>"
                         );
                     });
 
@@ -866,11 +866,11 @@ class SettingsModule extends BaseModule {
                 });
 
                 // Handle image removal
-                $(document).on("click", ".wfn-remove-image", function(e) {
+                $(document).on("click", ".hkfn-remove-image", function(e) {
                     e.preventDefault();
                     var button = $(this);
-                    var targetInput = button.closest(".wfn-image-upload").find("input[type=hidden]");
-                    var preview = button.closest(".wfn-image-upload").find(".wfn-image-preview");
+                    var targetInput = button.closest(".hkfn-image-upload").find("input[type=hidden]");
+                    var preview = button.closest(".hkfn-image-upload").find(".hkfn-image-preview");
 
                     targetInput.val("");
                     preview.html("<p>No image selected</p>");
@@ -899,10 +899,10 @@ class SettingsModule extends BaseModule {
                         $("#social_share_image").val(attachment.url);
 
                         // Update preview
-                        if ($(".wfn-image-preview").length === 0) {
-                            $("#social_share_image").after("<div class=\\"wfn-image-preview\\"><img src=\\"" + attachment.url + "\\" alt=\\"Social share preview\\" style=\\"max-width: 300px; height: auto; margin-top: 10px;\\"></div>");
+                        if ($(".hkfn-image-preview").length === 0) {
+                            $("#social_share_image").after("<div class=\\"hkfn-image-preview\\"><img src=\\"" + attachment.url + "\\" alt=\\"Social share preview\\" style=\\"max-width: 300px; height: auto; margin-top: 10px;\\"></div>");
                         } else {
-                            $(".wfn-image-preview img").attr("src", attachment.url);
+                            $(".hkfn-image-preview img").attr("src", attachment.url);
                         }
 
                         // Update button text and show remove button
@@ -921,7 +921,7 @@ class SettingsModule extends BaseModule {
                 $(document).on("click", "#remove_social_image_button", function(e) {
                     e.preventDefault();
                     $("#social_share_image").val("");
-                    $(".wfn-image-preview").remove();
+                    $(".hkfn-image-preview").remove();
                     $("#upload_social_image_button").text("Upload Image");
                     $(this).hide();
                 });

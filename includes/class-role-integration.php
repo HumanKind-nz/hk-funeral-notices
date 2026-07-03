@@ -16,7 +16,7 @@ if (!defined('WPINC')) {
     die;
 }
 
-class WFN_Role_Integration {
+class HKFN_Role_Integration {
 
     /**
      * Initialize the simplified role integration
@@ -209,11 +209,11 @@ class WFN_Role_Integration {
                 var $titleWrap = $('.wrap > h1, .wrap > .wp-heading-inline').first().parent();
 
                 // Check if button already exists
-                if ($titleWrap.find('.wfn-view-notice-btn').length === 0) {
+                if ($titleWrap.find('.hkfn-view-notice-btn').length === 0) {
                     // Create the View button
                     var viewButton = $('<a>', {
                         href: '<?php echo esc_js($view_url); ?>',
-                        class: 'page-title-action wfn-view-notice-btn',
+                        class: 'page-title-action hkfn-view-notice-btn',
                         target: '_blank',
                         rel: 'noopener noreferrer',
                         html: '<span class="dashicons dashicons-<?php echo esc_js($icon); ?>" style="vertical-align: middle; margin-top: 3px;"></span> <?php echo esc_js($button_text); ?>'
@@ -232,10 +232,10 @@ class WFN_Role_Integration {
             });
             </script>
             <style>
-            .wfn-view-notice-btn {
+            .hkfn-view-notice-btn {
                 margin-left: 8px !important;
             }
-            .wfn-view-notice-btn .dashicons {
+            .hkfn-view-notice-btn .dashicons {
                 font-size: 17px;
                 height: 17px;
                 width: 17px;
@@ -250,4 +250,4 @@ class WFN_Role_Integration {
 }
 
 // Initialize the simplified integration
-WFN_Role_Integration::init();
+HKFN_Role_Integration::init();

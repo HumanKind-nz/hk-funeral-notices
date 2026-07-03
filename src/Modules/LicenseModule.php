@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 
 /**
  * License Module
@@ -27,10 +27,10 @@ class LicenseModule extends BaseModule {
     ];
 
     // License validation constants
-    private const LICENSE_API_BASE_URL = WFN_HOSTER_API_URL;
-    private const LICENSE_DOWNLOAD_ID = WFN_HOSTER_DOWNLOAD_ID;
+    private const LICENSE_API_BASE_URL = HKFN_HOSTER_API_URL;
+    private const LICENSE_DOWNLOAD_ID = HKFN_HOSTER_DOWNLOAD_ID;
     private const LICENSE_CHECK_INTERVAL = DAY_IN_SECONDS;
-    private const OPTION_PREFIX = 'wfn_license_';
+    private const OPTION_PREFIX = 'hkfn_license_';
 
     private $license_service;
 
@@ -81,17 +81,17 @@ class LicenseModule extends BaseModule {
         }
 
         // Schedule license check if not already scheduled
-        if (!wp_next_scheduled('wfn_check_license')) {
-            wp_schedule_event(time(), 'daily', 'wfn_check_license');
+        if (!wp_next_scheduled('hkfn_check_license')) {
+            wp_schedule_event(time(), 'daily', 'hkfn_check_license');
         }
 
         // Register license check hook
-        add_action('wfn_check_license', [$this, 'check_license_status']);
+        add_action('hkfn_check_license', [$this, 'check_license_status']);
 
         // Add AJAX handlers for admin interface
         if (is_admin()) {
-            add_action('wp_ajax_wfn_validate_license', [$this, 'ajax_validate_license']);
-            add_action('wp_ajax_wfn_deactivate_license', [$this, 'ajax_deactivate_license']);
+            add_action('wp_ajax_hkfn_validate_license', [$this, 'ajax_validate_license']);
+            add_action('wp_ajax_hkfn_deactivate_license', [$this, 'ajax_deactivate_license']);
         }
     }
 
@@ -201,7 +201,7 @@ class LicenseModule extends BaseModule {
      */
     public function ajax_validate_license(): void {
         // Verify nonce for security
-        if (!check_ajax_referer('wfn_license_nonce', 'nonce', false)) {
+        if (!check_ajax_referer('hkfn_license_nonce', 'nonce', false)) {
             wp_send_json_error([
                 'message' => 'Security verification failed. Please refresh the page and try again.'
             ]);
@@ -247,7 +247,7 @@ class LicenseModule extends BaseModule {
      */
     public function ajax_deactivate_license(): void {
         // Verify nonce for security
-        if (!check_ajax_referer('wfn_license_nonce', 'nonce', false)) {
+        if (!check_ajax_referer('hkfn_license_nonce', 'nonce', false)) {
             wp_send_json_error([
                 'message' => 'Security verification failed. Please refresh the page and try again.'
             ]);
@@ -279,25 +279,25 @@ class LicenseModule extends BaseModule {
      */
     public function render_admin_page(): void {
         ?>
-        <div class="wrap wfn-module-admin">
-            <div class="wfn-module-header">
-                <div class="wfn-header-content">
-                    <div class="wfn-header-text">
+        <div class="wrap hkfn-module-admin">
+            <div class="hkfn-module-header">
+                <div class="hkfn-header-content">
+                    <div class="hkfn-header-text">
                         <h1><?php echo esc_html($this->module_name); ?> Settings</h1>
-                        <p class="wfn-header-description"><?php echo esc_html($this->module_description); ?></p>
-                        <div class="wfn-back-to-dashboard">
+                        <p class="hkfn-header-description"><?php echo esc_html($this->module_description); ?></p>
+                        <div class="hkfn-back-to-dashboard">
                             <a href="<?php echo esc_url(admin_url('admin.php?page=hk-funeral-notices-dashboard')); ?>" class="button button-secondary">
                                 <span class="dashicons dashicons-arrow-left-alt2"></span> Back to Dashboard
                             </a>
                         </div>
                     </div>
-                    <div class="wfn-plugin-logo">
-                        <img src="<?php echo esc_url(WFN_PLUGIN_URL . 'assets/images/wfn-logo.png'); ?>" alt="WFN Logo" class="wfn-logo-image">
+                    <div class="hkfn-plugin-logo">
+                        <img src="<?php echo esc_url(HKFN_PLUGIN_URL . 'assets/images/hkfn-logo.png'); ?>" alt="WFN Logo" class="hkfn-logo-image">
                     </div>
                 </div>
             </div>
 
-            <div class="wfn-module-content">
+            <div class="hkfn-module-content">
                 <?php $this->render_module_admin_content(); ?>
             </div>
         </div>
@@ -310,29 +310,29 @@ class LicenseModule extends BaseModule {
     public function render_module_admin_content(): void {
         $license_key = $this->get_license_key();
         $license_status = $this->get_license_status();
-        $nonce = wp_create_nonce('wfn_license_nonce');
+        $nonce = wp_create_nonce('hkfn_license_nonce');
         ?>
-            <div class="wfn-admin-content">
+            <div class="hkfn-admin-content">
                 <!-- License Status Card -->
-                <div class="wfn-card" style="margin-bottom: 20px;">
-                    <div class="wfn-card-header">
+                <div class="hkfn-card" style="margin-bottom: 20px;">
+                    <div class="hkfn-card-header">
                         <h2>License Status</h2>
                     </div>
-                    <div class="wfn-card-body">
+                    <div class="hkfn-card-body">
                         <?php if ($license_status['valid']): ?>
-                            <div class="wfn-status-success">
+                            <div class="hkfn-status-success">
                                 <span class="dashicons dashicons-yes-alt"></span>
                                 <strong>Active Premium License</strong>
                             </div>
 
-                            <div class="wfn-license-details" style="margin-top: 15px;">
+                            <div class="hkfn-license-details" style="margin-top: 15px;">
                                 <?php if (!empty($license_status['customer_name'])): ?>
                                     <p><strong>Licensed to:</strong> <?php echo esc_html($license_status['customer_name']); ?></p>
                                 <?php endif; ?>
 
                                 <?php if (!empty($license_status['expires'])): ?>
                                     <p><strong>Expires:</strong>
-                                        <span class="<?php echo strtotime($license_status['expires']) < strtotime('+30 days') ? 'wfn-expiry-warning' : 'wfn-expiry-good'; ?>">
+                                        <span class="<?php echo strtotime($license_status['expires']) < strtotime('+30 days') ? 'hkfn-expiry-warning' : 'hkfn-expiry-good'; ?>">
                                             <?php echo esc_html(date('F j, Y', strtotime($license_status['expires']))); ?>
                                         </span>
                                     </p>
@@ -340,7 +340,7 @@ class LicenseModule extends BaseModule {
 
                                 <?php if (!empty($license_status['features'])): ?>
                                     <p><strong>Enabled Features:</strong></p>
-                                    <ul class="wfn-features-list">
+                                    <ul class="hkfn-features-list">
                                         <?php foreach ($license_status['features'] as $feature): ?>
                                             <li><span class="dashicons dashicons-yes"></span> <?php echo esc_html(ucwords(str_replace('_', ' ', $feature))); ?></li>
                                         <?php endforeach; ?>
@@ -354,7 +354,7 @@ class LicenseModule extends BaseModule {
                                 <?php endif; ?>
                             </div>
                         <?php else: ?>
-                            <div class="wfn-status-inactive">
+                            <div class="hkfn-status-inactive">
                                 <span class="dashicons dashicons-warning"></span>
                                 <strong>No Active License</strong>
                             </div>
@@ -364,13 +364,13 @@ class LicenseModule extends BaseModule {
                 </div>
 
                 <!-- License Management Form -->
-                <div class="wfn-card">
-                    <div class="wfn-card-header">
+                <div class="hkfn-card">
+                    <div class="hkfn-card-header">
                         <h2><?php echo $license_status['valid'] ? 'Update License' : 'Activate License'; ?></h2>
                     </div>
-                    <div class="wfn-card-body">
-                        <form id="wfn-license-form" method="post">
-                            <div class="wfn-form-group">
+                    <div class="hkfn-card-body">
+                        <form id="hkfn-license-form" method="post">
+                            <div class="hkfn-form-group">
                                 <label for="license_key">License Key</label>
                                 <div style="display: flex; gap: 10px; align-items: flex-start;">
                                     <input type="<?php echo $license_status['valid'] ? 'password' : 'text'; ?>"
@@ -389,7 +389,7 @@ class LicenseModule extends BaseModule {
                                         </button>
                                     <?php endif; ?>
                                 </div>
-                                <p class="wfn-form-description">
+                                <p class="hkfn-form-description">
                                     Enter your 32-character premium license key (provided by HumanKind support)
                                     <?php if ($license_status['valid']): ?>
                                         <br><em>License key is hidden for security. Click "Show" to reveal it.</em>
@@ -397,7 +397,7 @@ class LicenseModule extends BaseModule {
                                 </p>
                             </div>
 
-                            <div class="wfn-form-actions">
+                            <div class="hkfn-form-actions">
                                 <button type="button" id="validate-license" class="button button-primary">
                                     <span class="button-text">
                                         <?php echo $license_status['valid'] ? 'Update License' : 'Activate License'; ?>
@@ -419,30 +419,30 @@ class LicenseModule extends BaseModule {
                 </div>
 
                 <!-- Premium Features Info -->
-                <div class="wfn-card" style="margin-top: 20px;">
-                    <div class="wfn-card-header">
+                <div class="hkfn-card" style="margin-top: 20px;">
+                    <div class="hkfn-card-header">
                         <h2>Premium Features</h2>
                     </div>
-                    <div class="wfn-card-body">
+                    <div class="hkfn-card-body">
                         <p>Activate your premium license to unlock these advanced features:</p>
 
-                        <div class="wfn-features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;">
-                            <div class="wfn-feature-item">
+                        <div class="hkfn-features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;">
+                            <div class="hkfn-feature-item">
                                 <h4><span class="dashicons dashicons-video-alt3"></span> Video Hosting</h4>
                                 <p>Upload memorial videos with professional CDN hosting and modal playback.</p>
                             </div>
 
-                            <div class="wfn-feature-item">
+                            <div class="hkfn-feature-item">
                                 <h4><span class="dashicons dashicons-chart-line"></span> Advanced Analytics</h4>
                                 <p>Detailed statistics and usage reporting for video content and site performance.</p>
                             </div>
 
-                            <div class="wfn-feature-item">
+                            <div class="hkfn-feature-item">
                                 <h4><span class="dashicons dashicons-images-alt2"></span> Enhanced Media</h4>
                                 <p>Premium image hosting and advanced media management capabilities.</p>
                             </div>
 
-                            <div class="wfn-feature-item">
+                            <div class="hkfn-feature-item">
                                 <h4><span class="dashicons dashicons-admin-tools"></span> Priority Support</h4>
                                 <p>Access to priority technical support and advanced configuration assistance.</p>
                             </div>
@@ -514,7 +514,7 @@ class LicenseModule extends BaseModule {
                     url: ajaxurl,
                     type: 'POST',
                     data: {
-                        action: 'wfn_validate_license',
+                        action: 'hkfn_validate_license',
                         license_key: licenseKey,
                         nonce: nonce
                     },
@@ -551,7 +551,7 @@ class LicenseModule extends BaseModule {
                     url: ajaxurl,
                     type: 'POST',
                     data: {
-                        action: 'wfn_deactivate_license',
+                        action: 'hkfn_deactivate_license',
                         nonce: nonce
                     },
                     success: function(response) {
@@ -594,54 +594,54 @@ class LicenseModule extends BaseModule {
         </script>
 
         <style>
-        .wfn-status-success {
+        .hkfn-status-success {
             color: #00a32a;
             font-size: 16px;
         }
-        .wfn-status-success .dashicons {
+        .hkfn-status-success .dashicons {
             font-size: 18px;
             margin-right: 8px;
         }
-        .wfn-status-inactive {
+        .hkfn-status-inactive {
             color: #d63638;
             font-size: 16px;
         }
-        .wfn-status-inactive .dashicons {
+        .hkfn-status-inactive .dashicons {
             font-size: 18px;
             margin-right: 8px;
         }
-        .wfn-license-details p {
+        .hkfn-license-details p {
             margin: 8px 0;
         }
-        .wfn-features-list {
+        .hkfn-features-list {
             margin: 10px 0;
             padding-left: 0;
         }
-        .wfn-features-list li {
+        .hkfn-features-list li {
             list-style: none;
             margin: 5px 0;
             color: #00a32a;
         }
-        .wfn-features-list .dashicons {
+        .hkfn-features-list .dashicons {
             font-size: 14px;
             margin-right: 8px;
         }
-        .wfn-expiry-warning {
+        .hkfn-expiry-warning {
             color: #d63638;
             font-weight: bold;
         }
-        .wfn-expiry-good {
+        .hkfn-expiry-good {
             color: #00a32a;
         }
-        .wfn-feature-item h4 {
+        .hkfn-feature-item h4 {
             margin: 0 0 8px 0;
             color: #1d2327;
         }
-        .wfn-feature-item h4 .dashicons {
+        .hkfn-feature-item h4 .dashicons {
             margin-right: 8px;
             color: #0073aa;
         }
-        .wfn-feature-item p {
+        .hkfn-feature-item p {
             margin: 0;
             color: #646970;
             font-size: 14px;

@@ -25,8 +25,8 @@ jQuery(document).ready(function($) {
     });
     
     // Handle custom colors visibility
-    $('input[name="wfn_module_settings[color_scheme]"]').on('change', function() {
-        var $customColors = $('.wfn-custom-colors');
+    $('input[name="hkfn_module_settings[color_scheme]"]').on('change', function() {
+        var $customColors = $('.hkfn-custom-colors');
         if ($(this).val() === 'custom') {
             $customColors.show();
         } else {
@@ -138,7 +138,7 @@ jQuery(document).ready(function($) {
     // Handle toggle switches
     $('.toggle-switch input[type="checkbox"]').on('change', function() {
         var isChecked = $(this).is(':checked');
-        var $relatedControls = $(this).closest('.wfn-module-control').find('.form-table tr').not(':first');
+        var $relatedControls = $(this).closest('.hkfn-module-control').find('.form-table tr').not(':first');
         
         if (isChecked) {
             $relatedControls.show();
@@ -151,8 +151,8 @@ jQuery(document).ready(function($) {
 
     // Apply color scheme to form inputs
     function applyColorScheme(schemeId) {
-        if (typeof wfnStyling.colorSchemes[schemeId] !== 'undefined') {
-            var scheme = wfnStyling.colorSchemes[schemeId];
+        if (typeof hkfnStyling.colorSchemes[schemeId] !== 'undefined') {
+            var scheme = hkfnStyling.colorSchemes[schemeId];
             
             // Update color picker values
             $('input[name*="primary_color"]').wpColorPicker('color', scheme.primary);

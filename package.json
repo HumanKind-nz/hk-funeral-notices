@@ -1,0 +1,18 @@
+{
+	"name": "hk-funeral-notices",
+	"version": "3.0.0",
+	"description": "Professional funeral notice management for WordPress.",
+	"author": "Weave Digital Studio",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build --config webpack.scripts.config.js",
+		"start": "wp-scripts start --config webpack.scripts.config.js",
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:js": "wp-scripts lint-js src/js/",
+		"lint:css": "wp-scripts lint-style src/js/"
+	},
+	"devDependencies": {
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.0.0",
+		"@wordpress/scripts": "^31.4.0"
+	}
+}

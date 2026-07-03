@@ -13,7 +13,7 @@
     /**
      * Production Video Uploader Class
      */
-    class WFNVideoUploader {
+    class HKFNVideoUploader {
         constructor(file, postId, options = {}) {
             this.file = file;
             this.postId = postId;
@@ -64,11 +64,11 @@
          * Initialize upload session with WordPress
          */
         async initUploadSession() {
-            const response = await fetch(wfnVideoUpload.restUrl + 'wfn/v1/video/init-upload', {
+            const response = await fetch(hkfnVideoUpload.restUrl + 'hkfn/v1/video/init-upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-WP-Nonce': wfnVideoUpload.nonce
+                    'X-WP-Nonce': hkfnVideoUpload.nonce
                 },
                 body: JSON.stringify({
                     post_id: this.postId,
@@ -138,11 +138,11 @@
          * Notify WordPress that upload is complete
          */
         async notifyWordPress() {
-            const response = await fetch(wfnVideoUpload.restUrl + 'wfn/v1/video/upload-complete', {
+            const response = await fetch(hkfnVideoUpload.restUrl + 'hkfn/v1/video/upload-complete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-WP-Nonce': wfnVideoUpload.nonce
+                    'X-WP-Nonce': hkfnVideoUpload.nonce
                 },
                 body: JSON.stringify({
                     post_id: this.postId,
@@ -232,7 +232,7 @@
         }
 
         // Get current post ID
-        const postId = wfnVideoUpload.postId || $('#post_ID').val();
+        const postId = hkfnVideoUpload.postId || $('#post_ID').val();
 
         if (!postId) {
             console.error('WFN Video Upload: Post ID not found');
@@ -247,75 +247,75 @@
         }
 
         // Check if already initialized
-        if ($videoField.hasClass('wfn-direct-upload-initialized')) {
+        if ($videoField.hasClass('hkfn-direct-upload-initialized')) {
             return;
         }
 
-        $videoField.addClass('wfn-direct-upload-initialized');
+        $videoField.addClass('hkfn-direct-upload-initialized');
 
         // Hide default ACF file uploader
         $videoField.find('.acf-file-uploader').hide();
 
         // Inject custom upload UI
         const uploadUI = `
-            <div class="wfn-video-upload">
-                <div class="wfn-upload-dropzone">
-                    <input type="file" id="wfn-video-file-input" accept="video/mp4,video/mov,video/avi,video/webm" style="display: none;">
-                    <div class="wfn-dropzone-content">
+            <div class="hkfn-video-upload">
+                <div class="hkfn-upload-dropzone">
+                    <input type="file" id="hkfn-video-file-input" accept="video/mp4,video/mov,video/avi,video/webm" style="display: none;">
+                    <div class="hkfn-dropzone-content">
                         <span class="dashicons dashicons-video-alt2"></span>
                         <p><strong>Choose a video file or drag it here</strong></p>
                         <p class="description">Maximum file size: 900MB. Supported formats: MP4, MOV, AVI, WEBM</p>
-                        <button type="button" class="button button-primary wfn-select-file">Select Video File</button>
+                        <button type="button" class="button button-primary hkfn-select-file">Select Video File</button>
                     </div>
                 </div>
 
-                <div class="wfn-upload-progress" style="display: none;">
+                <div class="hkfn-upload-progress" style="display: none;">
                     <h4>Uploading Memorial Video</h4>
-                    <div class="wfn-progress-bar-container">
-                        <div class="wfn-progress-bar">
-                            <div class="wfn-progress-fill" style="width: 0%;"></div>
+                    <div class="hkfn-progress-bar-container">
+                        <div class="hkfn-progress-bar">
+                            <div class="hkfn-progress-fill" style="width: 0%;"></div>
                         </div>
-                        <span class="wfn-progress-text">0%</span>
+                        <span class="hkfn-progress-text">0%</span>
                     </div>
-                    <div class="wfn-upload-stats">
-                        <div class="wfn-stat">
+                    <div class="hkfn-upload-stats">
+                        <div class="hkfn-stat">
                             <span class="label">Speed:</span>
-                            <span class="value wfn-upload-speed">0 MB/s</span>
+                            <span class="value hkfn-upload-speed">0 MB/s</span>
                         </div>
-                        <div class="wfn-stat">
+                        <div class="hkfn-stat">
                             <span class="label">Time Remaining:</span>
-                            <span class="value wfn-upload-eta">Calculating...</span>
+                            <span class="value hkfn-upload-eta">Calculating...</span>
                         </div>
-                        <div class="wfn-stat">
+                        <div class="hkfn-stat">
                             <span class="label">Uploaded:</span>
-                            <span class="value wfn-upload-size">0 MB / 0 MB</span>
+                            <span class="value hkfn-upload-size">0 MB / 0 MB</span>
                         </div>
                     </div>
-                    <button type="button" class="button wfn-cancel-upload">Cancel Upload</button>
+                    <button type="button" class="button hkfn-cancel-upload">Cancel Upload</button>
                 </div>
 
-                <div class="wfn-upload-complete" style="display: none;">
-                    <div class="wfn-success-message">
+                <div class="hkfn-upload-complete" style="display: none;">
+                    <div class="hkfn-success-message">
                         <span class="dashicons dashicons-yes-alt"></span>
                         <h4>Video Uploaded Successfully!</h4>
-                        <p class="wfn-video-id"></p>
-                        <p class="wfn-license-notice" style="display: none; color: #d63638; margin-top: 8px;">
-                            <strong>Note:</strong> A valid premium license is required to display this video on the front end. <a href="#" class="wfn-license-link">Manage License</a>
+                        <p class="hkfn-video-id"></p>
+                        <p class="hkfn-license-notice" style="display: none; color: #d63638; margin-top: 8px;">
+                            <strong>Note:</strong> A valid premium license is required to display this video on the front end. <a href="#" class="hkfn-license-link">Manage License</a>
                         </p>
-                        <div class="wfn-video-actions" style="margin-top: 16px;">
-                            <button type="button" class="button button-link-delete wfn-delete-video-btn">
+                        <div class="hkfn-video-actions" style="margin-top: 16px;">
+                            <button type="button" class="button button-link-delete hkfn-delete-video-btn">
                                 <span class="dashicons dashicons-trash"></span> Remove Video
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="wfn-upload-error" style="display: none;">
-                    <div class="wfn-error-message">
+                <div class="hkfn-upload-error" style="display: none;">
+                    <div class="hkfn-error-message">
                         <span class="dashicons dashicons-warning"></span>
                         <h4>Upload Failed</h4>
-                        <p class="wfn-error-text"></p>
-                        <button type="button" class="button wfn-try-again">Try Again</button>
+                        <p class="hkfn-error-text"></p>
+                        <button type="button" class="button hkfn-try-again">Try Again</button>
                     </div>
                 </div>
             </div>
@@ -330,12 +330,12 @@
         let currentUploader = null;
 
         // Button click handler
-        $videoField.on('click', '.wfn-select-file', function() {
-            $('#wfn-video-file-input').click();
+        $videoField.on('click', '.hkfn-select-file', function() {
+            $('#hkfn-video-file-input').click();
         });
 
         // File selection handler
-        $videoField.on('change', '#wfn-video-file-input', function() {
+        $videoField.on('change', '#hkfn-video-file-input', function() {
             const file = this.files[0];
             if (file) {
                 startUpload(file);
@@ -343,14 +343,14 @@
         });
 
         // Cancel upload handler
-        $videoField.on('click', '.wfn-cancel-upload', function() {
+        $videoField.on('click', '.hkfn-cancel-upload', function() {
             if (currentUploader) {
                 currentUploader.abort();
             }
         });
 
         // Try again handler
-        $videoField.on('click', '.wfn-try-again', function() {
+        $videoField.on('click', '.hkfn-try-again', function() {
             resetUI();
         });
 
@@ -373,11 +373,11 @@
             }
 
             // Hide dropzone, show progress
-            $videoField.find('.wfn-upload-dropzone').hide();
-            $videoField.find('.wfn-upload-progress').show();
+            $videoField.find('.hkfn-upload-dropzone').hide();
+            $videoField.find('.hkfn-upload-progress').show();
 
             // Create uploader
-            currentUploader = new WFNVideoUploader(file, postId, {
+            currentUploader = new HKFNVideoUploader(file, postId, {
                 onProgress: updateProgress,
                 onComplete: handleComplete,
                 onError: handleError
@@ -391,20 +391,20 @@
          * Update progress UI
          */
         function updateProgress(progress) {
-            $videoField.find('.wfn-progress-fill').css('width', progress.percentage + '%');
-            $videoField.find('.wfn-progress-text').text(progress.percentage.toFixed(1) + '%');
-            $videoField.find('.wfn-upload-speed').text(progress.speedMBps + ' MB/s');
-            $videoField.find('.wfn-upload-eta').text(progress.etaFormatted);
-            $videoField.find('.wfn-upload-size').text(progress.loadedFormatted + ' / ' + progress.totalFormatted);
+            $videoField.find('.hkfn-progress-fill').css('width', progress.percentage + '%');
+            $videoField.find('.hkfn-progress-text').text(progress.percentage.toFixed(1) + '%');
+            $videoField.find('.hkfn-upload-speed').text(progress.speedMBps + ' MB/s');
+            $videoField.find('.hkfn-upload-eta').text(progress.etaFormatted);
+            $videoField.find('.hkfn-upload-size').text(progress.loadedFormatted + ' / ' + progress.totalFormatted);
         }
 
         /**
          * Handle upload completion
          */
         function handleComplete(result) {
-            $videoField.find('.wfn-upload-progress').hide();
-            $videoField.find('.wfn-upload-complete').show();
-            $videoField.find('.wfn-video-id').text('Video ID: ' + result.videoId);
+            $videoField.find('.hkfn-upload-progress').hide();
+            $videoField.find('.hkfn-upload-complete').show();
+            $videoField.find('.hkfn-video-id').text('Video ID: ' + result.videoId);
 
             currentUploader = null;
 
@@ -424,21 +424,21 @@
          * Show error message
          */
         function showError(message) {
-            $videoField.find('.wfn-upload-dropzone').hide();
-            $videoField.find('.wfn-upload-progress').hide();
-            $videoField.find('.wfn-upload-error').show();
-            $videoField.find('.wfn-error-text').text(message);
+            $videoField.find('.hkfn-upload-dropzone').hide();
+            $videoField.find('.hkfn-upload-progress').hide();
+            $videoField.find('.hkfn-upload-error').show();
+            $videoField.find('.hkfn-error-text').text(message);
         }
 
         /**
          * Reset UI to initial state
          */
         function resetUI() {
-            $videoField.find('.wfn-upload-error').hide();
-            $videoField.find('.wfn-upload-complete').hide();
-            $videoField.find('.wfn-upload-progress').hide();
-            $videoField.find('.wfn-upload-dropzone').show();
-            $('#wfn-video-file-input').val('');
+            $videoField.find('.hkfn-upload-error').hide();
+            $videoField.find('.hkfn-upload-complete').hide();
+            $videoField.find('.hkfn-upload-progress').hide();
+            $videoField.find('.hkfn-upload-dropzone').show();
+            $('#hkfn-video-file-input').val('');
         }
 
         /**
@@ -457,14 +457,14 @@
             try {
                 console.log('WFN: Checking for existing video...', {
                     postId: postId,
-                    hasLicense: wfnVideoUpload.hasLicense,
-                    restUrl: wfnVideoUpload.restUrl
+                    hasLicense: hkfnVideoUpload.hasLicense,
+                    restUrl: hkfnVideoUpload.restUrl
                 });
 
-                const response = await fetch(wfnVideoUpload.restUrl + 'wfn/v1/video/upload-status/' + postId, {
+                const response = await fetch(hkfnVideoUpload.restUrl + 'hkfn/v1/video/upload-status/' + postId, {
                     method: 'GET',
                     headers: {
-                        'X-WP-Nonce': wfnVideoUpload.nonce
+                        'X-WP-Nonce': hkfnVideoUpload.nonce
                     }
                 });
 
@@ -481,27 +481,27 @@
                 // If video exists and is ready, show completed state
                 if (data.video_id) {
                     console.log('WFN: Video found, showing complete state');
-                    $videoField.find('.wfn-upload-dropzone').hide();
-                    $videoField.find('.wfn-upload-complete').show();
-                    $videoField.find('.wfn-video-id').text('Video ID: ' + data.video_id);
+                    $videoField.find('.hkfn-upload-dropzone').hide();
+                    $videoField.find('.hkfn-upload-complete').show();
+                    $videoField.find('.hkfn-video-id').text('Video ID: ' + data.video_id);
 
                     // Show license notice if no license (check for empty string or false)
-                    const hasLicense = wfnVideoUpload.hasLicense === '1' || wfnVideoUpload.hasLicense === true;
+                    const hasLicense = hkfnVideoUpload.hasLicense === '1' || hkfnVideoUpload.hasLicense === true;
 
                     if (!hasLicense) {
                         console.log('WFN: No license - showing notice');
-                        $videoField.find('.wfn-license-notice').show();
-                        $videoField.find('.wfn-license-link').attr('href', wfnVideoUpload.licenseUrl);
+                        $videoField.find('.hkfn-license-notice').show();
+                        $videoField.find('.hkfn-license-link').attr('href', hkfnVideoUpload.licenseUrl);
                     } else {
                         console.log('WFN: Has license - hiding notice');
-                        $videoField.find('.wfn-license-notice').hide();
+                        $videoField.find('.hkfn-license-notice').hide();
                     }
 
                     // Add option to upload a different video (only if licensed)
-                    if (hasLicense && !$videoField.find('.wfn-upload-another').length) {
+                    if (hasLicense && !$videoField.find('.hkfn-upload-another').length) {
                         console.log('WFN: Adding upload another button');
-                        $videoField.find('.wfn-upload-complete').append(
-                            '<button type="button" class="button wfn-upload-another">Upload Different Video</button>'
+                        $videoField.find('.hkfn-upload-complete').append(
+                            '<button type="button" class="button hkfn-upload-another">Upload Different Video</button>'
                         );
                     } else {
                         console.log('WFN: Not adding upload button (hasLicense:', hasLicense, ')');
@@ -509,7 +509,7 @@
                 }
 
                 // Handle upload another button
-                $videoField.on('click', '.wfn-upload-another', function() {
+                $videoField.on('click', '.hkfn-upload-another', function() {
                     if (confirm('Are you sure you want to replace the current video? This action cannot be undone.')) {
                         resetUI();
                     }
@@ -524,7 +524,7 @@
         /**
          * Handle delete video button
          */
-        $videoField.on('click', '.wfn-delete-video-btn', async function() {
+        $videoField.on('click', '.hkfn-delete-video-btn', async function() {
             const $btn = $(this);
 
             if (!confirm('Are you sure you want to remove this video?\n\nThis will:\n1. Remove the video from this funeral notice\n2. Delete the video from the hosting service\n\nThis action cannot be undone.')) {
@@ -536,10 +536,10 @@
 
             try {
                 // Call REST API to delete video
-                const response = await fetch(wfnVideoUpload.restUrl + 'wfn/v1/video/delete/' + postId, {
+                const response = await fetch(hkfnVideoUpload.restUrl + 'hkfn/v1/video/delete/' + postId, {
                     method: 'DELETE',
                     headers: {
-                        'X-WP-Nonce': wfnVideoUpload.nonce
+                        'X-WP-Nonce': hkfnVideoUpload.nonce
                     }
                 });
 
@@ -571,6 +571,6 @@
     });
 
     // Expose uploader class globally for extensions
-    window.WFNVideoUploader = WFNVideoUploader;
+    window.HKFNVideoUploader = HKFNVideoUploader;
 
 })(jQuery);

@@ -20,8 +20,8 @@ echo "🧹 Cleanup Broken Video References\n";
 echo str_repeat('=', 70) . "\n\n";
 
 // Get BunnyStream configuration
-$library_id = defined('WFN_BUNNYSTREAM_LIBRARY_ID') ? WFN_BUNNYSTREAM_LIBRARY_ID :
-              (defined('WFN_VIDEO_LIBRARY_ID') ? WFN_VIDEO_LIBRARY_ID : null);
+$library_id = defined('HKFN_BUNNYSTREAM_LIBRARY_ID') ? HKFN_BUNNYSTREAM_LIBRARY_ID :
+              (defined('HKFN_VIDEO_LIBRARY_ID') ? HKFN_VIDEO_LIBRARY_ID : null);
 
 if (!$library_id) {
     die("❌ ERROR: Bunny library ID not configured\n");
@@ -33,7 +33,7 @@ echo "Date: " . current_time('mysql') . "\n\n";
 
 // Initialize BunnyStream service
 try {
-    $bunny_service = new WeaveStudios\FuneralNotices\Services\BunnyStreamService();
+    $bunny_service = new HumanKind\FuneralNotices\Services\BunnyStreamService();
 
     if (!$bunny_service->is_configured()) {
         die("❌ ERROR: BunnyStream service not configured\n");
@@ -53,7 +53,7 @@ $posts_with_video = get_posts([
     'post_status' => ['publish', 'draft', 'pending', 'private'],
     'meta_query' => [
         [
-            'key' => '_wfn_video_id',
+            'key' => '_hkfn_video_id',
             'compare' => 'EXISTS'
         ]
     ],
@@ -123,11 +123,11 @@ $skipped_count = 0;
 $error_count = 0;
 
 foreach ($posts_with_video as $post) {
-    $video_id = get_post_meta($post->ID, '_wfn_video_id', true);
-    $video_status = get_post_meta($post->ID, '_wfn_video_status', true);
+    $video_id = get_post_meta($post->ID, '_hkfn_video_id', true);
+    $video_status = get_post_meta($post->ID, '_hkfn_video_status', true);
 
     // Get person details for display
-    $person_group = get_field('wfn_person_group', $post->ID) ?: [];
+    $person_group = get_field('hkfn_person_group', $post->ID) ?: [];
     $person_name = trim(($person_group['firstname'] ?? '') . ' ' . ($person_group['lastname'] ?? ''));
     if (empty($person_name)) {
         $person_name = $post->post_title;
@@ -144,21 +144,21 @@ foreach ($posts_with_video as $post) {
 
         try {
             // Remove all video-related metadata
-            delete_post_meta($post->ID, '_wfn_video_id');
-            delete_post_meta($post->ID, '_wfn_video_metadata');
-            delete_post_meta($post->ID, '_wfn_video_status');
-            delete_post_meta($post->ID, '_wfn_video_upload_status');
-            delete_post_meta($post->ID, '_wfn_video_upload_job');
-            delete_post_meta($post->ID, '_wfn_video_data');
-            delete_post_meta($post->ID, '_wfn_video_id_old');
-            delete_post_meta($post->ID, '_wfn_video_upload_session');
+            delete_post_meta($post->ID, '_hkfn_video_id');
+            delete_post_meta($post->ID, '_hkfn_video_metadata');
+            delete_post_meta($post->ID, '_hkfn_video_status');
+            delete_post_meta($post->ID, '_hkfn_video_upload_status');
+            delete_post_meta($post->ID, '_hkfn_video_upload_job');
+            delete_post_meta($post->ID, '_hkfn_video_data');
+            delete_post_meta($post->ID, '_hkfn_video_id_old');
+            delete_post_meta($post->ID, '_hkfn_video_upload_session');
 
             // Clear the ACF field value (if it references the missing video)
-            $media_group = get_field('wfn_media_group', $post->ID);
+            $media_group = get_field('hkfn_media_group', $post->ID);
             if (is_array($media_group)) {
                 // Keep other media, just clear video_slideshow
                 $media_group['video_slideshow'] = '';
-                update_field('wfn_media_group', $media_group, $post->ID);
+                update_field('hkfn_media_group', $media_group, $post->ID);
             }
 
             echo "   ✅ Cleaned up successfully\n\n";
@@ -203,7 +203,7 @@ $cleanup_log = [
     'errors' => $error_count
 ];
 
-update_option('wfn_last_video_cleanup', $cleanup_log);
+update_option('hkfn_last_video_cleanup', $cleanup_log);
 
-echo "📝 Cleanup log saved to: wfn_last_video_cleanup option\n";
+echo "📝 Cleanup log saved to: hkfn_last_video_cleanup option\n";
 echo "\n✨ Done!\n";

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
 /**
  * Module Interface

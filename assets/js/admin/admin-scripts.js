@@ -64,7 +64,7 @@
 
         // Animate module cards on load
         setTimeout(function() {
-            $('.wfn-module-card').each(function(index) {
+            $('.hkfn-module-card').each(function(index) {
                 var $card = $(this);
                 setTimeout(function() {
                     $card.addClass('loaded');
@@ -88,8 +88,8 @@
             
             // Update button text if available
             var originalText = $submitButton.val() || $submitButton.text();
-            if (wfnAdmin && wfnAdmin.strings && wfnAdmin.strings.saving) {
-                $submitButton.val(wfnAdmin.strings.saving).text(wfnAdmin.strings.saving);
+            if (hkfnAdmin && hkfnAdmin.strings && hkfnAdmin.strings.saving) {
+                $submitButton.val(hkfnAdmin.strings.saving).text(hkfnAdmin.strings.saving);
             }
             
             // Show processing message
@@ -182,7 +182,7 @@
      * Initialize tabs
      */
     function initTabs() {
-        $('.wfn-tab-nav button').on('click', function(e) {
+        $('.hkfn-tab-nav button').on('click', function(e) {
             e.preventDefault();
             var $button = $(this);
             var targetTab = $button.data('tab');
@@ -192,7 +192,7 @@
             $button.addClass('active');
             
             // Update content
-            $('.wfn-tab-content').removeClass('active');
+            $('.hkfn-tab-content').removeClass('active');
             $('#' + targetTab).addClass('active');
         });
     }
@@ -203,14 +203,14 @@
     function showNotification(message, type) {
         type = type || 'info';
         
-        var $notification = $('<div class="wfn-notification wfn-notification-' + type + '">' +
+        var $notification = $('<div class="hkfn-notification hkfn-notification-' + type + '">' +
             '<span class="dashicons dashicons-' + getNotificationIcon(type) + '"></span>' +
             message +
             '<button class="notification-close">&times;</button>' +
             '</div>');
         
         // Remove existing notifications
-        $('.wfn-notification').fadeOut(300, function() {
+        $('.hkfn-notification').fadeOut(300, function() {
             $(this).remove();
         });
         
@@ -284,7 +284,7 @@
             var tooltip = $element.data('tooltip');
             
             $element.on('mouseenter', function() {
-                var $tooltip = $('<div class="wfn-tooltip">' + tooltip + '</div>');
+                var $tooltip = $('<div class="hkfn-tooltip">' + tooltip + '</div>');
                 $('body').append($tooltip);
                 
                 var offset = $element.offset();
@@ -303,7 +303,7 @@
             });
             
             $element.on('mouseleave', function() {
-                $('.wfn-tooltip').remove();
+                $('.hkfn-tooltip').remove();
             });
         });
     }
@@ -311,8 +311,8 @@
     /**
      * Handle settings section collapsing
      */
-    $('.wfn-module-control h3').on('click', function() {
-        var $section = $(this).closest('.wfn-module-control');
+    $('.hkfn-module-control h3').on('click', function() {
+        var $section = $(this).closest('.hkfn-module-control');
         var $content = $section.find('.form-table');
         
         $content.slideToggle(300);
@@ -323,10 +323,10 @@
      * Initialize range sliders
      */
     function initRangeSliders() {
-        $('.wfn-range-control input[type="range"]').on('input', function() {
+        $('.hkfn-range-control input[type="range"]').on('input', function() {
             var $slider = $(this);
             var value = $slider.val();
-            var $display = $slider.siblings('.wfn-range-value');
+            var $display = $slider.siblings('.hkfn-range-value');
             
             $display.text(value);
         });
@@ -336,7 +336,7 @@
      * AJAX save functionality for module settings
      */
     function initAjaxSave() {
-        $('.wfn-ajax-save').on('click', function(e) {
+        $('.hkfn-ajax-save').on('click', function(e) {
             e.preventDefault();
             
             var $button = $(this);
@@ -346,18 +346,18 @@
             $button.addClass('loading').prop('disabled', true);
             
             $.ajax({
-                url: wfnAdmin.ajax_url,
+                url: hkfnAdmin.ajax_url,
                 type: 'POST',
-                data: formData + '&action=wfn_save_settings&nonce=' + wfnAdmin.nonce,
+                data: formData + '&action=hkfn_save_settings&nonce=' + hkfnAdmin.nonce,
                 success: function(response) {
                     if (response.success) {
-                        showNotification(wfnAdmin.strings.saved, 'success');
+                        showNotification(hkfnAdmin.strings.saved, 'success');
                     } else {
-                        showNotification(wfnAdmin.strings.error, 'error');
+                        showNotification(hkfnAdmin.strings.error, 'error');
                     }
                 },
                 error: function() {
-                    showNotification(wfnAdmin.strings.error, 'error');
+                    showNotification(hkfnAdmin.strings.error, 'error');
                 },
                 complete: function() {
                     $button.removeClass('loading').prop('disabled', false);

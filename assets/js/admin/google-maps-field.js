@@ -7,14 +7,14 @@
  * @since 2.4.0
  */
 
-class WFNGoogleMapsField {
+class HKFNGoogleMapsField {
     constructor(fieldElement) {
         console.log('WFN: Constructing Google Maps field...');
         this.field = fieldElement;
         this.fieldKey = fieldElement.dataset.fieldKey;
-        this.input = fieldElement.querySelector('.wfn-address-autocomplete');
-        this.mapElement = fieldElement.querySelector('.wfn-map-display');
-        this.statusElement = fieldElement.querySelector('.wfn-address-status span');
+        this.input = fieldElement.querySelector('.hkfn-address-autocomplete');
+        this.mapElement = fieldElement.querySelector('.hkfn-map-display');
+        this.statusElement = fieldElement.querySelector('.hkfn-address-status span');
         this.hiddenFields = {};
         this.autocompleteElement = null;
 
@@ -117,7 +117,7 @@ class WFNGoogleMapsField {
             }
 
             // Add CSS classes for styling
-            this.autocompleteElement.className = 'wfn-address-autocomplete wfn-place-autocomplete-element';
+            this.autocompleteElement.className = 'hkfn-address-autocomplete hkfn-place-autocomplete-element';
 
             // Replace original input with autocomplete element
             this.input.parentNode.replaceChild(this.autocompleteElement, this.input);
@@ -138,7 +138,7 @@ class WFNGoogleMapsField {
                 // Replace element with original input
                 const originalInput = document.createElement('input');
                 originalInput.type = 'text';
-                originalInput.className = 'wfn-address-autocomplete';
+                originalInput.className = 'hkfn-address-autocomplete';
                 originalInput.placeholder = this.autocompleteElement.getAttribute('placeholder');
                 originalInput.id = this.autocompleteElement.getAttribute('id');
                 originalInput.value = this.autocompleteElement.value || '';
@@ -483,33 +483,33 @@ class WFNGoogleMapsField {
  * Initialize all Google Maps fields on the page
  * Uses modern async loading with polling for API availability
  */
-function initializeWFNGoogleMapsFields() {
+function initializeHKFNGoogleMapsFields() {
     console.log('WFN: Initializing Google Maps fields...');
     console.log('WFN: window.google available:', !!window.google);
     console.log('WFN: window.google.maps available:', !!(window.google && window.google.maps));
 
     // Find all Google Maps fields on the page
-    const fields = document.querySelectorAll('.wfn-google-maps-field');
+    const fields = document.querySelectorAll('.hkfn-google-maps-field');
     console.log('WFN: Found', fields.length, 'Google Maps fields');
 
     if (fields.length === 0) {
-        console.log('WFN: No .wfn-google-maps-field elements found on page');
+        console.log('WFN: No .hkfn-google-maps-field elements found on page');
         return;
     }
 
     fields.forEach(field => {
         try {
             // Check if field already initialized (avoid double-initialization)
-            if (field.dataset.wfnInitialized === 'true') {
+            if (field.dataset.hkfnInitialized === 'true') {
                 console.log('WFN: Field already initialized:', field.dataset.fieldKey);
                 return;
             }
 
             console.log('WFN: Initializing field:', field.dataset.fieldKey);
-            new WFNGoogleMapsField(field);
+            new HKFNGoogleMapsField(field);
 
             // Mark as initialized
-            field.dataset.wfnInitialized = 'true';
+            field.dataset.hkfnInitialized = 'true';
 
             console.log('WFN: Successfully initialized field:', field.dataset.fieldKey);
         } catch (error) {
@@ -533,15 +533,15 @@ function waitForGoogleMapsAPI() {
         if (window.google && window.google.maps && window.google.maps.places) {
             console.log('WFN: Google Maps API loaded successfully');
             clearInterval(checkInterval);
-            initializeWFNGoogleMapsFields();
+            initializeHKFNGoogleMapsFields();
         } else if (attempts >= maxAttempts) {
             console.error('WFN: Google Maps API failed to load within 10 seconds');
             clearInterval(checkInterval);
 
             // Show error message in fields
-            const fields = document.querySelectorAll('.wfn-google-maps-field');
+            const fields = document.querySelectorAll('.hkfn-google-maps-field');
             fields.forEach(field => {
-                const statusElement = field.querySelector('.wfn-address-status span');
+                const statusElement = field.querySelector('.hkfn-address-status span');
                 if (statusElement) {
                     statusElement.textContent = '⚠ Google Maps API failed to load. Check API key configuration.';
                     statusElement.style.color = '#d63638';
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if Google Maps API is already loaded
     if (window.google && window.google.maps && window.google.maps.places) {
         console.log('WFN: Google Maps API already loaded');
-        initializeWFNGoogleMapsFields();
+        initializeHKFNGoogleMapsFields();
     } else {
         console.log('WFN: Google Maps API not yet loaded, starting polling...');
         waitForGoogleMapsAPI();
@@ -569,11 +569,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /**
  * Legacy callback function for backward compatibility with feature flag
- * This will be called if site uses: add_filter('wfn_use_modern_google_maps_api', '__return_false')
+ * This will be called if site uses: add_filter('hkfn_use_modern_google_maps_api', '__return_false')
  */
 function initWFNGoogleMaps() {
     console.log('WFN: Legacy callback function called');
-    initializeWFNGoogleMapsFields();
+    initializeHKFNGoogleMapsFields();
 }
 
 // Make legacy callback available globally
@@ -583,7 +583,7 @@ window.initWFNGoogleMaps = initWFNGoogleMaps;
  * Initialize for dynamically added ACF fields (repeaters, flexible content, etc.)
  */
 if (typeof acf !== 'undefined') {
-    acf.addAction('ready_field/type=wfn_google_maps', function(field) {
+    acf.addAction('ready_field/type=hkfn_google_maps', function(field) {
         console.log('WFN: ACF ready_field action triggered');
 
         // Wait for Google Maps API if not loaded yet
@@ -597,19 +597,19 @@ if (typeof acf !== 'undefined') {
         let fieldElement = null;
 
         if (field && field.length > 0 && field[0] && typeof field[0].querySelector === 'function') {
-            fieldElement = field[0].querySelector('.wfn-google-maps-field');
+            fieldElement = field[0].querySelector('.hkfn-google-maps-field');
         } else if (field && field.querySelector) {
-            fieldElement = field.querySelector('.wfn-google-maps-field');
+            fieldElement = field.querySelector('.hkfn-google-maps-field');
         }
 
-        if (fieldElement && fieldElement.dataset.wfnInitialized !== 'true') {
+        if (fieldElement && fieldElement.dataset.hkfnInitialized !== 'true') {
             console.log('WFN: Initializing ACF field:', fieldElement.dataset.fieldKey);
-            new WFNGoogleMapsField(fieldElement);
-            fieldElement.dataset.wfnInitialized = 'true';
+            new HKFNGoogleMapsField(fieldElement);
+            fieldElement.dataset.hkfnInitialized = 'true';
         }
     });
 
-    acf.addAction('append_field/type=wfn_google_maps', function(field) {
+    acf.addAction('append_field/type=hkfn_google_maps', function(field) {
         console.log('WFN: ACF append_field action triggered');
 
         // Wait for Google Maps API if not loaded yet
@@ -623,15 +623,15 @@ if (typeof acf !== 'undefined') {
         let fieldElement = null;
 
         if (field && field.length > 0 && field[0] && typeof field[0].querySelector === 'function') {
-            fieldElement = field[0].querySelector('.wfn-google-maps-field');
+            fieldElement = field[0].querySelector('.hkfn-google-maps-field');
         } else if (field && field.querySelector) {
-            fieldElement = field.querySelector('.wfn-google-maps-field');
+            fieldElement = field.querySelector('.hkfn-google-maps-field');
         }
 
-        if (fieldElement && fieldElement.dataset.wfnInitialized !== 'true') {
+        if (fieldElement && fieldElement.dataset.hkfnInitialized !== 'true') {
             console.log('WFN: Initializing appended ACF field:', fieldElement.dataset.fieldKey);
-            new WFNGoogleMapsField(fieldElement);
-            fieldElement.dataset.wfnInitialized = 'true';
+            new HKFNGoogleMapsField(fieldElement);
+            fieldElement.dataset.hkfnInitialized = 'true';
         }
     });
 }

@@ -5,7 +5,7 @@
  */
 
 /* Main Progress Container */
-.wfn-video-upload-progress {
+.hkfn-video-upload-progress {
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -14,7 +14,7 @@
 }
 
 /* Progress Header */
-.wfn-progress-header {
+.hkfn-progress-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -24,14 +24,14 @@
     border-radius: 8px 8px 0 0;
 }
 
-.wfn-progress-header h4 {
+.hkfn-progress-header h4 {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
     color: #2c3e50;
 }
 
-.wfn-progress-stage {
+.hkfn-progress-stage {
     background: #3498db;
     color: white;
     padding: 4px 12px;
@@ -42,7 +42,7 @@
 }
 
 /* Progress Bar */
-.wfn-progress-bar {
+.hkfn-progress-bar {
     position: relative;
     height: 24px;
     background: #f1f1f1;
@@ -52,7 +52,7 @@
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.wfn-progress-fill {
+.hkfn-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
     border-radius: 12px;
@@ -60,7 +60,7 @@
     position: relative;
 }
 
-.wfn-progress-fill::after {
+.hkfn-progress-fill::after {
     content: '';
     position: absolute;
     top: 0;
@@ -78,15 +78,15 @@
         transparent
     );
     background-size: 30px 30px;
-    animation: wfnProgressStripes 0.5s linear infinite;
+    animation: hkfnProgressStripes 0.5s linear infinite;
 }
 
-@keyframes wfnProgressStripes {
+@keyframes hkfnProgressStripes {
     from { background-position: 0 0; }
     to { background-position: 30px 0; }
 }
 
-.wfn-progress-text {
+.hkfn-progress-text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -98,14 +98,14 @@
 }
 
 /* Progress Message */
-.wfn-progress-message {
+.hkfn-progress-message {
     margin: 0 20px 15px;
     color: #666;
     font-size: 14px;
 }
 
 /* Progress Actions */
-.wfn-progress-actions {
+.hkfn-progress-actions {
     padding: 15px 20px;
     border-top: 1px solid #eee;
     background: #fafafa;
@@ -113,54 +113,54 @@
     text-align: right;
 }
 
-.wfn-progress-actions .button {
+.hkfn-progress-actions .button {
     margin-left: 10px;
 }
 
 /* Success State */
-.wfn-upload-success {
+.hkfn-upload-success {
     padding: 20px;
 }
 
-.wfn-success-header {
+.hkfn-success-header {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.wfn-success-header .dashicons {
+.hkfn-success-header .dashicons {
     color: #27ae60;
     font-size: 24px;
     margin-right: 10px;
 }
 
-.wfn-success-header h4 {
+.hkfn-success-header h4 {
     margin: 0;
     color: #27ae60;
     font-size: 18px;
 }
 
-.wfn-video-details {
+.hkfn-video-details {
     background: #f8f9fa;
     padding: 15px;
     border-radius: 6px;
     margin: 15px 0;
 }
 
-.wfn-video-details p {
+.hkfn-video-details p {
     margin: 5px 0;
     color: #555;
 }
 
-.wfn-video-actions {
+.hkfn-video-actions {
     margin: 15px 0;
 }
 
-.wfn-video-actions .button {
+.hkfn-video-actions .button {
     margin-right: 10px;
 }
 
-.wfn-success-note {
+.hkfn-success-note {
     background: #e8f5e8;
     color: #2d5a27;
     padding: 12px;
@@ -171,84 +171,84 @@
 }
 
 /* Processing State */
-.wfn-upload-processing {
+.hkfn-upload-processing {
     padding: 20px;
 }
 
-.wfn-processing-header {
+.hkfn-processing-header {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.wfn-processing-header h4 {
+.hkfn-processing-header h4 {
     margin: 0;
     color: #3498db;
     font-size: 18px;
 }
 
-.wfn-spinner {
+.hkfn-spinner {
     width: 20px;
     height: 20px;
     border: 2px solid #f3f3f3;
     border-top: 2px solid #3498db;
     border-radius: 50%;
-    animation: wfnSpinner 1s linear infinite;
+    animation: hkfnSpinner 1s linear infinite;
     margin-right: 10px;
 }
 
-@keyframes wfnSpinner {
+@keyframes hkfnSpinner {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 /* Uploaded State */
-.wfn-upload-uploaded {
+.hkfn-upload-uploaded {
     padding: 20px;
 }
 
-.wfn-uploaded-header {
+.hkfn-uploaded-header {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.wfn-uploaded-header .dashicons {
+.hkfn-uploaded-header .dashicons {
     color: #f39c12;
     font-size: 24px;
     margin-right: 10px;
 }
 
-.wfn-uploaded-header h4 {
+.hkfn-uploaded-header h4 {
     margin: 0;
     color: #f39c12;
     font-size: 18px;
 }
 
 /* Error State */
-.wfn-upload-error {
+.hkfn-upload-error {
     padding: 20px;
 }
 
-.wfn-error-header {
+.hkfn-error-header {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.wfn-error-header .dashicons {
+.hkfn-error-header .dashicons {
     color: #e74c3c;
     font-size: 24px;
     margin-right: 10px;
 }
 
-.wfn-error-header h4 {
+.hkfn-error-header h4 {
     margin: 0;
     color: #e74c3c;
     font-size: 18px;
 }
 
-.wfn-error-message {
+.hkfn-error-message {
     background: #fff5f5;
     color: #c53030;
     padding: 12px;
@@ -257,15 +257,15 @@
     margin: 15px 0;
 }
 
-.wfn-error-actions {
+.hkfn-error-actions {
     margin: 15px 0;
 }
 
-.wfn-error-actions .button {
+.hkfn-error-actions .button {
     margin-right: 10px;
 }
 
-.wfn-error-help {
+.hkfn-error-help {
     color: #666;
     font-size: 13px;
     margin: 15px 0 0;
@@ -273,15 +273,15 @@
 }
 
 /* Temporary Messages */
-.wfn-temp-message {
+.hkfn-temp-message {
     padding: 12px 16px;
     border-radius: 6px;
     margin: 10px 0;
     font-weight: 500;
-    animation: wfnSlideDown 0.3s ease;
+    animation: hkfnSlideDown 0.3s ease;
 }
 
-@keyframes wfnSlideDown {
+@keyframes hkfnSlideDown {
     from {
         opacity: 0;
         transform: translateY(-10px);
@@ -292,60 +292,60 @@
     }
 }
 
-.wfn-message-info {
+.hkfn-message-info {
     background: #e8f4f8;
     color: #2c5aa0;
     border-left: 4px solid #3498db;
 }
 
-.wfn-message-success {
+.hkfn-message-success {
     background: #e8f5e8;
     color: #2d5a27;
     border-left: 4px solid #27ae60;
 }
 
-.wfn-message-error {
+.hkfn-message-error {
     background: #fff5f5;
     color: #c53030;
     border-left: 4px solid #e74c3c;
 }
 
-.wfn-message-warning {
+.hkfn-message-warning {
     background: #fef9e7;
     color: #b7791f;
     border-left: 4px solid #f39c12;
 }
 
 /* Progress Container Styles */
-.wfn-upload-progress-container {
+.hkfn-upload-progress-container {
     background: white;
     border-radius: 8px;
     overflow: hidden;
 }
 
-.wfn-upload-progress-container:not(:last-child) {
+.hkfn-upload-progress-container:not(:last-child) {
     border-bottom: 1px solid #eee;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .wfn-progress-header {
+    .hkfn-progress-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
 
-    .wfn-progress-actions {
+    .hkfn-progress-actions {
         text-align: center;
     }
 
-    .wfn-video-actions .button {
+    .hkfn-video-actions .button {
         display: block;
         width: 100%;
         margin: 5px 0;
     }
 
-    .wfn-error-actions .button {
+    .hkfn-error-actions .button {
         display: block;
         width: 100%;
         margin: 5px 0;
@@ -353,7 +353,7 @@
 }
 
 /* Integration with ACF Fields */
-.acf-field[data-name="video_slideshow"] + .wfn-video-upload-progress {
+.acf-field[data-name="video_slideshow"] + .hkfn-video-upload-progress {
     margin-top: 10px;
 }
 
@@ -362,13 +362,13 @@
 }
 
 /* Hide ACF field when upload is in progress */
-.wfn-upload-in-progress .acf-field[data-name="video_slideshow"] .acf-input {
+.hkfn-upload-in-progress .acf-field[data-name="video_slideshow"] .acf-input {
     opacity: 0.6;
     pointer-events: none;
 }
 
 /* Loading overlay for ACF field */
-.wfn-video-field-loading::after {
+.hkfn-video-field-loading::after {
     content: '';
     position: absolute;
     top: 0;
@@ -382,7 +382,7 @@
     z-index: 10;
 }
 
-.wfn-video-field-loading::before {
+.hkfn-video-field-loading::before {
     content: 'Processing...';
     position: absolute;
     top: 50%;
@@ -398,26 +398,26 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-    .wfn-video-upload-progress {
+    .hkfn-video-upload-progress {
         border: 2px solid #000;
     }
 
-    .wfn-progress-fill {
+    .hkfn-progress-fill {
         background: #000;
     }
 
-    .wfn-temp-message {
+    .hkfn-temp-message {
         border-width: 2px;
         border-style: solid;
     }
 }
 
 /* License Protection - Hide upload interface when unlicensed */
-.wfn-video-field-unlicensed .acf-input .acf-file-uploader {
+.hkfn-video-field-unlicensed .acf-input .acf-file-uploader {
     display: none !important;
 }
 
-.wfn-video-field-unlicensed .acf-input::after {
+.hkfn-video-field-unlicensed .acf-input::after {
     content: 'Premium license required to upload memorial videos.';
     display: block;
     background: #f8d7da;
@@ -432,13 +432,13 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-    .wfn-progress-fill,
-    .wfn-spinner,
-    .wfn-temp-message {
+    .hkfn-progress-fill,
+    .hkfn-spinner,
+    .hkfn-temp-message {
         animation: none;
     }
 
-    .wfn-progress-fill::after {
+    .hkfn-progress-fill::after {
         animation: none;
     }
 }
@@ -449,12 +449,12 @@
    ================================================ */
 
 /* Upload Container */
-.wfn-video-upload {
+.hkfn-video-upload {
     margin-top: 10px;
 }
 
 /* Dropzone */
-.wfn-upload-dropzone {
+.hkfn-upload-dropzone {
     border: 2px dashed #c3c4c7;
     border-radius: 4px;
     padding: 40px 20px;
@@ -464,12 +464,12 @@
     cursor: pointer;
 }
 
-.wfn-upload-dropzone:hover {
+.hkfn-upload-dropzone:hover {
     border-color: #2271b1;
     background: #f0f6fc;
 }
 
-.wfn-dropzone-content .dashicons {
+.hkfn-dropzone-content .dashicons {
     font-size: 48px;
     width: 48px;
     height: 48px;
@@ -477,33 +477,33 @@
     margin-bottom: 10px;
 }
 
-.wfn-dropzone-content p {
+.hkfn-dropzone-content p {
     margin: 8px 0;
     color: #50575e;
 }
 
-.wfn-dropzone-content p strong {
+.hkfn-dropzone-content p strong {
     font-size: 14px;
 }
 
-.wfn-dropzone-content p.description {
+.hkfn-dropzone-content p.description {
     font-size: 13px;
     color: #646970;
 }
 
-.wfn-dropzone-content .wfn-select-file {
+.hkfn-dropzone-content .hkfn-select-file {
     margin-top: 15px;
 }
 
 /* Direct Upload Progress Section */
-.wfn-video-upload .wfn-upload-progress {
+.hkfn-video-upload .hkfn-upload-progress {
     padding: 20px;
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
 }
 
-.wfn-video-upload .wfn-upload-progress h4 {
+.hkfn-video-upload .hkfn-upload-progress h4 {
     margin: 0 0 15px 0;
     font-size: 14px;
     font-weight: 600;
@@ -511,12 +511,12 @@
 }
 
 /* Direct Upload Progress Bar Container */
-.wfn-video-upload .wfn-progress-bar-container {
+.hkfn-video-upload .hkfn-progress-bar-container {
     position: relative;
     margin-bottom: 15px;
 }
 
-.wfn-video-upload .wfn-progress-bar-container .wfn-progress-bar {
+.hkfn-video-upload .hkfn-progress-bar-container .hkfn-progress-bar {
     height: 30px;
     background: #dcdcde;
     border-radius: 4px;
@@ -524,7 +524,7 @@
     position: relative;
 }
 
-.wfn-video-upload .wfn-progress-bar-container .wfn-progress-fill {
+.hkfn-video-upload .hkfn-progress-bar-container .hkfn-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #2271b1 0%, #135e96 100%);
     transition: width 0.3s ease;
@@ -532,7 +532,7 @@
 }
 
 /* Animated stripes for active upload */
-.wfn-video-upload .wfn-progress-fill::after {
+.hkfn-video-upload .hkfn-progress-fill::after {
     content: '';
     position: absolute;
     top: 0;
@@ -550,10 +550,10 @@
         transparent
     );
     background-size: 40px 40px;
-    animation: wfn-direct-upload-stripes 1s linear infinite;
+    animation: hkfn-direct-upload-stripes 1s linear infinite;
 }
 
-@keyframes wfn-direct-upload-stripes {
+@keyframes hkfn-direct-upload-stripes {
     0% {
         background-position: 0 0;
     }
@@ -562,7 +562,7 @@
     }
 }
 
-.wfn-video-upload .wfn-progress-text {
+.hkfn-video-upload .hkfn-progress-text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -575,27 +575,27 @@
 }
 
 /* Direct Upload Stats */
-.wfn-video-upload .wfn-upload-stats {
+.hkfn-video-upload .hkfn-upload-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     margin-bottom: 15px;
 }
 
-.wfn-video-upload .wfn-upload-stats .wfn-stat {
+.hkfn-video-upload .hkfn-upload-stats .hkfn-stat {
     padding: 10px;
     background: #f6f7f7;
     border-radius: 3px;
 }
 
-.wfn-video-upload .wfn-upload-stats .wfn-stat .label {
+.hkfn-video-upload .hkfn-upload-stats .hkfn-stat .label {
     display: block;
     font-size: 12px;
     color: #646970;
     margin-bottom: 4px;
 }
 
-.wfn-video-upload .wfn-upload-stats .wfn-stat .value {
+.hkfn-video-upload .hkfn-upload-stats .hkfn-stat .value {
     display: block;
     font-size: 14px;
     font-weight: 600;
@@ -603,30 +603,30 @@
 }
 
 /* Cancel Button */
-.wfn-video-upload .wfn-cancel-upload {
+.hkfn-video-upload .hkfn-cancel-upload {
     color: #b32d2e;
     border-color: #b32d2e;
 }
 
-.wfn-video-upload .wfn-cancel-upload:hover {
+.hkfn-video-upload .hkfn-cancel-upload:hover {
     background: #b32d2e;
     color: #fff;
     border-color: #8a2424;
 }
 
 /* Success Message */
-.wfn-video-upload .wfn-upload-complete {
+.hkfn-video-upload .hkfn-upload-complete {
     padding: 20px;
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
 }
 
-.wfn-video-upload .wfn-success-message {
+.hkfn-video-upload .hkfn-success-message {
     text-align: center;
 }
 
-.wfn-video-upload .wfn-success-message .dashicons {
+.hkfn-video-upload .hkfn-success-message .dashicons {
     font-size: 48px;
     width: 48px;
     height: 48px;
@@ -634,19 +634,19 @@
     margin-bottom: 10px;
 }
 
-.wfn-video-upload .wfn-success-message h4 {
+.hkfn-video-upload .hkfn-success-message h4 {
     margin: 0 0 10px 0;
     color: #00a32a;
     font-size: 16px;
     font-weight: 600;
 }
 
-.wfn-video-upload .wfn-success-message p {
+.hkfn-video-upload .hkfn-success-message p {
     margin: 8px 0;
     color: #50575e;
 }
 
-.wfn-video-upload .wfn-success-message .wfn-video-id {
+.hkfn-video-upload .hkfn-success-message .hkfn-video-id {
     font-family: 'Courier New', monospace;
     font-size: 12px;
     color: #646970;
@@ -658,18 +658,18 @@
 }
 
 /* Error Message */
-.wfn-video-upload .wfn-upload-error {
+.hkfn-video-upload .hkfn-upload-error {
     padding: 20px;
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
 }
 
-.wfn-video-upload .wfn-error-message {
+.hkfn-video-upload .hkfn-error-message {
     text-align: center;
 }
 
-.wfn-video-upload .wfn-error-message .dashicons {
+.hkfn-video-upload .hkfn-error-message .dashicons {
     font-size: 48px;
     width: 48px;
     height: 48px;
@@ -677,34 +677,34 @@
     margin-bottom: 10px;
 }
 
-.wfn-video-upload .wfn-error-message h4 {
+.hkfn-video-upload .hkfn-error-message h4 {
     margin: 0 0 10px 0;
     color: #d63638;
     font-size: 16px;
     font-weight: 600;
 }
 
-.wfn-video-upload .wfn-error-message p {
+.hkfn-video-upload .hkfn-error-message p {
     margin: 8px 0;
     color: #50575e;
 }
 
-.wfn-video-upload .wfn-error-message .wfn-try-again {
+.hkfn-video-upload .hkfn-error-message .hkfn-try-again {
     margin-top: 15px;
 }
 
 /* Responsive Design for Direct Upload */
 @media screen and (max-width: 782px) {
-    .wfn-video-upload .wfn-upload-stats {
+    .hkfn-video-upload .hkfn-upload-stats {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    .wfn-video-upload .wfn-dropzone-content {
+    .hkfn-video-upload .hkfn-dropzone-content {
         padding: 20px 10px;
     }
 
-    .wfn-video-upload .wfn-dropzone-content .dashicons {
+    .hkfn-video-upload .hkfn-dropzone-content .dashicons {
         font-size: 36px;
         width: 36px;
         height: 36px;
@@ -712,16 +712,16 @@
 }
 
 /* Integration with ACF Field */
-.acf-field[data-name="video_slideshow"].wfn-direct-upload-initialized .acf-file-uploader {
+.acf-field[data-name="video_slideshow"].hkfn-direct-upload-initialized .acf-file-uploader {
     display: none !important;
 }
 
-.acf-field[data-name="video_slideshow"] .wfn-video-upload {
+.acf-field[data-name="video_slideshow"] .hkfn-video-upload {
     margin-top: 0;
 }
 
 /* Delete Video Button Styling */
-.wfn-delete-video-btn.button-link-delete {
+.hkfn-delete-video-btn.button-link-delete {
     color: #d63638 !important;
     text-decoration: none;
     padding: 5px 10px;
@@ -736,27 +736,27 @@
     gap: 5px;
 }
 
-.wfn-delete-video-btn.button-link-delete:hover,
-.wfn-delete-video-btn.button-link-delete:focus {
+.hkfn-delete-video-btn.button-link-delete:hover,
+.hkfn-delete-video-btn.button-link-delete:focus {
     color: #b32d2e !important;
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-.wfn-delete-video-btn.button-link-delete:active {
+.hkfn-delete-video-btn.button-link-delete:active {
     color: #8a2424 !important;
 }
 
-.wfn-delete-video-btn.button-link-delete .dashicons,
-.wfn-delete-video-btn.button-link-delete .dashicons::before {
+.hkfn-delete-video-btn.button-link-delete .dashicons,
+.hkfn-delete-video-btn.button-link-delete .dashicons::before {
     color: inherit;
     font-size: 16px;
     width: 16px;
     height: 16px;
 }
 
-.wfn-delete-video-btn:disabled {
+.hkfn-delete-video-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }

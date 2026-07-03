@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
 /**
  * Search Module
@@ -50,25 +50,25 @@ class SearchModule extends BaseModule {
         'modern' => [
             'name' => 'Modern Search Form',
             'description' => 'Clean, contemporary search interface with Enhancement Suite styling',
-            'css_class' => 'wfn-search-modern',
+            'css_class' => 'hkfn-search-modern',
             'template' => 'search-modern.php'
         ],
         'classic' => [
             'name' => 'Classic Search Form',
             'description' => 'Traditional search form with standard WordPress styling',
-            'css_class' => 'wfn-search-classic',
+            'css_class' => 'hkfn-search-classic',
             'template' => 'search-classic.php'
         ],
         'minimal' => [
             'name' => 'Minimal Search',
             'description' => 'Simple, clean search interface with minimal styling',
-            'css_class' => 'wfn-search-minimal',
+            'css_class' => 'hkfn-search-minimal',
             'template' => 'search-minimal.php'
         ],
         'compact' => [
             'name' => 'Compact Search',
             'description' => 'Space-efficient search form for sidebar or header placement',
-            'css_class' => 'wfn-search-compact',
+            'css_class' => 'hkfn-search-compact',
             'template' => 'search-compact.php'
         ]
     ];
@@ -131,21 +131,21 @@ class SearchModule extends BaseModule {
     protected function init_frontend(): void {
         // Register search functionality
         add_action('wp_enqueue_scripts', [$this, 'enqueue_search_assets']);
-        add_action('wp_ajax_wfn_search', [$this, 'handle_ajax_search']);
-        add_action('wp_ajax_nopriv_wfn_search', [$this, 'handle_ajax_search']);
+        add_action('wp_ajax_hkfn_search', [$this, 'handle_ajax_search']);
+        add_action('wp_ajax_nopriv_hkfn_search', [$this, 'handle_ajax_search']);
         
         // Search form filters
-        add_filter('wfn_search_form_html', [$this, 'render_search_form']);
-        add_filter('wfn_search_query_args', [$this, 'modify_search_query']);
+        add_filter('hkfn_search_form_html', [$this, 'render_search_form']);
+        add_filter('hkfn_search_query_args', [$this, 'modify_search_query']);
         
         // Search result filters
-        add_filter('wfn_search_results', [$this, 'process_search_results']);
-        add_filter('wfn_search_highlight', [$this, 'highlight_search_terms']);
+        add_filter('hkfn_search_results', [$this, 'process_search_results']);
+        add_filter('hkfn_search_highlight', [$this, 'highlight_search_terms']);
         
         // Analytics tracking
         if ($this->get_settings()['enable_search_analytics']) {
-            add_action('wp_ajax_wfn_track_search', [$this, 'track_search_analytics']);
-            add_action('wp_ajax_nopriv_wfn_track_search', [$this, 'track_search_analytics']);
+            add_action('wp_ajax_hkfn_track_search', [$this, 'track_search_analytics']);
+            add_action('wp_ajax_nopriv_hkfn_track_search', [$this, 'track_search_analytics']);
         }
     }
     
@@ -212,25 +212,25 @@ class SearchModule extends BaseModule {
         
         // Enqueue search styles
         wp_enqueue_style(
-            'wfn-search',
-            WFN_PLUGIN_URL . 'assets/css/search.css',
+            'hkfn-search',
+            HKFN_PLUGIN_URL . 'assets/css/search.css',
             [],
             $this->get_version()
         );
         
         // Enqueue search scripts
         wp_enqueue_script(
-            'wfn-search',
-            WFN_PLUGIN_URL . 'assets/js/search.js',
+            'hkfn-search',
+            HKFN_PLUGIN_URL . 'assets/js/search.js',
             ['jquery'],
             $this->get_version(),
             true
         );
         
         // Localize search script
-        wp_localize_script('wfn-search', 'wfnSearch', [
+        wp_localize_script('hkfn-search', 'hkfnSearch', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_search_nonce'),
+            'nonce' => wp_create_nonce('hkfn_search_nonce'),
             'settings' => [
                 'enableAjax' => $settings['enable_ajax_search'],
                 'minLength' => $settings['min_search_length'],
@@ -254,7 +254,7 @@ class SearchModule extends BaseModule {
      * Handle AJAX search requests
      */
     public function handle_ajax_search(): void {
-        check_ajax_referer('wfn_search_nonce', 'nonce');
+        check_ajax_referer('hkfn_search_nonce', 'nonce');
         
         $search_term = sanitize_text_field($_POST['search_term'] ?? '');
         $date_from = sanitize_text_field($_POST['date_from'] ?? '');
@@ -344,7 +344,7 @@ class SearchModule extends BaseModule {
         }
         
         // Apply filters
-        $args = apply_filters('wfn_search_query_args', $args, $search_term, $date_from, $date_to, $location);
+        $args = apply_filters('hkfn_search_query_args', $args, $search_term, $date_from, $date_to, $location);
         
         // Execute search
         $query = new \WP_Query($args);
@@ -374,7 +374,7 @@ class SearchModule extends BaseModule {
         wp_reset_postdata();
         
         // Apply result filters
-        $results = apply_filters('wfn_search_results', $results, $search_term);
+        $results = apply_filters('hkfn_search_results', $results, $search_term);
         
         // Track search analytics
         if ($settings['enable_search_analytics']) {
@@ -400,18 +400,18 @@ class SearchModule extends BaseModule {
         
         ob_start();
         ?>
-        <div class="wfn-search-container <?php echo esc_attr($style['css_class']); ?>">
-            <form class="wfn-search-form" method="get" action="">
-                <div class="wfn-search-fields">
-                    <div class="wfn-search-field wfn-search-text">
-                        <label for="wfn-search-input" class="screen-reader-text">Search Funeral Notices</label>
+        <div class="hkfn-search-container <?php echo esc_attr($style['css_class']); ?>">
+            <form class="hkfn-search-form" method="get" action="">
+                <div class="hkfn-search-fields">
+                    <div class="hkfn-search-field hkfn-search-text">
+                        <label for="hkfn-search-input" class="screen-reader-text">Search Funeral Notices</label>
                         <input type="text" 
-                               id="wfn-search-input" 
+                               id="hkfn-search-input" 
                                name="search" 
-                               class="wfn-search-input"
+                               class="hkfn-search-input"
                                placeholder="<?php echo esc_attr($settings['search_placeholder']); ?>"
                                value="<?php echo esc_attr($_GET['search'] ?? ''); ?>">
-                        <button type="submit" class="wfn-search-submit">
+                        <button type="submit" class="hkfn-search-submit">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="M21 21l-4.35-4.35"></path>
@@ -421,26 +421,26 @@ class SearchModule extends BaseModule {
                     </div>
                     
                     <?php if ($settings['enable_date_range']): ?>
-                    <div class="wfn-search-field wfn-search-dates">
-                        <label for="wfn-date-range" class="screen-reader-text">Date Range</label>
+                    <div class="hkfn-search-field hkfn-search-dates">
+                        <label for="hkfn-date-range" class="screen-reader-text">Date Range</label>
                         <input type="text"
-                               id="wfn-date-range"
-                               class="wfn-date-input"
+                               id="hkfn-date-range"
+                               class="hkfn-date-input"
                                placeholder="Select date range..."
                                readonly
                                value="">
 
                         <!-- Hidden inputs for backend compatibility -->
                         <input type="hidden"
-                               id="wfn-date-from"
+                               id="hkfn-date-from"
                                name="date_from"
                                value="<?php echo esc_attr($_GET['date_from'] ?? ''); ?>">
                         <input type="hidden"
-                               id="wfn-date-to"
+                               id="hkfn-date-to"
                                name="date_to"
                                value="<?php echo esc_attr($_GET['date_to'] ?? ''); ?>">
 
-                        <button type="button" class="wfn-date-clear" aria-label="Clear date range" style="display: none;">
+                        <button type="button" class="hkfn-date-clear" aria-label="Clear date range" style="display: none;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -450,33 +450,33 @@ class SearchModule extends BaseModule {
                     <?php endif; ?>
                     
                     <?php if ($settings['enable_location_filter']): ?>
-                    <div class="wfn-search-field wfn-search-location">
-                        <label for="wfn-location-input">Location</label>
+                    <div class="hkfn-search-field hkfn-search-location">
+                        <label for="hkfn-location-input">Location</label>
                         <input type="text" 
-                               id="wfn-location-input" 
+                               id="hkfn-location-input" 
                                name="location" 
-                               class="wfn-location-input"
+                               class="hkfn-location-input"
                                placeholder="Enter location..."
                                value="<?php echo esc_attr($_GET['location'] ?? ''); ?>">
                     </div>
                     <?php endif; ?>
                     
-                    <div class="wfn-search-actions">
-                        <button type="submit" class="wfn-search-button">Search</button>
-                        <button type="reset" class="wfn-clear-button">Clear</button>
+                    <div class="hkfn-search-actions">
+                        <button type="submit" class="hkfn-search-button">Search</button>
+                        <button type="reset" class="hkfn-clear-button">Clear</button>
                     </div>
                 </div>
             </form>
             
             <?php if ($settings['enable_search_suggestions']): ?>
-            <div class="wfn-search-suggestions" style="display: none;">
-                <div class="wfn-suggestions-list"></div>
+            <div class="hkfn-search-suggestions" style="display: none;">
+                <div class="hkfn-suggestions-list"></div>
             </div>
             <?php endif; ?>
             
             <?php if ($settings['show_search_count']): ?>
-            <div class="wfn-search-results-count" style="display: none;">
-                <span class="wfn-results-text"></span>
+            <div class="hkfn-search-results-count" style="display: none;">
+                <span class="hkfn-results-text"></span>
             </div>
             <?php endif; ?>
         </div>
@@ -492,7 +492,7 @@ class SearchModule extends BaseModule {
             return;
         }
         
-        $analytics = get_option('wfn_search_analytics', []);
+        $analytics = hkfn_get_option('search_analytics', []);
         $date = date('Y-m-d');
         
         if (!isset($analytics[$date])) {
@@ -510,7 +510,7 @@ class SearchModule extends BaseModule {
         // Keep only last 30 days of analytics
         $analytics = array_slice($analytics, -30, 30, true);
         
-        update_option('wfn_search_analytics', $analytics);
+        update_option('hkfn_search_analytics', $analytics);
     }
     
     /**
@@ -522,8 +522,8 @@ class SearchModule extends BaseModule {
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>
             
-            <div class="wfn-search-admin">
-                <div class="wfn-admin-tabs">
+            <div class="hkfn-search-admin">
+                <div class="hkfn-admin-tabs">
                     <nav class="nav-tab-wrapper">
                         <a href="#search-form" class="nav-tab nav-tab-active">Search Form</a>
                         <a href="#search-fields" class="nav-tab">Search Fields</a>
@@ -532,25 +532,25 @@ class SearchModule extends BaseModule {
                     </nav>
                     
                     <!-- Search Form Tab -->
-                    <div id="search-form" class="wfn-tab-pane active">
+                    <div id="search-form" class="hkfn-tab-pane active">
                         <h3>Search Form Configuration</h3>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_advanced_search]"
+                                       name="hkfn_module_settings[enable_advanced_search]"
                                        id="enable_advanced_search"
                                        value="1"
                                        <?php checked($settings['enable_advanced_search']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Advanced Search</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Advanced Search</span>
                             </label>
-                            <p class="wfn-form-description">Enable advanced search features including filters and AJAX functionality.</p>
+                            <p class="hkfn-form-description">Enable advanced search features including filters and AJAX functionality.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="search_form_style">Search Form Style</label>
-                            <select name="wfn_module_settings[search_form_style]" id="search_form_style">
+                            <select name="hkfn_module_settings[search_form_style]" id="search_form_style">
                                 <?php foreach ($this->search_form_styles as $style_id => $style): ?>
                                     <option value="<?php echo esc_attr($style_id); ?>" 
                                             <?php selected($settings['search_form_style'], $style_id); ?>>
@@ -558,199 +558,199 @@ class SearchModule extends BaseModule {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="wfn-form-description">Visual style for search forms.</p>
+                            <p class="hkfn-form-description">Visual style for search forms.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="search_placeholder">Search Placeholder Text</label>
                             <input type="text" 
-                                   name="wfn_module_settings[search_placeholder]" 
+                                   name="hkfn_module_settings[search_placeholder]" 
                                    id="search_placeholder" 
                                    value="<?php echo esc_attr($settings['search_placeholder']); ?>">
-                            <p class="wfn-form-description">Placeholder text displayed in search input field.</p>
+                            <p class="hkfn-form-description">Placeholder text displayed in search input field.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_date_range]"
+                                       name="hkfn_module_settings[enable_date_range]"
                                        id="enable_date_range"
                                        value="1"
                                        <?php checked($settings['enable_date_range']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Date Range Filter</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Date Range Filter</span>
                             </label>
-                            <p class="wfn-form-description">Add date range filtering to search form.</p>
+                            <p class="hkfn-form-description">Add date range filtering to search form.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_location_filter]"
+                                       name="hkfn_module_settings[enable_location_filter]"
                                        id="enable_location_filter"
                                        value="1"
                                        <?php checked($settings['enable_location_filter']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Location Filter</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Location Filter</span>
                             </label>
-                            <p class="wfn-form-description">Add location filtering to search form.</p>
+                            <p class="hkfn-form-description">Add location filtering to search form.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[show_search_count]"
+                                       name="hkfn_module_settings[show_search_count]"
                                        id="show_search_count"
                                        value="1"
                                        <?php checked($settings['show_search_count']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Show Search Results Count</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Show Search Results Count</span>
                             </label>
-                            <p class="wfn-form-description">Display number of search results found.</p>
+                            <p class="hkfn-form-description">Display number of search results found.</p>
                         </div>
                     </div>
                     
                     <!-- Search Fields Tab -->
-                    <div id="search-fields" class="wfn-tab-pane">
+                    <div id="search-fields" class="hkfn-tab-pane">
                         <h3>Searchable Fields</h3>
                         <p>Select which fields to include in search functionality.</p>
                         
-                        <div class="wfn-search-fields-list">
+                        <div class="hkfn-search-fields-list">
                             <?php foreach ($this->searchable_fields as $field_id => $field): ?>
-                                <div class="wfn-search-field-item">
+                                <div class="hkfn-search-field-item">
                                     <label>
                                         <input type="checkbox" 
-                                               name="wfn_module_settings[search_fields][]" 
+                                               name="hkfn_module_settings[search_fields][]" 
                                                value="<?php echo esc_attr($field_id); ?>"
                                                <?php checked(in_array($field_id, $settings['search_fields'])); ?>>
                                         <strong><?php echo esc_html($field['label']); ?></strong>
                                     </label>
-                                    <p class="wfn-field-description">
+                                    <p class="hkfn-field-description">
                                         <?php echo esc_html($field['description']); ?>
-                                        <span class="wfn-field-weight">Weight: <?php echo esc_html($field['weight']); ?></span>
+                                        <span class="hkfn-field-weight">Weight: <?php echo esc_html($field['weight']); ?></span>
                                     </p>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_relevance_scoring]"
+                                       name="hkfn_module_settings[enable_relevance_scoring]"
                                        id="enable_relevance_scoring"
                                        value="1"
                                        <?php checked($settings['enable_relevance_scoring']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Relevance Scoring</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Relevance Scoring</span>
                             </label>
-                            <p class="wfn-form-description">Order search results by relevance score.</p>
+                            <p class="hkfn-form-description">Order search results by relevance score.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[highlight_search_terms]"
+                                       name="hkfn_module_settings[highlight_search_terms]"
                                        id="highlight_search_terms"
                                        value="1"
                                        <?php checked($settings['highlight_search_terms']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Highlight Search Terms</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Highlight Search Terms</span>
                             </label>
-                            <p class="wfn-form-description">Highlight matching search terms in results.</p>
+                            <p class="hkfn-form-description">Highlight matching search terms in results.</p>
                         </div>
                     </div>
                     
                     <!-- AJAX Settings Tab -->
-                    <div id="ajax-settings" class="wfn-tab-pane">
+                    <div id="ajax-settings" class="hkfn-tab-pane">
                         <h3>AJAX Search Settings</h3>
-                        <div class="wfn-info-box">
+                        <div class="hkfn-info-box">
                             <p><strong>Enhanced User Experience:</strong> AJAX search provides real-time search results without page reloads, making the search experience faster and more responsive.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_ajax_search]"
+                                       name="hkfn_module_settings[enable_ajax_search]"
                                        id="enable_ajax_search"
                                        value="1"
                                        <?php checked($settings['enable_ajax_search']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable AJAX Search</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable AJAX Search</span>
                             </label>
-                            <p class="wfn-form-description">Enable real-time search without page reload.</p>
+                            <p class="hkfn-form-description">Enable real-time search without page reload.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="min_search_length">Minimum Search Length</label>
                             <input type="number" 
-                                   name="wfn_module_settings[min_search_length]" 
+                                   name="hkfn_module_settings[min_search_length]" 
                                    id="min_search_length" 
                                    value="<?php echo esc_attr($settings['min_search_length']); ?>" 
                                    min="1" 
                                    max="10">
-                            <p class="wfn-form-description">Minimum number of characters required to trigger search.</p>
+                            <p class="hkfn-form-description">Minimum number of characters required to trigger search.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="search_delay">Search Delay (ms)</label>
                             <input type="number" 
-                                   name="wfn_module_settings[search_delay]" 
+                                   name="hkfn_module_settings[search_delay]" 
                                    id="search_delay" 
                                    value="<?php echo esc_attr($settings['search_delay']); ?>" 
                                    min="100" 
                                    max="2000" 
                                    step="100">
-                            <p class="wfn-form-description">Delay before triggering search after user stops typing.</p>
+                            <p class="hkfn-form-description">Delay before triggering search after user stops typing.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="results_per_page">Results Per Page</label>
                             <input type="number" 
-                                   name="wfn_module_settings[results_per_page]" 
+                                   name="hkfn_module_settings[results_per_page]" 
                                    id="results_per_page" 
                                    value="<?php echo esc_attr($settings['results_per_page']); ?>" 
                                    min="1" 
                                    max="50">
-                            <p class="wfn-form-description">Number of results to display per page in AJAX search.</p>
+                            <p class="hkfn-form-description">Number of results to display per page in AJAX search.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_search_suggestions]"
+                                       name="hkfn_module_settings[enable_search_suggestions]"
                                        id="enable_search_suggestions"
                                        value="1"
                                        <?php checked($settings['enable_search_suggestions']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Search Suggestions</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Search Suggestions</span>
                             </label>
-                            <p class="wfn-form-description">Show search suggestions as user types.</p>
+                            <p class="hkfn-form-description">Show search suggestions as user types.</p>
                         </div>
                     </div>
                     
                     <!-- Analytics Tab -->
-                    <div id="analytics" class="wfn-tab-pane">
+                    <div id="analytics" class="hkfn-tab-pane">
                         <h3>Search Analytics</h3>
-                        <div class="wfn-info-box">
+                        <div class="hkfn-info-box">
                             <p><strong>Optional Feature:</strong> Search analytics tracks what visitors search for on your site. This is useful for understanding user behavior but not required for basic search functionality.</p>
                             <p>When enabled, anonymous search data is stored locally in your WordPress database for analysis.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_search_analytics]"
+                                       name="hkfn_module_settings[enable_search_analytics]"
                                        id="enable_search_analytics"
                                        value="1"
                                        <?php checked($settings['enable_search_analytics']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Search Analytics</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Search Analytics</span>
                             </label>
-                            <p class="wfn-form-description">Track search queries and results for analysis. <strong>Disabled by default.</strong></p>
+                            <p class="hkfn-form-description">Track search queries and results for analysis. <strong>Disabled by default.</strong></p>
                         </div>
                         
                         <?php if ($settings['enable_search_analytics']): ?>
-                        <div class="wfn-search-analytics-display">
+                        <div class="hkfn-search-analytics-display">
                             <?php $this->display_search_analytics(); ?>
                         </div>
                         <?php endif; ?>
@@ -762,7 +762,7 @@ class SearchModule extends BaseModule {
         </form>
         
         <style>
-            .wfn-info-box {
+            .hkfn-info-box {
                 background: #f0f8ff;
                 border-left: 4px solid #1f4b8f;
                 padding: 15px;
@@ -770,47 +770,47 @@ class SearchModule extends BaseModule {
                 border-radius: 4px;
             }
             
-            .wfn-info-box p {
+            .hkfn-info-box p {
                 margin: 0 0 10px 0;
                 color: #333;
             }
             
-            .wfn-info-box p:last-child {
+            .hkfn-info-box p:last-child {
                 margin-bottom: 0;
             }
             
-            .wfn-search-fields-list {
+            .hkfn-search-fields-list {
                 display: grid;
                 gap: 15px;
                 margin-top: 15px;
             }
             
-            .wfn-search-field-item {
+            .hkfn-search-field-item {
                 padding: 15px;
                 border: 1px solid #ddd;
                 border-radius: 5px;
                 background: #f9f9f9;
             }
             
-            .wfn-search-field-item label {
+            .hkfn-search-field-item label {
                 display: flex;
                 align-items: center;
                 gap: 10px;
                 margin-bottom: 5px;
             }
             
-            .wfn-field-description {
+            .hkfn-field-description {
                 color: #666;
                 font-size: 13px;
                 margin: 0;
             }
             
-            .wfn-field-weight {
+            .hkfn-field-weight {
                 color: #999;
                 font-weight: 500;
             }
             
-            .wfn-search-analytics-display {
+            .hkfn-search-analytics-display {
                 margin-top: 20px;
                 padding: 15px;
                 background: #f9f9f9;
@@ -821,7 +821,7 @@ class SearchModule extends BaseModule {
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const tabs = document.querySelectorAll('.nav-tab');
-                const contents = document.querySelectorAll('.wfn-tab-pane');
+                const contents = document.querySelectorAll('.hkfn-tab-pane');
                 
                 tabs.forEach(tab => {
                     tab.addEventListener('click', function(e) {
@@ -851,7 +851,7 @@ class SearchModule extends BaseModule {
      * Display search analytics
      */
     private function display_search_analytics(): void {
-        $analytics = get_option('wfn_search_analytics', []);
+        $analytics = hkfn_get_option('search_analytics', []);
         
         if (empty($analytics)) {
             echo '<p>No search analytics data available yet.</p>';
@@ -877,7 +877,7 @@ class SearchModule extends BaseModule {
         $top_terms = array_slice($popular_terms, 0, 10, true);
         
         ?>
-        <div class="wfn-analytics-stats">
+        <div class="hkfn-analytics-stats">
             <h4>Search Statistics</h4>
             <p><strong>Total Searches:</strong> <?php echo esc_html($total_searches); ?></p>
             <p><strong>Unique Terms:</strong> <?php echo esc_html(count($popular_terms)); ?></p>
@@ -886,17 +886,17 @@ class SearchModule extends BaseModule {
             <h4>Top Search Terms</h4>
             <ol>
                 <?php foreach ($top_terms as $term => $count): ?>
-                    <li><?php echo esc_html($term); ?> <span class="wfn-search-count">(<?php echo esc_html($count); ?>)</span></li>
+                    <li><?php echo esc_html($term); ?> <span class="hkfn-search-count">(<?php echo esc_html($count); ?>)</span></li>
                 <?php endforeach; ?>
             </ol>
         </div>
         
         <style>
-            .wfn-analytics-stats ol {
+            .hkfn-analytics-stats ol {
                 margin-left: 20px;
             }
             
-            .wfn-search-count {
+            .hkfn-search-count {
                 color: #666;
                 font-size: 0.9em;
             }
