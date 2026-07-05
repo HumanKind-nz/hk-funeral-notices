@@ -309,10 +309,14 @@ class ImageCropHandler {
             error_log('WFN Image Crop: Cache purge triggered after successful crop');
         }
 
+        // WP_Image_Editor::save() returns a path, not a URL — map it for the JS preview
+        $upload_dir = wp_upload_dir();
+        $crop_url = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $cropped_image['path']);
+
         wp_send_json_success([
             'message' => 'Crop saved successfully',
             'crop_data' => $crop_data,
-            'crop_url' => $cropped_image['url'] ?? '',
+            'crop_url' => $crop_url,
         ]);
     }
 
