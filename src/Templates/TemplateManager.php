@@ -196,9 +196,9 @@ class TemplateManager {
         // Try various field sources, checking for non-empty values
         $url_sources = [
             $streaming_group['streaming_url'] ?? '',
-            get_field('hkfn_streaming_group_streaming_url', $post_id) ?? '',
-            get_field('hkfn_streaming_group_oneroom_streaming_link', $post_id) ?? '', // OneRoom legacy field
-            get_field('hkfn_streaming_group_public_streaming_link', $post_id) ?? '' // General legacy field
+            get_field('wfn_streaming_group_streaming_url', $post_id) ?? '',
+            get_field('wfn_streaming_group_oneroom_streaming_link', $post_id) ?? '', // OneRoom legacy field
+            get_field('wfn_streaming_group_public_streaming_link', $post_id) ?? '' // General legacy field
         ];
 
         foreach ($url_sources as $potential_url) {
@@ -209,18 +209,18 @@ class TemplateManager {
         }
         
         // Get streaming service (legacy and new)
-        $streaming_service_raw = $streaming_group['streaming_service'] ?? 
-                                get_field('hkfn_streaming_group_streaming_service', $post_id) ?? 
+        $streaming_service_raw = $streaming_group['streaming_service'] ??
+                                get_field('wfn_streaming_group_streaming_service', $post_id) ??
                                 '';
         
         // Privacy settings
-        $is_private = $streaming_group['streaming_private'] ?? 
-                     get_field('hkfn_streaming_group_streaming_private', $post_id) ?? 
+        $is_private = $streaming_group['streaming_private'] ??
+                     get_field('wfn_streaming_group_streaming_private', $post_id) ??
                      false;
         
         // Streaming note
-        $streaming_note = $streaming_group['streaming_note'] ?? 
-                         get_field('hkfn_streaming_group_streaming_note', $post_id) ?? 
+        $streaming_note = $streaming_group['streaming_note'] ??
+                         get_field('wfn_streaming_group_streaming_note', $post_id) ??
                          '';
         
         // Streaming detection - simply check if we have a valid URL

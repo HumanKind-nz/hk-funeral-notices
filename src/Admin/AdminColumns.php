@@ -441,7 +441,7 @@ class AdminColumns {
         }
         
         // Method 2: Fallback to legacy individual field format
-        $legacy_field_name = 'hkfn_person_group_' . $field_name;
+        $legacy_field_name = 'wfn_person_group_' . $field_name;
         $legacy_value = get_field($legacy_field_name, $post_id);
         if (!empty($legacy_value)) {
             return trim($legacy_value);
@@ -493,7 +493,7 @@ class AdminColumns {
         }
         
         // Method 2: Fallback to legacy individual field format
-        $legacy_field_name = 'hkfn_streaming_group_' . $field_name;
+        $legacy_field_name = 'wfn_streaming_group_' . $field_name;
         $legacy_value = get_field($legacy_field_name, $post_id);
         if ($legacy_value !== false && $legacy_value !== null && $legacy_value !== '') {
             return $legacy_value;
@@ -519,7 +519,7 @@ class AdminColumns {
         }
         
         // Method 2: Fallback to legacy individual field format
-        $legacy_field_name = 'hkfn_media_group_' . $field_name;
+        $legacy_field_name = 'wfn_media_group_' . $field_name;
         $legacy_value = get_field($legacy_field_name, $post_id);
         if ($legacy_value !== false && $legacy_value !== null && $legacy_value !== '') {
             return $legacy_value;
