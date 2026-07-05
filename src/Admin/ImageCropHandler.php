@@ -333,21 +333,39 @@ class ImageCropHandler {
             return;
         }
 
-        // Enqueue JavaScript with timestamp for cache busting during development
+        $plugin_file = dirname(__DIR__, 2) . '/hk-funeral-notices.php';
+
+        // Media library modal for photo selection
+        wp_enqueue_media();
+
+        // Cropper.js (vendored, no CDN)
+        wp_enqueue_style(
+            'hkfn-cropperjs',
+            plugins_url('assets/vendor/cropperjs/cropper.min.css', $plugin_file),
+            [],
+            '1.6.2'
+        );
         wp_enqueue_script(
-            'hkfn-image-crop',
-            plugins_url('assets/js/admin/image-crop.js', dirname(__DIR__, 1)),
-            ['jquery', 'acf-input'],
-            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/js/admin/image-crop.js'),
+            'hkfn-cropperjs',
+            plugins_url('assets/vendor/cropperjs/cropper.min.js', $plugin_file),
+            [],
+            '1.6.2',
             true
         );
 
-        // Enqueue CSS with timestamp for cache busting
+        wp_enqueue_script(
+            'hkfn-image-crop',
+            plugins_url('assets/js/admin/image-crop-cropperjs.js', $plugin_file),
+            ['hkfn-cropperjs', 'media-editor'],
+            HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/js/admin/image-crop-cropperjs.js'),
+            true
+        );
+
         wp_enqueue_style(
             'hkfn-image-crop',
-            plugins_url('assets/css/admin/image-crop.css', dirname(__DIR__, 1)),
+            plugins_url('assets/css/admin/image-crop-b.css', $plugin_file),
             [],
-            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/css/admin/image-crop.css')
+            HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/css/admin/image-crop-b.css')
         );
 
         // Localize script with AJAX URL and nonces
