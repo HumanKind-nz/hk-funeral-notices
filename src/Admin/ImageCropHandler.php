@@ -333,21 +333,17 @@ class ImageCropHandler {
             return;
         }
 
-        // Enqueue JavaScript with timestamp for cache busting during development
+        $plugin_file = dirname(__DIR__, 2) . '/hk-funeral-notices.php';
+
+        // Core media modal (includes the Cropper state and imgAreaSelect)
+        wp_enqueue_media();
+
         wp_enqueue_script(
             'hkfn-image-crop',
-            plugins_url('assets/js/admin/image-crop.js', dirname(__DIR__, 1)),
-            ['jquery', 'acf-input'],
-            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/js/admin/image-crop.js'),
+            plugins_url('assets/js/admin/image-crop-native.js', $plugin_file),
+            ['media-editor'],
+            HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/js/admin/image-crop-native.js'),
             true
-        );
-
-        // Enqueue CSS with timestamp for cache busting
-        wp_enqueue_style(
-            'hkfn-image-crop',
-            plugins_url('assets/css/admin/image-crop.css', dirname(__DIR__, 1)),
-            [],
-            HKFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/css/admin/image-crop.css')
         );
 
         // Localize script with AJAX URL and nonces

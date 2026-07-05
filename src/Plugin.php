@@ -35,7 +35,7 @@ class Plugin {
     private AdminColumns $admin_columns;
     private FieldGroupManager $field_group_manager;
     private VideoUploadAPI $video_upload_api;
-    // private ImageCropHandler $image_crop_handler; // Disabled in favor of Crop-Thumbnails plugin
+    private ImageCropHandler $image_crop_handler;
     private array $modules = [];
 
     /**
@@ -79,10 +79,9 @@ class Plugin {
         // Initialize Video Upload API (needed for deletion hooks, not just REST routes)
         $this->video_upload_api = new VideoUploadAPI();
 
-        // Initialize Image Crop Handler - DISABLED in favor of Crop-Thumbnails plugin (v2.5.2+)
-        // Custom crop tool had coordinate calculation bugs with zoom feature
-        // See DEVELOPER.md for Crop-Thumbnails setup instructions
-        // $this->image_crop_handler = new ImageCropHandler();
+        // Image Crop Handler — PROTOTYPE A: core wp.media cropper UI posting to
+        // the plugin's own crop endpoint (replaces the Crop-Thumbnails plugin)
+        $this->image_crop_handler = new ImageCropHandler();
 
         // Initialize admin dashboard (only in admin area)
         if (is_admin()) {
