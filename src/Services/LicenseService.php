@@ -55,6 +55,11 @@ class LicenseService {
      */
     public function checkFeatureLicense(string $feature): bool {
 
+        // Testing bypass — same constant VideoModule honours (HKFN_ or legacy WFN_ name)
+        if (hkfn_get_constant('BYPASS_LICENSE')) {
+            return true;
+        }
+
         // For now, we only have video streaming as premium feature
         if ($feature !== HKFN_PREMIUM_FEATURE_VIDEO) {
             return true; // Non-premium features are always available
