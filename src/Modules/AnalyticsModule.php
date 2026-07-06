@@ -127,7 +127,7 @@ class AnalyticsModule extends BaseModule {
      */
     private function is_analytics_enabled(): bool {
         // Check wp-config.php constant first (deployment-level control)
-        if (defined('HKFN_DISABLE_ANALYTICS') && HKFN_DISABLE_ANALYTICS) {
+        if (hkfn_get_constant('DISABLE_ANALYTICS')) {
             return false;
         }
 

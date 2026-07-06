@@ -13,18 +13,118 @@ class FieldGroupMigration {
 
     private const OLD_GROUP_KEY = 'group_6125700a6a0a7';
     private const MIGRATION_OPTION = 'hkfn_field_migration_completed';
+    private const META_PREFIX_OPTION = 'hkfn_meta_prefix_migration';
 
     /**
      * Check if migration is needed and run it
      */
     public function maybe_migrate(): void {
-        if ($this->is_migration_completed()) {
-            return;
-        }
-
-        if ($this->should_migrate()) {
+        if (!$this->is_migration_completed() && $this->should_migrate()) {
             $this->run_migration();
         }
+
+        // wfn_ -> hkfn_ post meta copy (v2.x -> v3 upgrade). Runs once,
+        // independently of the field-group migration above.
+        if (!get_option(self::META_PREFIX_OPTION)) {
+            $results = $this->migrate_meta_prefixes();
+            update_option(self::META_PREFIX_OPTION, [
+                'completed_at' => current_time('mysql'),
+                'results' => $results,
+            ], false);
+        }
+    }
+
+    /**
+     * Copy v2.x wfn_-prefixed post meta to the hkfn_ keys v3 reads.
+     *
+     * COPIES rather than renames: the wfn_ rows stay untouched, so
+     * deactivating v3 and reactivating v2.6.x restores the site exactly.
+     * Idempotent: existing hkfn_ values are never overwritten, so notices
+     * edited after the upgrade keep their newer data.
+     *
+     * Handles the three data quirks of v2.x installs:
+     * - ACF reference rows (_wfn_*) store the field key; the value is
+     *   swapped field_wfn_* -> field_hkfn_* (verified 1:1 key match).
+     * - Some sites stored a serialized WP_Term object in the location
+     *   field; the term ID is extracted instead.
+     * - Bunny video meta (_wfn_video_*) is covered by the same copy.
+     *
+     * @return array Migration counts for logging.
+     */
+    public function migrate_meta_prefixes(): array {
+        global $wpdb;
+
+        $post_ids = get_posts([
+            'post_type' => 'funeral-notice',
+            'posts_per_page' => -1,
+            'post_status' => 'any',
+            'fields' => 'ids',
+        ]);
+
+        $results = [
+            'posts' => count($post_ids),
+            'copied' => 0,
+            'skipped_existing' => 0,
+            'locations_fixed' => 0,
+        ];
+
+        foreach ($post_ids as $post_id) {
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT meta_key, meta_value FROM {$wpdb->postmeta}
+                 WHERE post_id = %d AND (meta_key LIKE 'wfn\_%%' OR meta_key LIKE '\_wfn\_%%')",
+                $post_id
+            ));
+
+            if (!$rows) {
+                continue;
+            }
+
+            $existing = array_flip($wpdb->get_col($wpdb->prepare(
+                "SELECT meta_key FROM {$wpdb->postmeta}
+                 WHERE post_id = %d AND (meta_key LIKE 'hkfn\_%%' OR meta_key LIKE '\_hkfn\_%%')",
+                $post_id
+            )));
+
+            foreach ($rows as $row) {
+                $new_key = (strpos($row->meta_key, '_wfn_') === 0)
+                    ? '_hkfn_' . substr($row->meta_key, 5)
+                    : 'hkfn_' . substr($row->meta_key, 4);
+
+                if (isset($existing[$new_key])) {
+                    $results['skipped_existing']++;
+                    continue;
+                }
+
+                $value = (string) $row->meta_value;
+
+                // ACF reference rows point at the field key
+                if ($new_key[0] === '_' && strpos($value, 'field_wfn_') === 0) {
+                    $value = 'field_hkfn_' . substr($value, 10);
+                }
+
+                // Serialized WP_Term in the location field -> term ID
+                if ($new_key === 'hkfn_details_group_location' && is_serialized($value)) {
+                    if (preg_match('/"term_id";i:(\d+);/', $value, $m)) {
+                        $value = $m[1];
+                        $results['locations_fixed']++;
+                    }
+                }
+
+                // Direct insert: the raw meta_value may already be
+                // serialized, and update_post_meta() would double-serialize
+                $wpdb->insert($wpdb->postmeta, [
+                    'post_id' => $post_id,
+                    'meta_key' => $new_key,
+                    'meta_value' => $value,
+                ]);
+                $results['copied']++;
+            }
+
+            // Direct SQL bypasses the object cache (Redis on production)
+            wp_cache_delete($post_id, 'post_meta');
+        }
+
+        return $results;
     }
 
     /**

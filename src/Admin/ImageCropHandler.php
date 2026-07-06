@@ -106,6 +106,7 @@ class ImageCropHandler {
 
         // If crop was successful, add to metadata
         if ($cropped_image && !is_wp_error($cropped_image)) {
+            $this->delete_previous_crop($attachment_id, wp_basename($cropped_image['path']));
             $metadata['sizes'][self::GRID_CROP_SIZE] = [
                 'file' => wp_basename($cropped_image['path']),
                 'width' => $cropped_image['width'],
@@ -196,13 +197,42 @@ class ImageCropHandler {
         $pathinfo = pathinfo($source_path);
         $extension = $pathinfo['extension'] ?? 'jpg';
 
+        // Unique suffix per crop: a re-crop gets a NEW filename so CDN,
+        // browser, and page caches can never serve the stale crop.
         return sprintf(
-            '%s-%dx%d.%s',
+            '%s-%dx%d-c%d.%s',
             $pathinfo['filename'],
             self::GRID_WIDTH,
             self::GRID_HEIGHT,
+            time(),
             $extension
         );
+    }
+
+
+    /**
+     * Delete the previous grid crop file when it is being replaced
+     *
+     * Only removes files matching our unique-crop naming pattern; never a
+     * core-generated rendition another image size might reference.
+     */
+    private function delete_previous_crop(int $attachment_id, string $new_file): void {
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $old_file = $metadata['sizes'][self::GRID_CROP_SIZE]['file'] ?? '';
+
+        if (!$old_file || $old_file === $new_file || !preg_match('/-\d+x\d+-c\d+\./', $old_file)) {
+            return;
+        }
+
+        $source = get_attached_file($attachment_id);
+        if (!$source) {
+            return;
+        }
+
+        $old_path = dirname($source) . '/' . $old_file;
+        if (file_exists($old_path)) {
+            wp_delete_file($old_path);
+        }
     }
 
     /**
@@ -285,7 +315,9 @@ class ImageCropHandler {
             return;
         }
 
-        // Update attachment metadata with new crop size
+        // Remove the superseded crop file, then update metadata
+        $this->delete_previous_crop($attachment_id, wp_basename($cropped_image['path']));
+
         $metadata = wp_get_attachment_metadata($attachment_id);
         $metadata['sizes'][self::GRID_CROP_SIZE] = [
             'file' => wp_basename($cropped_image['path']),

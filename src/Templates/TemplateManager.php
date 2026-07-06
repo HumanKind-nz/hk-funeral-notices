@@ -719,7 +719,7 @@ class TemplateManager {
         // If video data is corrupted but we have a video ID, reconstruct the URLs
         if ((empty($video_data) || $video_data === 'null' || $video_data === null) && $video_id_meta) {
             // Get library ID from settings for URL reconstruction
-            $library_id = defined('HKFN_VIDEO_LIBRARY_ID') ? HKFN_VIDEO_LIBRARY_ID : hkfn_get_option('bunny_library_id', '');
+            $library_id = hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', '');
 
             return [
                 'video_id' => $video_id_meta,

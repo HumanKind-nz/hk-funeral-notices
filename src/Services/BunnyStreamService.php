@@ -45,12 +45,12 @@ class BunnyStreamService {
      */
     public function __construct(string $library_id = '', string $api_key = '', string $cdn_hostname = '') {
         // Use provided credentials or get from constants/options (constants take precedence)
-        $this->library_id = $library_id ?: (defined('HKFN_VIDEO_LIBRARY_ID') ? HKFN_VIDEO_LIBRARY_ID : hkfn_get_option('bunny_library_id', ''));
-        $this->api_key = $api_key ?: (defined('HKFN_VIDEO_API_KEY') ? HKFN_VIDEO_API_KEY : hkfn_get_option('bunny_api_key', ''));
-        $this->cdn_hostname = $cdn_hostname ?: (defined('HKFN_VIDEO_CDN_HOSTNAME') ? HKFN_VIDEO_CDN_HOSTNAME : hkfn_get_option('bunny_cdn_hostname', ''));
+        $this->library_id = $library_id ?: (hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', ''));
+        $this->api_key = $api_key ?: (hkfn_get_constant('VIDEO_API_KEY') ?: hkfn_get_option('bunny_api_key', ''));
+        $this->cdn_hostname = $cdn_hostname ?: (hkfn_get_constant('VIDEO_CDN_HOSTNAME') ?: hkfn_get_option('bunny_cdn_hostname', ''));
 
         // Log configuration for debugging
-        if (defined('HKFN_DEBUG') && HKFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log('BunnyStreamService initialized - Library: ' . $this->library_id);
         }
     }
@@ -181,7 +181,7 @@ class BunnyStreamService {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => 3,
             CURLOPT_USERAGENT => 'HumanKind-FuneralNotices/2.1.3',
-            CURLOPT_VERBOSE => defined('HKFN_DEBUG') && HKFN_DEBUG
+            CURLOPT_VERBOSE => (bool) hkfn_get_constant('DEBUG')
         ];
 
         // Method-specific options
@@ -348,7 +348,7 @@ class BunnyStreamService {
      * @param int $delay Delay before retry
      */
     private function log_retry_attempt(string $url, int $attempt, array $error, int $delay): void {
-        if (defined('HKFN_DEBUG') && HKFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Retry attempt %d/%d for %s. Error: %s. Waiting %ds before retry.',
                 $attempt,
@@ -368,7 +368,7 @@ class BunnyStreamService {
      * @param array $result Successful result
      */
     private function log_retry_success(string $url, int $attempt, array $result): void {
-        if (defined('HKFN_DEBUG') && HKFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Request succeeded on attempt %d for %s',
                 $attempt,
@@ -402,7 +402,7 @@ class BunnyStreamService {
      * @param int $delay Delay before retry
      */
     private function log_exception_retry(string $url, int $attempt, \Exception $exception, int $delay): void {
-        if (defined('HKFN_DEBUG') && HKFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Exception on attempt %d/%d for %s: %s. Waiting %ds before retry.',
                 $attempt,
@@ -2352,7 +2352,7 @@ class BunnyStreamService {
             'error_code' => $error_code,
             'http_code' => $http_code,
             'api_message' => $error_message,
-            'debug_info' => defined('HKFN_DEBUG') && HKFN_DEBUG ? [
+            'debug_info' => (bool) hkfn_get_constant('DEBUG') ? [
                 'raw_response' => $raw_response,
                 'response_data' => $response_data
             ] : null
@@ -2688,7 +2688,7 @@ class BunnyStreamService {
             }
 
             // Log progress if in debug mode
-            if (defined('HKFN_DEBUG') && HKFN_DEBUG) {
+            if ((bool) hkfn_get_constant('DEBUG')) {
                 error_log(sprintf(
                     'BunnyStream: Transcoding progress for %s - Status: %s, Progress: %d%%, Attempt: %d',
                     $video_id,

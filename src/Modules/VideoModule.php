@@ -116,7 +116,7 @@ class VideoModule extends BaseModule {
         // }
 
         // Clear any existing schedules (cleanup from old installs)
-        if (defined('HKFN_DISABLE_AUTO_VIDEO_CLEANUP') && HKFN_DISABLE_AUTO_VIDEO_CLEANUP) {
+        if (hkfn_get_constant('DISABLE_AUTO_VIDEO_CLEANUP')) {
             $timestamp = wp_next_scheduled('hkfn_cleanup_failed_uploads');
             if ($timestamp) wp_unschedule_event($timestamp, 'hkfn_cleanup_failed_uploads');
 
@@ -167,20 +167,10 @@ class VideoModule extends BaseModule {
      * define('HKFN_VIDEO_API_KEY', 'your_api_key');
      */
     private function get_bunny_credentials(): array {
-        // Check for new constant names first, fall back to legacy names
-        $library_id = '';
-        if (defined('HKFN_BUNNYSTREAM_LIBRARY_ID') && !empty(HKFN_BUNNYSTREAM_LIBRARY_ID)) {
-            $library_id = HKFN_BUNNYSTREAM_LIBRARY_ID;
-        } elseif (defined('HKFN_VIDEO_LIBRARY_ID') && !empty(HKFN_VIDEO_LIBRARY_ID)) {
-            $library_id = HKFN_VIDEO_LIBRARY_ID;
-        }
-
-        $api_key = '';
-        if (defined('HKFN_BUNNYSTREAM_API_KEY') && !empty(HKFN_BUNNYSTREAM_API_KEY)) {
-            $api_key = HKFN_BUNNYSTREAM_API_KEY;
-        } elseif (defined('HKFN_VIDEO_API_KEY') && !empty(HKFN_VIDEO_API_KEY)) {
-            $api_key = HKFN_VIDEO_API_KEY;
-        }
+        // Check new names first, then legacy names; each also falls back
+        // to the WFN_-prefixed v2.x constant via hkfn_get_constant().
+        $library_id = hkfn_get_constant('BUNNYSTREAM_LIBRARY_ID') ?: hkfn_get_constant('VIDEO_LIBRARY_ID') ?: '';
+        $api_key = hkfn_get_constant('BUNNYSTREAM_API_KEY') ?: hkfn_get_constant('VIDEO_API_KEY') ?: '';
 
         return [
             'library_id' => $library_id,
@@ -194,7 +184,7 @@ class VideoModule extends BaseModule {
      */
     private function has_premium_license(): bool {
         // For testing purposes, allow temporary bypass with constant
-        if (defined('HKFN_BYPASS_LICENSE') && HKFN_BYPASS_LICENSE) {
+        if (hkfn_get_constant('BYPASS_LICENSE')) {
             return true;
         }
 
