@@ -39,7 +39,7 @@ wp-config.php
 
 # PHP
 composer.phar
-vendor/
+/vendor/
 
 # Temporary files
 *.tmp
