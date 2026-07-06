@@ -93,9 +93,14 @@ abstract class BaseModule implements ModuleInterface {
     
     /**
      * Get module version
+     *
+     * Returns the PLUGIN version, not the per-module version: every caller
+     * uses this as the asset cache-buster, and stale per-module versions
+     * left browsers serving year-cached v2 CSS against v3 markup after the
+     * wfn_ -> hkfn_ selector rename.
      */
     public function get_version(): string {
-        return $this->module_version;
+        return defined('HKFN_VERSION') ? HKFN_VERSION : $this->module_version;
     }
     
     /**
