@@ -363,7 +363,7 @@ class FuneralNoticesShortcode {
                 'hkfn-search',
                 plugin_dir_url(__FILE__) . '../../assets/css/search.css',
                 [],
-                '2.0.2'
+                HKFN_VERSION
             );
             
             // Add inline CSS to ensure mobile responsive styles work
@@ -426,14 +426,14 @@ class FuneralNoticesShortcode {
             'hkfn-load-more',
             plugin_dir_url(__FILE__) . '../../assets/css/load-more.css',
             [],
-            '2.4.0'
+            HKFN_VERSION
         );
 
         wp_enqueue_script(
             'hkfn-load-more',
             plugin_dir_url(__FILE__) . '../../assets/js/load-more.js',
             ['jquery'],
-            '2.4.0',
+            HKFN_VERSION,
             true
         );
 
@@ -507,7 +507,7 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue Firehawk CSS
-        wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../../assets/css/firehawk-compat.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../../assets/css/firehawk-compat.css', [], HKFN_VERSION);
         
         echo '<div class="firehawk-crm firehawk-crm-large-grid" id="hkfn-tributes-list">';
         echo '<div class="firehawk-crm-large-grid-view">';
@@ -693,7 +693,7 @@ class FuneralNoticesShortcode {
      */
     private function render_pagination(\WP_Query $query, int $paged): void {
         // Enqueue pagination CSS
-        wp_enqueue_style('hkfn-pagination', plugin_dir_url(__FILE__) . '../../assets/css/pagination.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-pagination', plugin_dir_url(__FILE__) . '../../assets/css/pagination.css', [], HKFN_VERSION);
         
         echo '<div class="hkfn-pagination">';
         echo '<ul class="hkfn-pagination-list">';
@@ -757,7 +757,7 @@ class FuneralNoticesShortcode {
         $current_url = is_front_page() ? home_url('/') : get_permalink();
         
         // Enqueue Enhancement Suite search CSS
-        wp_enqueue_style('hkfn-enhancement-search', plugin_dir_url(__FILE__) . '../../assets/css/layouts/enhancement-search.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-search', plugin_dir_url(__FILE__) . '../../assets/css/layouts/enhancement-search.css', [], HKFN_VERSION);
         ?>
         <div class="hkfn-enhancement-search">
             <form method="get" action="<?php echo esc_url($current_url); ?>" class="hkfn-enhancement-search-form">
@@ -919,9 +919,9 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite modern grid CSS
-        wp_enqueue_style('hkfn-enhancement-modern', plugin_dir_url(__FILE__) . '../../assets/css/layouts/modern-grid.css', ['hkfn-enhancement-base'], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-modern', plugin_dir_url(__FILE__) . '../../assets/css/layouts/modern-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-modern-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";
@@ -1028,9 +1028,9 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite elegant grid CSS
-        wp_enqueue_style('hkfn-enhancement-elegant', plugin_dir_url(__FILE__) . '../../assets/css/layouts/elegant-grid.css', ['hkfn-enhancement-base'], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-elegant', plugin_dir_url(__FILE__) . '../../assets/css/layouts/elegant-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-elegant-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";
@@ -1130,9 +1130,9 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite minimal CSS
-        wp_enqueue_style('hkfn-enhancement-minimal', plugin_dir_url(__FILE__) . '../../assets/css/layouts/minimal.css', ['hkfn-enhancement-base'], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-minimal', plugin_dir_url(__FILE__) . '../../assets/css/layouts/minimal.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-minimal-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";

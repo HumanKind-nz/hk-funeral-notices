@@ -9,6 +9,7 @@ use HumanKind\FuneralNotices\Admin\Dashboard;
 use HumanKind\FuneralNotices\Admin\AdminColumns;
 use HumanKind\FuneralNotices\Admin\ImageCropHandler;
 use HumanKind\FuneralNotices\FieldGroups\FieldGroupManager;
+use HumanKind\FuneralNotices\FieldGroups\FieldGroupMigration;
 use HumanKind\FuneralNotices\Modules\SettingsModule;
 use HumanKind\FuneralNotices\Modules\LayoutsModule;
 use HumanKind\FuneralNotices\Modules\SearchModule;
@@ -87,6 +88,12 @@ class Plugin {
         if (is_admin()) {
             $this->admin_dashboard = new Dashboard('hk-funeral-notices', '2.0.0');
             $this->admin_columns = new AdminColumns();
+
+            // Run pending one-off data migrations (field groups, wfn_ -> hkfn_
+            // meta copy). Each step is flag-guarded so this is a no-op once done.
+            add_action('admin_init', static function (): void {
+                (new FieldGroupMigration())->maybe_migrate();
+            });
         }
     }
 
@@ -156,14 +163,14 @@ class Plugin {
                 'hkfn-load-more',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/load-more.css',
                 [],
-                '2.4.0'
+                HKFN_VERSION
             );
 
             wp_enqueue_script(
                 'hkfn-load-more',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/load-more.js',
                 ['jquery'],
-                '2.4.0',
+                HKFN_VERSION,
                 true
             );
 
@@ -210,7 +217,7 @@ class Plugin {
                 'hkfn-flatpickr-custom',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/flatpickr-custom.css',
                 [],
-                '2.4.0'
+                HKFN_VERSION
             );
 
             // Enqueue initialization script (handles lazy loading of Flatpickr library)
@@ -218,7 +225,7 @@ class Plugin {
                 'hkfn-flatpickr-init',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/flatpickr-init.js',
                 [],
-                '2.4.0',
+                HKFN_VERSION,
                 true
             );
 
@@ -241,14 +248,14 @@ class Plugin {
                 'hkfn-social-share',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/css/social-share.css',
                 [],
-                '2.4.0'
+                HKFN_VERSION
             );
 
             wp_enqueue_script(
                 'hkfn-social-share',
                 plugin_dir_url(dirname(__FILE__)) . 'assets/js/social-share.js',
                 [],
-                '2.4.0',
+                HKFN_VERSION,
                 true
             );
         }

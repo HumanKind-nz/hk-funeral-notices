@@ -239,7 +239,7 @@ class GoogleMapsField extends \acf_field {
             'hkfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/js/admin/google-maps-field.js',
             ['hkfn-google-maps-api', 'jquery'],
-            '2.4.13',
+            HKFN_VERSION,
             true
         );
 
@@ -248,7 +248,7 @@ class GoogleMapsField extends \acf_field {
             'hkfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/css/admin/google-maps-field.css',
             [],
-            '2.4.13'
+            HKFN_VERSION
         );
     }
     

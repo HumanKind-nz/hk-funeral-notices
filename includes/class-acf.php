@@ -318,7 +318,7 @@ function hkfn_enqueue_post_editor_scripts($hook) {
             'hkfn-post-editor',
             $plugin_url . 'assets/js/admin/post-editor.js',
             ['jquery'],
-            '2.0.2',
+            HKFN_VERSION,
             true
         );
 
@@ -327,7 +327,7 @@ function hkfn_enqueue_post_editor_scripts($hook) {
             'hkfn-post-editor',
             $plugin_url . 'assets/css/admin/dashboard.css',
             [],
-            '2.0.2'
+            HKFN_VERSION
         );
 
         // Debug logging removed for production
@@ -1027,7 +1027,7 @@ function render_funeral_notices_shortcode($atts = []) {
  */
 function render_firehawk_grid($query, $columns) {
 	// Enqueue Firehawk CSS
-	wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../assets/css/firehawk-compat.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../assets/css/firehawk-compat.css', [], HKFN_VERSION);
 	
 	echo '<div class="firehawk-crm firehawk-crm-large-grid" id="hkfn-tributes-list">';
 	echo '<div class="firehawk-crm-large-grid-view">';
@@ -1079,7 +1079,7 @@ function render_firehawk_grid($query, $columns) {
  */
 function render_modern_grid($query, $columns) {
 	// Enqueue modern CSS
-	wp_enqueue_style('hkfn-modern', plugin_dir_url(__FILE__) . '../assets/css/modern.css', [], '2.0.1');
+	wp_enqueue_style('hkfn-modern', plugin_dir_url(__FILE__) . '../assets/css/modern.css', [], HKFN_VERSION);
 	
 	$grid_class = "hkfn-modern-grid hkfn-cols-{$columns}";
 	echo "<div class=\"{$grid_class}\">";
@@ -1135,7 +1135,7 @@ function render_modern_grid($query, $columns) {
  */
 function render_elegant_grid($query, $columns) {
 	// Enqueue elegant CSS
-	wp_enqueue_style('hkfn-elegant', plugin_dir_url(__FILE__) . '../assets/css/elegant.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-elegant', plugin_dir_url(__FILE__) . '../assets/css/elegant.css', [], HKFN_VERSION);
 	
 	$grid_class = "hkfn-elegant-grid hkfn-cols-{$columns}";
 	echo "<div class=\"{$grid_class}\">";
@@ -1206,7 +1206,7 @@ function render_funeral_notices_search_form($type, $location_search, $date_from,
 	$current_url = is_front_page() ? home_url('/') : get_permalink();
 	
 	// Enqueue search CSS
-	wp_enqueue_style('hkfn-search', plugin_dir_url(__FILE__) . '../assets/css/search.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-search', plugin_dir_url(__FILE__) . '../assets/css/search.css', [], HKFN_VERSION);
 	?>
 	<div class="hkfn-shortcode-search-form">
 		<form method="get" action="<?php echo esc_url($current_url); ?>" class="hkfn-search-form hkfn-shortcode-form">
