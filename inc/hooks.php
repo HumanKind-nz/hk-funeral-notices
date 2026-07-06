@@ -16,10 +16,23 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flush rewrite rules on activation so CPT permalinks work immediately.
+ *
+ * The funeral-notice CPT is not registered during the activation request
+ * (it registers on init, which has already run), so flushing directly here
+ * bakes in rules WITHOUT the CPT and single notice URLs 404 until a manual
+ * permalink save. Instead, flag the flush and run it on the next request
+ * after the CPT has registered.
  */
 register_activation_hook( HKFN_PLUGIN_FILE, function (): void {
-	flush_rewrite_rules();
+	update_option( 'hkfn_flush_rewrite_pending', 1, false );
 } );
+
+add_action( 'init', function (): void {
+	if ( get_option( 'hkfn_flush_rewrite_pending' ) ) {
+		delete_option( 'hkfn_flush_rewrite_pending' );
+		flush_rewrite_rules();
+	}
+}, 99 );
 
 /**
  * Flush rewrite rules on deactivation to clean up.
