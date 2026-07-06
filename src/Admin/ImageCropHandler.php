@@ -372,11 +372,23 @@ class ImageCropHandler {
             HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/css/admin/image-crop-b.css')
         );
 
+        // Current grid crop for the post being edited (persistent preview)
+        $current_crop_url = '';
+        $thumb_id = (int) get_post_thumbnail_id($post);
+        if ($thumb_id) {
+            $meta = wp_get_attachment_metadata($thumb_id);
+            if (!empty($meta['sizes'][self::GRID_CROP_SIZE])) {
+                $current_crop_url = (string) wp_get_attachment_image_url($thumb_id, self::GRID_CROP_SIZE);
+            }
+        }
+
         // Localize script with AJAX URL and nonces
         wp_localize_script('hkfn-image-crop', 'hkfnCrop', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('hkfn_crop_nonce'),
             'restNonce' => wp_create_nonce('wp_rest'),
+            'restMediaUrl' => esc_url_raw(rest_url('wp/v2/media')),
+            'currentCropUrl' => $current_crop_url,
             'gridWidth' => self::GRID_WIDTH,
             'gridHeight' => self::GRID_HEIGHT,
             'aspectRatio' => '4:3',

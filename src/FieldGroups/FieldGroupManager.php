@@ -216,7 +216,7 @@ class FieldGroupManager {
                             'label' => 'Person\'s Image',
                             'name' => '',
                             'type' => 'acfe_post_field',
-                            'instructions' => 'Upload a photo of the person. After uploading, click "Crop for Grid/Cards" or <strong>click the image thumbnail</strong> to crop it for grid/list pages (full image shows on funeral page). <em>Save the post after cropping to see the updated preview.</em>',
+                            'instructions' => 'Use the <strong>Upload photo</strong> button below to add the person\'s photo straight from your computer, then crop it for the grid and list pages. The full photo shows on the funeral notice page.',
                             'wrapper' => ['width' => '100'],
                             'field_type' => 'featured_image',
                             'instruction_placement' => 'above_field',
