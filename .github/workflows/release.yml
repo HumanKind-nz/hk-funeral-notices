@@ -47,7 +47,6 @@ jobs:
             --exclude='webpack.scripts.config.js' \
             --exclude='phpcs.xml.dist' \
             --exclude='blueprint.json' \
-            --exclude='CHANGELOG.md' \
             --exclude='CLAUDE.md' \
             --exclude='PROJECT-STATE-SUMMARY.md' \
             --exclude='ANALYTICS-COLLECTION-EXTENSION.md' \

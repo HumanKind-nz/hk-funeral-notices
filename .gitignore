@@ -20,6 +20,7 @@ Thumbs.db
 screenshots/
 
 # Development docs (not shipped)
+CLAUDE.md
 PROJECT-STATE-SUMMARY.md
 ANALYTICS-COLLECTION-EXTENSION.md
 INCIDENT-REPORT-NOV-21-2025.md
