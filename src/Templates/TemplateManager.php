@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Templates;
+namespace HumanKind\FuneralNotices\Templates;
 
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 
-use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
-use WeaveStudios\FuneralNotices\Streaming\StreamingDetector;
+use HumanKind\FuneralNotices\Address\AddressFieldManager;
+use HumanKind\FuneralNotices\Streaming\StreamingDetector;
 
 /**
  * Template Manager - handles loading and rendering template partials
@@ -51,36 +51,36 @@ class TemplateManager {
      */
     public function get_active_mode(): string {
         // Pull settings for sane defaults
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $default_single  = $settings['default_single_layout']  ?? 'current';
         $default_archive = $settings['default_archive_layout'] ?? 'modern';
         
         // Single funeral notice page
         if (function_exists('is_singular') && is_singular('funeral-notice')) {
-            return get_option('wfn_single_display_mode', $default_single);
+            return hkfn_get_option('single_display_mode', $default_single);
         }
         
         // Archive page for funeral notices
         if (function_exists('is_post_type_archive') && is_post_type_archive('funeral-notice')) {
-            return get_option('wfn_archive_display_mode', $default_archive);
+            return hkfn_get_option('archive_display_mode', $default_archive);
         }
         
         // General fallback (shortcodes pick their own layout, so this is rarely used)
-        return get_option('wfn_display_mode', $default_archive);
+        return hkfn_get_option('display_mode', $default_archive);
     }
 
     /**
      * Get the active archive/shortcode display mode
      */
     public function get_archive_mode(): string {
-        return get_option('wfn_archive_display_mode', $this->get_active_mode());
+        return hkfn_get_option('archive_display_mode', $this->get_active_mode());
     }
 
     /**
      * Get the active single page display mode
      */
     public function get_single_mode(): string {
-        return get_option('wfn_single_display_mode', $this->get_active_mode());
+        return hkfn_get_option('single_display_mode', $this->get_active_mode());
     }
 
     /**
@@ -165,7 +165,7 @@ class TemplateManager {
      */
     public function get_funeral_data(int $post_id): array {
         // Personal details - handle both grouped and individual field formats
-        $person_group = get_field('wfn_person_group', $post_id) ?: [];
+        $person_group = get_field('hkfn_person_group', $post_id) ?: [];
 
         // Try grouped format first, fallback to individual fields
         $first_name = $person_group['firstname'] ?? get_field('wfn_person_group_firstname', $post_id) ?? '';
@@ -174,13 +174,13 @@ class TemplateManager {
         $death_year = $person_group['death_year'] ?? get_field('wfn_person_group_death_year', $post_id) ?? '';
 
         // Event details - handle both grouped and individual field formats
-        $details_group = get_field('wfn_details_group', $post_id) ?: [];
+        $details_group = get_field('hkfn_details_group', $post_id) ?: [];
         $funeral_date = $details_group['funeral_date'] ?? get_field('wfn_details_group_funeral_date', $post_id) ?? '';
         $funeral_time = $details_group['funeral_time'] ?? get_field('wfn_details_group_funeral_time', $post_id) ?? '';
         $hide_time = $details_group['hide_time'] ?? get_field('wfn_details_group_hide_datetime', $post_id) ?? false;
 
         // Content - ACF uses post content field directly via acfe_post_field
-        $notice_group = get_field('wfn_notice_group', $post_id) ?: [];
+        $notice_group = get_field('hkfn_notice_group', $post_id) ?: [];
         $hide_intro = $notice_group['hide_intro_copy'] ?? false;
         
         // Get the actual post content (where the funeral notice is stored)
@@ -188,7 +188,7 @@ class TemplateManager {
         $notice_content = apply_filters('the_content', $notice_content);
 
         // Streaming - simplified approach based on URL presence only
-        $streaming_group = get_field('wfn_streaming_group', $post_id) ?: [];
+        $streaming_group = get_field('hkfn_streaming_group', $post_id) ?: [];
 
         // Get streaming URL with legacy fallback - handle empty strings properly
         $streaming_url = '';
@@ -209,18 +209,18 @@ class TemplateManager {
         }
         
         // Get streaming service (legacy and new)
-        $streaming_service_raw = $streaming_group['streaming_service'] ?? 
-                                get_field('wfn_streaming_group_streaming_service', $post_id) ?? 
+        $streaming_service_raw = $streaming_group['streaming_service'] ??
+                                get_field('wfn_streaming_group_streaming_service', $post_id) ??
                                 '';
         
         // Privacy settings
-        $is_private = $streaming_group['streaming_private'] ?? 
-                     get_field('wfn_streaming_group_streaming_private', $post_id) ?? 
+        $is_private = $streaming_group['streaming_private'] ??
+                     get_field('wfn_streaming_group_streaming_private', $post_id) ??
                      false;
         
         // Streaming note
-        $streaming_note = $streaming_group['streaming_note'] ?? 
-                         get_field('wfn_streaming_group_streaming_note', $post_id) ?? 
+        $streaming_note = $streaming_group['streaming_note'] ??
+                         get_field('wfn_streaming_group_streaming_note', $post_id) ??
                          '';
         
         // Streaming detection - simply check if we have a valid URL
@@ -384,7 +384,7 @@ class TemplateManager {
                 'base_url' => $this->get_tribute_url(),
                 'full_url' => $this->generate_tribute_url($first_name, $last_name),
                 'has_url' => !empty($this->get_tribute_url()),
-                'show_button' => apply_filters('wfn_show_tribute_button', true, $post_id)
+                'show_button' => apply_filters('hkfn_show_tribute_button', true, $post_id)
             ],
             'documents' => [
                 'service_sheet' => $this->get_service_sheet_data($post_id),
@@ -404,17 +404,17 @@ class TemplateManager {
      */
     public function get_share_data(int $post_id): array {
         // Get settings
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $message_template = $settings['social_share_message'] ?? 'Please join us in remembering {fullname}\'s funeral service on {date}';
 
         // Get person details
-        $person_group = get_field('wfn_person_group', $post_id) ?: [];
+        $person_group = get_field('hkfn_person_group', $post_id) ?: [];
         $first_name = $person_group['firstname'] ?? get_field('wfn_person_group_firstname', $post_id) ?? '';
         $last_name = $person_group['lastname'] ?? get_field('wfn_person_group_lastname', $post_id) ?? '';
         $full_name = trim("{$first_name} {$last_name}");
 
         // Get event details
-        $details_group = get_field('wfn_details_group', $post_id) ?: [];
+        $details_group = get_field('hkfn_details_group', $post_id) ?: [];
         $funeral_date = $details_group['funeral_date'] ?? get_field('wfn_details_group_funeral_date', $post_id) ?? '';
         $funeral_time = $details_group['funeral_time'] ?? get_field('wfn_details_group_funeral_time', $post_id) ?? '';
 
@@ -472,7 +472,7 @@ class TemplateManager {
      */
     private function get_fallback_image_url(): string {
         // Get fallback image from Settings module
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $fallback_url = $settings['default_person_image'] ?? '';
 
         if (!empty($fallback_url)) {
@@ -488,7 +488,7 @@ class TemplateManager {
      */
     private function get_hero_background_data(int $post_id): array {
         // Get hero background from ACF options (sitewide setting)
-        $hero_background = get_field('wfn_hero_background_image', 'option');
+        $hero_background = get_field('hkfn_hero_background_image', 'option');
         
         if (is_array($hero_background) && !empty($hero_background['url'])) {
             return [
@@ -621,12 +621,12 @@ class TemplateManager {
      */
     private function get_tribute_url(): string {
         // Try new settings module first
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $tribute_url = $settings['tribute_form_url'] ?? '';
 
         // Fallback to ACF option for backwards compatibility
         if (empty($tribute_url)) {
-            $tribute_url = get_field('wfn_tribute_url', 'option');
+            $tribute_url = get_field('hkfn_tribute_url', 'option');
         }
 
         return $tribute_url ? trim($tribute_url) : '';
@@ -668,7 +668,7 @@ class TemplateManager {
      */
     private function get_service_sheet_data($post_id): ?array {
         // Try media group first (new structure)
-        $media_group = get_field('wfn_media_group', $post_id);
+        $media_group = get_field('hkfn_media_group', $post_id);
         if (!empty($media_group['service_sheet']) && is_array($media_group['service_sheet'])) {
             return [
                 'url' => $media_group['service_sheet']['url'],
@@ -700,8 +700,8 @@ class TemplateManager {
         }
 
         // Get video data from post meta (set by VideoModule when upload completes)
-        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
-        $video_data = get_post_meta($post_id, '_wfn_video_data', true);
+        $video_status = get_post_meta($post_id, '_hkfn_video_status', true);
+        $video_data = get_post_meta($post_id, '_hkfn_video_data', true);
 
         // Decode JSON if needed
         if (is_string($video_data)) {
@@ -714,12 +714,12 @@ class TemplateManager {
         }
 
         // Handle corrupted video data by reconstructing from video ID
-        $video_id_meta = get_post_meta($post_id, '_wfn_video_id', true);
+        $video_id_meta = get_post_meta($post_id, '_hkfn_video_id', true);
 
         // If video data is corrupted but we have a video ID, reconstruct the URLs
         if ((empty($video_data) || $video_data === 'null' || $video_data === null) && $video_id_meta) {
             // Get library ID from settings for URL reconstruction
-            $library_id = defined('WFN_VIDEO_LIBRARY_ID') ? WFN_VIDEO_LIBRARY_ID : get_option('wfn_bunny_library_id', '');
+            $library_id = hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', '');
 
             return [
                 'video_id' => $video_id_meta,
@@ -727,7 +727,7 @@ class TemplateManager {
                 'thumbnail_url' => $library_id ? "https://vz-{$library_id}.b-cdn.net/{$video_id_meta}/thumbnail.jpg" : '',
                 'duration' => 0, // Unknown duration for reconstructed data
                 'title' => 'Memorial Video Slideshow',
-                'modal_id' => 'wfn-video-modal-' . $post_id,
+                'modal_id' => 'hkfn-video-modal-' . $post_id,
                 'type' => 'video_slideshow'
             ];
         }
@@ -744,7 +744,7 @@ class TemplateManager {
             'thumbnail_url' => $video_data['thumbnail_url'] ?? '',
             'duration' => $video_data['duration'] ?? 0,
             'title' => 'Memorial Video Slideshow',
-            'modal_id' => 'wfn-video-modal-' . $post_id,
+            'modal_id' => 'hkfn-video-modal-' . $post_id,
             'type' => 'video_slideshow'
         ];
     }
@@ -759,7 +759,7 @@ class TemplateManager {
         // error_log("WFN Debug: Getting additional documents for post {$post_id}");
 
         // Try media group first (new structure)
-        $media_group = get_field('wfn_media_group', $post_id);
+        $media_group = get_field('hkfn_media_group', $post_id);
         // error_log("WFN Debug: Media group data: " . print_r($media_group, true));
         if (!empty($media_group['additional_documents']) && is_array($media_group['additional_documents'])) {
             foreach ($media_group['additional_documents'] as $doc) {

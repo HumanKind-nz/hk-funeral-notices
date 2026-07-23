@@ -14,14 +14,14 @@ get_header(); ?>
 <main id="main" class="site-main">
     <div class="container">
         <?php
-        use WeaveStudios\FuneralNotices\Templates\TemplateManager;
+        use HumanKind\FuneralNotices\Templates\TemplateManager;
 
         // Get the template manager
         $template_manager = new TemplateManager();
         $active_mode = $template_manager->get_archive_mode(); // Use archive-specific mode
 
         // Enqueue base CSS for all layouts
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../assets/css/layouts/shared-base.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../assets/css/layouts/shared-base.css', [], '2.0.0');
 
         // Enqueue mode-specific CSS
         $css_files = [
@@ -31,7 +31,7 @@ get_header(); ?>
         ];
 
         if (isset($css_files[$active_mode])) {
-            wp_enqueue_style("wfn-enhancement-{$active_mode}", plugin_dir_url(__FILE__) . "../assets/css/layouts/{$css_files[$active_mode]}", ['wfn-enhancement-base'], '2.0.0');
+            wp_enqueue_style("hkfn-enhancement-{$active_mode}", plugin_dir_url(__FILE__) . "../assets/css/layouts/{$css_files[$active_mode]}", ['hkfn-enhancement-base'], '2.0.0');
         }
 
         // Build path to mode-specific template
@@ -48,10 +48,10 @@ get_header(); ?>
             } else {
                 // Ultimate fallback - basic WordPress archive
                 ?>
-                <div class="wfn-archive-fallback">
+                <div class="hkfn-archive-fallback">
                     <h1><?php post_type_archive_title(); ?></h1>
                     <?php if (have_posts()): ?>
-                        <div class="wfn-posts">
+                        <div class="hkfn-posts">
                             <?php while (have_posts()): the_post(); ?>
                                 <article>
                                     <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>

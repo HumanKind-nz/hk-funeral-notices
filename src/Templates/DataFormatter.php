@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Templates;
+namespace HumanKind\FuneralNotices\Templates;
 
 /**
  * Data Formatter
@@ -9,7 +9,7 @@ namespace WeaveStudios\FuneralNotices\Templates;
  * Maps complex ACF data structure to simple template variables
  * Bridges ACF complexity with FCRM-style template simplicity
  * 
- * @package WeaveStudios\FuneralNotices\Templates
+ * @package HumanKind\FuneralNotices\Templates
  * @since 2.0.0
  */
 class DataFormatter {

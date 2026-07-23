@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
 */
 function sp_titles_robots($html) {
     // Get plugin settings
-    $settings = get_option('wfn_module_settings', []);
+    $settings = hkfn_get_option('module_settings', []);
     $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
     if (is_singular($single_slug)) {
@@ -39,10 +39,10 @@ add_filter('seopress_titles_robots', 'sp_titles_robots');
  * @since 1.2.0
  */
    
-function wfn_notice_archive_title($html) {
+function hkfn_notice_archive_title($html) {
      if (is_post_type_archive('funeral-notice')) {
          // Get location name from Settings module
-         $settings = get_option('wfn_module_settings', []);
+         $settings = hkfn_get_option('module_settings', []);
          $funeral_location_name = $settings['location_name'] ?? '';
  
          // Define your custom title text - use site name as fallback
@@ -55,7 +55,7 @@ function wfn_notice_archive_title($html) {
      }
      return $html;
  }
- add_filter('seopress_titles_title', 'wfn_notice_archive_title');
+ add_filter('seopress_titles_title', 'hkfn_notice_archive_title');
 
    
  /**
@@ -67,7 +67,7 @@ function wfn_notice_archive_title($html) {
 function sp_funeral_notice_archive_meta_description($html) {
      if (is_post_type_archive('funeral-notice')) {
          // Get location name from Settings module
-         $settings = get_option('wfn_module_settings', []);
+         $settings = hkfn_get_option('module_settings', []);
          $funeral_location_name = $settings['location_name'] ?? '';
  
          $today = date("Ymd");
@@ -94,8 +94,8 @@ function sp_funeral_notice_archive_meta_description($html) {
          while ($query->have_posts()) {
              $query->the_post();
  
-             $first_name = get_field('wfn_person_group_firstname');
-             $last_name = get_field('wfn_person_group_lastname');
+             $first_name = get_field('hkfn_person_group_firstname');
+             $last_name = get_field('hkfn_person_group_lastname');
  
              // Check if first name and last name are not empty
              if (!empty($first_name) && !empty($last_name)) {
@@ -156,7 +156,7 @@ add_filter('seopress_metaboxe_content_analysis', 'remove_content_analysis_metabo
  *
  * @since 2.0.0
  */
-function wfn_remove_seopress_taxonomy_metaboxes() {
+function hkfn_remove_seopress_taxonomy_metaboxes() {
     // Remove SEOPress meta boxes from funeral-location taxonomy edit screens
     remove_meta_box('seopress_cpt', 'edit-funeral-location', 'normal');
     remove_meta_box('seopress_content_analysis', 'edit-funeral-location', 'normal');
@@ -167,7 +167,7 @@ function wfn_remove_seopress_taxonomy_metaboxes() {
     remove_meta_box('seopress_advanced', 'edit-funeral-location', 'normal');
     remove_meta_box('seopress_schemas', 'edit-funeral-location', 'normal');
 }
-add_action('add_meta_boxes', 'wfn_remove_seopress_taxonomy_metaboxes', 99);
+add_action('add_meta_boxes', 'hkfn_remove_seopress_taxonomy_metaboxes', 99);
 
 /**
  * Hide SEOPress fields from funeral-location taxonomy using CSS
@@ -175,7 +175,7 @@ add_action('add_meta_boxes', 'wfn_remove_seopress_taxonomy_metaboxes', 99);
  *
  * @since 2.0.0
  */
-function wfn_hide_seopress_taxonomy_fields() {
+function hkfn_hide_seopress_taxonomy_fields() {
     $screen = get_current_screen();
     
     // Only apply to funeral-location taxonomy screens
@@ -206,29 +206,29 @@ function wfn_hide_seopress_taxonomy_fields() {
         <?php
     }
 }
-add_action('admin_head', 'wfn_hide_seopress_taxonomy_fields');
+add_action('admin_head', 'hkfn_hide_seopress_taxonomy_fields');
 
  /**
   * Change social share image for archive page
   *
   * @since 1.2.0
   */
-// function wfn_social_og_thumb($html) {
+// function hkfn_social_og_thumb($html) {
 //      if (is_post_type_archive('funeral-notice')) {
 //          $html = '<meta property="og:image" content="https://www.seopress.org/wp-content/uploads/2016/12/cropped-ico-logo-seopress-256x256.png" />';
 //      }
 //      return $html;
 //  }
-//  add_filter('seopress_social_og_thumb', 'wfn_social_og_thumb');
+//  add_filter('seopress_social_og_thumb', 'hkfn_social_og_thumb');
 
  /**
 * Remove funerals from XML sitemap
 *
 * @since 1.2.1
 */
-add_filter('seopress_sitemaps_cpt', 'wfn_exclude_funeral_notice_from_sitemap');
+add_filter('seopress_sitemaps_cpt', 'hkfn_exclude_funeral_notice_from_sitemap');
 
-function wfn_exclude_funeral_notice_from_sitemap($post_types) {
+function hkfn_exclude_funeral_notice_from_sitemap($post_types) {
     // Check if 'funeral-notice' exists in the post types
     if (isset($post_types['funeral-notice'])) {
         // Remove 'funeral-notice' from the post types
@@ -243,9 +243,9 @@ function wfn_exclude_funeral_notice_from_sitemap($post_types) {
  *
  * @since 2.2.11
  */
-add_filter('manage_funeral-notice_posts_columns', 'wfn_remove_seopress_admin_columns', 999);
+add_filter('manage_funeral-notice_posts_columns', 'hkfn_remove_seopress_admin_columns', 999);
 
-function wfn_remove_seopress_admin_columns($columns) {
+function hkfn_remove_seopress_admin_columns($columns) {
     // Remove SEOPress title and meta description columns
     unset($columns['seopress_title']);
     unset($columns['seopress_desc']);
@@ -266,11 +266,11 @@ function wfn_remove_seopress_admin_columns($columns) {
 /**
  * Add custom title for single funeral notice pages
  */
-add_filter('seopress_titles_title', 'wfn_funeral_notice_seo_title');
+add_filter('seopress_titles_title', 'hkfn_funeral_notice_seo_title');
 
-function wfn_funeral_notice_seo_title($title) {
+function hkfn_funeral_notice_seo_title($title) {
     // Check if SEO features are enabled
-    $settings = get_option('wfn_module_settings', []);
+    $settings = hkfn_get_option('module_settings', []);
     if (empty($settings['enable_seo'])) {
         return $title;
     }
@@ -281,7 +281,7 @@ function wfn_funeral_notice_seo_title($title) {
         global $post;
 
         // Get person details - handle both new group structure and old flat structure
-        $person_group = get_field('wfn_person_group', $post->ID);
+        $person_group = get_field('hkfn_person_group', $post->ID);
 
         if (!empty($person_group)) {
             // New group structure (post-migration)
@@ -289,8 +289,8 @@ function wfn_funeral_notice_seo_title($title) {
             $last_name = $person_group['lastname'] ?? '';
         } else {
             // Fallback to old flat field structure (pre-migration)
-            $first_name = get_field('wfn_person_group_firstname', $post->ID) ?? '';
-            $last_name = get_field('wfn_person_group_lastname', $post->ID) ?? '';
+            $first_name = get_field('hkfn_person_group_firstname', $post->ID) ?? '';
+            $last_name = get_field('hkfn_person_group_lastname', $post->ID) ?? '';
         }
 
         if ($first_name && $last_name) {
@@ -324,11 +324,11 @@ function wfn_funeral_notice_seo_title($title) {
 /**
  * Add custom meta description for single funeral notice pages
  */
-add_filter('seopress_titles_desc', 'wfn_funeral_notice_seo_description');
+add_filter('seopress_titles_desc', 'hkfn_funeral_notice_seo_description');
 
-function wfn_funeral_notice_seo_description($description) {
+function hkfn_funeral_notice_seo_description($description) {
     // Check if SEO features are enabled
-    $settings = get_option('wfn_module_settings', []);
+    $settings = hkfn_get_option('module_settings', []);
     if (empty($settings['enable_seo'])) {
         return $description;
     }
@@ -339,9 +339,9 @@ function wfn_funeral_notice_seo_description($description) {
         global $post;
 
         // Get person details - handle both new group structure and old flat structure
-        $person_group = get_field('wfn_person_group', $post->ID);
-        $details_group = get_field('wfn_details_group', $post->ID);
-        $notice_group = get_field('wfn_notice_group', $post->ID);
+        $person_group = get_field('hkfn_person_group', $post->ID);
+        $details_group = get_field('hkfn_details_group', $post->ID);
+        $notice_group = get_field('hkfn_notice_group', $post->ID);
 
         if (!empty($person_group)) {
             // New group structure (post-migration)
@@ -349,8 +349,8 @@ function wfn_funeral_notice_seo_description($description) {
             $last_name = $person_group['lastname'] ?? '';
         } else {
             // Fallback to old flat field structure (pre-migration)
-            $first_name = get_field('wfn_person_group_firstname', $post->ID) ?? '';
-            $last_name = get_field('wfn_person_group_lastname', $post->ID) ?? '';
+            $first_name = get_field('hkfn_person_group_firstname', $post->ID) ?? '';
+            $last_name = get_field('hkfn_person_group_lastname', $post->ID) ?? '';
         }
         // Handle backward compatibility for all group fields
         if (!empty($details_group)) {
@@ -368,7 +368,7 @@ function wfn_funeral_notice_seo_description($description) {
             $tribute_text = $notice_group['tribute_text'] ?? '';
         } else {
             // Fallback to flat structure
-            $tribute_text = get_field('wfn_notice_group_tribute_text', $post->ID) ?? '';
+            $tribute_text = get_field('hkfn_notice_group_tribute_text', $post->ID) ?? '';
         }
 
         // If no tribute_text field, use post content (newspaper notice)
@@ -467,11 +467,11 @@ function wfn_funeral_notice_seo_description($description) {
 /**
  * Add custom Open Graph image for funeral notices
  */
-add_filter('seopress_social_og_thumb', 'wfn_funeral_notice_og_image');
+add_filter('seopress_social_og_thumb', 'hkfn_funeral_notice_og_image');
 
-function wfn_funeral_notice_og_image($image) {
+function hkfn_funeral_notice_og_image($image) {
     // Check if SEO features are enabled
-    $settings = get_option('wfn_module_settings', []);
+    $settings = hkfn_get_option('module_settings', []);
     if (empty($settings['enable_seo'])) {
         return $image;
     }
@@ -505,20 +505,20 @@ function wfn_funeral_notice_og_image($image) {
 /**
  * Start output buffering to capture and filter wp_head output
  */
-function wfn_start_head_buffer() {
-    $settings = get_option('wfn_module_settings', []);
+function hkfn_start_head_buffer() {
+    $settings = hkfn_get_option('module_settings', []);
     $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
     if (is_singular($single_slug)) {
-        ob_start('wfn_filter_twitter_cards_from_head');
+        ob_start('hkfn_filter_twitter_cards_from_head');
     }
 }
-add_action('wp_head', 'wfn_start_head_buffer', 0);
+add_action('wp_head', 'hkfn_start_head_buffer', 0);
 
 /**
  * Filter Twitter card meta tags from the head output
  */
-function wfn_filter_twitter_cards_from_head($html) {
+function hkfn_filter_twitter_cards_from_head($html) {
     // Remove all Twitter card meta tags
     $html = preg_replace('/<meta\s+name="twitter:[^"]*"\s+content="[^"]*"\s*\/?>\s*/i', '', $html);
     return $html;
@@ -527,8 +527,8 @@ function wfn_filter_twitter_cards_from_head($html) {
 /**
  * End output buffering and output filtered content
  */
-function wfn_end_head_buffer() {
-    $settings = get_option('wfn_module_settings', []);
+function hkfn_end_head_buffer() {
+    $settings = hkfn_get_option('module_settings', []);
     $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
     if (is_singular($single_slug)) {
@@ -537,5 +537,5 @@ function wfn_end_head_buffer() {
         }
     }
 }
-add_action('wp_head', 'wfn_end_head_buffer', PHP_INT_MAX);
+add_action('wp_head', 'hkfn_end_head_buffer', PHP_INT_MAX);
 

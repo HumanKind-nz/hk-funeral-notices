@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 // CSS is automatically enqueued by the main plugin based on display mode
 
-use WeaveStudios\FuneralNotices\Templates\TemplateManager;
+use HumanKind\FuneralNotices\Templates\TemplateManager;
 
 $template_manager = new TemplateManager();
 $data = $template_manager->get_funeral_data(get_the_ID());
@@ -109,7 +109,7 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
             <!-- Celebration Text -->
             <?php 
             // Get celebration text from field
-            $notice_group = get_field('wfn_notice_group', get_the_ID());
+            $notice_group = get_field('hkfn_notice_group', get_the_ID());
             $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
             
             // Only show if not explicitly empty (allows user to clear it)
@@ -147,12 +147,12 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
                 <div class="firehawk-service-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h3 class="firehawk-section-title" style="margin: 0;">Service Details</h3>
-                        <button class="wfn-share-button"
+                        <button class="hkfn-share-button"
                                 data-url="<?php echo esc_url($share['url']); ?>"
                                 data-title="<?php echo esc_attr($share['title']); ?>"
                                 data-message="<?php echo esc_attr(wp_unslash($share['message'])); ?>"
                                 aria-label="Share this funeral notice">
-                            <?php echo wfn_get_share_icon('', 18); ?>
+                            <?php echo hkfn_get_share_icon('', 18); ?>
                             <span>Share</span>
                         </button>
                     </div>

@@ -1,246 +1,187 @@
 # Developer Documentation — HumanKind Funeral Notices
 
-This document provides technical and developer-focused details for extending or integrating the HumanKind Funeral Notices plugin.
+Technical details for extending or integrating the HumanKind Funeral Notices plugin.
 
 ---
 
 ## Table of Contents
 - [Shortcodes](#shortcodes)
-- [Template Overrides](#template-overrides)
+- [Layouts and Templates](#layouts-and-templates)
 - [Hooks and Filters](#hooks-and-filters)
 - [Module Overview](#module-overview)
-- [Performance Details](#performance-details)
-- [Analytics & Privacy](#analytics--privacy)
+- [Image Cropping](#image-cropping)
+- [Performance](#performance)
+- [Analytics and Privacy](#analytics-and-privacy)
 - [Support](#support)
 
 ---
 
 ## Shortcodes
 
-The plugin provides the `[funeral_notices]` shortcode to display funeral notices in various layouts.
+Use the `[funeral_notices]` shortcode to display notices in any layout.
 
-### Basic Example
-```php
+```
 [funeral_notices]
 ```
 
-### Common Parameters
+### Parameters
+
 | Parameter | Options | Default | Description |
-|------------|----------|----------|--------------|
-| `layout` | `firehawk`, `modern`, `elegant`, `minimal` | `modern` | Selects layout style |
-| `type` | `all`, `future`, `archived`, `today`, `this_week`, `this_month` | `all` | Filters by date |
+|-----------|---------|---------|-------------|
+| `layout` | `firehawk`, `modern`, `elegant`, `minimal` | from settings | Layout style (`style` is an accepted alias) |
+| `type` | `all`, `future`, `archived`, `today`, `this_week`, `this_month` | `all` | Filter by date |
 | `columns` | `1`, `2`, `3`, `4` | `3` | Number of grid columns |
 | `per_page` | number | `12` | Notices per page |
-| `show_search` | `yes`, `no` | `yes` | Enables search bar |
-| `card_style` | `standard`, `elevated`, `outlined`, `minimal` | `standard` | Card appearance |
-| `ids` | Comma-separated post IDs | none | Display only specific funeral notices (e.g., `"123,456,789"`) |
-| `exclude` | Comma-separated post IDs | none | Exclude specific posts from the query (e.g., `"123,456"`) |
+| `show_search` | `yes`, `no` | `yes` | Show the search form above the grid |
+| `show_pagination` | `yes`, `no` | `yes` | Show pagination |
+| `location` | location slug | none | Filter to a single location |
+| `date_from` | `Y-m-d` | none | Filter from a date |
+| `date_to` | `Y-m-d` | none | Filter to a date |
+| `ids` | comma-separated post IDs | none | Show only these notices (e.g. `"123,456"`) |
+| `exclude` | comma-separated post IDs | none | Exclude these notices |
 
-### Advanced Examples
-```php
-// Elegant layout with elevated cards
-[funeral_notices layout="elegant" columns="2" card_style="elevated" type="future" show_search="no"]
+### Examples
 
-// Display specific funeral notices by ID
+```
+// Elegant layout, two columns, upcoming only, no search
+[funeral_notices layout="elegant" columns="2" type="future" show_search="no"]
+
+// Specific notices by ID
 [funeral_notices ids="123,456,789" columns="3" layout="modern"]
 
-// Exclude specific posts from the main query
+// Everything except two posts
 [funeral_notices exclude="123,456" type="future"]
 ```
 
 ---
 
-## Template Overrides
+## Layouts and Templates
 
-To override templates in your theme:
+Layout templates ship inside the plugin at `templates/modes/{mode}/` (with a `modes/default/` fallback). The four selectable layouts are `firehawk`, `modern`, `elegant`, and `minimal`.
 
-1. Create a folder named `funeral-notices/` inside your active theme.
-2. Copy the desired template from the plugin’s `/templates/` directory.
-3. Edit as needed — the plugin will automatically use your version.
+To register a new layout, use the `hkfn_available_layouts` filter (see below). For bespoke template work beyond the built-in layouts, get in touch at **support@weave.co.nz**.
 
-Example structure:
-```
-your-theme/
-└── funeral-notices/
-    ├── archive-funeral-notice.php
-    ├── single-funeral-notice.php
-    └── modes/
-        └── custom/
-            ├── archive.php
-            └── single.php
-```
+> Note: v3 loads templates from the plugin only. It does not read override templates from a theme folder.
 
 ---
 
 ## Hooks and Filters
 
-### Filters
+All hooks use the `hkfn_` prefix.
+
 ```php
-// Add a custom layout
-a dd_filter('wfn_available_layouts', function($layouts) {
-  $layouts['custom'] = [
-    'name' => 'Custom Layout',
-    'description' => 'A unique design',
-    'template' => 'custom-template.php'
-  ];
-  return $layouts;
+// Add or modify the available layouts
+add_filter('hkfn_available_layouts', function($layouts) {
+    $layouts['custom'] = [
+        'name'        => 'Custom Layout',
+        'description' => 'A unique design',
+        'template'    => 'custom-template.php',
+    ];
+    return $layouts;
 });
 
-// Modify search query
-add_filter('wfn_search_meta_query', function($meta_query, $params) {
-  return $meta_query;
+// Adjust the search WP_Query arguments
+add_filter('hkfn_search_query_args', function($args, $search_term, $date_from, $date_to, $location) {
+    return $args;
+}, 10, 5);
+
+// Filter search results before they are returned
+add_filter('hkfn_search_results', function($results, $search_term) {
+    return $results;
 }, 10, 2);
 
-// Alter card data before render
-add_filter('wfn_funeral_card_data', function($data, $post_id) {
-  return $data;
+// Show or hide the tribute button on a notice
+add_filter('hkfn_show_tribute_button', function($show, $post_id) {
+    return $show;
 }, 10, 2);
+
+// Replace or wrap the memorial video modal markup
+add_filter('hkfn_memorial_video_modal', function($html, $post_id) {
+    return $html;
+}, 10, 2);
+
+// Turn off the modern Google Maps API on the location field
+add_filter('hkfn_use_modern_google_maps_api', '__return_false');
+
+// Turn off anonymous analytics
+add_filter('hkfn_enable_analytics', '__return_false');
 ```
 
-### Actions
-```php
-add_action('wfn_before_funeral_display', function($post_id) {
-  // Code before each funeral notice output
-});
-
-add_action('wfn_after_search_form', function() {
-  // Add custom content below search form
-});
-
-add_action('wfn_module_activated', function($module_id) {
-  // Triggered when module is activated
-});
-```
+The plugin does not currently expose custom action hooks. For integration points, use the filters above or standard WordPress hooks (`save_post`, `wp_enqueue_scripts`, and so on).
 
 ---
 
 ## Module Overview
 
-| Module | Purpose | Admin Page |
-|---------|----------|-------------|
-| **Settings** | Core configuration and URL structure | Funeral Notices → Settings |
-| **Layouts** | Layouts and grid options | Funeral Notices → Layouts |
-| **Search** | AJAX search and filters | Funeral Notices → Search |
-| **Styling** | Colour and typography controls | Funeral Notices → Styling |
-| **Performance** | Caching and optimisation | Funeral Notices → Performance |
+The plugin is built from independent modules, each with its own admin screen under the **Funeral Notices** menu. Each can be toggled on or off.
 
-Each module can be toggled independently.
-
----
-
-## Performance Details
-
-- **Conditional Asset Loading**: CSS and JS only load on pages with funeral notices or relevant shortcodes.
-- **Caching**: Query caching with auto-purge when data changes.
-- **Lazy Loading**: Applies to images and embeds.
-- **Database**: Indexed queries and lean postmeta lookups.
-
-Average test results (PHP 8.2 / WP 6.6):
-- Initial page render: ~240–260ms
-- Cached repeat render: ~120ms
+| Module | Purpose |
+|--------|---------|
+| **Settings** | Core configuration and URL structure |
+| **Layouts** | Layout modes and grid options |
+| **Search** | AJAX search and filtering |
+| **Styling** | Colour, typography, and custom CSS |
+| **Performance** | Caching and asset optimisation |
+| **License** | Premium licence activation and status |
+| **Video** | Premium memorial video slideshows (cloud hosted) |
+| **Analytics** | Anonymous, aggregated usage statistics |
 
 ---
 
-## Image Cropping Setup
+## Image Cropping
 
-### Crop-Thumbnails Plugin Integration (v2.5.2+)
+The plugin includes a built-in image cropper (Cropper.js). No external crop plugin is required.
 
-The plugin integrates with the popular **Crop-Thumbnails** plugin (30k+ active installs) to provide professional image cropping for grid/card layouts. This allows users to crop featured images to 4:3 ratio for better display on archive pages while keeping full images on single funeral pages.
+Featured images can be cropped to a 4:3 grid version used on archive and card layouts, while single notice pages keep the full image. The cropper appears in the funeral notice editor once a featured image is set.
 
-**Setup Instructions:**
+How it works:
 
-1. **Install Crop-Thumbnails Plugin**
-   - Install from WordPress plugin repository or [download here](https://wordpress.org/plugins/crop-thumbnails/)
-   - Activate the plugin
+- A dedicated image size, `hkfn-grid-crop` (4:3), is registered on `after_setup_theme` and shown in the media size chooser as "Grid Crop (4:3)".
+- Crop coordinates are saved through the `hkfn_save_crop_coordinates` AJAX action.
+- The crop is applied when WordPress generates the grid size, via `wp_generate_attachment_metadata`.
 
-2. **Configure Crop-Thumbnails Settings**
-   - Navigate to: Settings → Crop-Thumbnails
-   - Find the "Funerals" section
-   - **Uncheck** "Thumbnail" and "Funeral Image"
-   - **Check only** "Grid Crop (4:3)(wfn-grid-crop)"
-   - This ensures users only see the relevant crop size in the modal
+### Cache purging after crops
 
-3. **How Users Crop Images**
-   - Edit any funeral notice
-   - Set featured image as normal
-   - Click "Crop for Grid/Cards" button below the featured image
-   - Crop the 4:3 ratio for grid display
-   - Original full image remains for single funeral pages
-
-**Benefits:**
-- Professional, proven cropping interface
-- No custom JavaScript bugs
-- Works with all standard WordPress image sizes
-- Mobile-friendly crop editor
-- Undo/redo crop functionality
-
-### Cache Purging After Crops
-
-When users crop images, **page caching** may prevent the changes from appearing immediately on grid pages.
-
-**Automatic Cache Purging:**
-
-The plugin triggers cache purges automatically if your site uses the [Weave Cache Purge Helper](https://github.com/weavedigitalstudio/weave-cache-purge-helper) plugin, which clears:
-- Beaver Builder template cache
-- Nginx/LiteSpeed cache
-- WordPress object cache
-
-**Manual Integration:**
-
-For other caching setups, add this to your theme's functions.php:
-
-```php
-// Clear cache after image crop
-add_action('crop_thumbnails_after_save_new_thumb', function($attachment_id, $size_name) {
-    // Only trigger for funeral notice crops
-    if ($size_name === 'wfn-grid-crop') {
-        // WP Rocket
-        if (function_exists('rocket_clean_domain')) {
-            rocket_clean_domain();
-        }
-
-        // W3 Total Cache
-        if (function_exists('w3tc_flush_all')) {
-            w3tc_flush_all();
-        }
-
-        // LiteSpeed Cache
-        if (class_exists('LiteSpeed_Cache_API')) {
-            LiteSpeed_Cache_API::purge_all();
-        }
-    }
-}, 10, 2);
-```
-
-**Note:** Image crops are infrequent (1-2 times per funeral notice), so cache purging is lightweight and won't impact performance.
+With page caching active, cropped images may not appear straight away on grid pages. The plugin works with the [Weave Cache Purge Helper](https://github.com/weavedigitalstudio/weave-cache-purge-helper), which clears Beaver Builder, Nginx/LiteSpeed, and object caches automatically. For other setups, purge your page cache after cropping.
 
 ---
 
-## Analytics & Privacy
+## Performance
+
+- **Conditional asset loading**: CSS and JS load only on pages with funeral notices or the shortcode.
+- **Caching**: query caching with automatic purge when notice data changes.
+- **Lazy loading**: applied to images and embeds.
+- **Lean queries**: indexed lookups and minimal postmeta reads.
+
+---
+
+## Analytics and Privacy
 
 The plugin includes optional anonymous analytics:
-- Tracks number of notices created and livestream usage percentage
+
+- Counts only: number of notices, and the percentage using livestream links
 - Includes plugin, PHP, and WordPress versions
-- Does *not* collect names, content, or personal data
+- Never collects names, notice content, or personal data
 
-To disable analytics globally:
+Turn analytics off with a filter:
+
 ```php
-add_filter('wfn_enable_analytics', '__return_false');
+add_filter('hkfn_enable_analytics', '__return_false');
 ```
 
-For deployment-level control (wp-config.php):
+Or at deployment level in `wp-config.php`:
+
 ```php
-define('WFN_DISABLE_ANALYTICS', true);
+define('HKFN_DISABLE_ANALYTICS', true);
 ```
 
-Data is stored securely and complies with New Zealand and Australian privacy standards.
+Data is aggregated and handled in line with New Zealand and Australian privacy standards.
 
 ---
 
 ## Support
 
 - Email: **support@weave.co.nz**
-- Documentation: [https://github.com/HumanKind-nz/hk-funeral-notices](https://github.com/HumanKind-nz/hk-funeral-notices)
+- Issues: [github.com/HumanKind-nz/hk-funeral-notices](https://github.com/HumanKind-nz/hk-funeral-notices)
 
-For bug reports, please include PHP and WordPress versions, and any relevant error logs.
-
+For bug reports, please include your PHP and WordPress versions and any relevant error logs.

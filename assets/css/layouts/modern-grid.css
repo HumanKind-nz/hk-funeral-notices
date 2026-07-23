@@ -3,7 +3,7 @@
  * Native WFN version with CSS variables for color scheme support
  */
 
-.wfn-enhancement-modern-grid {
+.hkfn-enhancement-modern-grid {
     display: grid;
     gap: 2rem; /* Increased for better breathing room */
     margin: 1.5rem 0;
@@ -11,31 +11,31 @@
 }
 
 /* Column layouts */
-.wfn-enhancement-modern-grid.wfn-cols-1 { grid-template-columns: 1fr; }
-.wfn-enhancement-modern-grid.wfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.wfn-enhancement-modern-grid.wfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.wfn-enhancement-modern-grid.wfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.hkfn-enhancement-modern-grid.hkfn-cols-1 { grid-template-columns: 1fr; }
+.hkfn-enhancement-modern-grid.hkfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.hkfn-enhancement-modern-grid.hkfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.hkfn-enhancement-modern-grid.hkfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
 
 /* Card styling */
-.wfn-enhancement-modern-card {
+.hkfn-enhancement-modern-card {
     position: relative;
-    background: var(--wfn-color-card-background, #ffffff);
-    border: 1px solid var(--wfn-color-border, #e9ecef);
-    border-radius: var(--wfn-border-radius, 12px);
+    background: var(--hkfn-color-card-background, #ffffff);
+    border: 1px solid var(--hkfn-color-border, #e9ecef);
+    border-radius: var(--hkfn-border-radius, 12px);
     overflow: hidden;
-    transition: all var(--wfn-transition-speed, 0.3s) ease;
-    box-shadow: var(--wfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+    transition: all var(--hkfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--hkfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-.wfn-enhancement-modern-card:hover {
+.hkfn-enhancement-modern-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.wfn-enhancement-modern-link {
+.hkfn-enhancement-modern-link {
     display: block;
     text-decoration: none;
     color: inherit;
@@ -44,21 +44,21 @@
     flex-direction: column;
 }
 
-.wfn-enhancement-modern-link:hover {
+.hkfn-enhancement-modern-link:hover {
     text-decoration: none;
     color: inherit;
 }
 
 /* Image styling */
-.wfn-enhancement-modern-image {
+.hkfn-enhancement-modern-image {
     position: relative;
     width: 100%;
     aspect-ratio: 4/3;
     overflow: hidden;
-    background: var(--wfn-color-row-alternate, #f8f9fa);
+    background: var(--hkfn-color-row-alternate, #f8f9fa);
 }
 
-.wfn-enhancement-modern-image img {
+.hkfn-enhancement-modern-image img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
@@ -66,12 +66,12 @@
     transition: transform 0.3s ease !important;
 }
 
-.wfn-enhancement-modern-card:hover .wfn-enhancement-modern-image img {
+.hkfn-enhancement-modern-card:hover .hkfn-enhancement-modern-image img {
     transform: scale(1.05);
 }
 
 /* Content styling */
-.wfn-enhancement-modern-content {
+.hkfn-enhancement-modern-content {
     position: relative;
     padding: 1.25rem;
     flex: 1;
@@ -79,64 +79,64 @@
     flex-direction: column;
 }
 
-.wfn-enhancement-modern-title {
-    font-size: var(--wfn-heading-size, 1.5rem); /* Changed from 1.25rem to 1.5rem (XL) */
+.hkfn-enhancement-modern-title {
+    font-size: var(--hkfn-heading-size, 1.5rem); /* Changed from 1.25rem to 1.5rem (XL) */
     font-weight: 600;
     margin: 0 0 0.75rem 0;
-    color: var(--wfn-color-text-primary, #2c3e50);
+    color: var(--hkfn-color-text-primary, #2c3e50);
     line-height: 1.3;
-    font-family: var(--wfn-font-heading, inherit);
+    font-family: var(--hkfn-font-heading, inherit);
 }
 
-.wfn-enhancement-modern-dates {
-    font-size: var(--wfn-text-size, 0.9rem);
-    color: var(--wfn-color-text-secondary, #6c757d);
+.hkfn-enhancement-modern-dates {
+    font-size: var(--hkfn-text-size, 0.9rem);
+    color: var(--hkfn-color-text-secondary, #6c757d);
     margin: 0 0 1rem 0;
     font-style: italic;
-    font-family: var(--wfn-font-body, inherit);
+    font-family: var(--hkfn-font-body, inherit);
 }
 
-.wfn-enhancement-modern-service {
-    font-size: var(--wfn-text-size, 0.85rem);
-    color: var(--wfn-color-primary, #3498db);
+.hkfn-enhancement-modern-service {
+    font-size: var(--hkfn-text-size, 0.85rem);
+    color: var(--hkfn-color-primary, #3498db);
     margin: 0 0 0.75rem 0; /* Reduced bottom margin */
-    padding: var(--wfn-card-padding, 0.75rem);
-    background: var(--wfn-color-row-alternate, #f8f9fa);
-    border-radius: var(--wfn-border-radius, 6px);
-    border: 1px solid var(--wfn-color-primary, #3498db);
-    font-family: var(--wfn-font-body, inherit);
+    padding: var(--hkfn-card-padding, 0.75rem);
+    background: var(--hkfn-color-row-alternate, #f8f9fa);
+    border-radius: var(--hkfn-border-radius, 6px);
+    border: 1px solid var(--hkfn-color-primary, #3498db);
+    font-family: var(--hkfn-font-body, inherit);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.wfn-enhancement-modern-service .service-label {
+.hkfn-enhancement-modern-service .service-label {
     font-weight: 600;
-    color: var(--wfn-color-primary, #3498db);
+    color: var(--hkfn-color-primary, #3498db);
 }
 
 /* Streaming icon styling */
-.wfn-streaming-icon {
+.hkfn-streaming-icon {
     display: inline-flex;
     align-items: center;
     margin-left: 0.5rem;
     flex-shrink: 0;
 }
 
-.wfn-streaming-icon svg {
+.hkfn-streaming-icon svg {
     width: 22px;
     height: 22px;
-    fill: var(--wfn-color-primary, #3498db);
+    fill: var(--hkfn-color-primary, #3498db);
     opacity: 0.8;
-    transition: opacity var(--wfn-transition-speed, 0.3s) ease;
+    transition: opacity var(--hkfn-transition-speed, 0.3s) ease;
 }
 
-.wfn-enhancement-modern-card:hover .wfn-streaming-icon svg {
+.hkfn-enhancement-modern-card:hover .hkfn-streaming-icon svg {
     opacity: 1;
 }
 
 /* Floating streaming icon when date/time/venue hidden (modern) */
-.wfn-streaming-icon-float {
+.hkfn-streaming-icon-float {
     position: absolute;
     top: 0.75rem; /* sits just below the image, inside content */
     right: 0.75rem;
@@ -148,49 +148,49 @@
     z-index: 2;
 }
 
-.wfn-streaming-icon-float svg {
+.hkfn-streaming-icon-float svg {
     width: 22px;
     height: 22px;
-    fill: var(--wfn-color-primary, #3498db);
+    fill: var(--hkfn-color-primary, #3498db);
 }
 
-.wfn-enhancement-modern-more {
+.hkfn-enhancement-modern-more {
     margin-top: auto;
-    padding: var(--wfn-card-padding, 0.75rem 1rem);
-    background: var(--wfn-color-primary, #3498db);
+    padding: var(--hkfn-card-padding, 0.75rem 1rem);
+    background: var(--hkfn-color-primary, #3498db);
     color: white;
     text-align: center;
-    border-radius: var(--wfn-border-radius, 6px);
+    border-radius: var(--hkfn-border-radius, 6px);
     font-weight: 500;
-    font-size: var(--wfn-text-size, 0.9rem);
-    font-family: var(--wfn-font-body, inherit);
-    transition: background var(--wfn-transition-speed, 0.3s) ease;
+    font-size: var(--hkfn-text-size, 0.9rem);
+    font-family: var(--hkfn-font-body, inherit);
+    transition: background var(--hkfn-transition-speed, 0.3s) ease;
 }
 
-.wfn-enhancement-modern-card:hover .wfn-enhancement-modern-more {
-    background: var(--wfn-color-accent, #2980b9);
+.hkfn-enhancement-modern-card:hover .hkfn-enhancement-modern-more {
+    background: var(--hkfn-color-accent, #2980b9);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .wfn-enhancement-modern-grid.wfn-cols-3,
-    .wfn-enhancement-modern-grid.wfn-cols-4 {
+    .hkfn-enhancement-modern-grid.hkfn-cols-3,
+    .hkfn-enhancement-modern-grid.hkfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
     }
 
-    .wfn-enhancement-modern-content {
+    .hkfn-enhancement-modern-content {
         padding: 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .wfn-enhancement-modern-grid {
+    .hkfn-enhancement-modern-grid {
         grid-template-columns: 1fr !important;
         gap: 1rem;
     }
 
-    .wfn-enhancement-modern-content {
+    .hkfn-enhancement-modern-content {
         padding: 0.875rem;
     }
 }

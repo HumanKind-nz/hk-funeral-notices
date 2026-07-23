@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Services;
+namespace HumanKind\FuneralNotices\Services;
 
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 
 /**
  * Bunny Stream Service
@@ -45,12 +45,12 @@ class BunnyStreamService {
      */
     public function __construct(string $library_id = '', string $api_key = '', string $cdn_hostname = '') {
         // Use provided credentials or get from constants/options (constants take precedence)
-        $this->library_id = $library_id ?: (defined('WFN_VIDEO_LIBRARY_ID') ? WFN_VIDEO_LIBRARY_ID : get_option('wfn_bunny_library_id', ''));
-        $this->api_key = $api_key ?: (defined('WFN_VIDEO_API_KEY') ? WFN_VIDEO_API_KEY : get_option('wfn_bunny_api_key', ''));
-        $this->cdn_hostname = $cdn_hostname ?: (defined('WFN_VIDEO_CDN_HOSTNAME') ? WFN_VIDEO_CDN_HOSTNAME : get_option('wfn_bunny_cdn_hostname', ''));
+        $this->library_id = $library_id ?: (hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', ''));
+        $this->api_key = $api_key ?: (hkfn_get_constant('VIDEO_API_KEY') ?: hkfn_get_option('bunny_api_key', ''));
+        $this->cdn_hostname = $cdn_hostname ?: (hkfn_get_constant('VIDEO_CDN_HOSTNAME') ?: hkfn_get_option('bunny_cdn_hostname', ''));
 
         // Log configuration for debugging
-        if (defined('WFN_DEBUG') && WFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log('BunnyStreamService initialized - Library: ' . $this->library_id);
         }
     }
@@ -91,7 +91,7 @@ class BunnyStreamService {
         $default_headers = [
             'AccessKey: ' . $this->api_key,
             'Content-Type: application/json',
-            'User-Agent: WeaveStudios-FuneralNotices/2.1.3'
+            'User-Agent: HumanKind-FuneralNotices/2.1.3'
         ];
 
         $headers = array_merge($default_headers, $headers);
@@ -180,8 +180,8 @@ class BunnyStreamService {
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => 3,
-            CURLOPT_USERAGENT => 'WeaveStudios-FuneralNotices/2.1.3',
-            CURLOPT_VERBOSE => defined('WFN_DEBUG') && WFN_DEBUG
+            CURLOPT_USERAGENT => 'HumanKind-FuneralNotices/2.1.3',
+            CURLOPT_VERBOSE => (bool) hkfn_get_constant('DEBUG')
         ];
 
         // Method-specific options
@@ -348,7 +348,7 @@ class BunnyStreamService {
      * @param int $delay Delay before retry
      */
     private function log_retry_attempt(string $url, int $attempt, array $error, int $delay): void {
-        if (defined('WFN_DEBUG') && WFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Retry attempt %d/%d for %s. Error: %s. Waiting %ds before retry.',
                 $attempt,
@@ -368,7 +368,7 @@ class BunnyStreamService {
      * @param array $result Successful result
      */
     private function log_retry_success(string $url, int $attempt, array $result): void {
-        if (defined('WFN_DEBUG') && WFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Request succeeded on attempt %d for %s',
                 $attempt,
@@ -402,7 +402,7 @@ class BunnyStreamService {
      * @param int $delay Delay before retry
      */
     private function log_exception_retry(string $url, int $attempt, \Exception $exception, int $delay): void {
-        if (defined('WFN_DEBUG') && WFN_DEBUG) {
+        if ((bool) hkfn_get_constant('DEBUG')) {
             error_log(sprintf(
                 'BunnyStream: Exception on attempt %d/%d for %s: %s. Waiting %ds before retry.',
                 $attempt,
@@ -1639,7 +1639,7 @@ class BunnyStreamService {
             // Generate responsive wrapper HTML
             $responsive_html = '';
             if ($options['responsive']) {
-                $responsive_html = '<div class="wfn-video-responsive-wrapper" style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; /* 16:9 aspect ratio */">' .
+                $responsive_html = '<div class="hkfn-video-responsive-wrapper" style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; /* 16:9 aspect ratio */">' .
                     str_replace('style="width: 100%; height: auto; aspect-ratio: 16/9;"', 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"', $iframe_html) .
                     '</div>';
             }
@@ -1687,24 +1687,24 @@ class BunnyStreamService {
             if (!iframe) return;
 
             // Add loading state
-            videoContainer.classList.add('wfn-video-loading');
+            videoContainer.classList.add('hkfn-video-loading');
 
             // Handle iframe load
             iframe.addEventListener('load', function() {
-                videoContainer.classList.remove('wfn-video-loading');
-                videoContainer.classList.add('wfn-video-ready');
+                videoContainer.classList.remove('hkfn-video-loading');
+                videoContainer.classList.add('hkfn-video-ready');
             });
 
             // Handle errors
             iframe.addEventListener('error', function() {
-                videoContainer.classList.remove('wfn-video-loading');
-                videoContainer.classList.add('wfn-video-error');
+                videoContainer.classList.remove('hkfn-video-loading');
+                videoContainer.classList.add('hkfn-video-error');
                 console.error('Failed to load memorial video: {$video_id}');
             });
 
             // Add fullscreen support for mobile
             if (typeof videoContainer.requestFullscreen === 'function') {
-                const fullscreenBtn = videoContainer.querySelector('.wfn-fullscreen-btn');
+                const fullscreenBtn = videoContainer.querySelector('.hkfn-fullscreen-btn');
                 if (fullscreenBtn) {
                     fullscreenBtn.addEventListener('click', function() {
                         videoContainer.requestFullscreen();
@@ -1795,7 +1795,7 @@ class BunnyStreamService {
         // Default modal options
         $defaults = [
             'button_text' => 'View Slideshow',
-            'button_class' => 'wfn-video-button',
+            'button_class' => 'hkfn-video-button',
             'modal_width' => '90%',
             'modal_max_width' => '800px',
             'close_on_overlay' => true,
@@ -1819,7 +1819,7 @@ class BunnyStreamService {
         }
 
         $embed_data = $embed_result['embed_data'];
-        $unique_id = 'wfn-video-modal-' . $video_id;
+        $unique_id = 'hkfn-video-modal-' . $video_id;
 
         // Generate trigger button HTML
         $button_html = sprintf(
@@ -1832,19 +1832,19 @@ class BunnyStreamService {
 
         // Generate modal HTML
         $modal_html = sprintf('
-        <div id="%s" class="wfn-video-modal" style="display: none;">
-            <div class="wfn-video-modal-overlay"></div>
-            <div class="wfn-video-modal-content" style="width: %s; max-width: %s;">
-                <div class="wfn-video-modal-header">
+        <div id="%s" class="hkfn-video-modal" style="display: none;">
+            <div class="hkfn-video-modal-overlay"></div>
+            <div class="hkfn-video-modal-content" style="width: %s; max-width: %s;">
+                <div class="hkfn-video-modal-header">
                     <h3>Memorial Video Slideshow</h3>
-                    <div class="wfn-video-modal-actions">
+                    <div class="hkfn-video-modal-actions">
                         %s
-                        <button type="button" class="wfn-video-modal-close" data-close-modal="%s">&times;</button>
+                        <button type="button" class="hkfn-video-modal-close" data-close-modal="%s">&times;</button>
                     </div>
                 </div>
-                <div class="wfn-video-modal-body">
-                    <div class="wfn-video-container" data-video-id="%s" data-video-src="%s">
-                        <div class="wfn-video-placeholder">
+                <div class="hkfn-video-modal-body">
+                    <div class="hkfn-video-container" data-video-id="%s" data-video-src="%s">
+                        <div class="hkfn-video-placeholder">
                             <p>Loading video...</p>
                         </div>
                     </div>
@@ -1855,7 +1855,7 @@ class BunnyStreamService {
             esc_attr($options['modal_width']),
             esc_attr($options['modal_max_width']),
             $options['show_new_window_link'] ? sprintf(
-                '<a href="%s" target="_blank" class="wfn-video-new-window">%s</a>',
+                '<a href="%s" target="_blank" class="hkfn-video-new-window">%s</a>',
                 esc_url($embed_data['direct_url']),
                 esc_html($options['new_window_text'])
             ) : '',
@@ -1896,7 +1896,7 @@ class BunnyStreamService {
             const modal = document.getElementById('{$modal_id}');
             const trigger = document.querySelector('[data-video-modal=\"{$modal_id}\"]');
             const closeBtn = modal?.querySelector('[data-close-modal=\"{$modal_id}\"]');
-            const overlay = modal?.querySelector('.wfn-video-modal-overlay');
+            const overlay = modal?.querySelector('.hkfn-video-modal-overlay');
 
             if (!modal || !trigger) return;
 
@@ -1904,7 +1904,7 @@ class BunnyStreamService {
             trigger.addEventListener('click', function(e) {
                 e.preventDefault();
                 modal.style.display = 'block';
-                document.body.classList.add('wfn-video-modal-open');
+                document.body.classList.add('hkfn-video-modal-open');
 
                 // Focus management for accessibility
                 modal.setAttribute('aria-hidden', 'false');
@@ -1914,7 +1914,7 @@ class BunnyStreamService {
             // Close modal function
             const closeModal = function() {
                 modal.style.display = 'none';
-                document.body.classList.remove('wfn-video-modal-open');
+                document.body.classList.remove('hkfn-video-modal-open');
                 modal.setAttribute('aria-hidden', 'true');
                 trigger.focus(); // Return focus to trigger
             };
@@ -2352,7 +2352,7 @@ class BunnyStreamService {
             'error_code' => $error_code,
             'http_code' => $http_code,
             'api_message' => $error_message,
-            'debug_info' => defined('WFN_DEBUG') && WFN_DEBUG ? [
+            'debug_info' => (bool) hkfn_get_constant('DEBUG') ? [
                 'raw_response' => $raw_response,
                 'response_data' => $response_data
             ] : null
@@ -2688,7 +2688,7 @@ class BunnyStreamService {
             }
 
             // Log progress if in debug mode
-            if (defined('WFN_DEBUG') && WFN_DEBUG) {
+            if ((bool) hkfn_get_constant('DEBUG')) {
                 error_log(sprintf(
                     'BunnyStream: Transcoding progress for %s - Status: %s, Progress: %d%%, Attempt: %d',
                     $video_id,

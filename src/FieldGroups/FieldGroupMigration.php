@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\FieldGroups;
+namespace HumanKind\FuneralNotices\FieldGroups;
 
 /**
  * Field Group Migration
@@ -12,19 +12,119 @@ namespace WeaveStudios\FuneralNotices\FieldGroups;
 class FieldGroupMigration {
 
     private const OLD_GROUP_KEY = 'group_6125700a6a0a7';
-    private const MIGRATION_OPTION = 'wfn_field_migration_completed';
+    private const MIGRATION_OPTION = 'hkfn_field_migration_completed';
+    private const META_PREFIX_OPTION = 'hkfn_meta_prefix_migration';
 
     /**
      * Check if migration is needed and run it
      */
     public function maybe_migrate(): void {
-        if ($this->is_migration_completed()) {
-            return;
-        }
-
-        if ($this->should_migrate()) {
+        if (!$this->is_migration_completed() && $this->should_migrate()) {
             $this->run_migration();
         }
+
+        // wfn_ -> hkfn_ post meta copy (v2.x -> v3 upgrade). Runs once,
+        // independently of the field-group migration above.
+        if (!get_option(self::META_PREFIX_OPTION)) {
+            $results = $this->migrate_meta_prefixes();
+            update_option(self::META_PREFIX_OPTION, [
+                'completed_at' => current_time('mysql'),
+                'results' => $results,
+            ], false);
+        }
+    }
+
+    /**
+     * Copy v2.x wfn_-prefixed post meta to the hkfn_ keys v3 reads.
+     *
+     * COPIES rather than renames: the wfn_ rows stay untouched, so
+     * deactivating v3 and reactivating v2.6.x restores the site exactly.
+     * Idempotent: existing hkfn_ values are never overwritten, so notices
+     * edited after the upgrade keep their newer data.
+     *
+     * Handles the three data quirks of v2.x installs:
+     * - ACF reference rows (_wfn_*) store the field key; the value is
+     *   swapped field_wfn_* -> field_hkfn_* (verified 1:1 key match).
+     * - Some sites stored a serialized WP_Term object in the location
+     *   field; the term ID is extracted instead.
+     * - Bunny video meta (_wfn_video_*) is covered by the same copy.
+     *
+     * @return array Migration counts for logging.
+     */
+    public function migrate_meta_prefixes(): array {
+        global $wpdb;
+
+        $post_ids = get_posts([
+            'post_type' => 'funeral-notice',
+            'posts_per_page' => -1,
+            'post_status' => 'any',
+            'fields' => 'ids',
+        ]);
+
+        $results = [
+            'posts' => count($post_ids),
+            'copied' => 0,
+            'skipped_existing' => 0,
+            'locations_fixed' => 0,
+        ];
+
+        foreach ($post_ids as $post_id) {
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT meta_key, meta_value FROM {$wpdb->postmeta}
+                 WHERE post_id = %d AND (meta_key LIKE 'wfn\_%%' OR meta_key LIKE '\_wfn\_%%')",
+                $post_id
+            ));
+
+            if (!$rows) {
+                continue;
+            }
+
+            $existing = array_flip($wpdb->get_col($wpdb->prepare(
+                "SELECT meta_key FROM {$wpdb->postmeta}
+                 WHERE post_id = %d AND (meta_key LIKE 'hkfn\_%%' OR meta_key LIKE '\_hkfn\_%%')",
+                $post_id
+            )));
+
+            foreach ($rows as $row) {
+                $new_key = (strpos($row->meta_key, '_wfn_') === 0)
+                    ? '_hkfn_' . substr($row->meta_key, 5)
+                    : 'hkfn_' . substr($row->meta_key, 4);
+
+                if (isset($existing[$new_key])) {
+                    $results['skipped_existing']++;
+                    continue;
+                }
+
+                $value = (string) $row->meta_value;
+
+                // ACF reference rows point at the field key
+                if ($new_key[0] === '_' && strpos($value, 'field_wfn_') === 0) {
+                    $value = 'field_hkfn_' . substr($value, 10);
+                }
+
+                // Serialized WP_Term in the location field -> term ID
+                if ($new_key === 'hkfn_details_group_location' && is_serialized($value)) {
+                    if (preg_match('/"term_id";i:(\d+);/', $value, $m)) {
+                        $value = $m[1];
+                        $results['locations_fixed']++;
+                    }
+                }
+
+                // Direct insert: the raw meta_value may already be
+                // serialized, and update_post_meta() would double-serialize
+                $wpdb->insert($wpdb->postmeta, [
+                    'post_id' => $post_id,
+                    'meta_key' => $new_key,
+                    'meta_value' => $value,
+                ]);
+                $results['copied']++;
+            }
+
+            // Direct SQL bypasses the object cache (Redis on production)
+            wp_cache_delete($post_id, 'post_meta');
+        }
+
+        return $results;
     }
 
     /**
@@ -92,10 +192,10 @@ class FieldGroupMigration {
 
         foreach ($funeral_notices as $post) {
             // Test that we can read existing field data
-            $person_group = get_field('wfn_person_group', $post->ID);
-            $notice_group = get_field('wfn_notice_group', $post->ID);
-            $details_group = get_field('wfn_details_group', $post->ID);
-            $streaming_group = get_field('wfn_streaming_group', $post->ID);
+            $person_group = get_field('hkfn_person_group', $post->ID);
+            $notice_group = get_field('hkfn_notice_group', $post->ID);
+            $details_group = get_field('hkfn_details_group', $post->ID);
+            $streaming_group = get_field('hkfn_streaming_group', $post->ID);
 
             if (empty($person_group) && empty($notice_group) && empty($details_group) && empty($streaming_group)) {
                 // This might be a new post with no data, which is fine
@@ -133,7 +233,7 @@ class FieldGroupMigration {
 
         foreach ($funeral_notices as $post) {
             // Test reading data through new field structure
-            $person_data = get_field('wfn_person_group', $post->ID);
+            $person_data = get_field('hkfn_person_group', $post->ID);
             
             if (!empty($person_data)) {
                 // Verify we can access individual fields
@@ -152,7 +252,7 @@ class FieldGroupMigration {
      */
     private function mark_migration_complete(): void {
         update_option(self::MIGRATION_OPTION, true);
-        update_option('wfn_field_migration_date', current_time('mysql'));
+        update_option('hkfn_field_migration_date', current_time('mysql'));
     }
 
     /**
@@ -174,7 +274,7 @@ class FieldGroupMigration {
      */
     public function reset_migration(): void {
         delete_option(self::MIGRATION_OPTION);
-        delete_option('wfn_field_migration_date');
+        delete_option('hkfn_field_migration_date');
     }
 
     /**
@@ -183,7 +283,7 @@ class FieldGroupMigration {
     public function get_migration_status(): array {
         return [
             'completed' => $this->is_migration_completed(),
-            'date' => get_option('wfn_field_migration_date', ''),
+            'date' => hkfn_get_option('field_migration_date', ''),
             'old_group_exists' => $this->should_migrate(),
         ];
     }
@@ -220,8 +320,8 @@ class FieldGroupMigration {
 
         foreach ($posts as $post) {
             try {
-                $details_group  = get_field('wfn_details_group', $post->ID) ?: [];
-                $location_group = get_field('wfn_location_group', $post->ID) ?: [];
+                $details_group  = get_field('hkfn_details_group', $post->ID) ?: [];
+                $location_group = get_field('hkfn_location_group', $post->ID) ?: [];
 
                 // Skip if already migrated to new schema, unless we explicitly want to overwrite 'none'
                 if (isset($details_group['location_type'])) {
@@ -234,27 +334,27 @@ class FieldGroupMigration {
                 }
 
                 // Legacy v1 structure (ACFE):
-                // - Checkbox: wfn_location_group['is_at_another_location'] => ['yes'] or []
-                // - ACFE Google Map: wfn_location_group['other_funeral_address'] (array with address/lat/lng/...)
-                // - Taxonomy selection: wfn_location_group['location'] (term id)
+                // - Checkbox: hkfn_location_group['is_at_another_location'] => ['yes'] or []
+                // - ACFE Google Map: hkfn_location_group['other_funeral_address'] (array with address/lat/lng/...)
+                // - Taxonomy selection: hkfn_location_group['location'] (term id)
                 // Prefer group values
                 $is_other_array   = $location_group['is_at_another_location'] ?? [];
                 // Also read direct subfield meta if stored outside the group
                 if (empty($is_other_array)) {
-                    $is_other_array = get_field('wfn_location_group_is_at_another_location', $post->ID) ?: [];
+                    $is_other_array = get_field('hkfn_location_group_is_at_another_location', $post->ID) ?: [];
                 }
                 $is_other = is_array($is_other_array) ? in_array('yes', $is_other_array) : (bool) $is_other_array;
 
                 // ACFE Google Map field (array)
                 $acfe_address = $location_group['other_funeral_address'] ?? null;
                 if (empty($acfe_address)) {
-                    $acfe_address = get_field('wfn_location_group_other_funeral_address', $post->ID);
+                    $acfe_address = get_field('hkfn_location_group_other_funeral_address', $post->ID);
                 }
 
                 // Selected taxonomy location id
                 $taxonomy_term_id = $location_group['location'] ?? null;
                 if (empty($taxonomy_term_id)) {
-                    $taxonomy_term_id = get_field('wfn_location_group_location', $post->ID);
+                    $taxonomy_term_id = get_field('hkfn_location_group_location', $post->ID);
                 }
 
                 // Determine new location_type and target values
@@ -280,7 +380,7 @@ class FieldGroupMigration {
                 }
 
                 if (!$dry_run) {
-                    update_field('wfn_details_group', $updated, $post->ID);
+                    update_field('hkfn_details_group', $updated, $post->ID);
                 }
 
                 $results['migrated']++;
@@ -303,7 +403,7 @@ class FieldGroupMigration {
         ];
 
         // Check if there's already a hero background in options
-        $existing_hero = get_field('wfn_hero_background_image', 'option');
+        $existing_hero = get_field('hkfn_hero_background_image', 'option');
         if (!empty($existing_hero)) {
             $results['message'] = 'Hero background already exists in options - skipped migration';
             return $results;
@@ -318,7 +418,7 @@ class FieldGroupMigration {
         $hero_images_found = [];
 
         foreach ($posts as $post) {
-            $person_group = get_field('wfn_person_group', $post->ID) ?: [];
+            $person_group = get_field('hkfn_person_group', $post->ID) ?: [];
             $hero_background = $person_group['hero_background_image'] ?? null;
             
             if (!empty($hero_background) && is_array($hero_background) && !empty($hero_background['url'])) {
@@ -334,7 +434,7 @@ class FieldGroupMigration {
         if (!empty($hero_images_found)) {
             // Use the first hero background image found as the sitewide default
             $first_hero = $hero_images_found[0]['image'];
-            update_field('wfn_hero_background_image', $first_hero, 'option');
+            update_field('hkfn_hero_background_image', $first_hero, 'option');
             
             $results['message'] = "Migrated hero background from post '{$hero_images_found[0]['post_title']}' to sitewide options. Found {$results['migrated']} total hero images.";
             

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Admin;
+namespace HumanKind\FuneralNotices\Admin;
 
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 
 /**
  * Admin Dashboard - FCRM-Style Interface
@@ -11,7 +11,7 @@ use WeaveStudios\FuneralNotices\Services\LicenseService;
  * Modern admin dashboard matching FCRM Enhancement Suite design patterns
  * with Weave Funeral Notices branding and module management
  * 
- * @package WeaveStudios\FuneralNotices\Admin
+ * @package HumanKind\FuneralNotices\Admin
  * @since 2.0.0
  */
 class Dashboard {
@@ -33,8 +33,8 @@ class Dashboard {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_menu', [$this, 'modify_menu_structure'], 999); // Run after menu is built
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
-        add_action('wp_ajax_wfn_toggle_module', [$this, 'handle_module_toggle']);
-        add_action('wp_ajax_wfn_migrate_addresses', [$this, 'handle_address_migration']);
+        add_action('wp_ajax_hkfn_toggle_module', [$this, 'handle_module_toggle']);
+        add_action('wp_ajax_hkfn_migrate_addresses', [$this, 'handle_address_migration']);
     }
 
     /**
@@ -75,14 +75,14 @@ class Dashboard {
             'edit-tags.php?taxonomy=funeral-location&post_type=funeral-notice'
         );
 
-        // Add Dashboard Settings at the bottom
+        // Add Settings page (React app) at the bottom
         add_submenu_page(
             'hk-funeral-notices',
-            'Dashboard Settings',
-            'Dashboard Settings',
+            'Settings',
+            'Settings',
             'manage_options',
-            'hk-funeral-notices-dashboard',
-            [$this, 'render_dashboard']
+            'hk-funeral-notices-settings',
+            [$this, 'render_settings_page']
         );
     }
 
@@ -118,7 +118,7 @@ class Dashboard {
 
         // Admin CSS
         wp_enqueue_style(
-            'wfn-admin',
+            'hkfn-admin',
             plugin_dir_url(__FILE__) . '../../assets/css/admin/dashboard.css',
             [],
             $this->version
@@ -126,12 +126,12 @@ class Dashboard {
 
         // Add inline CSS for premium module styling
         $inline_css = '
-        .wfn-module-unlicensed {
+        .hkfn-module-unlicensed {
             opacity: 0.6;
             position: relative;
         }
 
-        .wfn-module-unlicensed::after {
+        .hkfn-module-unlicensed::after {
             content: "";
             position: absolute;
             top: 0;
@@ -143,7 +143,7 @@ class Dashboard {
             pointer-events: none;
         }
 
-        .wfn-upgrade-button {
+        .hkfn-upgrade-button {
             background: #ff6b35 !important;
             border-color: #ff6b35 !important;
             color: #fff !important;
@@ -151,30 +151,30 @@ class Dashboard {
             box-shadow: none !important;
         }
 
-        .wfn-upgrade-button:hover,
-        .wfn-upgrade-button:focus {
+        .hkfn-upgrade-button:hover,
+        .hkfn-upgrade-button:focus {
             background: #e55a2e !important;
             border-color: #e55a2e !important;
         }
 
-        .wfn-always-active-spacer {
+        .hkfn-always-active-spacer {
             height: 36px; /* Same height as toggle switch */
         }';
 
-        wp_add_inline_style('wfn-admin', $inline_css);
+        wp_add_inline_style('hkfn-admin', $inline_css);
 
         // Admin JavaScript
         wp_enqueue_script(
-            'wfn-admin',
-            WFN_PLUGIN_URL . 'assets/js/admin/dashboard.js',
+            'hkfn-admin',
+            HKFN_PLUGIN_URL . 'assets/js/admin/dashboard.js',
             ['jquery'],
             $this->version,
             true
         );
 
         // Localize script for AJAX
-        wp_localize_script('wfn-admin', 'wfnAdmin', [
-            'nonce' => wp_create_nonce('wfn_admin_nonce'),
+        wp_localize_script('hkfn-admin', 'hkfnAdmin', [
+            'nonce' => wp_create_nonce('hkfn_admin_nonce'),
             'ajax_url' => admin_url('admin-ajax.php'),
             // Provide camelCase alias for compatibility with any legacy scripts
             'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -184,6 +184,13 @@ class Dashboard {
                 'error' => __('Error saving settings.', 'weave-funeral-notices'),
             ]
         ]);
+    }
+
+    /**
+     * Render the React settings page — thin shell that mounts the JS app.
+     */
+    public function render_settings_page(): void {
+        echo '<div class="wrap"><div id="hkfn-settings"></div></div>';
     }
 
     /**
@@ -199,39 +206,39 @@ class Dashboard {
         }
         
         // Handle form submissions
-        if (isset($_POST['submit']) && wp_verify_nonce($_POST['wfn_nonce'], 'wfn_dashboard_action')) {
+        if (isset($_POST['submit']) && wp_verify_nonce($_POST['hkfn_nonce'], 'hkfn_dashboard_action')) {
             $this->handle_dashboard_form();
         }
 
         ?>
-        <div class="wfn-admin-dashboard">
+        <div class="hkfn-admin-dashboard">
             <?php $this->render_header(); ?>
             
-            <div class="wfn-dashboard-content">
-                <div class="wfn-container">
+            <div class="hkfn-dashboard-content">
+                <div class="hkfn-container">
                     
                     <!-- Welcome Section -->
-                    <div class="wfn-welcome-section">
+                    <div class="hkfn-welcome-section">
                         <h2>Welcome to HumanKind Funeral Notices</h2>
                         <p>Manage your funeral notices with professional layouts, advanced search, and customizable styling. Enable the modules you need below.</p>
                     </div>
 
                     <!-- Modules Grid -->
-                    <div class="wfn-modules-grid">
+                    <div class="hkfn-modules-grid">
                         <?php foreach ($this->modules as $module_id => $module): ?>
                             <?php $this->render_module_card($module_id, $module); ?>
                         <?php endforeach; ?>
                     </div>
 
                     <!-- Quick Stats -->
-                    <div class="wfn-stats-section">
+                    <div class="hkfn-stats-section">
                         <h3>Quick Statistics</h3>
-                        <div class="wfn-stats-grid">
-                            <div class="wfn-stat-card">
+                        <div class="hkfn-stats-grid">
+                            <div class="hkfn-stat-card">
                                 <div class="stat-number"><?php echo wp_count_posts('funeral-notice')->publish; ?></div>
                                 <div class="stat-label">Published Notices</div>
                             </div>
-                            <div class="wfn-stat-card">
+                            <div class="hkfn-stat-card">
                                 <div class="stat-number"><?php echo wp_count_posts('funeral-notice')->draft; ?></div>
                                 <div class="stat-label">Draft Notices</div>
                             </div>
@@ -239,34 +246,34 @@ class Dashboard {
                     </div>
 
                     <!-- Help Section -->
-                    <div class="wfn-help-section">
+                    <div class="hkfn-help-section">
                         <h3>Need Help?</h3>
-                        <div class="wfn-help-grid">
-                            <div class="wfn-help-card">
-                                <div class="wfn-help-icon">
+                        <div class="hkfn-help-grid">
+                            <div class="hkfn-help-card">
+                                <div class="hkfn-help-icon">
                                     <span class="dashicons dashicons-book-alt"></span>
                                 </div>
-                                <div class="wfn-help-content">
+                                <div class="hkfn-help-content">
                                     <h4>Documentation</h4>
                                     <p>Comprehensive guides for setting up and customizing your funeral notices.</p>
                                     <span class="button button-secondary button-disabled">Coming Soon</span>
                                 </div>
                             </div>
-                            <div class="wfn-help-card">
-                                <div class="wfn-help-icon">
+                            <div class="hkfn-help-card">
+                                <div class="hkfn-help-icon">
                                     <span class="dashicons dashicons-sos"></span>
                                 </div>
-                                <div class="wfn-help-content">
+                                <div class="hkfn-help-content">
                                     <h4>Support</h4>
                                     <p>Get help with technical issues, customization, or feature requests.</p>
                                     <a href="https://weave.com.au/support" target="_blank" class="button button-secondary">Get Support</a>
                                 </div>
                             </div>
-                            <div class="wfn-help-card">
-                                <div class="wfn-help-icon">
+                            <div class="hkfn-help-card">
+                                <div class="hkfn-help-icon">
                                     <span class="dashicons dashicons-video-alt3"></span>
                                 </div>
-                                <div class="wfn-help-content">
+                                <div class="hkfn-help-content">
                                     <h4>Video Tutorials</h4>
                                     <p>Step-by-step video guides for common tasks and advanced features.</p>
                                     <span class="button button-secondary button-disabled">Coming Soon</span>
@@ -286,18 +293,18 @@ class Dashboard {
      */
     private function render_header(): void {
         ?>
-        <div class="wfn-admin-header">
-            <div class="wfn-header-content">
-                <div class="wfn-header-text">
+        <div class="hkfn-admin-header">
+            <div class="hkfn-header-content">
+                <div class="hkfn-header-text">
                     <h1>HumanKind Funeral Notices</h1>
-                    <p class="wfn-header-description">Professional funeral notice management for WordPress</p>
-                    <div class="wfn-header-version">Version <?php echo esc_html($this->version); ?></div>
+                    <p class="hkfn-header-description">Professional funeral notice management for WordPress</p>
+                    <div class="hkfn-header-version">Version <?php echo esc_html($this->version); ?></div>
                 </div>
-                <div class="wfn-header-banner">
-                    <div class="wfn-plugin-logo">
-                        <img src="<?php echo plugin_dir_url(__FILE__) . '../../assets/images/wfn-logo.png'; ?>"
+                <div class="hkfn-header-banner">
+                    <div class="hkfn-plugin-logo">
+                        <img src="<?php echo plugin_dir_url(__FILE__) . '../../assets/images/hkfn-logo.png'; ?>"
                               alt="Weave Funeral Notices" 
-                              class="wfn-logo-image" />
+                              class="hkfn-logo-image" />
                     </div>
                 </div>
             </div>
@@ -319,26 +326,26 @@ class Dashboard {
         $is_grayed_out = $license_required && !$license_valid;
 
         ?>
-        <div class="wfn-module-card<?php echo $is_grayed_out ? ' wfn-module-unlicensed' : ''; ?>" data-module="<?php echo esc_attr($module_id); ?>">
-            <div class="wfn-module-header">
-                <div class="wfn-module-icon" style="background: <?php echo esc_attr($module['icon_color']); ?>;">
+        <div class="hkfn-module-card<?php echo $is_grayed_out ? ' hkfn-module-unlicensed' : ''; ?>" data-module="<?php echo esc_attr($module_id); ?>">
+            <div class="hkfn-module-header">
+                <div class="hkfn-module-icon" style="background: <?php echo esc_attr($module['icon_color']); ?>;">
                     <span class="dashicons <?php echo esc_attr($module['icon']); ?>"></span>
                 </div>
                 <?php if (empty($module['always_active']) && empty($module['no_toggle'])): ?>
-                <div class="wfn-module-status">
-                    <span class="wfn-status-indicator <?php echo esc_attr($status_class); ?>">
+                <div class="hkfn-module-status">
+                    <span class="hkfn-status-indicator <?php echo esc_attr($status_class); ?>">
                         <?php echo esc_html($status_text); ?>
                     </span>
                 </div>
                 <?php endif; ?>
             </div>
             
-            <div class="wfn-module-content">
+            <div class="hkfn-module-content">
                 <h3><?php echo esc_html($module['name']); ?></h3>
                 <p><?php echo esc_html($module['description']); ?></p>
                 
                 <?php if (!empty($module['features'])): ?>
-                <ul class="wfn-module-features">
+                <ul class="hkfn-module-features">
                     <?php foreach ($module['features'] as $feature): ?>
                         <li><?php echo esc_html($feature); ?></li>
                     <?php endforeach; ?>
@@ -346,18 +353,18 @@ class Dashboard {
                 <?php endif; ?>
             </div>
             
-            <div class="wfn-module-actions">
+            <div class="hkfn-module-actions">
                 <?php if (!empty($module['always_active']) || !empty($module['no_toggle'])): ?>
                     <!-- Always active modules or no-toggle modules - show empty space for cleaner UI -->
-                    <div class="wfn-always-active-spacer"></div>
+                    <div class="hkfn-always-active-spacer"></div>
                 <?php else: ?>
-                    <label class="wfn-toggle-switch">
+                    <label class="hkfn-toggle-switch">
                         <input type="checkbox"
                                <?php checked($is_enabled); ?>
                                data-module="<?php echo esc_attr($module_id); ?>"
-                               class="wfn-module-toggle">
-                        <span class="wfn-toggle-slider"></span>
-                        <span class="wfn-toggle-label"><?php echo $is_enabled ? 'Enabled' : 'Disabled'; ?></span>
+                               class="hkfn-module-toggle">
+                        <span class="hkfn-toggle-slider"></span>
+                        <span class="hkfn-toggle-label"><?php echo $is_enabled ? 'Enabled' : 'Disabled'; ?></span>
                     </label>
                 <?php endif; ?>
 
@@ -365,7 +372,7 @@ class Dashboard {
                     <?php if ($is_grayed_out): ?>
                         <!-- Premium module without license - show upgrade message -->
                         <a href="<?php echo esc_url(admin_url('admin.php?page=hkfn-module-license')); ?>"
-                           class="button button-primary wfn-upgrade-button">
+                           class="button button-primary hkfn-upgrade-button">
                             Upgrade License
                         </a>
                     <?php else: ?>
@@ -385,7 +392,7 @@ class Dashboard {
      * Get available modules configuration
      */
     private function get_available_modules(): array {
-        $enabled_modules = get_option('wfn_enabled_modules', [
+        $enabled_modules = hkfn_get_option('enabled_modules', [
             'layouts' => true,
             'styling' => false,
             'search' => true,
@@ -489,7 +496,7 @@ class Dashboard {
      * Handle AJAX module toggle
      */
     public function handle_module_toggle(): void {
-        if (!wp_verify_nonce($_POST['nonce'], 'wfn_admin_nonce')) {
+        if (!wp_verify_nonce($_POST['nonce'], 'hkfn_admin_nonce')) {
             wp_die('Security check failed');
         }
 
@@ -500,10 +507,10 @@ class Dashboard {
         $module_id = sanitize_text_field($_POST['module_id']);
         $enabled = filter_var($_POST['enabled'], FILTER_VALIDATE_BOOLEAN);
 
-        $enabled_modules = get_option('wfn_enabled_modules', []);
+        $enabled_modules = hkfn_get_option('enabled_modules', []);
         $enabled_modules[$module_id] = $enabled;
         
-        $updated = update_option('wfn_enabled_modules', $enabled_modules);
+        $updated = update_option('hkfn_enabled_modules', $enabled_modules);
 
         wp_send_json_success([
             'message' => $enabled ? 'Module enabled successfully' : 'Module disabled successfully',
@@ -521,7 +528,7 @@ class Dashboard {
             
             switch ($action) {
                 case 'reset_settings':
-                    delete_option('wfn_enabled_modules');
+                    delete_option('hkfn_enabled_modules');
                     echo '<div class="notice notice-success"><p>Settings reset successfully!</p></div>';
                     break;
             }
@@ -533,24 +540,24 @@ class Dashboard {
      */
     public function render_migration_page(): void {
         // Handle form submission
-        if (isset($_POST['migrate_addresses']) && wp_verify_nonce($_POST['wfn_migration_nonce'], 'wfn_migrate_action')) {
+        if (isset($_POST['migrate_addresses']) && wp_verify_nonce($_POST['hkfn_migration_nonce'], 'hkfn_migrate_action')) {
             $this->run_address_migration();
         }
         
         ?>
-        <div class="wfn-admin-dashboard">
+        <div class="hkfn-admin-dashboard">
             <?php $this->render_header(); ?>
             
-            <div class="wfn-dashboard-content">
-                <div class="wfn-container">
+            <div class="hkfn-dashboard-content">
+                <div class="hkfn-container">
                     
-                    <div class="wfn-migration-section">
+                    <div class="hkfn-migration-section">
                         <h2>Address Migration Tool</h2>
                         <p>This tool migrates Google Places address data from the legacy ACFE format to the new plugin structure.</p>
                         
                         <?php
                         // Check if migration has been run
-                        $migration_date = get_option('wfn_address_migration_completed');
+                        $migration_date = hkfn_get_option('address_migration_completed');
                         if ($migration_date) {
                             echo '<div class="notice notice-info"><p>✅ Migration was last completed on: ' . esc_html($migration_date) . '</p></div>';
                         }
@@ -559,7 +566,7 @@ class Dashboard {
                         $posts_to_migrate = get_posts([
                             'post_type' => 'funeral-notice',
                             'posts_per_page' => -1,
-                            'meta_key' => 'wfn_location_group_other_funeral_address',
+                            'meta_key' => 'hkfn_location_group_other_funeral_address',
                             'meta_compare' => 'EXISTS',
                             'fields' => 'ids'
                         ]);
@@ -568,7 +575,7 @@ class Dashboard {
                             echo '<p>Found <strong>' . count($posts_to_migrate) . '</strong> funeral notices with legacy address data that can be migrated.</p>';
                             
                             echo '<form method="post" action="">';
-                            wp_nonce_field('wfn_migrate_action', 'wfn_migration_nonce');
+                            wp_nonce_field('hkfn_migrate_action', 'hkfn_migration_nonce');
                             echo '<button type="submit" name="migrate_addresses" class="button button-primary">Migrate Address Data</button>';
                             echo '</form>';
                         } else {
@@ -588,14 +595,14 @@ class Dashboard {
      * Run address migration process
      */
     private function run_address_migration(): void {
-        echo '<div class="wfn-migration-results">';
+        echo '<div class="hkfn-migration-results">';
         echo '<h3>Migration Results</h3>';
         
         // Get all funeral notice posts that have the old address field
         $posts = get_posts([
             'post_type' => 'funeral-notice',
             'posts_per_page' => -1,
-            'meta_key' => 'wfn_location_group_other_funeral_address',
+            'meta_key' => 'hkfn_location_group_other_funeral_address',
             'meta_compare' => 'EXISTS'
         ]);
         
@@ -610,7 +617,7 @@ class Dashboard {
             
             try {
                 // Get the legacy ACFE Google Maps data
-                $legacy_address = get_post_meta($post->ID, 'wfn_location_group_other_funeral_address', true);
+                $legacy_address = get_post_meta($post->ID, 'hkfn_location_group_other_funeral_address', true);
                 
                 if (empty($legacy_address)) {
                     echo '<span style="color: #666;">No legacy address data found, skipping...</span><br>';
@@ -649,11 +656,11 @@ class Dashboard {
                 ];
                 
                 // Update the current field structure
-                update_field('wfn_location_group_other_funeral_address', $new_address_data, $post->ID);
-                update_field('wfn_location_group_is_at_another_location', ['yes'], $post->ID);
+                update_field('hkfn_location_group_other_funeral_address', $new_address_data, $post->ID);
+                update_field('hkfn_location_group_is_at_another_location', ['yes'], $post->ID);
                 
                 // Backup the original data
-                update_post_meta($post->ID, '_wfn_migrated_address_backup', $legacy_address);
+                update_post_meta($post->ID, '_hkfn_migrated_address_backup', $legacy_address);
                 
                 echo '<span style="color: #00a32a;">✅ Successfully migrated address data</span><br>';
                 $migrated_count++;
@@ -675,13 +682,13 @@ class Dashboard {
         echo '</p></div>';
         
         // Set migration completed flag
-        update_option('wfn_address_migration_completed', current_time('mysql'));
+        update_option('hkfn_address_migration_completed', current_time('mysql'));
         
         echo '</div>';
         
         // Add some CSS for better presentation
         echo '<style>
-        .wfn-migration-results {
+        .hkfn-migration-results {
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 4px;

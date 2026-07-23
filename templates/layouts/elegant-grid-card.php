@@ -3,7 +3,7 @@
  * Elegant Grid Card Template
  * Used by Load More AJAX handler
  *
- * @package WeaveStudios\FuneralNotices
+ * @package HumanKind\FuneralNotices
  * @since 2.4.0
  */
 
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 $post_id = get_the_ID();
 
 // Use TemplateManager for unified data access
-$template_manager = new \WeaveStudios\FuneralNotices\Templates\TemplateManager();
+$template_manager = new \HumanKind\FuneralNotices\Templates\TemplateManager();
 $data = $template_manager->get_funeral_data($post_id);
 $person = $data['person'];
 $event = $data['event'];
@@ -32,7 +32,7 @@ $featured_image = false;
 
 if ($thumbnail_id) {
     // Try to get the grid crop size first
-    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
 
     // If no grid crop exists, fall back to medium size
     if (!$featured_image) {
@@ -40,7 +40,7 @@ if ($thumbnail_id) {
     }
 }
 
-$settings = get_option('wfn_module_settings', []);
+$settings = hkfn_get_option('module_settings', []);
 $fallback_url = $settings['default_person_image'] ?? '';
 if (empty($fallback_url)) {
     $fallback_url = plugin_dir_url(dirname(__FILE__, 2)) . 'assets/images/fallback.webp';
@@ -48,13 +48,13 @@ if (empty($fallback_url)) {
 $image_url = $featured_image ?: $fallback_url;
 ?>
 
-<article class="wfn-enhancement-elegant-card">
-    <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="wfn-enhancement-elegant-link">
+<article class="hkfn-enhancement-elegant-card">
+    <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="hkfn-enhancement-elegant-link">
 
-        <div class="wfn-enhancement-elegant-header">
+        <div class="hkfn-enhancement-elegant-header">
 
             <?php if ($hide_details && $streaming['is_public'] && !empty($streaming['streaming_url'])): ?>
-                <span class="wfn-streaming-icon-float" title="Live streaming available">
+                <span class="hkfn-streaming-icon-float" title="Live streaming available">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>
                     </svg>
@@ -62,19 +62,19 @@ $image_url = $featured_image ?: $fallback_url;
             <?php endif; ?>
 
             <?php if ($image_url): ?>
-                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($full_name); ?>" class="wfn-enhancement-elegant-portrait">
+                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($full_name); ?>" class="hkfn-enhancement-elegant-portrait">
             <?php endif; ?>
 
-            <div class="wfn-enhancement-elegant-details">
-                <h3 class="wfn-enhancement-elegant-name"><?php echo esc_html($full_name); ?></h3>
+            <div class="hkfn-enhancement-elegant-details">
+                <h3 class="hkfn-enhancement-elegant-name"><?php echo esc_html($full_name); ?></h3>
                 <?php if ($years_display): ?>
-                    <p class="wfn-enhancement-elegant-years"><?php echo esc_html($years_display); ?></p>
+                    <p class="hkfn-enhancement-elegant-years"><?php echo esc_html($years_display); ?></p>
                 <?php endif; ?>
             </div>
         </div>
 
         <?php if ($funeral_date && !$hide_details): ?>
-            <div class="wfn-enhancement-elegant-service">
+            <div class="hkfn-enhancement-elegant-service">
                 <strong>Service:</strong> <?php echo esc_html(date('j F Y', strtotime($funeral_date))); ?>
                 <?php if ($funeral_time): ?>
                     at <?php echo esc_html(date('g:i A', strtotime($funeral_time))); ?>

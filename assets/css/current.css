@@ -6,47 +6,47 @@
  */
 
 /* Main wrapper for single pages - ensure full width */
-.wfn-fullwidth-main {
+.hkfn-fullwidth-main {
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-.wfn-current-single {
+.hkfn-current-single {
     font-family: inherit;
     line-height: 1.6;
     color: #333;
     background: #fff;
 }
 
-.wfn-current-container {
+.hkfn-current-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
 
 /* Header Section - Centered */
-.wfn-current-header {
+.hkfn-current-header {
     text-align: center;
     margin-bottom: 2rem;
 }
 
-.wfn-memory-text {
+.hkfn-memory-text {
     font-size: 1rem;
     color: #666;
     margin-bottom: 0.5rem;
     font-style: italic;
 }
 
-.wfn-current-name {
+.hkfn-current-name {
     font-size: 2.5rem;
     font-weight: normal;
     margin: 0;
     line-height: 1.2;
 }
 
-.wfn-current-dates {
+.hkfn-current-dates {
     font-size: 1.2rem;
     color: #666;
     margin-top: 0.5rem;
@@ -54,12 +54,12 @@
 }
 
 /* Portrait Image - Centered */
-.wfn-current-image {
+.hkfn-current-image {
     text-align: center;
     margin-bottom: 2.5rem;
 }
 
-.wfn-current-portrait {
+.hkfn-current-portrait {
     max-width: 550px;
     width: 100%; /* Responsive within max-width */
     height: auto;
@@ -69,7 +69,7 @@
 }
 
 /* Main Layout - Two Columns */
-.wfn-current-layout {
+.hkfn-current-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 3rem;
@@ -78,84 +78,84 @@
 }
 
 /* Single Column Layout - When no left content */
-.wfn-current-layout-single {
+.hkfn-current-layout-single {
     display: flex !important;
     justify-content: center !important;
     grid-template-columns: none !important;
     gap: 0 !important;
 }
 
-.wfn-current-layout-single .wfn-current-right-column {
+.hkfn-current-layout-single .hkfn-current-right-column {
     max-width: 500px;
     width: 100%;
     margin: 0 auto;
 }
 
 /* Left Column - Main Content */
-.wfn-current-left-column {
+.hkfn-current-left-column {
     line-height: 1.7;
 }
 
-.wfn-current-intro {
+.hkfn-current-intro {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
     font-weight: 500;
     color: #2c3e50;
 }
 
-.wfn-current-notice {
+.hkfn-current-notice {
     font-size: 1rem;
     margin-bottom: 1.5rem;
 }
 
-.wfn-current-notice p {
+.hkfn-current-notice p {
     margin-bottom: 1rem;
 }
 
-.wfn-current-tribute {
+.hkfn-current-tribute {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid #eee;
 }
 
-.wfn-current-tribute a {
+.hkfn-current-tribute a {
     /* color: #3498db; removed to use theme default */
     text-decoration: underline;
 }
 
-.wfn-current-tribute a:hover {
+.hkfn-current-tribute a:hover {
     /* color: #2980b9; removed to use theme default */
 }
 
 /* Tribute in right column when no left content */
-.wfn-current-tribute-right {
+.hkfn-current-tribute-right {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid #e9ecef;
 }
 
-.wfn-current-tribute-right p {
+.hkfn-current-tribute-right p {
     font-size: 0.95rem;
     margin: 0;
 }
 
 /* Right Column - Service Details */
-.wfn-current-right-column {
+.hkfn-current-right-column {
     background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 8px;
     border: 1px solid #e9ecef;
 }
 
-.wfn-current-when,
-.wfn-current-where,
-.wfn-current-streaming {
+.hkfn-current-when,
+.hkfn-current-where,
+.hkfn-current-streaming {
     margin-bottom: 1.5rem;
 }
 
-.wfn-current-when h3,
-.wfn-current-where h3,
-.wfn-current-streaming h3 {
+.hkfn-current-when h3,
+.hkfn-current-where h3,
+.hkfn-current-streaming h3 {
     font-size: 0.9rem;
     font-weight: bold;
     color: #666;
@@ -164,64 +164,64 @@
     letter-spacing: 0.5px;
 }
 
-.wfn-service-datetime {
+.hkfn-service-datetime {
     font-weight: 600;
     color: #2c3e50;
 }
 
-.wfn-service-date {
+.hkfn-service-date {
     font-weight: 600;
 }
 
-.wfn-service-time {
+.hkfn-service-time {
     font-weight: normal;
 }
 
-.wfn-venue-name {
+.hkfn-venue-name {
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 0.25rem;
 }
 
-.wfn-address-line {
+.hkfn-address-line {
     color: #666;
     font-size: 0.95rem;
     line-height: 1.4;
     font-weight: 400; 
 }
 
-.wfn-maps-link {
+.hkfn-maps-link {
     margin-top: 0.5rem;
 }
 
-.wfn-maps-link a {
+.hkfn-maps-link a {
     /* color: #3498db; removed to use theme default */
     text-decoration: underline;
     font-size: 0.9rem;
 }
 
-.wfn-maps-link a:hover {
+.hkfn-maps-link a:hover {
     /* Uses theme default hover color */
     text-decoration: underline;
 }
 
-.wfn-streaming-note {
+.hkfn-streaming-note {
     color: #666;
     font-size: 0.95rem;
 }
 
 /* Service Sheet Button */
-.wfn-current-service-sheet {
+.hkfn-current-service-sheet {
     margin-top: 1rem;
 }
 
 /* Video Slideshow Button */
-.wfn-current-video-slideshow {
+.hkfn-current-video-slideshow {
     margin-top: 1rem;
 }
 
 /* Additional Documents in Right Column */
-.wfn-current-additional-docs {
+.hkfn-current-additional-docs {
     margin-top: 1rem;
     display: flex;
     flex-direction: column;
@@ -229,7 +229,7 @@
 }
 
 /* Streaming Section */
-.wfn-current-stream-section {
+.hkfn-current-stream-section {
     background: #f0f2f5;
     padding: 2rem;
     border-radius: 8px;
@@ -237,19 +237,19 @@
     text-align: center;
 }
 
-.wfn-stream-title {
+.hkfn-stream-title {
     font-size: 1.8rem;
     color: #2c3e50;
     margin-bottom: 1.5rem;
     font-weight: normal;
 }
 
-.wfn-stream-container {
+.hkfn-stream-container {
     max-width: 800px;
     margin: 0 auto;
 }
 
-.wfn-video-wrapper {
+.hkfn-video-wrapper {
     position: relative;
     width: 100%;
     height: 450px; /* 16:9 ratio for 800px width (800/16*9=450) */
@@ -258,31 +258,31 @@
     overflow: hidden;
 }
 
-.wfn-video-wrapper iframe {
+.hkfn-video-wrapper iframe {
     width: 100%;
     height: 100%;
     border: none;
 }
 
 /* Video embed wrappers need full height */
-.wfn-video-embed {
+.hkfn-video-embed {
     height: 100%;
     width: 100%;
 }
 
-.wfn-video-embed.wfn-youtube-embed,
-.wfn-video-embed.wfn-vimeo-embed,
-.wfn-video-embed.wfn-facebook-embed {
+.hkfn-video-embed.hkfn-youtube-embed,
+.hkfn-video-embed.hkfn-vimeo-embed,
+.hkfn-video-embed.hkfn-facebook-embed {
     height: 100%;
 }
 
-.wfn-stream-button-wrapper {
+.hkfn-stream-button-wrapper {
     padding: 2rem 0;
 }
 
-.wfn-stream-btn {
+.hkfn-stream-btn {
     display: inline-block;
-    background: var(--wfn-color-primary, #27ae60);
+    background: var(--hkfn-color-primary, #27ae60);
     color: white;
     padding: 1rem 2rem;
     text-decoration: none;
@@ -292,13 +292,13 @@
     transition: background-color 0.3s ease;
 }
 
-.wfn-stream-btn:hover {
-    background: var(--wfn-color-secondary, #229954);
+.hkfn-stream-btn:hover {
+    background: var(--hkfn-color-secondary, #229954);
     color: white;
     text-decoration: none;
 }
 
-.wfn-stream-placeholder {
+.hkfn-stream-placeholder {
     padding: 2rem;
     background: #fff;
     border-radius: 8px;
@@ -306,11 +306,11 @@
 }
 
 /* Additional Documents */
-.wfn-current-documents {
+.hkfn-current-documents {
     margin-bottom: 2rem;
 }
 
-.wfn-current-documents h3 {
+.hkfn-current-documents h3 {
     font-size: 1.2rem;
     color: #2c3e50;
     margin-bottom: 1rem;
@@ -319,14 +319,14 @@
 /* Old document list styling removed - using new consistent styling below */
 
 /* Admin Edit Button */
-.wfn-current-admin {
+.hkfn-current-admin {
     text-align: center;
     margin-top: 3rem;
     padding-top: 2rem;
     border-top: 1px solid #eee;
 }
 
-.wfn-current-edit-btn {
+.hkfn-current-edit-btn {
     display: inline-block;
     background: #e74c3c;
     color: white;
@@ -336,7 +336,7 @@
     font-size: 0.9rem;
 }
 
-.wfn-current-edit-btn:hover {
+.hkfn-current-edit-btn:hover {
     background: #c0392b;
     color: white;
     text-decoration: none;
@@ -344,122 +344,122 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .wfn-current-container {
+    .hkfn-current-container {
         padding: 1rem 0.5rem;
     }
 
-    .wfn-current-name {
+    .hkfn-current-name {
         font-size: 2rem;
     }
 
-    .wfn-current-portrait {
+    .hkfn-current-portrait {
         max-width: 350px; /* Smaller on tablets */
         width: 100%;
         height: auto;
     }
 
-    .wfn-current-layout {
+    .hkfn-current-layout {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
     
     /* Ensure single-column layout stays centered on mobile too */
-    .wfn-current-layout-single {
+    .hkfn-current-layout-single {
         display: flex;
         justify-content: center;
     }
     
-    .wfn-current-layout-single .wfn-current-right-column {
+    .hkfn-current-layout-single .hkfn-current-right-column {
         max-width: 100%;
     }
 
-    .wfn-current-right-column {
+    .hkfn-current-right-column {
         order: -1; /* Move service details to top on mobile */
     }
 
-    .wfn-current-stream-section {
+    .hkfn-current-stream-section {
         padding: 1.5rem 1rem;
     }
 
-    .wfn-stream-title {
+    .hkfn-stream-title {
         font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    .wfn-current-name {
+    .hkfn-current-name {
         font-size: 1.75rem;
     }
 
-    .wfn-current-portrait {
+    .hkfn-current-portrait {
         max-width: 280px; /* Even smaller on mobile */
         width: 100%;
         height: auto;
     }
 
-    .wfn-current-right-column {
+    .hkfn-current-right-column {
         padding: 1rem;
     }
 }
 
 /* Document Download Links - Match Service Sheet Button Style */
-.wfn-current-additional-docs .wfn-document-link,
-.wfn-document-link {
+.hkfn-current-additional-docs .hkfn-document-link,
+.hkfn-document-link {
     display: block !important;
     width: 100% !important;
     padding: 0.75rem 1.25rem !important;
-    background: var(--wfn-color-primary, #8b4513) !important;
+    background: var(--hkfn-color-primary, #8b4513) !important;
     color: white !important;
     text-decoration: none !important;
     border: none !important;
-    border-radius: var(--wfn-border-radius, 5px) !important;
+    border-radius: var(--hkfn-border-radius, 5px) !important;
     font-size: 0.9rem !important;
     font-weight: 500 !important;
     text-align: center !important;
-    transition: all var(--wfn-transition-speed, 0.3s) ease !important;
-    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1)) !important;
+    transition: all var(--hkfn-transition-speed, 0.3s) ease !important;
+    box-shadow: var(--hkfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1)) !important;
     margin: 0 !important;
 }
 
-.wfn-current-additional-docs .wfn-document-link:hover,
-.wfn-document-link:hover {
-    background: var(--wfn-color-secondary, #5c2e0a) !important;
+.hkfn-current-additional-docs .hkfn-document-link:hover,
+.hkfn-document-link:hover {
+    background: var(--hkfn-color-secondary, #5c2e0a) !important;
     color: white !important;
     text-decoration: none !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
 }
 
-.wfn-current-additional-docs .wfn-document-link:active,
-.wfn-document-link:active {
+.hkfn-current-additional-docs .hkfn-document-link:active,
+.hkfn-document-link:active {
     transform: translateY(-1px) !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
-.wfn-documents-list {
+.hkfn-documents-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
 /* Service Sheet Button */
-.wfn-service-sheet-btn {
+.hkfn-service-sheet-btn {
     display: block;
     width: 100%;
-    background: var(--wfn-color-primary, #2c3e50);
+    background: var(--hkfn-color-primary, #2c3e50);
     color: white;
     padding: 0.75rem 1.25rem;
     text-decoration: none;
-    border-radius: var(--wfn-border-radius, 5px);
+    border-radius: var(--hkfn-border-radius, 5px);
     font-size: 0.9rem;
     font-weight: 500;
     text-align: center;
-    transition: all var(--wfn-transition-speed, 0.3s) ease;
-    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1));
+    transition: all var(--hkfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--hkfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1));
 }
 
-.wfn-service-sheet-btn:hover {
-    background: var(--wfn-color-secondary, #34495e);
+.hkfn-service-sheet-btn:hover {
+    background: var(--hkfn-color-secondary, #34495e);
     color: white;
     text-decoration: none;
     transform: translateY(-2px);
@@ -467,39 +467,39 @@
 }
 
 /* Memorial Video Button */
-.wfn-memorial-video-btn {
+.hkfn-memorial-video-btn {
     display: block;
     width: 100%;
-    background: var(--wfn-color-primary, #9b59b6);
+    background: var(--hkfn-color-primary, #9b59b6);
     color: white;
     padding: 0.75rem 1.25rem;
     border: none;
-    border-radius: var(--wfn-border-radius, 5px);
+    border-radius: var(--hkfn-border-radius, 5px);
     font-size: 0.9rem;
     font-weight: 500;
     text-align: center;
     cursor: pointer;
-    transition: all var(--wfn-transition-speed, 0.3s) ease;
-    box-shadow: var(--wfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1));
+    transition: all var(--hkfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--hkfn-card-shadow, 0 2px 4px rgba(0,0,0,0.1));
 }
 
-.wfn-memorial-video-btn:hover {
-    background: var(--wfn-color-secondary, #8e44ad);
+.hkfn-memorial-video-btn:hover {
+    background: var(--hkfn-color-secondary, #8e44ad);
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.wfn-memorial-video-btn:focus {
-    outline: 2px solid var(--wfn-color-accent, #3498db);
+.hkfn-memorial-video-btn:focus {
+    outline: 2px solid var(--hkfn-color-accent, #3498db);
     outline-offset: 2px;
 }
 
 /* Icon Alignment - Inline SVG icons in buttons */
-.wfn-service-sheet-btn svg,
-.wfn-memorial-video-btn svg,
-.wfn-document-link svg,
-.wfn-stream-btn svg {
+.hkfn-service-sheet-btn svg,
+.hkfn-memorial-video-btn svg,
+.hkfn-document-link svg,
+.hkfn-stream-btn svg {
     display: inline-block;
     vertical-align: middle;
     margin-right: 0.5rem;
@@ -508,55 +508,55 @@
 }
 
 /* Ensure buttons use flexbox for icon alignment */
-.wfn-service-sheet-btn,
-.wfn-memorial-video-btn,
-.wfn-document-link,
-.wfn-stream-btn {
+.hkfn-service-sheet-btn,
+.hkfn-memorial-video-btn,
+.hkfn-document-link,
+.hkfn-stream-btn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
 /* OneRoom service sizing (desktop emphasis) */
-.wfn-oneroom .wfn-stream-container {
+.hkfn-oneroom .hkfn-stream-container {
     max-width: 800px !important;
 }
-.wfn-oneroom .wfn-video-wrapper {
+.hkfn-oneroom .hkfn-video-wrapper {
     height: 1000px !important;
     aspect-ratio: auto !important; /* Override 16/9 ratio */
 }
-.wfn-oneroom .wfn-video-wrapper iframe,
-.wfn-oneroom iframe.livestream-video {
+.hkfn-oneroom .hkfn-video-wrapper iframe,
+.hkfn-oneroom iframe.livestream-video {
     height: 1000px !important;
 }
 
 /* External view link below embed */
-.wfn-view-external {
+.hkfn-view-external {
     /* color: #3498db; removed to use theme default */
     font-size: 0.95rem;
     text-decoration: none;
 }
-.wfn-view-external:hover { text-decoration: underline; }
+.hkfn-view-external:hover { text-decoration: underline; }
 
 /* Responsive video wrapper heights for all video services */
 @media (max-width: 1024px) {
-    .wfn-video-wrapper { height: 375px; } /* 16:9 for smaller screens */
+    .hkfn-video-wrapper { height: 375px; } /* 16:9 for smaller screens */
 }
 @media (max-width: 768px) {
-    .wfn-video-wrapper { height: 281px; } /* 16:9 for mobile (500px width) */
+    .hkfn-video-wrapper { height: 281px; } /* 16:9 for mobile (500px width) */
 }
 @media (max-width: 480px) {
-    .wfn-video-wrapper { height: 225px; } /* 16:9 for small mobile (400px width) */
+    .hkfn-video-wrapper { height: 225px; } /* 16:9 for small mobile (400px width) */
 }
 
 /* OneRoom responsive fallback (larger sizes) */
 @media (max-width: 1200px) {
-    .wfn-oneroom .wfn-video-wrapper { height: 900px !important; }
+    .hkfn-oneroom .hkfn-video-wrapper { height: 900px !important; }
 }
 @media (max-width: 1024px) {
-    .wfn-oneroom .wfn-video-wrapper { height: 760px !important; }
+    .hkfn-oneroom .hkfn-video-wrapper { height: 760px !important; }
 }
 @media (max-width: 768px) {
-    .wfn-oneroom .wfn-video-wrapper { height: 400px !important; }
+    .hkfn-oneroom .hkfn-video-wrapper { height: 400px !important; }
 }
 

@@ -5,22 +5,22 @@
  * @updated 2.4.0 - Added Place Autocomplete Element styling
  */
 
-.wfn-google-maps-field {
+.hkfn-google-maps-field {
     margin: 10px 0;
 }
 
-.wfn-address-input-wrapper {
+.hkfn-address-input-wrapper {
     margin-bottom: 10px;
 }
 
-.wfn-address-input-wrapper label {
+.hkfn-address-input-wrapper label {
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
     color: #23282d;
 }
 
-.wfn-address-autocomplete {
+.hkfn-address-autocomplete {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #ddd;
@@ -31,23 +31,23 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.wfn-address-autocomplete:focus {
+.hkfn-address-autocomplete:focus {
     border-color: #0073aa;
     box-shadow: 0 0 0 1px #0073aa;
     outline: none;
 }
 
-.wfn-address-autocomplete::placeholder {
+.hkfn-address-autocomplete::placeholder {
     color: #a0a5aa;
 }
 
 /* Place Autocomplete Element (web component) styling */
-gmp-place-autocomplete.wfn-place-autocomplete-element {
+gmp-place-autocomplete.hkfn-place-autocomplete-element {
     display: block;
     width: 100%;
 }
 
-gmp-place-autocomplete.wfn-place-autocomplete-element input {
+gmp-place-autocomplete.hkfn-place-autocomplete-element input {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #ddd;
@@ -59,18 +59,18 @@ gmp-place-autocomplete.wfn-place-autocomplete-element input {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-gmp-place-autocomplete.wfn-place-autocomplete-element input:focus {
+gmp-place-autocomplete.hkfn-place-autocomplete-element input:focus {
     border-color: #0073aa;
     box-shadow: 0 0 0 1px #0073aa;
     outline: none;
 }
 
-.wfn-map-container {
+.hkfn-map-container {
     position: relative;
     margin: 10px 0;
 }
 
-.wfn-map-display {
+.hkfn-map-display {
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: #f7f7f7;
@@ -78,7 +78,7 @@ gmp-place-autocomplete.wfn-place-autocomplete-element input:focus {
 }
 
 /* Loading state for map */
-.wfn-map-display:empty::before {
+.hkfn-map-display:empty::before {
     content: 'Loading map...';
     position: absolute;
     top: 50%;
@@ -88,24 +88,24 @@ gmp-place-autocomplete.wfn-place-autocomplete-element input:focus {
     font-size: 14px;
 }
 
-.wfn-address-status {
+.hkfn-address-status {
     margin: 5px 0;
     font-size: 12px;
     line-height: 1.4;
 }
 
-.wfn-address-status span {
+.hkfn-address-status span {
     display: inline-block;
     color: #666;
 }
 
 /* Google Maps UI adjustments */
-.wfn-map-display .gm-style-iw {
+.hkfn-map-display .gm-style-iw {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 /* Ensure map doesn't break responsive layouts */
-.wfn-map-display img {
+.hkfn-map-display img {
     max-width: none !important;
 }
 
@@ -145,50 +145,50 @@ gmp-place-autocomplete.wfn-place-autocomplete-element input:focus {
 
 /* Responsive adjustments */
 @media (max-width: 782px) {
-    .wfn-address-autocomplete {
+    .hkfn-address-autocomplete {
         font-size: 16px; /* Prevent zoom on iOS */
         padding: 10px 12px;
     }
     
-    .wfn-map-display {
+    .hkfn-map-display {
         min-height: 300px;
     }
 }
 
 /* Admin notices for missing API key */
-.notice.wfn-api-key-notice {
+.notice.hkfn-api-key-notice {
     border-left-color: #ffb900;
 }
 
-.notice.wfn-api-key-notice p {
+.notice.hkfn-api-key-notice p {
     margin: 0.5em 0;
 }
 
 /* Field validation states */
-.wfn-google-maps-field.has-error .wfn-address-autocomplete {
+.hkfn-google-maps-field.has-error .hkfn-address-autocomplete {
     border-color: #d63638;
 }
 
-.wfn-google-maps-field.has-success .wfn-address-autocomplete {
+.hkfn-google-maps-field.has-success .hkfn-address-autocomplete {
     border-color: #00a32a;
 }
 
 /* ACF field wrapper compatibility */
-.acf-field-wfn-google-maps .acf-label {
+.acf-field-hkfn-google-maps .acf-label {
     margin-bottom: 10px;
 }
 
-.acf-field-wfn-google-maps .acf-input {
+.acf-field-hkfn-google-maps .acf-input {
     position: relative;
 }
 
 /* Ensure proper spacing in field groups */
-.acf-field-wfn-google-maps + .acf-field {
+.acf-field-hkfn-google-maps + .acf-field {
     margin-top: 20px;
 }
 
 /* Loading spinner for API requests */
-.wfn-google-maps-field.loading .wfn-address-autocomplete {
+.hkfn-google-maps-field.loading .hkfn-address-autocomplete {
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="32 32" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>');
     background-repeat: no-repeat;
     background-position: right 12px center;

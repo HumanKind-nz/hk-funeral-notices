@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Admin;
+namespace HumanKind\FuneralNotices\Admin;
 
 /**
  * Image Crop Handler
@@ -16,7 +16,7 @@ class ImageCropHandler {
     /**
      * Custom image size name for grid display
      */
-    private const GRID_CROP_SIZE = 'wfn-grid-crop';
+    private const GRID_CROP_SIZE = 'hkfn-grid-crop';
 
     /**
      * Grid crop dimensions (4:3 aspect ratio)
@@ -27,7 +27,7 @@ class ImageCropHandler {
     /**
      * Metadata key for storing user crop coordinates
      */
-    private const CROP_META_KEY = 'wfn_grid_crop_data';
+    private const CROP_META_KEY = 'hkfn_grid_crop_data';
 
     /**
      * Initialize the image crop handler
@@ -54,7 +54,7 @@ class ImageCropHandler {
         add_action('admin_footer-post-new.php', [$this, 'force_media_upload_tab']);
 
         // AJAX handler for saving crop coordinates
-        add_action('wp_ajax_wfn_save_crop_coordinates', [$this, 'ajax_save_crop_coordinates']);
+        add_action('wp_ajax_hkfn_save_crop_coordinates', [$this, 'ajax_save_crop_coordinates']);
 
         // Add custom image sizes to media library dropdown
         add_filter('image_size_names_choose', [$this, 'add_grid_crop_to_media_sizes']);
@@ -106,6 +106,7 @@ class ImageCropHandler {
 
         // If crop was successful, add to metadata
         if ($cropped_image && !is_wp_error($cropped_image)) {
+            $this->delete_previous_crop($attachment_id, wp_basename($cropped_image['path']));
             $metadata['sizes'][self::GRID_CROP_SIZE] = [
                 'file' => wp_basename($cropped_image['path']),
                 'width' => $cropped_image['width'],
@@ -196,13 +197,42 @@ class ImageCropHandler {
         $pathinfo = pathinfo($source_path);
         $extension = $pathinfo['extension'] ?? 'jpg';
 
+        // Unique suffix per crop: a re-crop gets a NEW filename so CDN,
+        // browser, and page caches can never serve the stale crop.
         return sprintf(
-            '%s-%dx%d.%s',
+            '%s-%dx%d-c%d.%s',
             $pathinfo['filename'],
             self::GRID_WIDTH,
             self::GRID_HEIGHT,
+            time(),
             $extension
         );
+    }
+
+
+    /**
+     * Delete the previous grid crop file when it is being replaced
+     *
+     * Only removes files matching our unique-crop naming pattern; never a
+     * core-generated rendition another image size might reference.
+     */
+    private function delete_previous_crop(int $attachment_id, string $new_file): void {
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $old_file = $metadata['sizes'][self::GRID_CROP_SIZE]['file'] ?? '';
+
+        if (!$old_file || $old_file === $new_file || !preg_match('/-\d+x\d+-c\d+\./', $old_file)) {
+            return;
+        }
+
+        $source = get_attached_file($attachment_id);
+        if (!$source) {
+            return;
+        }
+
+        $old_path = dirname($source) . '/' . $old_file;
+        if (file_exists($old_path)) {
+            wp_delete_file($old_path);
+        }
     }
 
     /**
@@ -228,7 +258,7 @@ class ImageCropHandler {
      */
     public function ajax_save_crop_coordinates(): void {
         // Verify nonce
-        check_ajax_referer('wfn_crop_nonce', 'nonce');
+        check_ajax_referer('hkfn_crop_nonce', 'nonce');
 
         // Verify user capability
         if (!current_user_can('edit_posts')) {
@@ -285,7 +315,9 @@ class ImageCropHandler {
             return;
         }
 
-        // Update attachment metadata with new crop size
+        // Remove the superseded crop file, then update metadata
+        $this->delete_previous_crop($attachment_id, wp_basename($cropped_image['path']));
+
         $metadata = wp_get_attachment_metadata($attachment_id);
         $metadata['sizes'][self::GRID_CROP_SIZE] = [
             'file' => wp_basename($cropped_image['path']),
@@ -309,10 +341,14 @@ class ImageCropHandler {
             error_log('WFN Image Crop: Cache purge triggered after successful crop');
         }
 
+        // WP_Image_Editor::save() returns a path, not a URL — map it for the JS preview
+        $upload_dir = wp_upload_dir();
+        $crop_url = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $cropped_image['path']);
+
         wp_send_json_success([
             'message' => 'Crop saved successfully',
             'crop_data' => $crop_data,
-            'crop_url' => $cropped_image['url'] ?? '',
+            'crop_url' => $crop_url,
         ]);
     }
 
@@ -333,28 +369,58 @@ class ImageCropHandler {
             return;
         }
 
-        // Enqueue JavaScript with timestamp for cache busting during development
+        $plugin_file = dirname(__DIR__, 2) . '/hk-funeral-notices.php';
+
+        // Media library modal for photo selection
+        wp_enqueue_media();
+
+        // Cropper.js (vendored, no CDN)
+        wp_enqueue_style(
+            'hkfn-cropperjs',
+            plugins_url('assets/vendor/cropperjs/cropper.min.css', $plugin_file),
+            [],
+            '1.6.2'
+        );
         wp_enqueue_script(
-            'wfn-image-crop',
-            plugins_url('assets/js/admin/image-crop.js', dirname(__DIR__, 1)),
-            ['jquery', 'acf-input'],
-            WFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/js/admin/image-crop.js'),
+            'hkfn-cropperjs',
+            plugins_url('assets/vendor/cropperjs/cropper.min.js', $plugin_file),
+            [],
+            '1.6.2',
             true
         );
 
-        // Enqueue CSS with timestamp for cache busting
-        wp_enqueue_style(
-            'wfn-image-crop',
-            plugins_url('assets/css/admin/image-crop.css', dirname(__DIR__, 1)),
-            [],
-            WFN_VERSION . '.' . filemtime(dirname(__DIR__, 1) . '/assets/css/admin/image-crop.css')
+        wp_enqueue_script(
+            'hkfn-image-crop',
+            plugins_url('assets/js/admin/image-crop-cropperjs.js', $plugin_file),
+            ['hkfn-cropperjs', 'media-editor'],
+            HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/js/admin/image-crop-cropperjs.js'),
+            true
         );
 
+        wp_enqueue_style(
+            'hkfn-image-crop',
+            plugins_url('assets/css/admin/image-crop-b.css', $plugin_file),
+            [],
+            HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/css/admin/image-crop-b.css')
+        );
+
+        // Current grid crop for the post being edited (persistent preview)
+        $current_crop_url = '';
+        $thumb_id = (int) get_post_thumbnail_id($post);
+        if ($thumb_id) {
+            $meta = wp_get_attachment_metadata($thumb_id);
+            if (!empty($meta['sizes'][self::GRID_CROP_SIZE])) {
+                $current_crop_url = (string) wp_get_attachment_image_url($thumb_id, self::GRID_CROP_SIZE);
+            }
+        }
+
         // Localize script with AJAX URL and nonces
-        wp_localize_script('wfn-image-crop', 'wfnCrop', [
+        wp_localize_script('hkfn-image-crop', 'hkfnCrop', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_crop_nonce'),
+            'nonce' => wp_create_nonce('hkfn_crop_nonce'),
             'restNonce' => wp_create_nonce('wp_rest'),
+            'restMediaUrl' => esc_url_raw(rest_url('wp/v2/media')),
+            'currentCropUrl' => $current_crop_url,
             'gridWidth' => self::GRID_WIDTH,
             'gridHeight' => self::GRID_HEIGHT,
             'aspectRatio' => '4:3',

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Fields;
+namespace HumanKind\FuneralNotices\Fields;
 
 /**
  * Custom Google Maps ACF Field
@@ -14,7 +14,7 @@ namespace WeaveStudios\FuneralNotices\Fields;
 class GoogleMapsField extends \acf_field {
     
     public function __construct() {
-        $this->name = 'wfn_google_maps';
+        $this->name = 'hkfn_google_maps';
         $this->label = 'Google Maps (WFN)';
         $this->category = 'choice';
         $this->defaults = [
@@ -48,33 +48,33 @@ class GoogleMapsField extends \acf_field {
         $place_id = $value['place_id'] ?? '';
         
         ?>
-        <div class="wfn-google-maps-field" data-field-key="<?php echo esc_attr($field_key); ?>">
+        <div class="hkfn-google-maps-field" data-field-key="<?php echo esc_attr($field_key); ?>">
             
             <!-- Address Input with Autocomplete -->
-            <div class="wfn-address-input-wrapper">
+            <div class="hkfn-address-input-wrapper">
                 <label for="<?php echo esc_attr($field_key); ?>_address_input">
                     Search for an address:
                 </label>
                 <input 
                     type="text" 
                     id="<?php echo esc_attr($field_key); ?>_address_input"
-                    class="wfn-address-autocomplete" 
+                    class="hkfn-address-autocomplete" 
                     placeholder="Start typing an address..."
                     value="<?php echo esc_attr($address); ?>"
                 />
             </div>
             
             <!-- Map Display -->
-            <div class="wfn-map-container" style="margin: 10px 0;">
+            <div class="hkfn-map-container" style="margin: 10px 0;">
                 <div 
                     id="<?php echo esc_attr($field_key); ?>_map" 
-                    class="wfn-map-display"
+                    class="hkfn-map-display"
                     style="height: <?php echo intval($field['height']); ?>px; border: 1px solid #ddd; border-radius: 4px;"
                 ></div>
             </div>
             
             <!-- Status Display -->
-            <div class="wfn-address-status" style="margin: 5px 0; font-size: 12px; color: #666;">
+            <div class="hkfn-address-status" style="margin: 5px 0; font-size: 12px; color: #666;">
                 <span id="<?php echo esc_attr($field_key); ?>_status">
                     <?php if ($address): ?>
                         ✓ Address selected: <?php echo esc_html($address); ?>
@@ -190,12 +190,12 @@ class GoogleMapsField extends \acf_field {
      */
     public function input_admin_enqueue_scripts() {
         // Get API key from module settings
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $api_key = $settings['google_places_api_key'] ?? '';
         
         // Fallback to ACF options for backwards compatibility
         if (empty($api_key)) {
-            $api_key = get_field('wfn_google_places_api_key', 'option') ?: '';
+            $api_key = get_field('hkfn_google_places_api_key', 'option') ?: '';
         }
         
         if (!$api_key) {
@@ -203,7 +203,7 @@ class GoogleMapsField extends \acf_field {
             add_action('admin_notices', function() {
                 echo '<div class="notice notice-warning"><p>';
                 echo '<strong>Weave Funeral Notices:</strong> Google Places API key is required for address autocomplete. ';
-                echo '<a href="' . admin_url('admin.php?page=wfn-module-settings') . '">Configure API key here</a>';
+                echo '<a href="' . admin_url('admin.php?page=hkfn-module-settings') . '">Configure API key here</a>';
                 echo '</p></div>';
             });
             return;
@@ -212,12 +212,12 @@ class GoogleMapsField extends \acf_field {
         // Debug logging removed for production
 
         // Feature flag for modern vs legacy API loading (rollback capability)
-        $use_modern_api = apply_filters('wfn_use_modern_google_maps_api', true);
+        $use_modern_api = apply_filters('hkfn_use_modern_google_maps_api', true);
 
         if ($use_modern_api) {
             // Modern async loading (no callback, better performance)
             wp_enqueue_script(
-                'wfn-google-maps-api',
+                'hkfn-google-maps-api',
                 "https://maps.googleapis.com/maps/api/js?key={$api_key}&libraries=places&loading=async",
                 [],
                 null,
@@ -226,7 +226,7 @@ class GoogleMapsField extends \acf_field {
         } else {
             // Legacy callback method (fallback for compatibility)
             wp_enqueue_script(
-                'wfn-google-maps-api',
+                'hkfn-google-maps-api',
                 "https://maps.googleapis.com/maps/api/js?key={$api_key}&libraries=places&callback=initWFNGoogleMaps",
                 [],
                 null,
@@ -236,19 +236,19 @@ class GoogleMapsField extends \acf_field {
         
         // Enqueue our custom field JavaScript
         wp_enqueue_script(
-            'wfn-google-maps-field',
+            'hkfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/js/admin/google-maps-field.js',
-            ['wfn-google-maps-api', 'jquery'],
-            '2.4.13',
+            ['hkfn-google-maps-api', 'jquery'],
+            HKFN_VERSION,
             true
         );
 
         // Enqueue field styles
         wp_enqueue_style(
-            'wfn-google-maps-field',
+            'hkfn-google-maps-field',
             plugin_dir_url(__FILE__) . '../../assets/css/admin/google-maps-field.css',
             [],
-            '2.4.13'
+            HKFN_VERSION
         );
     }
     

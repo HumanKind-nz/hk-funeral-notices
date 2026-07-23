@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Admin;
+namespace HumanKind\FuneralNotices\Admin;
 
 /**
  * Admin Dashboard
@@ -26,7 +26,7 @@ class Dashboard {
 
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
-        add_action('wp_ajax_wfn_toggle_module', [$this, 'handle_module_toggle']);
+        add_action('wp_ajax_hkfn_toggle_module', [$this, 'handle_module_toggle']);
     }
 
     /**
@@ -55,7 +55,7 @@ class Dashboard {
 
         // Enqueue admin styles
         wp_enqueue_style(
-            'wfn-admin-dashboard',
+            'hkfn-admin-dashboard',
             plugin_dir_url(dirname(__FILE__, 2)) . 'assets/css/admin/dashboard.css',
             [],
             $this->version
@@ -63,7 +63,7 @@ class Dashboard {
 
         // Enqueue admin JavaScript
         wp_enqueue_script(
-            'wfn-admin-dashboard',
+            'hkfn-admin-dashboard',
             plugin_dir_url(dirname(__FILE__, 2)) . 'assets/js/admin/dashboard.js',
             ['jquery'],
             $this->version,
@@ -71,9 +71,9 @@ class Dashboard {
         );
 
         // Localize script for AJAX
-        wp_localize_script('wfn-admin-dashboard', 'wfnAdmin', [
+        wp_localize_script('hkfn-admin-dashboard', 'hkfnAdmin', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_admin_nonce'),
+            'nonce' => wp_create_nonce('hkfn_admin_nonce'),
             'strings' => [
                 'saving' => __('Saving...', 'weave-funeral-notices'),
                 'saved' => __('Saved!', 'weave-funeral-notices'),
@@ -87,7 +87,7 @@ class Dashboard {
      */
     public function handle_module_toggle(): void {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_admin_nonce')) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_admin_nonce')) {
             wp_die('Invalid nonce');
         }
 
@@ -99,9 +99,9 @@ class Dashboard {
         }
 
         // Update module status
-        $options = get_option('wfn_module_status', []);
+        $options = hkfn_get_option('module_status', []);
         $options[$module_id] = $enabled;
-        update_option('wfn_module_status', $options);
+        update_option('hkfn_module_status', $options);
 
         wp_send_json_success([
             'module_id' => $module_id,
@@ -114,31 +114,31 @@ class Dashboard {
      */
     public function render_dashboard(): void {
         ?>
-        <div class="wrap wfn-admin-dashboard">
+        <div class="wrap hkfn-admin-dashboard">
             <!-- Header -->
-            <div class="wfn-dashboard-header">
-                <div class="wfn-header-content">
-                    <div class="wfn-header-logo">
-                        <img src="<?php echo esc_url(plugin_dir_url(dirname(__FILE__, 2)) . 'assets/images/wfn-logo.png'); ?>" alt="Weave Funeral Notices" />
-                        <div class="wfn-header-text">
+            <div class="hkfn-dashboard-header">
+                <div class="hkfn-header-content">
+                    <div class="hkfn-header-logo">
+                        <img src="<?php echo esc_url(plugin_dir_url(dirname(__FILE__, 2)) . 'assets/images/hkfn-logo.png'); ?>" alt="Weave Funeral Notices" />
+                        <div class="hkfn-header-text">
                             <h1>Weave Funeral Notices</h1>
-                            <span class="wfn-version">Professional funeral notice management for WordPress</span>
-                            <div class="wfn-version-tag">VERSION <?php echo esc_html($this->version); ?></div>
+                            <span class="hkfn-version">Professional funeral notice management for WordPress</span>
+                            <div class="hkfn-version-tag">VERSION <?php echo esc_html($this->version); ?></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
-            <div class="wfn-dashboard-content">
+            <div class="hkfn-dashboard-content">
                 <!-- Welcome Section -->
-                <div class="wfn-welcome-section">
+                <div class="hkfn-welcome-section">
                     <h2>Welcome to Weave Funeral Notices</h2>
                     <p>Manage your funeral notices with professional layouts, advanced search, and customizable styling. Enable the modules you need below.</p>
                 </div>
 
                 <!-- Modules Grid -->
-                <div class="wfn-modules-grid">
+                <div class="hkfn-modules-grid">
                     <?php foreach ($this->modules as $module): ?>
                         <?php $this->render_module_card($module); ?>
                     <?php endforeach; ?>
@@ -156,24 +156,24 @@ class Dashboard {
         $is_enabled = $module->is_enabled();
 
         ?>
-        <div class="wfn-module-card <?php echo $is_enabled ? 'enabled' : 'disabled'; ?>" data-module="<?php echo esc_attr($module->get_id()); ?>">
-            <div class="wfn-module-header">
-                <div class="wfn-module-icon">
+        <div class="hkfn-module-card <?php echo $is_enabled ? 'enabled' : 'disabled'; ?>" data-module="<?php echo esc_attr($module->get_id()); ?>">
+            <div class="hkfn-module-header">
+                <div class="hkfn-module-icon">
                     <i class="<?php echo esc_attr($module_data['icon']); ?>"></i>
                 </div>
-                <div class="wfn-module-status">
-                    <span class="wfn-status-badge <?php echo $is_enabled ? 'active' : 'inactive'; ?>">
+                <div class="hkfn-module-status">
+                    <span class="hkfn-status-badge <?php echo $is_enabled ? 'active' : 'inactive'; ?>">
                         <?php echo $is_enabled ? 'ACTIVE' : 'INACTIVE'; ?>
                     </span>
                 </div>
             </div>
 
-            <div class="wfn-module-content">
+            <div class="hkfn-module-content">
                 <h3><?php echo esc_html($module_data['name']); ?></h3>
                 <p><?php echo esc_html($module_data['description']); ?></p>
 
                 <?php if (!empty($module_data['features'])): ?>
-                    <ul class="wfn-module-features">
+                    <ul class="hkfn-module-features">
                         <?php foreach ($module_data['features'] as $feature): ?>
                             <li>✓ <?php echo esc_html($feature); ?></li>
                         <?php endforeach; ?>
@@ -181,24 +181,24 @@ class Dashboard {
                 <?php endif; ?>
             </div>
 
-            <div class="wfn-module-footer">
-                <div class="wfn-module-toggle">
-                    <label class="wfn-toggle-switch">
+            <div class="hkfn-module-footer">
+                <div class="hkfn-module-toggle">
+                    <label class="hkfn-toggle-switch">
                         <input type="checkbox"
-                               class="wfn-module-checkbox"
+                               class="hkfn-module-checkbox"
                                data-module="<?php echo esc_attr($module->get_id()); ?>"
                                <?php checked($is_enabled); ?>>
-                        <span class="wfn-toggle-slider"></span>
-                        <span class="wfn-toggle-label">
+                        <span class="hkfn-toggle-slider"></span>
+                        <span class="hkfn-toggle-label">
                             <?php echo $is_enabled ? 'Enabled' : 'Disabled'; ?>
                         </span>
                     </label>
                 </div>
 
                 <?php if ($module->has_admin_page()): ?>
-                    <div class="wfn-module-actions">
+                    <div class="hkfn-module-actions">
                         <a href="<?php echo esc_url($module->get_admin_url()); ?>"
-                           class="wfn-btn <?php echo $is_enabled ? 'wfn-btn-primary' : 'wfn-btn-secondary'; ?>">
+                           class="hkfn-btn <?php echo $is_enabled ? 'hkfn-btn-primary' : 'hkfn-btn-secondary'; ?>">
                             Configure
                         </a>
                     </div>

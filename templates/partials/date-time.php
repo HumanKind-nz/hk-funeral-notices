@@ -12,7 +12,7 @@
 
 try {
     // Get template manager instance to fetch structured data
-    $template_manager = new \WeaveStudios\FuneralNotices\Templates\TemplateManager();
+    $template_manager = new \HumanKind\FuneralNotices\Templates\TemplateManager();
     $data = $template_manager->get_funeral_data($post_id);
 
     // Only show if time is not hidden and we have valid data

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Admin;
+namespace HumanKind\FuneralNotices\Admin;
 
 /**
  * Admin Columns Manager
@@ -190,8 +190,8 @@ class AdminColumns {
      * Render location column
      */
     private function render_location_column(int $post_id): void {
-        // Prefer new structure in wfn_details_group
-        $details_group = get_field('wfn_details_group', $post_id) ?: [];
+        // Prefer new structure in hkfn_details_group
+        $details_group = get_field('hkfn_details_group', $post_id) ?: [];
         $location_type = $details_group['location_type'] ?? null;
         
         // Check if date/time/venue is hidden
@@ -205,7 +205,7 @@ class AdminColumns {
         if ($location_type === 'custom') {
             // New custom address
             $custom_address = $details_group['custom_address'] ?? [];
-            $afm = new \WeaveStudios\FuneralNotices\Address\AddressFieldManager();
+            $afm = new \HumanKind\FuneralNotices\Address\AddressFieldManager();
             $components = $afm->get_address_components($custom_address);
             $name = $components['venue_name'] ?? '';
             $formatted = $afm->get_formatted_address($custom_address);
@@ -240,8 +240,8 @@ class AdminColumns {
             }
         }
 
-        // Fallback to legacy structure in wfn_location_group
-        $location_group = get_field('wfn_location_group', $post_id) ?: [];
+        // Fallback to legacy structure in hkfn_location_group
+        $location_group = get_field('hkfn_location_group', $post_id) ?: [];
         $is_other_location_array = $location_group['is_at_another_location'] ?? [];
         $is_other_location = in_array('yes', $is_other_location_array);
         $other_address = $location_group['other_funeral_address'] ?? null;
@@ -335,10 +335,10 @@ class AdminColumns {
      * Render slideshow column
      */
     private function render_slideshow_column(int $post_id): void {
-        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
-        $video_data = get_post_meta($post_id, '_wfn_video_data', true);
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
-        $upload_status = get_post_meta($post_id, '_wfn_video_upload_status', true);
+        $video_status = get_post_meta($post_id, '_hkfn_video_status', true);
+        $video_data = get_post_meta($post_id, '_hkfn_video_data', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
+        $upload_status = get_post_meta($post_id, '_hkfn_video_upload_status', true);
 
         // Show ready if status is ready AND (data exists OR video ID exists for reconstruction)
         if ($video_status === 'ready' && ($video_data || $video_id)) {
@@ -363,7 +363,7 @@ class AdminColumns {
             }
         } else {
             // Check if video field has content
-            $media_group = get_field('wfn_media_group', $post_id);
+            $media_group = get_field('hkfn_media_group', $post_id);
             $video_field = $media_group['video_slideshow'] ?? null;
 
             if ($video_field) {
@@ -431,11 +431,11 @@ class AdminColumns {
     
     /**
      * Get person field with backward compatibility
-     * Supports both new (wfn_person_group) and legacy (wfn_person_group_*) formats
+     * Supports both new (hkfn_person_group) and legacy (hkfn_person_group_*) formats
      */
     private function get_person_field(int $post_id, string $field_name): string {
         // Method 1: Try new FieldGroupManager group structure
-        $person_group = get_field('wfn_person_group', $post_id);
+        $person_group = get_field('hkfn_person_group', $post_id);
         if (is_array($person_group) && !empty($person_group[$field_name])) {
             return trim($person_group[$field_name]);
         }
@@ -461,7 +461,7 @@ class AdminColumns {
      */
     private function get_event_field(int $post_id, string $field_name) {
         // Method 1: Try new FieldGroupManager group structure
-        $details_group = get_field('wfn_details_group', $post_id);
+        $details_group = get_field('hkfn_details_group', $post_id);
         if (is_array($details_group) && isset($details_group[$field_name])) {
             return $details_group[$field_name];
         }
@@ -487,7 +487,7 @@ class AdminColumns {
      */
     private function get_streaming_field(int $post_id, string $field_name) {
         // Method 1: Try new FieldGroupManager group structure
-        $streaming_group = get_field('wfn_streaming_group', $post_id);
+        $streaming_group = get_field('hkfn_streaming_group', $post_id);
         if (is_array($streaming_group) && isset($streaming_group[$field_name])) {
             return $streaming_group[$field_name];
         }
@@ -513,7 +513,7 @@ class AdminColumns {
      */
     private function get_media_field(int $post_id, string $field_name) {
         // Method 1: Try new FieldGroupManager group structure
-        $media_group = get_field('wfn_media_group', $post_id);
+        $media_group = get_field('hkfn_media_group', $post_id);
         if (is_array($media_group) && isset($media_group[$field_name])) {
             return $media_group[$field_name];
         }
@@ -538,8 +538,8 @@ class AdminColumns {
      * Check if video license is valid
      */
     private function has_video_license(): bool {
-        if (class_exists('WeaveStudios\FuneralNotices\Services\LicenseService')) {
-            return \WeaveStudios\FuneralNotices\Services\LicenseService::hasValidVideoLicense();
+        if (class_exists('HumanKind\FuneralNotices\Services\LicenseService')) {
+            return \HumanKind\FuneralNotices\Services\LicenseService::hasValidVideoLicense();
         }
         return false;
     }

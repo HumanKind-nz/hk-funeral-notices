@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
 /**
  * Layouts Module
@@ -100,22 +100,22 @@ class LayoutsModule extends BaseModule {
         'standard' => [
             'name' => 'Standard Card',
             'description' => 'Default card style with subtle borders and padding',
-            'css_class' => 'wfn-card-standard'
+            'css_class' => 'hkfn-card-standard'
         ],
         'elevated' => [
             'name' => 'Elevated Card',
             'description' => 'Raised card with shadow for depth and emphasis',
-            'css_class' => 'wfn-card-elevated'
+            'css_class' => 'hkfn-card-elevated'
         ],
         'outlined' => [
             'name' => 'Outlined Card',
             'description' => 'Clean card with border outline, no shadow',
-            'css_class' => 'wfn-card-outlined'
+            'css_class' => 'hkfn-card-outlined'
         ],
         'minimal' => [
             'name' => 'Minimal Card',
             'description' => 'Borderless card with minimal styling',
-            'css_class' => 'wfn-card-minimal'
+            'css_class' => 'hkfn-card-minimal'
         ]
     ];
     
@@ -157,8 +157,8 @@ class LayoutsModule extends BaseModule {
         add_filter('body_class', [$this, 'add_layout_body_classes']);
         
         // Register layout template filters
-        add_filter('wfn_available_layouts', [$this, 'filter_available_layouts']);
-        add_filter('wfn_layout_settings', [$this, 'get_layout_settings']);
+        add_filter('hkfn_available_layouts', [$this, 'filter_available_layouts']);
+        add_filter('hkfn_layout_settings', [$this, 'get_layout_settings']);
         
         // Sync archive layout setting with WordPress option
         add_action('init', [$this, 'sync_archive_layout_setting']);
@@ -225,8 +225,8 @@ class LayoutsModule extends BaseModule {
         
         // Enqueue shared base styles
         wp_enqueue_style(
-            'wfn-layouts-base',
-            WFN_PLUGIN_URL . 'assets/css/layouts/shared-base.css',
+            'hkfn-layouts-base',
+            HKFN_PLUGIN_URL . 'assets/css/layouts/shared-base.css',
             [],
             $this->get_version()
         );
@@ -234,7 +234,7 @@ class LayoutsModule extends BaseModule {
         // For single funeral notice pages, load template-specific CSS
         if (is_singular('funeral-notice')) {
             // Get the template manager to determine active mode
-            $template_manager = new \WeaveStudios\FuneralNotices\Templates\TemplateManager();
+            $template_manager = new \HumanKind\FuneralNotices\Templates\TemplateManager();
             $active_mode = $template_manager->get_single_mode();
             
             // Map modes to their CSS files
@@ -248,18 +248,18 @@ class LayoutsModule extends BaseModule {
             // Load mode-specific CSS if available
             if (isset($css_files[$active_mode])) {
                 wp_enqueue_style(
-                    'wfn-template-' . $active_mode,
-                    WFN_PLUGIN_URL . 'assets/css/' . $css_files[$active_mode],
-                    ['wfn-layouts-base'],
+                    'hkfn-template-' . $active_mode,
+                    HKFN_PLUGIN_URL . 'assets/css/' . $css_files[$active_mode],
+                    ['hkfn-layouts-base'],
                     $this->get_version()
                 );
             }
             
             // Also load celebration text styles
             wp_enqueue_style(
-                'wfn-celebration-text',
-                WFN_PLUGIN_URL . 'assets/css/celebration-text.css',
-                ['wfn-layouts-base'],
+                'hkfn-celebration-text',
+                HKFN_PLUGIN_URL . 'assets/css/celebration-text.css',
+                ['hkfn-layouts-base'],
                 $this->get_version()
             );
         }
@@ -267,27 +267,27 @@ class LayoutsModule extends BaseModule {
         // Register all card layout styles (loaded on demand)
         foreach ($this->available_card_layouts as $layout_id => $layout) {
             wp_register_style(
-                'wfn-layout-' . $layout_id,
-                WFN_PLUGIN_URL . 'assets/css/' . $layout['css_file'],
-                ['wfn-layouts-base'],
+                'hkfn-layout-' . $layout_id,
+                HKFN_PLUGIN_URL . 'assets/css/' . $layout['css_file'],
+                ['hkfn-layouts-base'],
                 $this->get_version()
             );
         }
         
         // Enqueue layout management script
         wp_enqueue_script(
-            'wfn-layouts',
-            WFN_PLUGIN_URL . 'assets/js/frontend/layouts.js',
+            'hkfn-layouts',
+            HKFN_PLUGIN_URL . 'assets/js/frontend/layouts.js',
             ['jquery'],
             $this->get_version(),
             true
         );
         
         // Pass settings to JavaScript
-        wp_localize_script('wfn-layouts', 'wfnLayouts', [
+        wp_localize_script('hkfn-layouts', 'hkfnLayouts', [
             'settings' => $settings,
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_layouts_nonce')
+            'nonce' => wp_create_nonce('hkfn_layouts_nonce')
         ]);
     }
     
@@ -302,15 +302,15 @@ class LayoutsModule extends BaseModule {
         $settings = $this->get_settings();
         
         // Add layout-specific classes
-        $classes[] = 'wfn-layouts-enabled';
-        $classes[] = 'wfn-card-' . $settings['default_card_style'];
+        $classes[] = 'hkfn-layouts-enabled';
+        $classes[] = 'hkfn-card-' . $settings['default_card_style'];
         
         if ($settings['enable_hover_effects']) {
-            $classes[] = 'wfn-hover-effects';
+            $classes[] = 'hkfn-hover-effects';
         }
         
         if ($settings['enable_animations']) {
-            $classes[] = 'wfn-animations-enabled';
+            $classes[] = 'hkfn-animations-enabled';
         }
         
         return $classes;
@@ -345,22 +345,22 @@ class LayoutsModule extends BaseModule {
         $settings = $this->get_settings();
         
         // Always sync single layout setting (independent of archive templates)
-        $current_single_wp_option = get_option('wfn_single_display_mode', 'current');
+        $current_single_wp_option = hkfn_get_option('single_display_mode', 'current');
         if ($current_single_wp_option !== $settings['default_single_layout']) {
-            update_option('wfn_single_display_mode', $settings['default_single_layout']);
+            update_option('hkfn_single_display_mode', $settings['default_single_layout']);
         }
         
         // Only sync archive templates if enabled
         if ($settings['enable_archive_templates']) {
-            $current_wp_option = get_option('wfn_archive_display_mode', '');
+            $current_wp_option = hkfn_get_option('archive_display_mode', '');
             
             // Only update if different to avoid unnecessary writes
             if ($current_wp_option !== $settings['default_archive_layout']) {
-                update_option('wfn_archive_display_mode', $settings['default_archive_layout']);
+                update_option('hkfn_archive_display_mode', $settings['default_archive_layout']);
             }
         } else {
             // Clear the option if archive templates are disabled
-            delete_option('wfn_archive_display_mode');
+            delete_option('hkfn_archive_display_mode');
         }
     }
     
@@ -376,8 +376,8 @@ class LayoutsModule extends BaseModule {
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>
             
-            <div class="wfn-layouts-admin">
-                <div class="wfn-admin-tabs">
+            <div class="hkfn-layouts-admin">
+                <div class="hkfn-admin-tabs">
                     <nav class="nav-tab-wrapper">
                         <a href="#card-layouts" class="nav-tab nav-tab-active">Card Layouts</a>
                         <a href="#single-templates" class="nav-tab">Single Post Templates</a>
@@ -390,36 +390,36 @@ class LayoutsModule extends BaseModule {
                         <h3>Card Layouts</h3>
                         <p>Choose from professional card layout options for shortcodes and archive pages. These control how funeral notice cards appear in grids.</p>
                         
-                        <div class="wfn-shortcode-example">
+                        <div class="hkfn-shortcode-example">
                             <strong>Shortcode Usage:</strong>
                             <code>[funeral_notices layout="modern" columns="3"]</code>
-                            <span class="wfn-shortcode-note">Replace "modern" with any layout ID from the cards below</span>
+                            <span class="hkfn-shortcode-note">Replace "modern" with any layout ID from the cards below</span>
                         </div>
                         
-                        <div class="wfn-layouts-grid">
+                        <div class="hkfn-layouts-grid">
                             <?php foreach ($this->available_card_layouts as $layout_id => $layout): ?>
-                                <div class="wfn-layout-card">
-                                    <div class="wfn-layout-preview">
-                                        <img src="<?php echo esc_url(WFN_PLUGIN_URL . 'assets/images/previews/' . $layout['preview_image']); ?>"
+                                <div class="hkfn-layout-card">
+                                    <div class="hkfn-layout-preview">
+                                        <img src="<?php echo esc_url(HKFN_PLUGIN_URL . 'assets/images/previews/' . $layout['preview_image']); ?>"
                                              alt="<?php echo esc_attr($layout['name']); ?> Preview" 
                                              onerror="this.style.display='none'">
                                     </div>
                                     
-                                    <div class="wfn-layout-info">
-                                        <div class="wfn-layout-header">
+                                    <div class="hkfn-layout-info">
+                                        <div class="hkfn-layout-header">
                                             <h4><?php echo esc_html($layout['name']); ?></h4>
-                                            <div class="wfn-layout-id">
+                                            <div class="hkfn-layout-id">
                                                 <strong>Shortcode ID:</strong> <code><?php echo esc_html($layout_id); ?></code>
                                             </div>
                                         </div>
                                         
-                                        <p class="wfn-layout-description">
+                                        <p class="hkfn-layout-description">
                                             <?php echo esc_html($layout['description']); ?>
                                         </p>
                                         
-                                        <div class="wfn-layout-features">
+                                        <div class="hkfn-layout-features">
                                             <?php foreach ($layout['features'] as $feature): ?>
-                                                <span class="wfn-feature-tag"><?php echo esc_html($feature); ?></span>
+                                                <span class="hkfn-feature-tag"><?php echo esc_html($feature); ?></span>
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
@@ -433,9 +433,9 @@ class LayoutsModule extends BaseModule {
                         <h3>Single Post Templates</h3>
                         <p>Choose the template for individual funeral notice pages. These control the layout and styling of single funeral notice posts.</p>
 
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="default_single_layout">Default Single Post Template</label>
-                            <select name="wfn_module_settings[default_single_layout]" id="default_single_layout">
+                            <select name="hkfn_module_settings[default_single_layout]" id="default_single_layout">
                                 <?php foreach ($this->available_single_templates as $layout_id => $layout): ?>
                                     <option value="<?php echo esc_attr($layout_id); ?>"
                                             <?php selected($settings['default_single_layout'], $layout_id); ?>>
@@ -443,35 +443,35 @@ class LayoutsModule extends BaseModule {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="wfn-form-description">Template used for individual funeral notice pages.</p>
+                            <p class="hkfn-form-description">Template used for individual funeral notice pages.</p>
                         </div>
 
-                        <div class="wfn-single-templates-grid">
+                        <div class="hkfn-single-templates-grid">
                             <?php foreach ($this->available_single_templates as $template_id => $template): ?>
-                                <div class="wfn-template-card">
-                                    <div class="wfn-template-info">
-                                        <div class="wfn-template-header">
+                                <div class="hkfn-template-card">
+                                    <div class="hkfn-template-info">
+                                        <div class="hkfn-template-header">
                                             <h4><?php echo esc_html($template['name']); ?></h4>
-                                            <div class="wfn-template-id">
+                                            <div class="hkfn-template-id">
                                                 <strong>Template ID:</strong> <code><?php echo esc_html($template_id); ?></code>
                                             </div>
                                         </div>
 
-                                        <p class="wfn-template-description">
+                                        <p class="hkfn-template-description">
                                             <?php echo esc_html($template['description']); ?>
                                         </p>
 
-                                        <div class="wfn-template-features">
+                                        <div class="hkfn-template-features">
                                             <?php foreach ($template['features'] as $feature): ?>
-                                                <span class="wfn-feature-tag"><?php echo esc_html($feature); ?></span>
+                                                <span class="hkfn-feature-tag"><?php echo esc_html($feature); ?></span>
                                             <?php endforeach; ?>
                                         </div>
 
-                                        <div class="wfn-template-files">
-                                            <div class="wfn-file-info">
+                                        <div class="hkfn-template-files">
+                                            <div class="hkfn-file-info">
                                                 <strong>Template:</strong> <code><?php echo esc_html($template['template_file']); ?></code>
                                             </div>
-                                            <div class="wfn-file-info">
+                                            <div class="hkfn-file-info">
                                                 <strong>CSS:</strong> <code><?php echo esc_html($template['css_file']); ?></code>
                                             </div>
                                         </div>
@@ -486,22 +486,22 @@ class LayoutsModule extends BaseModule {
                         <h3>Grid Settings</h3>
                         
                         <!-- DEBUG: Archive controls should show here. Enable value: <?php echo $settings['enable_archive_templates'] ? 'true' : 'false'; ?> -->
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[enable_archive_templates]"
+                                       name="hkfn_module_settings[enable_archive_templates]"
                                        id="enable_archive_templates"
                                        value="1"
                                        <?php checked($settings['enable_archive_templates']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Enable Archive Page Templates</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Enable Archive Page Templates</span>
                             </label>
-                            <p class="wfn-form-description">Enable plugin templates for the main funeral notices archive page. Disable if using Beaver Themer or custom theme templates.</p>
+                            <p class="hkfn-form-description">Enable plugin templates for the main funeral notices archive page. Disable if using Beaver Themer or custom theme templates.</p>
                         </div>
                         
-                        <div class="wfn-form-group wfn-archive-dependent" style="<?php echo $settings['enable_archive_templates'] ? '' : 'display:none;opacity:0.5;'; ?>">
+                        <div class="hkfn-form-group hkfn-archive-dependent" style="<?php echo $settings['enable_archive_templates'] ? '' : 'display:none;opacity:0.5;'; ?>">
                             <label for="default_archive_layout">Default Archive Layout</label>
-                            <select name="wfn_module_settings[default_archive_layout]" id="default_archive_layout" <?php disabled(!$settings['enable_archive_templates']); ?>>
+                            <select name="hkfn_module_settings[default_archive_layout]" id="default_archive_layout" <?php disabled(!$settings['enable_archive_templates']); ?>>
                                 <?php foreach ($this->available_card_layouts as $layout_id => $layout): ?>
                                     <option value="<?php echo esc_attr($layout_id); ?>"
                                             <?php selected($settings['default_archive_layout'], $layout_id); ?>>
@@ -509,57 +509,57 @@ class LayoutsModule extends BaseModule {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="wfn-form-description">Layout used for the main funeral notices archive page when archive templates are enabled.</p>
+                            <p class="hkfn-form-description">Layout used for the main funeral notices archive page when archive templates are enabled.</p>
                         </div>
 
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="card_spacing">Card Spacing (px)</label>
                             <input type="number" 
-                                   name="wfn_module_settings[card_spacing]" 
+                                   name="hkfn_module_settings[card_spacing]" 
                                    id="card_spacing" 
                                    value="<?php echo esc_attr($settings['card_spacing']); ?>" 
                                    min="0" 
                                    max="50">
-                            <p class="wfn-form-description">Space between funeral notice cards in pixels.</p>
+                            <p class="hkfn-form-description">Space between funeral notice cards in pixels.</p>
                         </div>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="image_aspect_ratio">Image Aspect Ratio</label>
-                            <select name="wfn_module_settings[image_aspect_ratio]" id="image_aspect_ratio">
+                            <select name="hkfn_module_settings[image_aspect_ratio]" id="image_aspect_ratio">
                                 <option value="1:1" <?php selected($settings['image_aspect_ratio'], '1:1'); ?>>1:1 (Square)</option>
                                 <option value="4:3" <?php selected($settings['image_aspect_ratio'], '4:3'); ?>>4:3 (Standard)</option>
                                 <option value="16:9" <?php selected($settings['image_aspect_ratio'], '16:9'); ?>>16:9 (Widescreen)</option>
                                 <option value="3:4" <?php selected($settings['image_aspect_ratio'], '3:4'); ?>>3:4 (Portrait)</option>
                             </select>
-                            <p class="wfn-form-description">Aspect ratio for featured images in cards.</p>
+                            <p class="hkfn-form-description">Aspect ratio for featured images in cards.</p>
                         </div>
                         
                         <h4>Responsive Breakpoints</h4>
-                        <div class="wfn-breakpoints-grid">
-                            <div class="wfn-form-group">
+                        <div class="hkfn-breakpoints-grid">
+                            <div class="hkfn-form-group">
                                 <label for="mobile_breakpoint">Mobile Breakpoint (px)</label>
                                 <input type="number" 
-                                       name="wfn_module_settings[responsive_breakpoints][mobile]" 
+                                       name="hkfn_module_settings[responsive_breakpoints][mobile]" 
                                        id="mobile_breakpoint" 
                                        value="<?php echo esc_attr($settings['responsive_breakpoints']['mobile']); ?>" 
                                        min="320" 
                                        max="1024">
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="tablet_breakpoint">Tablet Breakpoint (px)</label>
                                 <input type="number" 
-                                       name="wfn_module_settings[responsive_breakpoints][tablet]" 
+                                       name="hkfn_module_settings[responsive_breakpoints][tablet]" 
                                        id="tablet_breakpoint" 
                                        value="<?php echo esc_attr($settings['responsive_breakpoints']['tablet']); ?>" 
                                        min="768" 
                                        max="1200">
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="desktop_breakpoint">Desktop Breakpoint (px)</label>
                                 <input type="number" 
-                                       name="wfn_module_settings[responsive_breakpoints][desktop]" 
+                                       name="hkfn_module_settings[responsive_breakpoints][desktop]" 
                                        id="desktop_breakpoint" 
                                        value="<?php echo esc_attr($settings['responsive_breakpoints']['desktop']); ?>" 
                                        min="1024" 
@@ -568,27 +568,27 @@ class LayoutsModule extends BaseModule {
                         </div>
                         
                         <h4>Grid Columns</h4>
-                        <div class="wfn-breakpoints-grid">
-                            <div class="wfn-form-group">
+                        <div class="hkfn-breakpoints-grid">
+                            <div class="hkfn-form-group">
                                 <label for="mobile_columns">Mobile Columns</label>
-                                <select name="wfn_module_settings[grid_settings][mobile_columns]" id="mobile_columns">
+                                <select name="hkfn_module_settings[grid_settings][mobile_columns]" id="mobile_columns">
                                     <option value="1" <?php selected($settings['grid_settings']['mobile_columns'], 1); ?>>1 Column</option>
                                     <option value="2" <?php selected($settings['grid_settings']['mobile_columns'], 2); ?>>2 Columns</option>
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="tablet_columns">Tablet Columns</label>
-                                <select name="wfn_module_settings[grid_settings][tablet_columns]" id="tablet_columns">
+                                <select name="hkfn_module_settings[grid_settings][tablet_columns]" id="tablet_columns">
                                     <option value="1" <?php selected($settings['grid_settings']['tablet_columns'], 1); ?>>1 Column</option>
                                     <option value="2" <?php selected($settings['grid_settings']['tablet_columns'], 2); ?>>2 Columns</option>
                                     <option value="3" <?php selected($settings['grid_settings']['tablet_columns'], 3); ?>>3 Columns</option>
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="desktop_columns">Desktop Columns</label>
-                                <select name="wfn_module_settings[grid_settings][desktop_columns]" id="desktop_columns">
+                                <select name="hkfn_module_settings[grid_settings][desktop_columns]" id="desktop_columns">
                                     <option value="2" <?php selected($settings['grid_settings']['desktop_columns'], 2); ?>>2 Columns</option>
                                     <option value="3" <?php selected($settings['grid_settings']['desktop_columns'], 3); ?>>3 Columns</option>
                                     <option value="4" <?php selected($settings['grid_settings']['desktop_columns'], 4); ?>>4 Columns</option>
@@ -601,9 +601,9 @@ class LayoutsModule extends BaseModule {
                     <div id="cards" class="tab-content">
                         <h3>Card Styles</h3>
                         
-                        <div class="wfn-form-group">
+                        <div class="hkfn-form-group">
                             <label for="default_card_style">Default Card Style</label>
-                            <select name="wfn_module_settings[default_card_style]" id="default_card_style">
+                            <select name="hkfn_module_settings[default_card_style]" id="default_card_style">
                                 <?php foreach ($this->card_styles as $style_id => $style): ?>
                                     <option value="<?php echo esc_attr($style_id); ?>" 
                                             <?php selected($settings['default_card_style'], $style_id); ?>>
@@ -611,24 +611,24 @@ class LayoutsModule extends BaseModule {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="wfn-form-description">Default card style when none is specified in shortcode.</p>
+                            <p class="hkfn-form-description">Default card style when none is specified in shortcode.</p>
                         </div>
                         
-                        <div class="wfn-card-styles-preview">
+                        <div class="hkfn-card-styles-preview">
                             <?php foreach ($this->card_styles as $style_id => $style): ?>
-                                <div class="wfn-card-style-demo">
-                                    <div class="wfn-card-preview-large <?php echo esc_attr($style['css_class']); ?>">
-                                        <div class="wfn-card-image"></div>
-                                        <div class="wfn-card-content">
+                                <div class="hkfn-card-style-demo">
+                                    <div class="hkfn-card-preview-large <?php echo esc_attr($style['css_class']); ?>">
+                                        <div class="hkfn-card-image"></div>
+                                        <div class="hkfn-card-content">
                                             <h4>John Smith</h4>
                                             <p>January 15, 2025</p>
-                                            <p class="wfn-card-date">Service: 10:00 AM</p>
+                                            <p class="hkfn-card-date">Service: 10:00 AM</p>
                                         </div>
                                     </div>
-                                    <div class="wfn-card-style-info">
+                                    <div class="hkfn-card-style-info">
                                         <h4><?php echo esc_html($style['name']); ?></h4>
                                         <p><?php echo esc_html($style['description']); ?></p>
-                                        <code class="wfn-style-code">card_style="<?php echo esc_html($style_id); ?>"</code>
+                                        <code class="hkfn-style-code">card_style="<?php echo esc_html($style_id); ?>"</code>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -638,65 +638,65 @@ class LayoutsModule extends BaseModule {
                     <!-- Advanced Tab -->
                     <div id="advanced" class="tab-content">
                         <h3>Advanced Layout Options</h3>
-                        <p class="wfn-tab-description">Visual enhancement and layout behavior options. For performance settings like lazy loading and optimization, use the Performance module.</p>
+                        <p class="hkfn-tab-description">Visual enhancement and layout behavior options. For performance settings like lazy loading and optimization, use the Performance module.</p>
                         
-                        <div class="wfn-advanced-grid">
-                            <div class="wfn-advanced-section">
+                        <div class="hkfn-advanced-grid">
+                            <div class="hkfn-advanced-section">
                                 <h4>👁️ Visual Enhancements</h4>
-                                <div class="wfn-form-group">
-                                    <label class="wfn-toggle-switch">
+                                <div class="hkfn-form-group">
+                                    <label class="hkfn-toggle-switch">
                                         <input type="checkbox"
-                                               name="wfn_module_settings[show_layout_previews]"
+                                               name="hkfn_module_settings[show_layout_previews]"
                                                id="show_layout_previews"
                                                value="1"
                                                <?php checked($settings['show_layout_previews']); ?>>
-                                        <span class="wfn-toggle-slider"></span>
-                                        <span class="wfn-toggle-label">Show Layout Previews</span>
+                                        <span class="hkfn-toggle-slider"></span>
+                                        <span class="hkfn-toggle-label">Show Layout Previews</span>
                                     </label>
-                                    <p class="wfn-form-description">Display preview images for layouts in admin interface.</p>
+                                    <p class="hkfn-form-description">Display preview images for layouts in admin interface.</p>
                                 </div>
                                 
-                                <div class="wfn-form-group">
-                                    <label class="wfn-toggle-switch">
+                                <div class="hkfn-form-group">
+                                    <label class="hkfn-toggle-switch">
                                         <input type="checkbox"
-                                               name="wfn_module_settings[enable_hover_effects]"
+                                               name="hkfn_module_settings[enable_hover_effects]"
                                                id="enable_hover_effects"
                                                value="1"
                                                <?php checked($settings['enable_hover_effects']); ?>>
-                                        <span class="wfn-toggle-slider"></span>
-                                        <span class="wfn-toggle-label">Enable Hover Effects</span>
+                                        <span class="hkfn-toggle-slider"></span>
+                                        <span class="hkfn-toggle-label">Enable Hover Effects</span>
                                     </label>
-                                    <p class="wfn-form-description">Add subtle hover effects to funeral notice cards.</p>
+                                    <p class="hkfn-form-description">Add subtle hover effects to funeral notice cards.</p>
                                 </div>
                                 
-                                <div class="wfn-form-group">
-                                    <label class="wfn-toggle-switch">
+                                <div class="hkfn-form-group">
+                                    <label class="hkfn-toggle-switch">
                                         <input type="checkbox"
-                                               name="wfn_module_settings[enable_animations]"
+                                               name="hkfn_module_settings[enable_animations]"
                                                id="enable_animations"
                                                value="1"
                                                <?php checked($settings['enable_animations']); ?>>
-                                        <span class="wfn-toggle-slider"></span>
-                                        <span class="wfn-toggle-label">Enable Animations</span>
+                                        <span class="hkfn-toggle-slider"></span>
+                                        <span class="hkfn-toggle-label">Enable Animations</span>
                                     </label>
-                                    <p class="wfn-form-description">Add smooth transitions and animations to layouts.</p>
+                                    <p class="hkfn-form-description">Add smooth transitions and animations to layouts.</p>
                                 </div>
                             </div>
                             
                             
-                            <div class="wfn-advanced-section">
+                            <div class="hkfn-advanced-section">
                                 <h4>🔧 Layout Features</h4>
-                                <div class="wfn-form-group">
-                                    <label class="wfn-toggle-switch">
+                                <div class="hkfn-form-group">
+                                    <label class="hkfn-toggle-switch">
                                         <input type="checkbox"
-                                               name="wfn_module_settings[enable_layout_switching]"
+                                               name="hkfn_module_settings[enable_layout_switching]"
                                                id="enable_layout_switching"
                                                value="1"
                                                <?php checked($settings['enable_layout_switching']); ?>>
-                                        <span class="wfn-toggle-slider"></span>
-                                        <span class="wfn-toggle-label">Enable Layout Switching</span>
+                                        <span class="hkfn-toggle-slider"></span>
+                                        <span class="hkfn-toggle-label">Enable Layout Switching</span>
                                     </label>
-                                    <p class="wfn-form-description">Allow users to switch between layouts on the frontend.</p>
+                                    <p class="hkfn-form-description">Allow users to switch between layouts on the frontend.</p>
                                 </div>
                             </div>
                         </div>
@@ -709,15 +709,15 @@ class LayoutsModule extends BaseModule {
         
         <style>
             /* Override base module background */
-            .wfn-module-content {
+            .hkfn-module-content {
                 background: transparent !important;
             }
             
-            .wfn-layouts-admin {
+            .hkfn-layouts-admin {
                 margin-top: 20px;
             }
             
-            .wfn-admin-tabs {
+            .hkfn-admin-tabs {
                 background: transparent;
                 border-radius: 12px;
                 overflow: hidden;
@@ -788,14 +788,14 @@ class LayoutsModule extends BaseModule {
                 font-size: 18px;
             }
             
-            .wfn-layouts-grid {
+            .hkfn-layouts-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 20px;
                 margin-top: 20px;
             }
             
-            .wfn-layout-card {
+            .hkfn-layout-card {
                 border: 1px solid #e2e8f0;
                 border-radius: 12px;
                 overflow: hidden;
@@ -804,12 +804,12 @@ class LayoutsModule extends BaseModule {
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
             }
             
-            .wfn-layout-card:hover {
+            .hkfn-layout-card:hover {
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
                 transform: translateY(-2px);
             }
             
-            .wfn-layout-preview {
+            .hkfn-layout-preview {
                 height: 150px;
                 background: #f5f5f5;
                 display: flex;
@@ -818,37 +818,37 @@ class LayoutsModule extends BaseModule {
                 overflow: hidden;
             }
             
-            .wfn-layout-preview img {
+            .hkfn-layout-preview img {
                 max-width: 100%;
                 max-height: 100%;
                 object-fit: cover;
             }
             
-            .wfn-layout-info {
+            .hkfn-layout-info {
                 padding: 15px;
             }
             
-            .wfn-layout-header {
+            .hkfn-layout-header {
                 margin-bottom: 10px;
             }
             
-            .wfn-layout-header input {
+            .hkfn-layout-header input {
                 margin-right: 8px;
             }
             
-            .wfn-layout-description {
+            .hkfn-layout-description {
                 color: #666;
                 font-size: 14px;
                 margin-bottom: 10px;
             }
             
-            .wfn-layout-features {
+            .hkfn-layout-features {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 5px;
             }
             
-            .wfn-feature-tag {
+            .hkfn-feature-tag {
                 background: #e3f2fd;
                 color: #1976d2;
                 padding: 2px 8px;
@@ -857,25 +857,25 @@ class LayoutsModule extends BaseModule {
                 font-weight: 500;
             }
             
-            .wfn-breakpoints-grid {
+            .hkfn-breakpoints-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 20px;
                 margin-top: 15px;
             }
             
-            .wfn-card-styles-preview {
+            .hkfn-card-styles-preview {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 15px;
                 margin-top: 20px;
             }
             
-            .wfn-card-style-demo {
+            .hkfn-card-style-demo {
                 text-align: center;
             }
             
-            .wfn-card-preview {
+            .hkfn-card-preview {
                 width: 200px;
                 margin: 0 auto 15px;
                 border-radius: 8px;
@@ -883,7 +883,7 @@ class LayoutsModule extends BaseModule {
                 background: #fff;
             }
             
-            .wfn-card-preview-large {
+            .hkfn-card-preview-large {
                 width: 280px;
                 margin: 0 auto 15px;
                 border-radius: 12px;
@@ -891,66 +891,66 @@ class LayoutsModule extends BaseModule {
                 background: #fff;
             }
             
-            .wfn-card-standard {
+            .hkfn-card-standard {
                 border: 1px solid #ddd;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             
-            .wfn-card-elevated {
+            .hkfn-card-elevated {
                 border: none;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             }
             
-            .wfn-card-outlined {
+            .hkfn-card-outlined {
                 border: 2px solid #ddd;
                 box-shadow: none;
             }
             
-            .wfn-card-minimal {
+            .hkfn-card-minimal {
                 border: none;
                 box-shadow: none;
                 background: #f9f9f9;
             }
             
-            .wfn-card-image {
+            .hkfn-card-image {
                 height: 120px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             }
             
-            .wfn-card-preview-large .wfn-card-image {
+            .hkfn-card-preview-large .hkfn-card-image {
                 height: 160px;
             }
             
-            .wfn-card-content {
+            .hkfn-card-content {
                 padding: 15px;
             }
             
-            .wfn-card-content h4 {
+            .hkfn-card-content h4 {
                 margin: 0 0 5px 0;
                 font-size: 16px;
             }
             
-            .wfn-card-content p {
+            .hkfn-card-content p {
                 margin: 0 0 5px 0;
                 color: #666;
                 font-size: 14px;
             }
             
-            .wfn-card-date {
+            .hkfn-card-date {
                 color: #888 !important;
                 font-size: 12px !important;
             }
             
-            .wfn-card-style-info h4 {
+            .hkfn-card-style-info h4 {
                 margin-bottom: 5px;
             }
             
-            .wfn-card-style-info p {
+            .hkfn-card-style-info p {
                 color: #666;
                 font-size: 13px;
             }
             
-            .wfn-tab-description {
+            .hkfn-tab-description {
                 background: #f8fafc;
                 border-left: 4px solid #667eea;
                 border-radius: 0 8px 8px 0;
@@ -961,7 +961,7 @@ class LayoutsModule extends BaseModule {
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             }
             
-            .wfn-shortcode-example {
+            .hkfn-shortcode-example {
                 background: #f0f6fc;
                 border: 1px solid #c9def7;
                 border-radius: 12px;
@@ -970,13 +970,13 @@ class LayoutsModule extends BaseModule {
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             }
             
-            .wfn-shortcode-example strong {
+            .hkfn-shortcode-example strong {
                 color: #0969da;
                 display: block;
                 margin-bottom: 8px;
             }
             
-            .wfn-shortcode-example code {
+            .hkfn-shortcode-example code {
                 background: #fff;
                 border: 1px solid #d1d9e0;
                 border-radius: 8px;
@@ -988,13 +988,13 @@ class LayoutsModule extends BaseModule {
                 box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             }
             
-            .wfn-shortcode-note {
+            .hkfn-shortcode-note {
                 color: #656d76;
                 font-size: 12px;
                 font-style: italic;
             }
             
-            .wfn-layout-id {
+            .hkfn-layout-id {
                 margin-top: 8px;
                 padding: 8px 12px;
                 background: #f0f6fc;
@@ -1002,7 +1002,7 @@ class LayoutsModule extends BaseModule {
                 border: 1px solid #c9def7;
             }
             
-            .wfn-layout-id code {
+            .hkfn-layout-id code {
                 background: #fff;
                 padding: 2px 6px;
                 border-radius: 3px;
@@ -1011,7 +1011,7 @@ class LayoutsModule extends BaseModule {
                 color: #0969da;
             }
             
-            .wfn-style-code {
+            .hkfn-style-code {
                 display: inline-block;
                 background: #f6f8fa;
                 border: 1px solid #d1d9e0;
@@ -1023,14 +1023,14 @@ class LayoutsModule extends BaseModule {
                 margin-top: 8px;
             }
             
-            .wfn-advanced-grid {
+            .hkfn-advanced-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 20px;
                 margin-top: 15px;
             }
             
-            .wfn-advanced-section {
+            .hkfn-advanced-section {
                 background: #fff;
                 border: 1px solid #e2e8f0;
                 border-radius: 12px;
@@ -1038,7 +1038,7 @@ class LayoutsModule extends BaseModule {
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
             }
             
-            .wfn-advanced-section h4 {
+            .hkfn-advanced-section h4 {
                 margin: 0 0 15px 0;
                 color: #2c3e50;
                 font-size: 16px;
@@ -1046,19 +1046,19 @@ class LayoutsModule extends BaseModule {
             }
             
             /* Form Group Styling */
-            .wfn-form-group {
+            .hkfn-form-group {
                 margin-bottom: 20px;
             }
             
-            .wfn-form-group label {
+            .hkfn-form-group label {
                 display: block;
                 margin-bottom: 8px;
                 font-weight: 600;
                 color: #374151;
             }
             
-            .wfn-form-group select,
-            .wfn-form-group input[type="number"] {
+            .hkfn-form-group select,
+            .hkfn-form-group input[type="number"] {
                 width: 100%;
                 max-width: 300px;
                 padding: 8px 12px;
@@ -1068,14 +1068,14 @@ class LayoutsModule extends BaseModule {
                 transition: border-color 0.3s ease;
             }
             
-            .wfn-form-group select:focus,
-            .wfn-form-group input[type="number"]:focus {
+            .hkfn-form-group select:focus,
+            .hkfn-form-group input[type="number"]:focus {
                 outline: none;
                 border-color: #667eea;
                 box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             }
             
-            .wfn-form-description {
+            .hkfn-form-description {
                 margin-top: 6px;
                 font-size: 13px;
                 color: #6b7280;
@@ -1085,7 +1085,7 @@ class LayoutsModule extends BaseModule {
             /* Toggle Switch Styling - Now handled by dashboard.css */
             
             /* Improved form button styling */
-            .wfn-admin-tabs + .submit {
+            .hkfn-admin-tabs + .submit {
                 background: #f8fafc;
                 border-top: 1px solid #e2e8f0;
                 margin: 0 -24px -24px -24px;
@@ -1158,13 +1158,13 @@ class LayoutsModule extends BaseModule {
                 if (cardStyleSelect) {
                     cardStyleSelect.addEventListener('change', function() {
                         const selectedStyle = this.value;
-                        const previews = document.querySelectorAll('.wfn-card-preview, .wfn-card-preview-large');
+                        const previews = document.querySelectorAll('.hkfn-card-preview, .hkfn-card-preview-large');
                         
                         previews.forEach(preview => {
                             // Remove all style classes
-                            preview.classList.remove('wfn-card-standard', 'wfn-card-elevated', 'wfn-card-outlined', 'wfn-card-minimal');
+                            preview.classList.remove('hkfn-card-standard', 'hkfn-card-elevated', 'hkfn-card-outlined', 'hkfn-card-minimal');
                             // Add the selected style class
-                            preview.classList.add('wfn-card-' + selectedStyle);
+                            preview.classList.add('hkfn-card-' + selectedStyle);
                         });
                     });
                 }
@@ -1173,7 +1173,7 @@ class LayoutsModule extends BaseModule {
                 const archiveToggle = document.getElementById('enable_archive_templates');
                 if (archiveToggle) {
                     archiveToggle.addEventListener('change', function() {
-                        const dependentElements = document.querySelectorAll('.wfn-archive-dependent');
+                        const dependentElements = document.querySelectorAll('.hkfn-archive-dependent');
                         const archiveSelect = document.getElementById('default_archive_layout');
                         
                         dependentElements.forEach(element => {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
 /**
  * Base Module Class
@@ -93,9 +93,14 @@ abstract class BaseModule implements ModuleInterface {
     
     /**
      * Get module version
+     *
+     * Returns the PLUGIN version, not the per-module version: every caller
+     * uses this as the asset cache-buster, and stale per-module versions
+     * left browsers serving year-cached v2 CSS against v3 markup after the
+     * wfn_ -> hkfn_ selector rename.
      */
     public function get_version(): string {
-        return $this->module_version;
+        return defined('HKFN_VERSION') ? HKFN_VERSION : $this->module_version;
     }
     
     /**
@@ -125,7 +130,22 @@ abstract class BaseModule implements ModuleInterface {
      * Get module settings
      */
     public function get_settings(): array {
-        $settings = get_option($this->get_settings_option_name(), []);
+        $option_name = $this->get_settings_option_name();
+        $settings    = get_option($option_name, null);
+
+        // Dual-read fallback for sites upgrading from v2.x, whose settings are
+        // still stored under the wfn_ prefix. Without this, upgraded sites lose
+        // all saved module configuration (custom CSS, colours, layout) and
+        // silently revert to defaults. Writes still go to the hkfn_ key.
+        if ($settings === null) {
+            $legacy_name = preg_replace('/^hkfn_/', 'wfn_', $option_name);
+            $settings    = get_option($legacy_name, []);
+        }
+
+        if (!is_array($settings)) {
+            $settings = [];
+        }
+
         return array_merge($this->get_default_settings(), $settings);
     }
     
@@ -225,17 +245,17 @@ abstract class BaseModule implements ModuleInterface {
         
         // First load dashboard CSS for consistent styling (especially toggles)
         wp_enqueue_style(
-            'wfn-admin-dashboard',
-            WFN_PLUGIN_URL . 'assets/css/admin/dashboard.css',
+            'hkfn-admin-dashboard',
+            HKFN_PLUGIN_URL . 'assets/css/admin/dashboard.css',
             [],
             $this->get_version() . '-' . time()
         );
 
         // Then load module-specific CSS
         wp_enqueue_style(
-            'wfn-modules-admin',
-            WFN_PLUGIN_URL . 'assets/css/admin/modules.css',
-            ['wfn-admin-dashboard'], // Depends on dashboard CSS
+            'hkfn-modules-admin',
+            HKFN_PLUGIN_URL . 'assets/css/admin/modules.css',
+            ['hkfn-admin-dashboard'], // Depends on dashboard CSS
             $this->get_version()
         );
         
@@ -259,27 +279,27 @@ abstract class BaseModule implements ModuleInterface {
      */
     public function render_admin_page(): void {
         ?>
-        <div class="wrap wfn-module-admin">
-            <div class="wfn-module-header">
-                <div class="wfn-header-content">
-                    <div class="wfn-header-text">
+        <div class="wrap hkfn-module-admin">
+            <div class="hkfn-module-header">
+                <div class="hkfn-header-content">
+                    <div class="hkfn-header-text">
                         <h1><?php echo esc_html($this->module_name); ?> Settings</h1>
-                        <p class="wfn-header-description"><?php echo esc_html($this->module_description); ?></p>
-                        <div class="wfn-back-to-dashboard">
+                        <p class="hkfn-header-description"><?php echo esc_html($this->module_description); ?></p>
+                        <div class="hkfn-back-to-dashboard">
                             <a href="<?php echo esc_url(admin_url('admin.php?page=hk-funeral-notices-dashboard')); ?>" class="button button-secondary">
                                 <span class="dashicons dashicons-arrow-left-alt2"></span> Back to Dashboard
                             </a>
                         </div>
                     </div>
-                    <div class="wfn-plugin-logo">
-                        <img src="<?php echo esc_url(WFN_PLUGIN_URL . 'assets/images/wfn-logo.png'); ?>" alt="WFN Logo" class="wfn-logo-image">
+                    <div class="hkfn-plugin-logo">
+                        <img src="<?php echo esc_url(HKFN_PLUGIN_URL . 'assets/images/hkfn-logo.png'); ?>" alt="WFN Logo" class="hkfn-logo-image">
                     </div>
                 </div>
             </div>
             
             <?php $this->render_admin_notices(); ?>
             
-            <div class="wfn-module-content">
+            <div class="hkfn-module-content">
                 <?php $this->render_module_admin_content(); ?>
             </div>
         </div>
@@ -324,11 +344,11 @@ abstract class BaseModule implements ModuleInterface {
      * Override in child classes for custom processing.
      */
     public function handle_form_submission(): bool {
-        if (!isset($_POST['wfn_module_settings'])) {
+        if (!isset($_POST['hkfn_module_settings'])) {
             return false;
         }
         
-        $settings = $_POST['wfn_module_settings'];
+        $settings = $_POST['hkfn_module_settings'];
         $success = $this->update_settings($settings);
         
         if ($success) {
@@ -365,14 +385,14 @@ abstract class BaseModule implements ModuleInterface {
      * Get enabled option name
      */
     protected function get_enabled_option_name(): string {
-        return 'wfn_module_' . $this->module_id . '_enabled';
+        return 'hkfn_module_' . $this->module_id . '_enabled';
     }
     
     /**
      * Get settings option name
      */
     protected function get_settings_option_name(): string {
-        return 'wfn_module_' . $this->module_id . '_settings';
+        return 'hkfn_module_' . $this->module_id . '_settings';
     }
     
     /**
@@ -387,7 +407,7 @@ abstract class BaseModule implements ModuleInterface {
      */
     protected function render_submit_button(): void {
         ?>
-        <div class="wfn-form-actions">
+        <div class="hkfn-form-actions">
             <?php submit_button('Save Settings', 'primary', 'submit', false); ?>
             <a href="<?php echo esc_url(add_query_arg('reset', 'true', $this->get_admin_url())); ?>"
                class="button button-secondary"

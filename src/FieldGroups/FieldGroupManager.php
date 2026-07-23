@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\FieldGroups;
+namespace HumanKind\FuneralNotices\FieldGroups;
 
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 
-use WeaveStudios\FuneralNotices\Address\AddressFieldManager;
+use HumanKind\FuneralNotices\Address\AddressFieldManager;
 
 /**
  * Field Group Manager
@@ -103,7 +103,7 @@ class FieldGroupManager {
      */
     private function get_acfe_address_field(): array {
         return [
-            'key' => 'field_wfn_custom_address_acfe',
+            'key' => 'field_hkfn_custom_address_acfe',
             'label' => 'Custom Location/Address',
             'name' => 'custom_address',
             'type' => 'acfe_google_maps',
@@ -111,7 +111,7 @@ class FieldGroupManager {
             'conditional_logic' => [
                 [
                     [
-                        'field' => 'field_wfn_location_type',
+                        'field' => 'field_hkfn_location_type',
                         'operator' => '==',
                         'value' => 'custom',
                     ],
@@ -130,15 +130,15 @@ class FieldGroupManager {
      */
     private function get_custom_address_field(): array {
         return [
-            'key' => 'field_wfn_custom_address_native',
+            'key' => 'field_hkfn_custom_address_native',
             'label' => 'Custom Location/Address',
             'name' => 'custom_address',
-            'type' => 'wfn_google_maps',
+            'type' => 'hkfn_google_maps',
             'instructions' => 'Search and select the funeral venue address',
             'conditional_logic' => [
                 [
                     [
-                        'field' => 'field_wfn_location_type',
+                        'field' => 'field_hkfn_location_type',
                         'operator' => '==',
                         'value' => 'custom',
                     ],
@@ -157,19 +157,19 @@ class FieldGroupManager {
      */
     public function register_personal_details(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_personal_v2',
+            'key' => 'group_hkfn_personal_v2',
             'title' => 'Personal Details',
             'fields' => [
                 [
-                    'key' => 'field_wfn_personal_group',
+                    'key' => 'field_hkfn_personal_group',
                     'label' => 'Personal Information',
-                    'name' => 'wfn_person_group',
+                    'name' => 'hkfn_person_group',
                     'type' => 'group',
                     'instructions' => $this->get_help_instructions('personal'),
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_firstname',
+                            'key' => 'field_hkfn_firstname',
                             'label' => 'First Name(s)',
                             'name' => 'firstname',
                             'type' => 'text',
@@ -179,7 +179,7 @@ class FieldGroupManager {
                             'placeholder' => 'John',
                         ],
                         [
-                            'key' => 'field_wfn_lastname',
+                            'key' => 'field_hkfn_lastname',
                             'label' => 'Last Name',
                             'name' => 'lastname',
                             'type' => 'text',
@@ -189,7 +189,7 @@ class FieldGroupManager {
                             'placeholder' => 'Smith',
                         ],
                         [
-                            'key' => 'field_wfn_birth_year',
+                            'key' => 'field_hkfn_birth_year',
                             'label' => 'Birth Year',
                             'name' => 'birth_year',
                             'type' => 'number',
@@ -200,7 +200,7 @@ class FieldGroupManager {
                             'placeholder' => '1950',
                         ],
                         [
-                            'key' => 'field_wfn_death_year',
+                            'key' => 'field_hkfn_death_year',
                             'label' => 'Death Year',
                             'name' => 'death_year',
                             'type' => 'number',
@@ -212,11 +212,11 @@ class FieldGroupManager {
                             'default_value' => date('Y'),
                         ],
                         [
-                            'key' => 'field_wfn_person_image',
+                            'key' => 'field_hkfn_person_image',
                             'label' => 'Person\'s Image',
                             'name' => '',
                             'type' => 'acfe_post_field',
-                            'instructions' => 'Upload a photo of the person. After uploading, click "Crop for Grid/Cards" or <strong>click the image thumbnail</strong> to crop it for grid/list pages (full image shows on funeral page). <em>Save the post after cropping to see the updated preview.</em>',
+                            'instructions' => 'Use the <strong>Upload photo</strong> button below to add the person\'s photo straight from your computer, then crop it for the grid and list pages. The full photo shows on the funeral notice page.',
                             'wrapper' => ['width' => '100'],
                             'field_type' => 'featured_image',
                             'instruction_placement' => 'above_field',
@@ -248,19 +248,19 @@ class FieldGroupManager {
      */
     public function register_notice_content(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_content_v2',
+            'key' => 'group_hkfn_content_v2',
             'title' => 'Notice Content',
             'fields' => [
                 [
-                    'key' => 'field_wfn_content_group',
+                    'key' => 'field_hkfn_content_group',
                     'label' => 'Notice Content',
-                    'name' => 'wfn_notice_group',
+                    'name' => 'hkfn_notice_group',
                     'type' => 'group',
                     'instructions' => $this->get_help_instructions('content'),
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_memorial_header',
+                            'key' => 'field_hkfn_memorial_header',
                             'label' => 'Memorial Header Text',
                             'name' => 'memorial_header',
                             'type' => 'text',
@@ -272,7 +272,7 @@ class FieldGroupManager {
                             'wrapper' => ['width' => '70'],
                         ],
                         [
-                            'key' => 'field_wfn_celebration_text',
+                            'key' => 'field_hkfn_celebration_text',
                             'label' => 'Celebration Text',
                             'name' => 'celebration_text',
                             'type' => 'textarea',
@@ -284,7 +284,7 @@ class FieldGroupManager {
                             'wrapper' => ['width' => '100'],
                         ],
                         [
-                            'key' => 'field_wfn_newspaper_notice',
+                            'key' => 'field_hkfn_newspaper_notice',
                             'label' => 'Newspaper Notice',
                             'name' => '',
                             'type' => 'acfe_post_field',
@@ -320,19 +320,19 @@ class FieldGroupManager {
      */
     public function register_event_details(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_event_v2',
+            'key' => 'group_hkfn_event_v2',
             'title' => 'Event Details',
             'fields' => [
                 [
-                    'key' => 'field_wfn_event_group',
+                    'key' => 'field_hkfn_event_group',
                     'label' => 'Funeral Event Details',
-                    'name' => 'wfn_details_group',
+                    'name' => 'hkfn_details_group',
                     'type' => 'group',
                     'instructions' => $this->get_help_instructions('event'),
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_funeral_date',
+                            'key' => 'field_hkfn_funeral_date',
                             'label' => 'Funeral Date',
                             'name' => 'funeral_date',
                             'type' => 'date_picker',
@@ -343,7 +343,7 @@ class FieldGroupManager {
                             'first_day' => 1,
                         ],
                         [
-                            'key' => 'field_wfn_funeral_time',
+                            'key' => 'field_hkfn_funeral_time',
                             'label' => 'Funeral Time',
                             'name' => 'funeral_time',
                             'type' => 'time_picker',
@@ -353,7 +353,7 @@ class FieldGroupManager {
                             'return_format' => 'H:i:s',
                         ],
                 [
-                    'key' => 'field_wfn_hide_datetime',
+                    'key' => 'field_hkfn_hide_datetime',
                     'label' => 'Hide Date/Time/Venue',
                     'name' => 'hide_datetime',
                     'type' => 'true_false',
@@ -364,7 +364,7 @@ class FieldGroupManager {
                     'ui_off_text' => 'Show',
                 ],
                         [
-                            'key' => 'field_wfn_location_type',
+                            'key' => 'field_hkfn_location_type',
                             'label' => 'Location Display',
                             'name' => 'location_type',
                             'type' => 'radio',
@@ -379,7 +379,7 @@ class FieldGroupManager {
                             'return_format' => 'value',
                         ],
                         [
-                            'key' => 'field_wfn_location',
+                            'key' => 'field_hkfn_location',
                             'label' => 'Saved Venues/Locations',
                             'name' => 'location',
                             'type' => 'taxonomy',
@@ -387,7 +387,7 @@ class FieldGroupManager {
                             'conditional_logic' => [
                                 [
                                     [
-                                        'field' => 'field_wfn_location_type',
+                                        'field' => 'field_hkfn_location_type',
                                         'operator' => '==',
                                         'value' => 'existing',
                                     ],
@@ -430,19 +430,19 @@ class FieldGroupManager {
      */
     public function register_streaming_details(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_streaming_v2',
+            'key' => 'group_hkfn_streaming_v2',
             'title' => 'Streaming Details',
             'fields' => [
                 [
-                    'key' => 'field_wfn_streaming_group',
+                    'key' => 'field_hkfn_streaming_group',
                     'label' => 'Live Streaming Options',
-                    'name' => 'wfn_streaming_group',
+                    'name' => 'hkfn_streaming_group',
                     'type' => 'group',
                     'instructions' => $this->get_help_instructions('streaming'),
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_streaming_url',
+                            'key' => 'field_hkfn_streaming_url',
                             'label' => 'Live Stream URL',
                             'name' => 'streaming_url',
                             'type' => 'url',
@@ -451,7 +451,7 @@ class FieldGroupManager {
                             'wrapper' => ['width' => '70'],
                         ],
                         [
-                            'key' => 'field_wfn_streaming_private',
+                            'key' => 'field_hkfn_streaming_private',
                             'label' => 'Private Streaming',
                             'name' => 'streaming_private',
                             'type' => 'true_false',
@@ -462,7 +462,7 @@ class FieldGroupManager {
                             'wrapper' => ['width' => '30'],
                         ],
                         [
-                            'key' => 'field_wfn_streaming_note',
+                            'key' => 'field_hkfn_streaming_note',
                             'label' => 'Streaming Note',
                             'name' => 'streaming_note',
                             'type' => 'text',
@@ -496,19 +496,19 @@ class FieldGroupManager {
      */
     public function register_media_documents(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_media_v2',
+            'key' => 'group_hkfn_media_v2',
             'title' => 'Media & Documents',
             'fields' => [
                 [
-                    'key' => 'field_wfn_media_group',
+                    'key' => 'field_hkfn_media_group',
                     'label' => 'Service Documents',
-                    'name' => 'wfn_media_group',
+                    'name' => 'hkfn_media_group',
                     'type' => 'group',
                     'instructions' => $this->get_help_instructions('media'),
                     'layout' => 'block',
                     'sub_fields' => [
                         [
-                            'key' => 'field_wfn_service_sheet',
+                            'key' => 'field_hkfn_service_sheet',
                             'label' => 'Add Service Sheet',
                             'name' => 'service_sheet',
                             'type' => 'file',
@@ -520,7 +520,7 @@ class FieldGroupManager {
                         // Conditionally register video field OR upgrade message field
                         $this->get_video_field_or_upgrade_message(),
                         [
-                            'key' => 'field_wfn_additional_documents',
+                            'key' => 'field_hkfn_additional_documents',
                             'label' => 'Additional Links or Attachments',
                             'name' => 'additional_documents',
                             'type' => 'repeater',
@@ -531,7 +531,7 @@ class FieldGroupManager {
                             'max' => 5,
                             'sub_fields' => [
                                 [
-                                    'key' => 'field_wfn_document_title',
+                                    'key' => 'field_hkfn_document_title',
                                     'label' => 'Button Text',
                                     'name' => 'title',
                                     'type' => 'text',
@@ -540,7 +540,7 @@ class FieldGroupManager {
                                     'required' => 1,
                                 ],
                                 [
-                                    'key' => 'field_wfn_document_type',
+                                    'key' => 'field_hkfn_document_type',
                                     'label' => 'Link Type',
                                     'name' => 'document_type',
                                     'type' => 'radio',
@@ -553,7 +553,7 @@ class FieldGroupManager {
                                     'layout' => 'vertical',
                                 ],
                                 [
-                                    'key' => 'field_wfn_document_file',
+                                    'key' => 'field_hkfn_document_file',
                                     'label' => 'Upload Your File',
                                     'name' => 'file',
                                     'type' => 'file',
@@ -563,7 +563,7 @@ class FieldGroupManager {
                                     'conditional_logic' => [
                                         [
                                             [
-                                                'field' => 'field_wfn_document_type',
+                                                'field' => 'field_hkfn_document_type',
                                                 'operator' => '==',
                                                 'value' => 'file',
                                             ],
@@ -571,7 +571,7 @@ class FieldGroupManager {
                                     ],
                                 ],
                                 [
-                                    'key' => 'field_wfn_document_url',
+                                    'key' => 'field_hkfn_document_url',
                                     'label' => 'Website Address',
                                     'name' => 'url',
                                     'type' => 'url',
@@ -580,7 +580,7 @@ class FieldGroupManager {
                                     'conditional_logic' => [
                                         [
                                             [
-                                                'field' => 'field_wfn_document_type',
+                                                'field' => 'field_hkfn_document_type',
                                                 'operator' => '==',
                                                 'value' => 'url',
                                             ],
@@ -631,7 +631,7 @@ class FieldGroupManager {
      * Get default memorial header text from settings
      */
     private function get_default_memorial_header(): string {
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         return $settings['default_memorial_header'] ?? 'In loving memory of';
     }
     
@@ -641,11 +641,11 @@ class FieldGroupManager {
      */
     private function register_location_taxonomy_fields(): void {
         acf_add_local_field_group([
-            'key' => 'group_wfn_funeral_locations_v2',
+            'key' => 'group_hkfn_funeral_locations_v2',
             'title' => 'Funeral Locations',
             'fields' => [
                 [
-                    'key' => 'field_wfn_location_address',
+                    'key' => 'field_hkfn_location_address',
                     'label' => 'Location Address',
                     'name' => 'location_address',
                     'type' => 'textarea',
@@ -653,7 +653,7 @@ class FieldGroupManager {
                     'new_lines' => 'br',
                 ],
                 [
-                    'key' => 'field_wfn_location_map_link',
+                    'key' => 'field_hkfn_location_map_link',
                     'label' => 'Location Google Link',
                     'name' => 'location_map_link',
                     'type' => 'link',
@@ -689,7 +689,7 @@ class FieldGroupManager {
         if ($this->has_premium_license()) {
             // Return functional video upload field
             return [
-                'key' => 'field_wfn_video_slideshow',
+                'key' => 'field_hkfn_video_slideshow',
                 'label' => 'Memorial Video Slideshow',
                 'name' => 'video_slideshow',
                 'type' => 'file',
@@ -702,7 +702,7 @@ class FieldGroupManager {
         } else {
             // Return minimal message field explaining premium feature
             return [
-                'key' => 'field_wfn_video_upgrade_message',
+                'key' => 'field_hkfn_video_upgrade_message',
                 'label' => 'Memorial Video Slideshow',
                 'name' => 'video_upgrade_message',
                 'type' => 'message',
@@ -777,7 +777,7 @@ class FieldGroupManager {
         }
 
         // Get default venue from settings
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $default_venue = $settings['default_venue_location'] ?? '';
 
         // Return default venue term ID if set

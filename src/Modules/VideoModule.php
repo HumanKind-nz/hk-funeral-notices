@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
-use WeaveStudios\FuneralNotices\Services\BunnyStreamService;
+use HumanKind\FuneralNotices\Services\BunnyStreamService;
 
 /**
  * Video Module
@@ -76,58 +76,58 @@ class VideoModule extends BaseModule {
         add_action('acf/save_post', [$this, 'handle_video_upload'], 20);
 
         // Ajax handlers for upload progress and status
-        add_action('wp_ajax_wfn_video_upload_progress', [$this, 'ajax_upload_progress']);
-        add_action('wp_ajax_wfn_video_upload_status', [$this, 'ajax_upload_status']);
-        add_action('wp_ajax_wfn_retry_video_upload', [$this, 'ajax_retry_upload']);
-        add_action('wp_ajax_wfn_video_delete', [$this, 'ajax_delete_video']);
-        add_action('wp_ajax_wfn_video_replace', [$this, 'ajax_replace_video']);
+        add_action('wp_ajax_hkfn_video_upload_progress', [$this, 'ajax_upload_progress']);
+        add_action('wp_ajax_hkfn_video_upload_status', [$this, 'ajax_upload_status']);
+        add_action('wp_ajax_hkfn_retry_video_upload', [$this, 'ajax_retry_upload']);
+        add_action('wp_ajax_hkfn_video_delete', [$this, 'ajax_delete_video']);
+        add_action('wp_ajax_hkfn_video_replace', [$this, 'ajax_replace_video']);
 
         // REMOVED: Ajax handlers for maintenance tasks (feature permanently disabled after incident)
-        // add_action('wp_ajax_wfn_run_video_maintenance', [$this, 'ajax_run_maintenance']);
-        // add_action('wp_ajax_wfn_cleanup_orphaned_videos', [$this, 'ajax_cleanup_orphaned_videos']);
-        // add_action('wp_ajax_wfn_cleanup_stuck_uploads', [$this, 'ajax_cleanup_stuck_uploads']);
+        // add_action('wp_ajax_hkfn_run_video_maintenance', [$this, 'ajax_run_maintenance']);
+        // add_action('wp_ajax_hkfn_cleanup_orphaned_videos', [$this, 'ajax_cleanup_orphaned_videos']);
+        // add_action('wp_ajax_hkfn_cleanup_stuck_uploads', [$this, 'ajax_cleanup_stuck_uploads']);
 
         // Manual trigger for testing/debugging
-        add_action('wp_ajax_wfn_manual_process_video', [$this, 'ajax_manual_process_video']);
+        add_action('wp_ajax_hkfn_manual_process_video', [$this, 'ajax_manual_process_video']);
 
         // Background processing hooks
-        add_action('wp_ajax_nopriv_wfn_process_video_upload', [$this, 'process_video_upload_background']);
-        add_action('wp_ajax_wfn_process_video_upload', [$this, 'process_video_upload_background']);
+        add_action('wp_ajax_nopriv_hkfn_process_video_upload', [$this, 'process_video_upload_background']);
+        add_action('wp_ajax_hkfn_process_video_upload', [$this, 'process_video_upload_background']);
 
         // WordPress cron hook for reliable background processing
-        add_action('wfn_process_video_upload_cron', [$this, 'process_video_upload_cron']);
+        add_action('hkfn_process_video_upload_cron', [$this, 'process_video_upload_cron']);
 
         // Cleanup hooks
         add_action('before_delete_post', [$this, 'cleanup_video_on_post_delete']);
         // DISABLED: Automatic cleanup caused catastrophic video deletion across all sites
-        // add_action('wfn_cleanup_failed_uploads', [$this, 'cleanup_failed_uploads']);
-        // add_action('wfn_video_maintenance', [$this, 'run_scheduled_maintenance']);
+        // add_action('hkfn_cleanup_failed_uploads', [$this, 'cleanup_failed_uploads']);
+        // add_action('hkfn_video_maintenance', [$this, 'run_scheduled_maintenance']);
 
         // DISABLED: Schedule cleanup if not already scheduled
         // Safety: Removed automatic scheduling after incident where orphaned video cleanup
         // deleted all videos from BunnyStream on 2025-10-20. Manual cleanup only via admin.
-        // if (!wp_next_scheduled('wfn_cleanup_failed_uploads')) {
-        //     wp_schedule_event(time(), 'daily', 'wfn_cleanup_failed_uploads');
+        // if (!wp_next_scheduled('hkfn_cleanup_failed_uploads')) {
+        //     wp_schedule_event(time(), 'daily', 'hkfn_cleanup_failed_uploads');
         // }
 
         // DISABLED: Schedule comprehensive maintenance (weekly)
-        // if (!wp_next_scheduled('wfn_video_maintenance')) {
-        //     wp_schedule_event(time(), 'weekly', 'wfn_video_maintenance');
+        // if (!wp_next_scheduled('hkfn_video_maintenance')) {
+        //     wp_schedule_event(time(), 'weekly', 'hkfn_video_maintenance');
         // }
 
         // Clear any existing schedules (cleanup from old installs)
-        if (defined('WFN_DISABLE_AUTO_VIDEO_CLEANUP') && WFN_DISABLE_AUTO_VIDEO_CLEANUP) {
-            $timestamp = wp_next_scheduled('wfn_cleanup_failed_uploads');
-            if ($timestamp) wp_unschedule_event($timestamp, 'wfn_cleanup_failed_uploads');
+        if (hkfn_get_constant('DISABLE_AUTO_VIDEO_CLEANUP')) {
+            $timestamp = wp_next_scheduled('hkfn_cleanup_failed_uploads');
+            if ($timestamp) wp_unschedule_event($timestamp, 'hkfn_cleanup_failed_uploads');
 
-            $timestamp = wp_next_scheduled('wfn_video_maintenance');
-            if ($timestamp) wp_unschedule_event($timestamp, 'wfn_video_maintenance');
+            $timestamp = wp_next_scheduled('hkfn_video_maintenance');
+            if ($timestamp) wp_unschedule_event($timestamp, 'hkfn_video_maintenance');
         }
 
         // Frontend hooks for displaying videos
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
-        add_filter('wfn_memorial_video_button', [$this, 'render_video_button'], 10, 2);
-        add_filter('wfn_memorial_video_modal', [$this, 'render_video_modal'], 10, 2);
+        add_filter('hkfn_memorial_video_button', [$this, 'render_video_button'], 10, 2);
+        add_filter('hkfn_memorial_video_modal', [$this, 'render_video_modal'], 10, 2);
     }
 
     /**
@@ -159,28 +159,18 @@ class VideoModule extends BaseModule {
      * Get video hosting credentials from WordPress constants
      *
      * These should be defined in wp-config.php and never committed to version control:
-     * define('WFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
-     * define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');
+     * define('HKFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
+     * define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');
      *
      * Also supports legacy constant names for backward compatibility:
-     * define('WFN_VIDEO_LIBRARY_ID', 'your_library_id');
-     * define('WFN_VIDEO_API_KEY', 'your_api_key');
+     * define('HKFN_VIDEO_LIBRARY_ID', 'your_library_id');
+     * define('HKFN_VIDEO_API_KEY', 'your_api_key');
      */
     private function get_bunny_credentials(): array {
-        // Check for new constant names first, fall back to legacy names
-        $library_id = '';
-        if (defined('WFN_BUNNYSTREAM_LIBRARY_ID') && !empty(WFN_BUNNYSTREAM_LIBRARY_ID)) {
-            $library_id = WFN_BUNNYSTREAM_LIBRARY_ID;
-        } elseif (defined('WFN_VIDEO_LIBRARY_ID') && !empty(WFN_VIDEO_LIBRARY_ID)) {
-            $library_id = WFN_VIDEO_LIBRARY_ID;
-        }
-
-        $api_key = '';
-        if (defined('WFN_BUNNYSTREAM_API_KEY') && !empty(WFN_BUNNYSTREAM_API_KEY)) {
-            $api_key = WFN_BUNNYSTREAM_API_KEY;
-        } elseif (defined('WFN_VIDEO_API_KEY') && !empty(WFN_VIDEO_API_KEY)) {
-            $api_key = WFN_VIDEO_API_KEY;
-        }
+        // Check new names first, then legacy names; each also falls back
+        // to the WFN_-prefixed v2.x constant via hkfn_get_constant().
+        $library_id = hkfn_get_constant('BUNNYSTREAM_LIBRARY_ID') ?: hkfn_get_constant('VIDEO_LIBRARY_ID') ?: '';
+        $api_key = hkfn_get_constant('BUNNYSTREAM_API_KEY') ?: hkfn_get_constant('VIDEO_API_KEY') ?: '';
 
         return [
             'library_id' => $library_id,
@@ -194,11 +184,11 @@ class VideoModule extends BaseModule {
      */
     private function has_premium_license(): bool {
         // For testing purposes, allow temporary bypass with constant
-        if (defined('WFN_BYPASS_LICENSE') && WFN_BYPASS_LICENSE) {
+        if (hkfn_get_constant('BYPASS_LICENSE')) {
             return true;
         }
 
-        $license_status = get_option('wfn_license_status', [
+        $license_status = hkfn_get_option('license_status', [
             'valid' => false,
             'features' => [],
             'expires' => '',
@@ -225,7 +215,7 @@ class VideoModule extends BaseModule {
 
         // Get the memorial video field value
         // Get the video file from the nested media group
-        $media_group = get_field('wfn_media_group', $post_id);
+        $media_group = get_field('hkfn_media_group', $post_id);
         $video_file = $media_group['video_slideshow'] ?? null;
 
         if (!$video_file || !is_array($video_file)) {
@@ -233,7 +223,7 @@ class VideoModule extends BaseModule {
         }
 
         // Check if this is a new upload or replacement
-        $existing_video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $existing_video_id = get_post_meta($post_id, '_hkfn_video_id', true);
 
         if ($existing_video_id) {
             // This is a replacement - handle differently
@@ -285,10 +275,10 @@ class VideoModule extends BaseModule {
         }
 
         // Store old video ID for cleanup after successful upload
-        update_post_meta($post_id, '_wfn_video_id_old', $existing_video_id);
+        update_post_meta($post_id, '_hkfn_video_id_old', $existing_video_id);
 
         // Clear current video ID to indicate replacement in progress
-        delete_post_meta($post_id, '_wfn_video_id');
+        delete_post_meta($post_id, '_hkfn_video_id');
 
         $this->update_upload_status($post_id, [
             'status' => 'replacing',
@@ -387,10 +377,10 @@ class VideoModule extends BaseModule {
         ];
 
         // Store upload job data
-        update_post_meta($post_id, '_wfn_video_upload_job', $upload_data);
+        update_post_meta($post_id, '_hkfn_video_upload_job', $upload_data);
 
         // Use WordPress cron for reliable background processing
-        $hook_name = 'wfn_process_video_upload_cron';
+        $hook_name = 'hkfn_process_video_upload_cron';
 
         // Schedule processing in 30 seconds (allows page load to complete)
         wp_schedule_single_event(
@@ -402,9 +392,9 @@ class VideoModule extends BaseModule {
         // Also keep AJAX as fallback for manual triggers
         $ajax_url = admin_url('admin-ajax.php');
         $args = [
-            'action' => 'wfn_process_video_upload',
+            'action' => 'hkfn_process_video_upload',
             'post_id' => $post_id,
-            'nonce' => wp_create_nonce('wfn_video_upload_' . $post_id)
+            'nonce' => wp_create_nonce('hkfn_video_upload_' . $post_id)
         ];
 
         // Try AJAX as immediate fallback (non-blocking)
@@ -428,19 +418,19 @@ class VideoModule extends BaseModule {
     public function process_video_upload_background(): void {
         // Verify nonce
         $post_id = intval($_POST['post_id'] ?? 0);
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_upload_' . $post_id)) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_upload_' . $post_id)) {
             wp_die('Security check failed');
         }
 
         // Get upload job data
-        $upload_job = get_post_meta($post_id, '_wfn_video_upload_job', true);
+        $upload_job = get_post_meta($post_id, '_hkfn_video_upload_job', true);
         if (!$upload_job) {
             wp_die('Upload job not found');
         }
 
         // Increment attempt count
         $upload_job['attempt_count']++;
-        update_post_meta($post_id, '_wfn_video_upload_job', $upload_job);
+        update_post_meta($post_id, '_hkfn_video_upload_job', $upload_job);
 
         $this->update_upload_status($post_id, [
             'status' => 'uploading',
@@ -465,7 +455,7 @@ class VideoModule extends BaseModule {
      */
     public function process_video_upload_cron(int $post_id): void {
         // Get upload job data
-        $upload_job = get_post_meta($post_id, '_wfn_video_upload_job', true);
+        $upload_job = get_post_meta($post_id, '_hkfn_video_upload_job', true);
         if (!$upload_job) {
             error_log("WFN Cron: Upload job not found for post $post_id");
             return;
@@ -473,7 +463,7 @@ class VideoModule extends BaseModule {
 
         // Increment attempt count
         $upload_job['attempt_count']++;
-        update_post_meta($post_id, '_wfn_video_upload_job', $upload_job);
+        update_post_meta($post_id, '_hkfn_video_upload_job', $upload_job);
 
         $this->update_upload_status($post_id, [
             'status' => 'uploading',
@@ -497,7 +487,7 @@ class VideoModule extends BaseModule {
     private function execute_video_upload_process(int $post_id, array $upload_job): void {
         // Prepare metadata
         $post = get_post($post_id);
-        $person_group = get_field('wfn_person_group', $post_id) ?: [];
+        $person_group = get_field('hkfn_person_group', $post_id) ?: [];
 
         $metadata = [
             'title' => sprintf(
@@ -567,12 +557,12 @@ class VideoModule extends BaseModule {
      * Store video metadata in post meta
      */
     private function store_video_metadata(int $post_id, array $metadata): void {
-        update_post_meta($post_id, '_wfn_video_id', $metadata['video_id']);
-        update_post_meta($post_id, '_wfn_video_metadata', $metadata);
-        update_post_meta($post_id, '_wfn_video_status', 'uploaded');
+        update_post_meta($post_id, '_hkfn_video_id', $metadata['video_id']);
+        update_post_meta($post_id, '_hkfn_video_metadata', $metadata);
+        update_post_meta($post_id, '_hkfn_video_status', 'uploaded');
 
         // Clear upload job data
-        delete_post_meta($post_id, '_wfn_video_upload_job');
+        delete_post_meta($post_id, '_hkfn_video_upload_job');
     }
 
     /**
@@ -635,13 +625,13 @@ class VideoModule extends BaseModule {
             'completed_at' => current_time('mysql')
         ]);
 
-        update_post_meta($post_id, '_wfn_video_status', 'ready');
-        update_post_meta($post_id, '_wfn_video_id', $video_id);
+        update_post_meta($post_id, '_hkfn_video_status', 'ready');
+        update_post_meta($post_id, '_hkfn_video_id', $video_id);
 
         // Get video info and store complete data
         $video_info = $this->bunny_service->get_video_info($video_id);
         if ($video_info['success']) {
-            update_post_meta($post_id, '_wfn_video_data', json_encode($video_info['data']));
+            update_post_meta($post_id, '_hkfn_video_data', json_encode($video_info['data']));
         }
 
         // Send notification if enabled
@@ -651,7 +641,7 @@ class VideoModule extends BaseModule {
         }
 
         // Clear upload status after success
-        delete_post_meta($post_id, '_wfn_video_upload_status');
+        delete_post_meta($post_id, '_hkfn_video_upload_status');
     }
 
     /**
@@ -670,7 +660,7 @@ class VideoModule extends BaseModule {
             ]);
 
             // Schedule retry after delay
-            wp_schedule_single_event(time() + (60 * $upload_job['attempt_count']), 'wfn_retry_video_upload', [$post_id]);
+            wp_schedule_single_event(time() + (60 * $upload_job['attempt_count']), 'hkfn_retry_video_upload', [$post_id]);
 
         } else {
             // Maximum attempts reached, mark as failed
@@ -681,7 +671,7 @@ class VideoModule extends BaseModule {
                 'failed_at' => current_time('mysql')
             ]);
 
-            update_post_meta($post_id, '_wfn_video_status', 'failed');
+            update_post_meta($post_id, '_hkfn_video_status', 'failed');
 
             // Send failure notification if enabled
             $settings = $this->get_settings();
@@ -696,7 +686,7 @@ class VideoModule extends BaseModule {
      */
     private function update_upload_status(int $post_id, array $status): void {
         $status['updated_at'] = current_time('mysql');
-        update_post_meta($post_id, '_wfn_video_upload_status', $status);
+        update_post_meta($post_id, '_hkfn_video_upload_status', $status);
     }
 
     /**
@@ -710,7 +700,7 @@ class VideoModule extends BaseModule {
             'error_at' => current_time('mysql')
         ]);
 
-        update_post_meta($post_id, '_wfn_video_status', 'error');
+        update_post_meta($post_id, '_hkfn_video_status', 'error');
     }
 
     /**
@@ -728,16 +718,16 @@ class VideoModule extends BaseModule {
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>
 
-            <div class="wfn-settings-grid">
+            <div class="hkfn-settings-grid">
                 <!-- Upload Settings -->
-                <div class="wfn-settings-card">
+                <div class="hkfn-settings-card">
                     <h3>Upload Configuration</h3>
 
-                    <div class="wfn-form-row">
+                    <div class="hkfn-form-row">
                         <label for="max_file_size_mb">Maximum File Size (MB)</label>
                         <input type="number"
                                id="max_file_size_mb"
-                               name="wfn_module_settings[max_file_size_mb]"
+                               name="hkfn_module_settings[max_file_size_mb]"
                                value="<?php echo esc_attr($settings['max_file_size_mb']); ?>"
                                min="10"
                                max="1000"
@@ -745,11 +735,11 @@ class VideoModule extends BaseModule {
                         <p class="description">Maximum allowed file size for video uploads (10-1000 MB)</p>
                     </div>
 
-                    <div class="wfn-form-row">
+                    <div class="hkfn-form-row">
                         <label for="max_duration_minutes">Maximum Duration (Minutes)</label>
                         <input type="number"
                                id="max_duration_minutes"
-                               name="wfn_module_settings[max_duration_minutes]"
+                               name="hkfn_module_settings[max_duration_minutes]"
                                value="<?php echo esc_attr($settings['max_duration_minutes']); ?>"
                                min="5"
                                max="120"
@@ -757,16 +747,16 @@ class VideoModule extends BaseModule {
                         <p class="description">Maximum allowed video duration (5-120 minutes)</p>
                     </div>
 
-                    <div class="wfn-form-row">
+                    <div class="hkfn-form-row">
                         <label for="allowed_formats">Allowed File Formats</label>
-                        <div class="wfn-checkbox-group">
+                        <div class="hkfn-checkbox-group">
                             <?php
                             $all_formats = ['mp4', 'mov', 'avi', 'webm', 'mkv'];
                             foreach ($all_formats as $format):
                             ?>
-                                <label class="wfn-checkbox-label">
+                                <label class="hkfn-checkbox-label">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[allowed_formats][]"
+                                           name="hkfn_module_settings[allowed_formats][]"
                                            value="<?php echo esc_attr($format); ?>"
                                            <?php checked(in_array($format, $settings['allowed_formats'])); ?>>
                                     <?php echo strtoupper($format); ?>
@@ -778,12 +768,12 @@ class VideoModule extends BaseModule {
                 </div>
 
                 <!-- Processing Settings -->
-                <div class="wfn-settings-card">
+                <div class="hkfn-settings-card">
                     <h3>Processing Configuration</h3>
 
-                    <div class="wfn-form-row">
+                    <div class="hkfn-form-row">
                         <label for="quality_preset">Quality Preset</label>
-                        <select id="quality_preset" name="wfn_module_settings[quality_preset]">
+                        <select id="quality_preset" name="hkfn_module_settings[quality_preset]">
                             <option value="fast" <?php selected($settings['quality_preset'], 'fast'); ?>>Fast (Lower Quality)</option>
                             <option value="balanced" <?php selected($settings['quality_preset'], 'balanced'); ?>>Balanced (Recommended)</option>
                             <option value="high_quality" <?php selected($settings['quality_preset'], 'high_quality'); ?>>High Quality (Slower)</option>
@@ -791,88 +781,88 @@ class VideoModule extends BaseModule {
                         <p class="description">Choose encoding quality vs speed tradeoff</p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[auto_transcode]"
+                                   name="hkfn_module_settings[auto_transcode]"
                                    value="1"
                                    <?php checked($settings['auto_transcode']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Auto-Transcode Videos</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Auto-Transcode Videos</span>
                         </label>
-                        <p class="wfn-form-description">Automatically transcode videos for optimal streaming</p>
+                        <p class="hkfn-form-description">Automatically transcode videos for optimal streaming</p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[enable_thumbnails]"
+                                   name="hkfn_module_settings[enable_thumbnails]"
                                    value="1"
                                    <?php checked($settings['enable_thumbnails']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Generate Thumbnails</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Generate Thumbnails</span>
                         </label>
-                        <p class="wfn-form-description">Automatically generate video thumbnails</p>
+                        <p class="hkfn-form-description">Automatically generate video thumbnails</p>
                     </div>
                 </div>
 
                 <!-- Notification Settings -->
-                <div class="wfn-settings-card">
+                <div class="hkfn-settings-card">
                     <h3>Notifications</h3>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[notify_on_completion]"
+                                   name="hkfn_module_settings[notify_on_completion]"
                                    value="1"
                                    <?php checked($settings['notify_on_completion']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Notify on Upload Success</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Notify on Upload Success</span>
                         </label>
-                        <p class="wfn-form-description">Send email notification when video processing completes</p>
+                        <p class="hkfn-form-description">Send email notification when video processing completes</p>
                     </div>
 
-                    <div class="wfn-form-group">
-                        <label class="wfn-toggle-switch">
+                    <div class="hkfn-form-group">
+                        <label class="hkfn-toggle-switch">
                             <input type="checkbox"
-                                   name="wfn_module_settings[notify_on_failure]"
+                                   name="hkfn_module_settings[notify_on_failure]"
                                    value="1"
                                    <?php checked($settings['notify_on_failure']); ?>>
-                            <span class="wfn-toggle-slider"></span>
-                            <span class="wfn-toggle-label">Notify on Upload Failure</span>
+                            <span class="hkfn-toggle-slider"></span>
+                            <span class="hkfn-toggle-label">Notify on Upload Failure</span>
                         </label>
-                        <p class="wfn-form-description">Send email notification when video processing fails</p>
+                        <p class="hkfn-form-description">Send email notification when video processing fails</p>
                     </div>
                 </div>
 
                 <!-- Video Hosting Status -->
-                <div class="wfn-settings-card">
+                <div class="hkfn-settings-card">
                     <h3>Professional Video Hosting</h3>
                     <?php $is_configured = $this->bunny_service->is_configured(); ?>
 
                     <?php if ($is_configured): ?>
                         <p>Your memorial videos are hosted on enterprise-grade infrastructure with global CDN delivery for optimal viewing experience.</p>
 
-                        <div class="wfn-service-status">
-                            <div class="wfn-status-item">
-                                <span class="wfn-status-label">Hosting Service:</span>
-                                <span class="wfn-status-value wfn-status-success">Active</span>
+                        <div class="hkfn-service-status">
+                            <div class="hkfn-status-item">
+                                <span class="hkfn-status-label">Hosting Service:</span>
+                                <span class="hkfn-status-value hkfn-status-success">Active</span>
                             </div>
-                            <div class="wfn-status-item">
-                                <span class="wfn-status-label">CDN Delivery:</span>
-                                <span class="wfn-status-value wfn-status-success">Global</span>
+                            <div class="hkfn-status-item">
+                                <span class="hkfn-status-label">CDN Delivery:</span>
+                                <span class="hkfn-status-value hkfn-status-success">Global</span>
                             </div>
-                            <div class="wfn-status-item">
-                                <span class="wfn-status-label">Video Quality:</span>
-                                <span class="wfn-status-value">Auto-Optimized</span>
+                            <div class="hkfn-status-item">
+                                <span class="hkfn-status-label">Video Quality:</span>
+                                <span class="hkfn-status-value">Auto-Optimized</span>
                             </div>
                         </div>
                     <?php else: ?>
-                        <div class="wfn-notice wfn-notice-warning">
+                        <div class="hkfn-notice hkfn-notice-warning">
                             <p><strong>Video hosting not configured.</strong></p>
                             <p>To enable video hosting, add the following constants to your <code>wp-config.php</code> file:</p>
-                            <pre><code>define('WFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
-define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
+                            <pre><code>define('HKFN_BUNNYSTREAM_LIBRARY_ID', 'your_library_id');
+define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                             <p><em>Contact support for hosting service credentials.</em></p>
                         </div>
                     <?php endif; ?>
@@ -883,7 +873,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         </form>
 
         <!-- Video Management Section -->
-        <div class="wfn-settings-section">
+        <div class="hkfn-settings-section">
             <h2>Video Management</h2>
             <?php $this->render_video_management_section(); ?>
         </div>
@@ -895,12 +885,12 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     private function render_license_required_notice(): void {
         ?>
-        <div class="wfn-license-required">
-            <div class="wfn-notice wfn-notice-warning">
+        <div class="hkfn-license-required">
+            <div class="hkfn-notice hkfn-notice-warning">
                 <h3>Premium License Required</h3>
                 <p>The Memorial Video feature requires an active premium license to enable video hosting and management capabilities.</p>
 
-                <div class="wfn-license-actions">
+                <div class="hkfn-license-actions">
                     <a href="<?php echo esc_url(admin_url('admin.php?page=hkfn-module-license')); ?>" class="button button-primary">
                         Configure License
                     </a>
@@ -910,9 +900,9 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 </div>
             </div>
 
-            <div class="wfn-feature-preview">
+            <div class="hkfn-feature-preview">
                 <h4>Premium Video Features Include:</h4>
-                <ul class="wfn-feature-list">
+                <ul class="hkfn-feature-list">
                     <li>Professional video hosting via secure CDN</li>
                     <li>Automatic video transcoding and optimization</li>
                     <li>Mobile-responsive video players</li>
@@ -936,7 +926,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             'post_type' => 'funeral-notice',
             'meta_query' => [
                 [
-                    'key' => '_wfn_video_id',
+                    'key' => '_hkfn_video_id',
                     'compare' => 'EXISTS'
                 ]
             ],
@@ -950,7 +940,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         ?>
-        <div class="wfn-video-management">
+        <div class="hkfn-video-management">
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -982,10 +972,10 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * Render individual video management row
      */
     private function render_video_management_row(\WP_Post $post): void {
-        $video_id = get_post_meta($post->ID, '_wfn_video_id', true);
-        $video_status = get_post_meta($post->ID, '_wfn_video_status', true) ?: 'unknown';
-        $upload_status = get_post_meta($post->ID, '_wfn_video_upload_status', true) ?: [];
-        $video_metadata = get_post_meta($post->ID, '_wfn_video_metadata', true) ?: [];
+        $video_id = get_post_meta($post->ID, '_hkfn_video_id', true);
+        $video_status = get_post_meta($post->ID, '_hkfn_video_status', true) ?: 'unknown';
+        $upload_status = get_post_meta($post->ID, '_hkfn_video_upload_status', true) ?: [];
+        $video_metadata = get_post_meta($post->ID, '_hkfn_video_metadata', true) ?: [];
 
         ?>
         <tr>
@@ -994,7 +984,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 <small>ID: <?php echo $post->ID; ?></small>
             </td>
             <td>
-                <span class="wfn-video-status wfn-video-status-<?php echo esc_attr($video_status); ?>">
+                <span class="hkfn-video-status hkfn-video-status-<?php echo esc_attr($video_status); ?>">
                     <?php echo esc_html(ucfirst($video_status)); ?>
                 </span>
                 <?php if ($video_id): ?>
@@ -1003,12 +993,12 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             </td>
             <td>
                 <?php if (!empty($upload_status)): ?>
-                    <div class="wfn-progress-bar">
-                        <div class="wfn-progress-fill" style="width: <?php echo intval($upload_status['progress'] ?? 0); ?>%"></div>
+                    <div class="hkfn-progress-bar">
+                        <div class="hkfn-progress-fill" style="width: <?php echo intval($upload_status['progress'] ?? 0); ?>%"></div>
                     </div>
                     <small><?php echo esc_html($upload_status['message'] ?? 'Processing...'); ?></small>
                 <?php else: ?>
-                    <span class="wfn-status-complete">Complete</span>
+                    <span class="hkfn-status-complete">Complete</span>
                 <?php endif; ?>
             </td>
             <td>
@@ -1018,18 +1008,18 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                         Size: <?php echo size_format($video_metadata['file_info']['filesize']); ?>
                     </small>
                 <?php else: ?>
-                    <span class="wfn-text-muted">No info available</span>
+                    <span class="hkfn-text-muted">No info available</span>
                 <?php endif; ?>
             </td>
             <td>
-                <div class="wfn-video-actions">
+                <div class="hkfn-video-actions">
                     <?php if ($video_id && $video_status === 'ready'): ?>
-                        <button class="button button-small wfn-preview-video" data-video-id="<?php echo esc_attr($video_id); ?>" data-post-id="<?php echo $post->ID; ?>">
+                        <button class="button button-small hkfn-preview-video" data-video-id="<?php echo esc_attr($video_id); ?>" data-post-id="<?php echo $post->ID; ?>">
                             Preview
                         </button>
                     <?php endif; ?>
 
-                    <button class="button button-small button-secondary wfn-delete-video" data-post-id="<?php echo $post->ID; ?>" data-video-id="<?php echo esc_attr($video_id); ?>">
+                    <button class="button button-small button-secondary hkfn-delete-video" data-post-id="<?php echo $post->ID; ?>" data-video-id="<?php echo esc_attr($video_id); ?>">
                         Delete
                     </button>
                 </div>
@@ -1050,11 +1040,11 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Use same nonce as status since they're similar operations
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_status_' . $post_id)) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_status_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
-        $upload_status = get_post_meta($post_id, '_wfn_video_upload_status', true) ?: [];
+        $upload_status = get_post_meta($post_id, '_hkfn_video_upload_status', true) ?: [];
 
         wp_send_json_success($upload_status);
     }
@@ -1069,12 +1059,12 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_status_' . $post_id)) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_status_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
-        $video_status = get_post_meta($post_id, '_wfn_video_status', true) ?: 'unknown';
-        $upload_status = get_post_meta($post_id, '_wfn_video_upload_status', true) ?: [];
+        $video_status = get_post_meta($post_id, '_hkfn_video_status', true) ?: 'unknown';
+        $upload_status = get_post_meta($post_id, '_hkfn_video_upload_status', true) ?: [];
 
         wp_send_json_success([
             'video_status' => $video_status,
@@ -1092,7 +1082,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_retry_' . $post_id)) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_retry_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1103,8 +1093,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         try {
             // Reset status and clear any error states
-            update_post_meta($post_id, '_wfn_video_status', 'pending');
-            update_post_meta($post_id, '_wfn_video_upload_status', [
+            update_post_meta($post_id, '_hkfn_video_status', 'pending');
+            update_post_meta($post_id, '_hkfn_video_upload_status', [
                 'status' => 'retrying',
                 'progress' => 0,
                 'message' => 'Preparing to retry upload...',
@@ -1122,7 +1112,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             error_log('WFN Video Upload Retry Error: ' . $e->getMessage());
 
             // Update status to show retry failed
-            update_post_meta($post_id, '_wfn_video_upload_status', [
+            update_post_meta($post_id, '_hkfn_video_upload_status', [
                 'status' => 'failed',
                 'progress' => 0,
                 'message' => 'Retry failed: ' . $e->getMessage(),
@@ -1145,7 +1135,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_delete_' . $post_id)) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_delete_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1158,10 +1148,10 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         if ($delete_result['success']) {
             // Clean up local metadata
-            delete_post_meta($post_id, '_wfn_video_id');
-            delete_post_meta($post_id, '_wfn_video_metadata');
-            delete_post_meta($post_id, '_wfn_video_status');
-            delete_post_meta($post_id, '_wfn_video_upload_status');
+            delete_post_meta($post_id, '_hkfn_video_id');
+            delete_post_meta($post_id, '_hkfn_video_metadata');
+            delete_post_meta($post_id, '_hkfn_video_status');
+            delete_post_meta($post_id, '_hkfn_video_upload_status');
 
             wp_send_json_success('Video deleted successfully');
         } else {
@@ -1180,13 +1170,13 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             return;
         }
 
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
         if (empty($video_id)) {
             return; // No video to delete
         }
 
         // Check if this site uploaded the video (migration safety)
-        $source_site = get_post_meta($post_id, '_wfn_bunny_video_source_site', true);
+        $source_site = get_post_meta($post_id, '_hkfn_bunny_video_source_site', true);
         $current_site = get_site_url();
 
         if (!empty($source_site) && $source_site !== $current_site) {
@@ -1209,7 +1199,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Also clean up any incomplete upload session from direct upload system
-        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        $session = get_post_meta($post_id, '_hkfn_video_upload_session', true);
         if (is_array($session) && !empty($session['video_id']) && $session['video_id'] !== $video_id) {
             // There's a different video in the session (incomplete upload)
             $this->bunny_service->delete_video($session['video_id']);
@@ -1229,7 +1219,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             'post_type' => 'funeral-notice',
             'meta_query' => [
                 [
-                    'key' => '_wfn_video_status',
+                    'key' => '_hkfn_video_status',
                     'value' => ['failed', 'error'],
                     'compare' => 'IN'
                 ]
@@ -1243,17 +1233,17 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         ]);
 
         foreach ($failed_uploads as $post) {
-            $video_id = get_post_meta($post->ID, '_wfn_video_id', true);
+            $video_id = get_post_meta($post->ID, '_hkfn_video_id', true);
             if ($video_id) {
                 $this->bunny_service->delete_video($video_id);
             }
 
             // Clean up metadata
-            delete_post_meta($post->ID, '_wfn_video_id');
-            delete_post_meta($post->ID, '_wfn_video_metadata');
-            delete_post_meta($post->ID, '_wfn_video_status');
-            delete_post_meta($post->ID, '_wfn_video_upload_status');
-            delete_post_meta($post->ID, '_wfn_video_upload_job');
+            delete_post_meta($post->ID, '_hkfn_video_id');
+            delete_post_meta($post->ID, '_hkfn_video_metadata');
+            delete_post_meta($post->ID, '_hkfn_video_status');
+            delete_post_meta($post->ID, '_hkfn_video_upload_status');
+            delete_post_meta($post->ID, '_hkfn_video_upload_job');
         }
     }
 
@@ -1336,7 +1326,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                     'post_type' => 'funeral-notice',
                     'meta_query' => [
                         [
-                            'key' => '_wfn_video_id',
+                            'key' => '_hkfn_video_id',
                             'value' => $video_id,
                             'compare' => '='
                         ]
@@ -1383,7 +1373,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             'post_type' => 'funeral-notice',
             'meta_query' => [
                 [
-                    'key' => '_wfn_video_status',
+                    'key' => '_hkfn_video_status',
                     'value' => ['uploading', 'processing'],
                     'compare' => 'IN'
                 ]
@@ -1401,7 +1391,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         foreach ($stuck_uploads as $post) {
             try {
-                $video_id = get_post_meta($post->ID, '_wfn_video_id', true);
+                $video_id = get_post_meta($post->ID, '_hkfn_video_id', true);
 
                 // Check if video still exists and its actual status
                 if ($video_id) {
@@ -1409,9 +1399,9 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
                     if ($video_info['success'] && $video_info['status'] === 'finished') {
                         // Video is actually ready, update status
-                        update_post_meta($post->ID, '_wfn_video_status', 'ready');
-                        update_post_meta($post->ID, '_wfn_video_data', $video_info['data']);
-                        delete_post_meta($post->ID, '_wfn_video_upload_status');
+                        update_post_meta($post->ID, '_hkfn_video_status', 'ready');
+                        update_post_meta($post->ID, '_hkfn_video_data', $video_info['data']);
+                        delete_post_meta($post->ID, '_hkfn_video_upload_status');
 
                         $results['messages'][] = "Fixed stuck upload for: {$post->post_title} (ID: {$post->ID})";
                     } else {
@@ -1420,8 +1410,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                             $this->bunny_service->delete_video($video_id);
                         }
 
-                        update_post_meta($post->ID, '_wfn_video_status', 'failed');
-                        update_post_meta($post->ID, '_wfn_video_upload_status', [
+                        update_post_meta($post->ID, '_hkfn_video_status', 'failed');
+                        update_post_meta($post->ID, '_hkfn_video_upload_status', [
                             'status' => 'failed',
                             'message' => 'Upload timed out - cleaned up by maintenance task',
                             'failed_at' => current_time('mysql')
@@ -1431,9 +1421,9 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                     }
                 } else {
                     // No video ID, just reset status
-                    delete_post_meta($post->ID, '_wfn_video_status');
-                    delete_post_meta($post->ID, '_wfn_video_upload_status');
-                    delete_post_meta($post->ID, '_wfn_video_upload_job');
+                    delete_post_meta($post->ID, '_hkfn_video_status');
+                    delete_post_meta($post->ID, '_hkfn_video_upload_status');
+                    delete_post_meta($post->ID, '_hkfn_video_upload_job');
 
                     $results['messages'][] = "Reset stuck upload status for: {$post->post_title} (ID: {$post->ID})";
                 }
@@ -1507,7 +1497,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         $overall_results['completed_at'] = current_time('mysql');
 
         // Store maintenance log
-        update_option('wfn_video_last_maintenance', $overall_results);
+        update_option('hkfn_video_last_maintenance', $overall_results);
 
         return $overall_results;
     }
@@ -1529,7 +1519,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 'post_type' => 'funeral-notice',
                 'meta_query' => [
                     [
-                        'key' => '_wfn_video_id',
+                        'key' => '_hkfn_video_id',
                         'compare' => 'EXISTS'
                     ]
                 ],
@@ -1548,8 +1538,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             $total_bandwidth_mb = 0;
 
             foreach ($video_posts as $post_id) {
-                $video_status = get_post_meta($post_id, '_wfn_video_status', true);
-                $video_data = get_post_meta($post_id, '_wfn_video_data', true);
+                $video_status = get_post_meta($post_id, '_hkfn_video_status', true);
+                $video_data = get_post_meta($post_id, '_hkfn_video_data', true);
 
                 $total_videos++;
 
@@ -1582,7 +1572,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 'last_updated' => current_time('mysql')
             ];
 
-            update_option('wfn_video_statistics', $statistics);
+            update_option('hkfn_video_statistics', $statistics);
 
             $results['updated'] = 1;
             $results['messages'][] = "Statistics updated: {$total_videos} total videos, {$ready_videos} ready, {$failed_videos} failed";
@@ -1599,7 +1589,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * Get video statistics
      */
     public function get_video_statistics(): array {
-        return get_option('wfn_video_statistics', [
+        return hkfn_get_option('video_statistics', [
             'total_videos' => 0,
             'ready_videos' => 0,
             'failed_videos' => 0,
@@ -1672,23 +1662,23 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         // Enqueue admin video upload styles for post editor
         wp_enqueue_style(
-            'wfn-video-upload-admin',
-            WFN_PLUGIN_URL . 'assets/css/admin/video-upload.css',
+            'hkfn-video-upload-admin',
+            HKFN_PLUGIN_URL . 'assets/css/admin/video-upload.css',
             [],
             $this->get_version()
         );
 
         // Enqueue direct upload JavaScript
         wp_enqueue_script(
-            'wfn-video-direct-upload',
-            WFN_PLUGIN_URL . 'assets/js/video-direct-upload.js',
+            'hkfn-video-direct-upload',
+            HKFN_PLUGIN_URL . 'assets/js/video-direct-upload.js',
             ['jquery', 'acf-input'],
             $this->get_version(),
             true
         );
 
         // Localize script with upload settings and REST API info
-        wp_localize_script('wfn-video-direct-upload', 'wfnVideoUpload', [
+        wp_localize_script('hkfn-video-direct-upload', 'hkfnVideoUpload', [
             'postId' => $post->ID,
             'restUrl' => rest_url(),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -1702,13 +1692,13 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         ]);
 
         // Legacy localization for existing upload progress tracking
-        wp_localize_script('acf-input', 'wfnVideo', [
+        wp_localize_script('acf-input', 'hkfnVideo', [
             'postId' => $post->ID,
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonces' => [
-                'status' => wp_create_nonce('wfn_video_status_' . $post->ID),
-                'retry' => wp_create_nonce('wfn_video_retry_' . $post->ID),
-                'delete' => wp_create_nonce('wfn_video_delete_' . $post->ID)
+                'status' => wp_create_nonce('hkfn_video_status_' . $post->ID),
+                'retry' => wp_create_nonce('hkfn_video_retry_' . $post->ID),
+                'delete' => wp_create_nonce('hkfn_video_delete_' . $post->ID)
             ],
             'settings' => [
                 'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 900) * 1024 * 1024, // Convert to bytes
@@ -1729,35 +1719,35 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         global $post;
 
         // Check if video is ready (license check happens in TemplateManager)
-        $video_status = get_post_meta($post->ID, '_wfn_video_status', true);
+        $video_status = get_post_meta($post->ID, '_hkfn_video_status', true);
         if ($video_status !== 'ready') {
             return;
         }
 
         wp_enqueue_style(
-            'wfn-video-player',
-            WFN_PLUGIN_URL . 'assets/css/video-player.css',
+            'hkfn-video-player',
+            HKFN_PLUGIN_URL . 'assets/css/video-player.css',
             [],
             $this->get_version()
         );
 
         wp_enqueue_script(
-            'wfn-video-player',
-            WFN_PLUGIN_URL . 'assets/js/video-player.js',
+            'hkfn-video-player',
+            HKFN_PLUGIN_URL . 'assets/js/video-player.js',
             ['jquery'],
             $this->get_version(),
             true
         );
 
         // Localize script with video data
-        $video_id = get_post_meta($post->ID, '_wfn_video_id', true);
-        wp_localize_script('wfn-video-player', 'wfnVideo', [
+        $video_id = get_post_meta($post->ID, '_hkfn_video_id', true);
+        wp_localize_script('hkfn-video-player', 'hkfnVideo', [
             'postId' => $post->ID,
             'videoId' => $video_id ?: '',
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonces' => [
-                'progress' => wp_create_nonce('wfn_video_progress'),
-                'status' => wp_create_nonce('wfn_video_status')
+                'progress' => wp_create_nonce('hkfn_video_progress'),
+                'status' => wp_create_nonce('hkfn_video_status')
             ]
         ]);
     }
@@ -1766,8 +1756,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * Render video button for frontend
      */
     public function render_video_button(string $content, int $post_id): string {
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
-        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
+        $video_status = get_post_meta($post_id, '_hkfn_video_status', true);
 
         if (!$video_id || $video_status !== 'ready') {
             return $content;
@@ -1775,7 +1765,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         $modal_result = $this->bunny_service->get_modal_embed_code($video_id, [
             'button_text' => 'View Slideshow',
-            'button_class' => 'wfn-video-button wfn-memorial-video-btn'
+            'button_class' => 'hkfn-video-button hkfn-memorial-video-btn'
         ]);
 
         if ($modal_result['success']) {
@@ -1789,8 +1779,8 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * Render video modal for frontend
      */
     public function render_video_modal(string $content, int $post_id): string {
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
-        $video_status = get_post_meta($post_id, '_wfn_video_status', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
+        $video_status = get_post_meta($post_id, '_hkfn_video_status', true);
 
         if (!$video_id || $video_status !== 'ready') {
             return $content;
@@ -1814,7 +1804,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         global $post;
-        echo apply_filters('wfn_memorial_video_modal', '', $post->ID);
+        echo apply_filters('hkfn_memorial_video_modal', '', $post->ID);
     }
 
     /**
@@ -1895,7 +1885,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         $this->bunny_service->delete_video($old_video_id);
 
         // Clean up old video ID meta
-        delete_post_meta($post_id, '_wfn_video_id_old');
+        delete_post_meta($post_id, '_hkfn_video_id_old');
     }
 
     /**
@@ -1908,7 +1898,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_maintenance')) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1934,7 +1924,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_maintenance')) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1960,7 +1950,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_video_maintenance')) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1981,36 +1971,36 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     private function render_video_statistics(): void {
         $stats = $this->get_video_statistics();
-        $last_maintenance = get_option('wfn_video_last_maintenance', null);
+        $last_maintenance = hkfn_get_option('video_last_maintenance', null);
 
         ?>
-        <div class="wfn-settings-card">
+        <div class="hkfn-settings-card">
             <h3>Video Statistics</h3>
 
-            <div class="wfn-stats-grid">
-                <div class="wfn-stat-item">
-                    <div class="wfn-stat-value"><?php echo intval($stats['total_videos']); ?></div>
-                    <div class="wfn-stat-label">Total Videos</div>
+            <div class="hkfn-stats-grid">
+                <div class="hkfn-stat-item">
+                    <div class="hkfn-stat-value"><?php echo intval($stats['total_videos']); ?></div>
+                    <div class="hkfn-stat-label">Total Videos</div>
                 </div>
 
-                <div class="wfn-stat-item">
-                    <div class="wfn-stat-value wfn-stat-success"><?php echo intval($stats['ready_videos']); ?></div>
-                    <div class="wfn-stat-label">Ready</div>
+                <div class="hkfn-stat-item">
+                    <div class="hkfn-stat-value hkfn-stat-success"><?php echo intval($stats['ready_videos']); ?></div>
+                    <div class="hkfn-stat-label">Ready</div>
                 </div>
 
-                <div class="wfn-stat-item">
-                    <div class="wfn-stat-value wfn-stat-processing"><?php echo intval($stats['processing_videos']); ?></div>
-                    <div class="wfn-stat-label">Processing</div>
+                <div class="hkfn-stat-item">
+                    <div class="hkfn-stat-value hkfn-stat-processing"><?php echo intval($stats['processing_videos']); ?></div>
+                    <div class="hkfn-stat-label">Processing</div>
                 </div>
 
-                <div class="wfn-stat-item">
-                    <div class="wfn-stat-value wfn-stat-error"><?php echo intval($stats['failed_videos']); ?></div>
-                    <div class="wfn-stat-label">Failed</div>
+                <div class="hkfn-stat-item">
+                    <div class="hkfn-stat-value hkfn-stat-error"><?php echo intval($stats['failed_videos']); ?></div>
+                    <div class="hkfn-stat-label">Failed</div>
                 </div>
 
-                <div class="wfn-stat-item">
-                    <div class="wfn-stat-value"><?php echo $stats['total_storage_mb']; ?>MB</div>
-                    <div class="wfn-stat-label">Total Storage</div>
+                <div class="hkfn-stat-item">
+                    <div class="hkfn-stat-value"><?php echo $stats['total_storage_mb']; ?>MB</div>
+                    <div class="hkfn-stat-label">Total Storage</div>
                 </div>
             </div>
 
@@ -2019,12 +2009,12 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             <?php endif; ?>
 
             <?php if ($last_maintenance): ?>
-                <div class="wfn-maintenance-info">
+                <div class="hkfn-maintenance-info">
                     <p><strong>Last Maintenance:</strong> <?php echo esc_html($last_maintenance['completed_at']); ?></p>
                     <?php if ($last_maintenance['total_errors'] > 0): ?>
-                        <p class="wfn-text-warning">⚠️ <?php echo $last_maintenance['total_errors']; ?> errors during last maintenance</p>
+                        <p class="hkfn-text-warning">⚠️ <?php echo $last_maintenance['total_errors']; ?> errors during last maintenance</p>
                     <?php else: ?>
-                        <p class="wfn-text-success">✅ Last maintenance completed without errors</p>
+                        <p class="hkfn-text-success">✅ Last maintenance completed without errors</p>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -2037,51 +2027,51 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     private function render_maintenance_controls(): void {
         ?>
-        <div class="wfn-settings-card">
+        <div class="hkfn-settings-card">
             <h3>Video Maintenance</h3>
             <p>Use these tools to maintain your video library and clean up any issues.</p>
 
-            <div class="wfn-maintenance-actions">
-                <div class="wfn-maintenance-action">
+            <div class="hkfn-maintenance-actions">
+                <div class="hkfn-maintenance-action">
                     <h4>Full Maintenance</h4>
                     <p>Run comprehensive maintenance including cleanup of failed uploads, orphaned videos, and stuck uploads.</p>
-                    <button type="button" class="button button-primary wfn-run-maintenance" data-action="full">
+                    <button type="button" class="button button-primary hkfn-run-maintenance" data-action="full">
                         Run Full Maintenance
                     </button>
                 </div>
 
-                <div class="wfn-maintenance-action">
+                <div class="hkfn-maintenance-action">
                     <h4>Clean Orphaned Videos</h4>
                     <p>Remove hosted videos that no longer have corresponding WordPress posts.</p>
-                    <button type="button" class="button button-secondary wfn-run-maintenance" data-action="orphaned">
+                    <button type="button" class="button button-secondary hkfn-run-maintenance" data-action="orphaned">
                         Clean Orphaned Videos
                     </button>
                 </div>
 
-                <div class="wfn-maintenance-action">
+                <div class="hkfn-maintenance-action">
                     <h4>Fix Stuck Uploads</h4>
                     <p>Reset uploads that have been stuck in processing for more than 24 hours.</p>
-                    <button type="button" class="button button-secondary wfn-run-maintenance" data-action="stuck">
+                    <button type="button" class="button button-secondary hkfn-run-maintenance" data-action="stuck">
                         Fix Stuck Uploads
                     </button>
                 </div>
             </div>
 
-            <div id="wfn-maintenance-results" class="wfn-maintenance-results" style="display: none;">
+            <div id="hkfn-maintenance-results" class="hkfn-maintenance-results" style="display: none;">
                 <h4>Maintenance Results</h4>
-                <div class="wfn-maintenance-output"></div>
+                <div class="hkfn-maintenance-output"></div>
             </div>
         </div>
 
         <script type="text/javascript">
         jQuery(document).ready(function($) {
-            $('.wfn-run-maintenance').on('click', function(e) {
+            $('.hkfn-run-maintenance').on('click', function(e) {
                 e.preventDefault();
 
                 const $button = $(this);
                 const action = $button.data('action');
-                const $results = $('#wfn-maintenance-results');
-                const $output = $('.wfn-maintenance-output');
+                const $results = $('#hkfn-maintenance-results');
+                const $output = $('.hkfn-maintenance-output');
 
                 // Show loading state
                 $button.prop('disabled', true).text('Running...');
@@ -2089,16 +2079,16 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 $output.html('<p>Running maintenance task...</p>');
 
                 // Prepare AJAX data
-                const ajaxAction = action === 'full' ? 'wfn_run_video_maintenance' :
-                                 action === 'orphaned' ? 'wfn_cleanup_orphaned_videos' :
-                                 'wfn_cleanup_stuck_uploads';
+                const ajaxAction = action === 'full' ? 'hkfn_run_video_maintenance' :
+                                 action === 'orphaned' ? 'hkfn_cleanup_orphaned_videos' :
+                                 'hkfn_cleanup_stuck_uploads';
 
                 $.ajax({
                     url: ajaxurl,
                     type: 'POST',
                     data: {
                         action: ajaxAction,
-                        nonce: '<?php echo wp_create_nonce('wfn_video_maintenance'); ?>'
+                        nonce: '<?php echo wp_create_nonce('hkfn_video_maintenance'); ?>'
                     },
                     success: function(response) {
                         if (response.success) {
@@ -2106,7 +2096,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
                             // Show detailed results if available
                             if (response.data.results) {
-                                let detailsHtml = '<div class="wfn-maintenance-details">';
+                                let detailsHtml = '<div class="hkfn-maintenance-details">';
 
                                 if (response.data.results.tasks) {
                                     // Full maintenance results
@@ -2225,7 +2215,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     public function ajax_manual_process_video(): void {
         // Verify nonce and permissions
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wfn_manual_video_process') || !current_user_can('manage_options')) {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_manual_video_process') || !current_user_can('manage_options')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -2235,7 +2225,7 @@ define('WFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Check if post has queued video
-        $upload_status = get_post_meta($post_id, '_wfn_video_upload_status', true);
+        $upload_status = get_post_meta($post_id, '_hkfn_video_upload_status', true);
         if (empty($upload_status) || $upload_status['status'] !== 'queued') {
             wp_send_json_error('No queued video found for this post');
         }

@@ -3,10 +3,7 @@ name: Build and Release - Dual System (GitHub + Hoster)
 on:
   push:
     tags:
-      - '[0-9]+'
-      - '[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v*"
 
 jobs:
   build-and-release:
@@ -17,131 +14,73 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v4"
 
-      - name: "Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: "Install NPM dependencies (if package.json exists)"
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          else
-            echo "No package.json found - skipping npm install"
-          fi
-
-      - name: "Build project (if package.json has build script)"
-        run: |
-          if [ -f package.json ] && npm run | grep -q "build"; then
-            npm run build
-          else
-            echo "No build script found - skipping build step"
-          fi
-
       - name: "Get the version"
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: "Create build directory with proper plugin folder name"
-        run: mkdir -p build/hk-funeral-notices
+      - name: "Set up Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "Install dependencies"
+        run: npm ci
+
+      - name: "Build assets"
+        run: npm run build
+
+      - name: "Create build directory"
+        run: mkdir -p build-release/hk-funeral-notices
 
       - name: "Copy plugin files to build directory"
         run: |
-          if [ -f .distignore ]; then
-            echo "Using .distignore to exclude files..."
-            rsync -av --exclude-from='.distignore' ./ build/hk-funeral-notices/ --exclude='build/'
-          else
-            echo "No .distignore found, copying all files except common excludes..."
-            rsync -av ./ build/hk-funeral-notices/ \
-              --exclude='build/' \
-              --exclude='.git/' \
-              --exclude='.github/' \
-              --exclude='node_modules/' \
-              --exclude='*.log' \
-              --exclude='.DS_Store' \
-              --exclude='hoster-files-for-plugin/'
-          fi
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='build-release' \
+            --exclude='node_modules' \
+            --exclude='src/js' \
+            --exclude='.gitignore' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='webpack.scripts.config.js' \
+            --exclude='phpcs.xml.dist' \
+            --exclude='blueprint.json' \
+            --exclude='CLAUDE.md' \
+            --exclude='PROJECT-STATE-SUMMARY.md' \
+            --exclude='ANALYTICS-COLLECTION-EXTENSION.md' \
+            --exclude='INCIDENT-REPORT-NOV-21-2025.md' \
+            --exclude='COLLECTION-MANAGEMENT-FEATURE.md' \
+            --exclude='.DS_Store' \
+            --exclude='.nova' \
+            --exclude='.claude' \
+            --exclude='screenshots' \
+            . build-release/hk-funeral-notices/
 
-      - name: "Create GitHub Release Archive"
+      - name: "Create zip file"
         run: |
-          cd build
+          cd build-release
           zip -r hk-funeral-notices-${{ env.VERSION }}.zip hk-funeral-notices
-          cd ..
-          echo "Created hk-funeral-notices-${{ env.VERSION }}.zip"
-
-      - name: "Debug: List build contents"
-        run: |
-          echo "=== Build directory contents ==="
-          ls -la build/
-          echo "=== Plugin directory contents ==="
-          ls -la build/hk-funeral-notices/
-          echo "=== Archive file info ==="
-          ls -lh build/*.zip
 
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
-          files: build/hk-funeral-notices-${{ env.VERSION }}.zip
+          files: build-release/hk-funeral-notices-${{ env.VERSION }}.zip
           name: "HK Funeral Notices ${{ github.ref_name }}"
-          body: |
-            ## HumanKind Funeral Notices ${{ github.ref_name }}
-
-            A WordPress plugin built for funeral homes and their digital partners — providing simple, reliable publishing of funeral service details with optional livestreams, tributes, and memorial video slideshows.
-
-            ### ⚙️ Installation
-            1. Download `hk-funeral-notices-${{ env.VERSION }}.zip`
-            2. In WordPress, go to **Plugins → Add New → Upload Plugin**
-            3. Activate the plugin
-            4. Make sure **ACF Pro** is installed and active
-
-            ### 🎥 Premium Features
-            Upload and host memorial video slideshows directly on funeral pages.  
-            Video hosting uses secure cloud delivery and requires a premium license from [humankindwebsites.com](https://humankindwebsites.com/) or [weave.co.nz](https://weave.co.nz).
-
-            ### 🧱 Requirements
-            - WordPress 6.0 or later  
-            - PHP 8.0+  
-            - ACF Pro (Advanced Custom Fields Pro)
-
-            ### 🪧 Key Features
-            - Publish and manage funeral notices in WordPress  
-            - Livestream and tribute link support  
-            - Four layout templates, all mobile friendly  
-            - Optional video slideshow hosting (premium)  
-            - Search and filter tools  
-            - Theme styling integration and colour controls  
-
-            ---
-
-            🧩 **Build generated automatically with GitHub Actions**
-
-            For documentation and support:  
-            📖 [GitHub Repository](https://github.com/HumanKind-nz/hk-funeral-notices)  
-            📧 [support@weave.co.nz](mailto:support@weave.co.nz)
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Notify Hoster System (Optional)"
+      - name: "Notify Hoster System"
         if: success()
         run: |
           echo "=== Hoster Integration ==="
-          echo "🎉 GitHub release created successfully!"
-          echo "📦 Release: ${{ github.ref_name }}"
-          echo "🔗 Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
-          echo "\n⚠️  Manual Step Required:"
+          echo "GitHub release created successfully!"
+          echo "Release: ${{ github.ref_name }}"
+          echo "Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
+          echo ""
+          echo "Manual Step Required:"
           echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
           echo "2. Point download to GitHub release URL above"
           echo "3. Update version number in hoster system"
-          echo "\n🔄 Future Enhancement: This could be automated with hoster webhook/API"
-
-      - name: "Build Summary"
-        if: always()
-        run: |
-          echo "=== Build Summary ==="
-          echo "📋 Tag: ${{ github.ref_name }}"
-          echo "📦 Archive: hk-funeral-notices-${{ env.VERSION }}.zip"
-          echo "🔗 Repository: ${{ github.repository }}"
-          echo "✅ Status: ${{ job.status }}"
-          if [ -f "build/hk-funeral-notices-${{ env.VERSION }}.zip" ]; then
-            echo "📊 Archive Size: $(du -h build/hk-funeral-notices-${{ env.VERSION }}.zip | cut -f1)"
-          fi

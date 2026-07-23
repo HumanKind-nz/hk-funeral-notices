@@ -59,7 +59,7 @@ add_filter( 'fl_builder_loop_query_args', function( $query_args ) {
 		break;
 
 		case 'weave-last-x-days':
-		$no_of_days = get_field('wfn_number_of_days_on_main_page', 'options');
+		$no_of_days = get_field('hkfn_number_of_days_on_main_page', 'options');
 		// Ensure $no_of_days is valid and sanitized
 		$query_args['meta_query'] = array(
 			'relation' => 'AND',

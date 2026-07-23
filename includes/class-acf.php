@@ -10,7 +10,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 function register_funeral_notice_post_type() {
     // Get custom slug from settings module
-    $settings = get_option('wfn_module_settings', []);
+    $settings = hkfn_get_option('module_settings', []);
     $single_slug = $settings['single_slug'] ?? 'funeral-notice';
     $labels = array(
         'name'                  => _x('Funerals', 'Post Type General Name', 'weave-funeral-notices'),
@@ -149,7 +149,7 @@ add_filter('use_block_editor_for_post_type', 'disable_gutenberg_for_funeral_noti
  * 
  * @since 2.0.0
  */
-function wfn_remove_seopress_metaboxes() {
+function hkfn_remove_seopress_metaboxes() {
     // Remove SEOPress meta boxes from funeral-notice post type
     remove_meta_box('seopress_cpt', 'funeral-notice', 'normal');
     remove_meta_box('seopress_content_analysis', 'funeral-notice', 'normal');
@@ -159,7 +159,7 @@ function wfn_remove_seopress_metaboxes() {
     remove_meta_box('seopress_social', 'funeral-notice', 'normal');
     remove_meta_box('seopress_advanced', 'funeral-notice', 'normal');
 }
-add_action('add_meta_boxes', 'wfn_remove_seopress_metaboxes', 99);
+add_action('add_meta_boxes', 'hkfn_remove_seopress_metaboxes', 99);
 
 /**
  * ========================================================================
@@ -185,7 +185,7 @@ add_action('add_meta_boxes', 'wfn_remove_seopress_metaboxes', 99);
  * 
  * @return void
  */
-function wfn_hide_title_field_for_funeral_notices() {
+function hkfn_hide_title_field_for_funeral_notices() {
     global $post_type;
     
     // Only apply to funeral notice post type
@@ -243,7 +243,7 @@ function wfn_hide_title_field_for_funeral_notices() {
         }
         
         /* Add visual indicator that title is auto-generated */
-        .acf-field[data-name="wfn_person_group"] .acf-label:after {
+        .acf-field[data-name="hkfn_person_group"] .acf-label:after {
             content: " (Title auto-generated from names)";
             font-size: 11px;
             color: #666;
@@ -253,8 +253,8 @@ function wfn_hide_title_field_for_funeral_notices() {
     </style>
     <?php
 }
-add_action('admin_head-post.php', 'wfn_hide_title_field_for_funeral_notices');
-add_action('admin_head-post-new.php', 'wfn_hide_title_field_for_funeral_notices');
+add_action('admin_head-post.php', 'hkfn_hide_title_field_for_funeral_notices');
+add_action('admin_head-post-new.php', 'hkfn_hide_title_field_for_funeral_notices');
 
 /**
  * Force media uploader to default to Upload tab
@@ -266,7 +266,7 @@ add_action('admin_head-post-new.php', 'wfn_hide_title_field_for_funeral_notices'
  * Note: This respects user preference - once a user switches to Upload tab,
  * WordPress remembers that choice for subsequent opens.
  */
-function wfn_force_media_upload_tab() {
+function hkfn_force_media_upload_tab() {
     // Get current screen to check post type
     $screen = get_current_screen();
 
@@ -290,440 +290,23 @@ function wfn_force_media_upload_tab() {
 /**
  * Register the media upload tab hooks after WordPress is fully loaded
  */
-function wfn_register_media_upload_hooks() {
-    add_action('admin_footer-post.php', 'wfn_force_media_upload_tab');
-    add_action('admin_footer-post-new.php', 'wfn_force_media_upload_tab');
+function hkfn_register_media_upload_hooks() {
+    add_action('admin_footer-post.php', 'hkfn_force_media_upload_tab');
+    add_action('admin_footer-post-new.php', 'hkfn_force_media_upload_tab');
 }
-add_action('admin_init', 'wfn_register_media_upload_hooks');
+add_action('admin_init', 'hkfn_register_media_upload_hooks');
 
-/**
- * Customize Crop-Thumbnails plugin integration for funeral notices
- *
- * NOTE: Image size visibility (which sizes appear in crop modal) is configured
- * via Crop-Thumbnails settings page at Settings → Crop-Thumbnails.
- * For funeral notices, ensure only "Grid Crop (4:3)" is checked.
+/*
+ * Crop-Thumbnails plugin integration removed in v3.0.0 — image cropping is
+ * now built in (see src/Admin/ImageCropHandler.php and
+ * assets/js/admin/image-crop-cropperjs.js). The crop-thumbnails plugin can
+ * be uninstalled from sites once they are on v3.
  */
-
-/**
- * Customize the crop button text for funeral notices
- */
-function wfn_customize_crop_button_text($text) {
-    global $post;
-    if ($post && get_post_type($post) === 'funeral-notice') {
-        return __('Crop for Grid/Cards', 'hk-funeral-notices');
-    }
-    return $text;
-}
-add_filter('crop_thumbnails_button_text', 'wfn_customize_crop_button_text');
-
-/**
- * Ensure wfn-grid-crop image size is available in Crop-Thumbnails
- * This filter explicitly tells Crop-Thumbnails plugin about our custom image size
- */
-function wfn_add_grid_crop_to_crop_thumbnails($sizes) {
-    // Make sure our grid crop size is in the list
-    if (!in_array('wfn-grid-crop', $sizes)) {
-        $sizes[] = 'wfn-grid-crop';
-    }
-    return $sizes;
-}
-add_filter('crop_thumbnails_image_sizes', 'wfn_add_grid_crop_to_crop_thumbnails');
-
-/**
- * Add friendly name for wfn-grid-crop in Crop-Thumbnails interface
- */
-function wfn_crop_thumbnails_size_label($size_name) {
-    if ($size_name === 'wfn-grid-crop') {
-        return 'Grid Crop (4:3)';
-    }
-    return $size_name;
-}
-add_filter('crop_thumbnails_size_label', 'wfn_crop_thumbnails_size_label');
-
-/**
- * Trigger cache purge after cropping (if Weave Cache Purge Helper plugin is active)
- */
-function wfn_purge_cache_after_crop($attachment_id) {
-    // If Weave Cache Purge Helper plugin is active, trigger purge
-    if (function_exists('weave_purge_post_cache')) {
-        // Get the post this image is attached to
-        $post_id = get_post_meta($attachment_id, '_thumbnail_id', true);
-        if ($post_id) {
-            weave_purge_post_cache($post_id);
-        }
-    }
-
-    // Trigger generic WordPress action for other cache plugins
-    do_action('wfn_after_image_crop', $attachment_id);
-}
-add_action('crop_thumbnails_after_crop', 'wfn_purge_cache_after_crop');
-
-/**
- * Add CSS and JavaScript for Crop-Thumbnails button positioning and preview toggle
- */
-function wfn_crop_thumbnails_styling() {
-    global $post_type, $post;
-
-    // Only apply to funeral notice post type
-    if ($post_type !== 'funeral-notice') return;
-
-    // Get featured image URLs for comparison
-    $thumbnail_id = get_post_thumbnail_id($post->ID ?? 0);
-    $full_size_url = '';
-    $grid_crop_url = '';
-
-    if ($thumbnail_id) {
-        $full_size_url = wp_get_attachment_image_url($thumbnail_id, 'full');
-        $grid_crop_url = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
-    }
-
-    ?>
-    <style type="text/css">
-        /* Better positioning for Crop-Thumbnails button */
-        body.post-type-funeral-notice .cropFeaturedImageWrap {
-            margin: 10px 0 0 0 !important;
-            padding: 0 !important;
-        }
-
-        body.post-type-funeral-notice .cropThumbnailsLink {
-            display: inline-block;
-            text-decoration: none;
-            background: #2271b1;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 3px;
-            font-size: 13px;
-            line-height: 1.4;
-            transition: background-color 0.2s;
-        }
-
-        body.post-type-funeral-notice .cropThumbnailsLink:hover {
-            background: #135e96;
-            color: #fff;
-        }
-
-        body.post-type-funeral-notice .cropThumbnailsLink .wp-media-buttons-icon {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            vertical-align: text-top;
-            margin-right: 5px;
-        }
-
-        /* Crop preview comparison */
-        body.post-type-funeral-notice .wfn-crop-preview {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-preview-title {
-            margin: 0 0 10px 0;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1d2327;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-comparison {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-comparison-item {
-            text-align: center;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-comparison-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #50575e;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-comparison-image {
-            display: block;
-            width: 100%;
-            height: auto;
-            border: 2px solid #ddd;
-            border-radius: 3px;
-            background: #fff;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-comparison-info {
-            margin-top: 8px;
-            font-size: 11px;
-            color: #666;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-no-preview {
-            text-align: center;
-            padding: 30px;
-            background: #fff;
-            border: 2px dashed #ddd;
-            border-radius: 3px;
-            color: #666;
-            font-size: 12px;
-        }
-
-        body.post-type-funeral-notice .wfn-crop-no-preview strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #1d2327;
-        }
-    </style>
-
-    <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            // PHP-generated image URLs (if available)
-            var wfnImageUrls = {
-                fullSize: <?php echo json_encode($full_size_url); ?>,
-                gridCrop: <?php echo json_encode($grid_crop_url); ?>
-            };
-
-            // Override thumbnail click to open Crop-Thumbnails modal instead of media library
-            function setupThumbnailClickOverride() {
-                var $thumbnail = $('#postimagediv .inside img, #postimagediv .inside .components-button');
-
-                if ($thumbnail.length) {
-                    // Remove WordPress default click handlers
-                    $thumbnail.off('click.wp-media-featured-image');
-
-                    // Add custom click to trigger Crop-Thumbnails
-                    $('#postimagediv .inside').on('click', 'img, .components-button', function(e) {
-                        var $cropButton = $('.cropThumbnailsLink');
-                        if ($cropButton.length) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            $cropButton[0].click();
-                        }
-                    });
-                }
-            }
-
-            // Build side-by-side comparison preview
-            function buildCropComparison(bustCache) {
-                var $cropWrap = $('.cropFeaturedImageWrap');
-
-                if (!$cropWrap.length) {
-                    console.log('WFN: Crop wrap not found');
-                    return;
-                }
-
-                // Remove existing preview if any
-                $('.wfn-crop-preview').remove();
-
-                // Add cache busting parameter if requested (after cropping)
-                var cacheBuster = bustCache ? '?v=' + Date.now() : '';
-
-                console.log('WFN: Building comparison with bustCache=' + bustCache + ', cacheBuster=' + cacheBuster);
-
-                // Use PHP-generated URLs if available, otherwise show message
-                if (wfnImageUrls.fullSize && wfnImageUrls.gridCrop) {
-                    console.log('WFN: Full size URL:', wfnImageUrls.fullSize + cacheBuster);
-                    console.log('WFN: Grid crop URL:', wfnImageUrls.gridCrop + cacheBuster);
-
-                    // Show side-by-side comparison
-                    var fullImageUrl = wfnImageUrls.fullSize + cacheBuster;
-                    var gridCropUrl = wfnImageUrls.gridCrop + cacheBuster;
-
-                    var comparisonHtml = '<div class="wfn-crop-preview">' +
-                        '<div class="wfn-crop-preview-title">Image Preview Comparison <span style="font-size: 11px; font-weight: normal; color: #666;">(Save post to see updated crop)</span></div>' +
-                        '<div class="wfn-crop-comparison">' +
-                            '<div class="wfn-crop-comparison-item">' +
-                                '<span class="wfn-crop-comparison-label">Full Image (Single Page)</span>' +
-                                '<img src="' + fullImageUrl + '" class="wfn-crop-comparison-image" alt="Full size preview">' +
-                                '<div class="wfn-crop-comparison-info">Shows complete image on funeral page</div>' +
-                            '</div>' +
-                            '<div class="wfn-crop-comparison-item">' +
-                                '<span class="wfn-crop-comparison-label">Cropped Version (Grid/Cards)</span>' +
-                                '<img src="' + gridCropUrl + '" class="wfn-crop-comparison-image" alt="Cropped preview">' +
-                                '<div class="wfn-crop-comparison-info">4:3 ratio for grid and card layouts</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-
-                    $cropWrap.after(comparisonHtml);
-                } else if (wfnImageUrls.fullSize && !wfnImageUrls.gridCrop) {
-                    // Has full image but no crop yet
-                    console.log('WFN: No grid crop found yet');
-
-                    var noCropHtml = '<div class="wfn-crop-preview">' +
-                        '<div class="wfn-crop-preview-title">Crop Preview</div>' +
-                        '<div class="wfn-crop-no-preview">' +
-                            '<strong>No cropped version yet</strong>' +
-                            'Click "Crop for Grid/Cards" above to create a 4:3 cropped version for grid and card layouts. ' +
-                            '<em>Save the post after cropping to see the updated preview.</em>' +
-                        '</div>' +
-                    '</div>';
-
-                    $cropWrap.after(noCropHtml);
-                } else {
-                    // No featured image set yet
-                    console.log('WFN: No featured image set');
-                }
-            }
-
-            // Initialize on page load
-            function initializeCropFeatures() {
-                var $featuredImageDiv = $('#postimagediv .inside');
-
-                if ($featuredImageDiv.length && $featuredImageDiv.find('img').length) {
-                    // Setup thumbnail click override
-                    setupThumbnailClickOverride();
-
-                    // Build comparison preview
-                    buildCropComparison();
-                }
-            }
-
-            // Run initialization after short delay for page load
-            setTimeout(initializeCropFeatures, 1000);
-
-            // Refresh image URLs after media selection or cropping
-            function refreshImageUrls(callback) {
-                var postId = $('#post_ID').val();
-                if (!postId) {
-                    console.log('WFN: No post ID found');
-                    if (callback) callback();
-                    return;
-                }
-
-                // Get the thumbnail ID from the WordPress featured image
-                var $img = $('#postimagediv .inside img');
-                if (!$img.length) {
-                    console.log('WFN: No featured image found');
-                    wfnImageUrls.fullSize = '';
-                    wfnImageUrls.gridCrop = '';
-                    if (callback) callback();
-                    return;
-                }
-
-                // Extract attachment ID from img element classes (WordPress adds attachment-{ID} class)
-                var classes = $img.attr('class');
-                var attachmentIdMatch = classes.match(/wp-post-image-(\d+)/);
-                var thumbnailId = $('#_thumbnail_id').val(); // Try hidden input first
-
-                if (!thumbnailId && attachmentIdMatch) {
-                    thumbnailId = attachmentIdMatch[1];
-                }
-
-                console.log('WFN: Thumbnail ID:', thumbnailId);
-
-                // Use WordPress AJAX to get proper image URLs
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'wfn_get_image_urls',
-                        thumbnail_id: thumbnailId,
-                        nonce: '<?php echo wp_create_nonce('wfn_get_image_urls'); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success && response.data) {
-                            wfnImageUrls.fullSize = response.data.full_size || '';
-                            wfnImageUrls.gridCrop = response.data.grid_crop || '';
-                            console.log('WFN: Updated URLs - Full:', wfnImageUrls.fullSize, 'Crop:', wfnImageUrls.gridCrop);
-                        }
-                        if (callback) callback();
-                    },
-                    error: function() {
-                        console.log('WFN: Error refreshing image URLs');
-                        if (callback) callback();
-                    }
-                });
-            }
-
-            // Hook into WordPress media frame events to detect when featured image is set
-            if (typeof wp !== 'undefined' && wp.media) {
-                wp.media.featuredImage.frame().on('select', function() {
-                    console.log('WFN: Featured image selected, refreshing URLs');
-                    setTimeout(function() {
-                        refreshImageUrls(function() {
-                            setupThumbnailClickOverride();
-                            buildCropComparison();
-                        });
-                    }, 1000);
-                });
-            }
-
-            // Re-setup when image changes via buttons
-            $(document).on('click', '#set-post-thumbnail, #remove-post-thumbnail', function() {
-                setTimeout(function() {
-                    refreshImageUrls(function() {
-                        setupThumbnailClickOverride();
-                        buildCropComparison();
-                    });
-                }, 1000);
-            });
-
-            // Rebuild comparison when returning from crop modal
-            // Note: Crop-Thumbnails plugin triggers 'cropThumbnailModalClosed' event on body
-            $('body').on('cropThumbnailModalClosed', function() {
-                console.log('WFN: *** Crop modal closed event detected ***, refreshing preview in 1.5s');
-
-                // Show temporary loading indicator
-                $('.wfn-crop-preview').html('<div class="wfn-crop-preview-title">Refreshing preview...</div>');
-
-                setTimeout(function() {
-                    console.log('WFN: Starting image URL refresh');
-                    refreshImageUrls(function() {
-                        console.log('WFN: URLs refreshed, rebuilding comparison with cache busting');
-                        // Pass true to bust cache after cropping
-                        buildCropComparison(true);
-                    });
-                }, 1500); // Slightly longer delay to ensure crop file is written
-            });
-
-            // Fallback: Also listen for clicks on the modal close button and backdrop
-            // In case the cropThumbnailModalClosed event doesn't fire
-            $(document).on('click', '.crop-thumbnails-modal-close, .crop-thumbnails-modal-backdrop', function() {
-                console.log('WFN: Modal close button clicked (fallback detection)');
-                setTimeout(function() {
-                    refreshImageUrls(function() {
-                        buildCropComparison(true);
-                    });
-                }, 2000);
-            });
-        });
-    </script>
-    <?php
-}
-add_action('admin_head-post.php', 'wfn_crop_thumbnails_styling');
-add_action('admin_head-post-new.php', 'wfn_crop_thumbnails_styling');
-
-/**
- * AJAX handler to get image URLs for comparison preview
- */
-function wfn_ajax_get_image_urls() {
-    // Verify nonce
-    check_ajax_referer('wfn_get_image_urls', 'nonce');
-
-    $thumbnail_id = intval($_POST['thumbnail_id'] ?? 0);
-
-    if (!$thumbnail_id) {
-        wp_send_json_error(['message' => 'No thumbnail ID provided']);
-    }
-
-    // Get image URLs
-    $full_size_url = wp_get_attachment_image_url($thumbnail_id, 'full');
-    $grid_crop_url = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
-
-    // Return URLs
-    wp_send_json_success([
-        'full_size' => $full_size_url ?: '',
-        'grid_crop' => $grid_crop_url ?: ''
-    ]);
-}
-add_action('wp_ajax_wfn_get_image_urls', 'wfn_ajax_get_image_urls');
 
 /**
  * Enqueue post editor JavaScript for funeral notices
  */
-function wfn_enqueue_post_editor_scripts($hook) {
+function hkfn_enqueue_post_editor_scripts($hook) {
     global $post_type;
 
     // Only load on funeral notice edit screens
@@ -732,25 +315,25 @@ function wfn_enqueue_post_editor_scripts($hook) {
         $plugin_url = plugin_dir_url(dirname(__FILE__));
 
         wp_enqueue_script(
-            'wfn-post-editor',
+            'hkfn-post-editor',
             $plugin_url . 'assets/js/admin/post-editor.js',
             ['jquery'],
-            '2.0.2',
+            HKFN_VERSION,
             true
         );
 
         // Add CSS for toggle switches if not already loaded
         wp_enqueue_style(
-            'wfn-post-editor',
+            'hkfn-post-editor',
             $plugin_url . 'assets/css/admin/dashboard.css',
             [],
-            '2.0.2'
+            HKFN_VERSION
         );
 
         // Debug logging removed for production
     }
 }
-add_action('admin_enqueue_scripts', 'wfn_enqueue_post_editor_scripts');
+add_action('admin_enqueue_scripts', 'hkfn_enqueue_post_editor_scripts');
 
 /**
  * Add helpful notice about auto-generated titles to funeral notice admin
@@ -761,7 +344,7 @@ add_action('admin_enqueue_scripts', 'wfn_enqueue_post_editor_scripts');
  * 
  * @return void
  */
-// function wfn_add_auto_title_admin_notice() - REMOVED FOR BETTER UX
+// function hkfn_add_auto_title_admin_notice() - REMOVED FOR BETTER UX
 
 /**
  * Check if ACF Pro is installed and active
@@ -769,22 +352,22 @@ add_action('admin_enqueue_scripts', 'wfn_enqueue_post_editor_scripts');
  *
  * @since 2.0.0
  */
-function wfn_check_acf_pro_dependency() {
+function hkfn_check_acf_pro_dependency() {
     // Check if ACF Pro is installed and active
     if (!function_exists('acf_add_local_field_group') || !function_exists('acf_add_options_sub_page') || !class_exists('ACF_PRO')) {
-        add_action('admin_notices', 'wfn_acf_pro_missing_notice');
+        add_action('admin_notices', 'hkfn_acf_pro_missing_notice');
         return false;
     }
     return true;
 }
-add_action('admin_init', 'wfn_check_acf_pro_dependency');
+add_action('admin_init', 'hkfn_check_acf_pro_dependency');
 
 /**
  * Display admin notice when ACF Pro is missing
  *
  * @since 2.0.0
  */
-function wfn_acf_pro_missing_notice() {
+function hkfn_acf_pro_missing_notice() {
     ?>
     <div class="notice notice-error">
         <p>
@@ -854,8 +437,8 @@ function my_acf_json_load_point( $paths ) {
  * - Supports both new FieldGroupManager and legacy field formats
  * 
  * FIELD COMPATIBILITY:
- * - New format: wfn_person_group['firstname'] / wfn_person_group['lastname']
- * - Legacy format: wfn_person_group_firstname / wfn_person_group_lastname
+ * - New format: hkfn_person_group['firstname'] / hkfn_person_group['lastname']
+ * - Legacy format: hkfn_person_group_firstname / hkfn_person_group_lastname
  * 
  * @since 1.0.0
  * @updated 2.0.0 Enhanced for FieldGroupManager compatibility
@@ -870,7 +453,7 @@ function my_acf_json_load_point( $paths ) {
  * @param int $post_id The post ID being saved
  * @return void
  */
-function wfn_generate_funeral_title_from_names($post_id) {
+function hkfn_generate_funeral_title_from_names($post_id) {
     // Prevent processing during autosave, revisions, or bulk operations
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (wp_is_post_revision($post_id)) return;
@@ -884,7 +467,7 @@ function wfn_generate_funeral_title_from_names($post_id) {
     if (!$post || $post->post_status === 'trash') return;
     
     // Extract names using robust field detection
-    $names = wfn_extract_person_names($post_id);
+    $names = hkfn_extract_person_names($post_id);
     
     // Generate title only if we have at least a last name
     if (empty($names['last_name'])) {
@@ -893,15 +476,15 @@ function wfn_generate_funeral_title_from_names($post_id) {
     }
     
     // Generate the new title and slug
-    $new_title = wfn_generate_title_format($names['last_name'], $post_id);
-    $new_slug = wfn_generate_unique_slug($new_title, $post_id);
+    $new_title = hkfn_generate_title_format($names['last_name'], $post_id);
+    $new_slug = hkfn_generate_unique_slug($new_title, $post_id);
     
     // Only update if title has actually changed (prevents unnecessary updates)
     $current_title = get_the_title($post_id);
     if ($current_title === $new_title) return;
     
     // Prevent infinite loops by temporarily removing this hook
-    remove_action('save_post', 'wfn_generate_funeral_title_from_names');
+    remove_action('save_post', 'hkfn_generate_funeral_title_from_names');
     
     // Update the post with new title and slug
     $result = wp_update_post([
@@ -918,9 +501,9 @@ function wfn_generate_funeral_title_from_names($post_id) {
     }
     
     // Re-hook the function
-    add_action('save_post', 'wfn_generate_funeral_title_from_names');
+    add_action('save_post', 'hkfn_generate_funeral_title_from_names');
 }
-add_action('save_post', 'wfn_generate_funeral_title_from_names');
+add_action('save_post', 'hkfn_generate_funeral_title_from_names');
 
 /**
  * Extract person names from ACF fields with fallback support
@@ -931,12 +514,12 @@ add_action('save_post', 'wfn_generate_funeral_title_from_names');
  * @param int $post_id The post ID to extract names from
  * @return array Associative array with 'first_name' and 'last_name' keys
  */
-function wfn_extract_person_names($post_id) {
+function hkfn_extract_person_names($post_id) {
     $first_name = '';
     $last_name = '';
     
     // Method 1: Try new FieldGroupManager group structure
-    $person_group = get_field('wfn_person_group', $post_id);
+    $person_group = get_field('hkfn_person_group', $post_id);
     if (is_array($person_group) && !empty($person_group)) {
         $first_name = trim($person_group['firstname'] ?? '');
         $last_name = trim($person_group['lastname'] ?? '');
@@ -944,8 +527,8 @@ function wfn_extract_person_names($post_id) {
     
     // Method 2: Fallback to legacy individual field format
     if (empty($first_name) && empty($last_name)) {
-        $first_name = trim(get_field('wfn_person_group_firstname', $post_id) ?: '');
-        $last_name = trim(get_field('wfn_person_group_lastname', $post_id) ?: '');
+        $first_name = trim(get_field('hkfn_person_group_firstname', $post_id) ?: '');
+        $last_name = trim(get_field('hkfn_person_group_lastname', $post_id) ?: '');
     }
     
     // Method 3: Final fallback to direct field names (if they exist)
@@ -971,9 +554,9 @@ function wfn_extract_person_names($post_id) {
  * @param int $post_id The post ID for uniqueness
  * @return string The formatted title
  */
-function wfn_generate_title_format($last_name, $post_id) {
+function hkfn_generate_title_format($last_name, $post_id) {
     // Clean and validate the last name with intelligent nickname handling
-    $clean_last_name = wfn_clean_name_for_title($last_name);
+    $clean_last_name = hkfn_clean_name_for_title($last_name);
     
     // Ensure we have a valid last name
     if (empty($clean_last_name)) {
@@ -999,7 +582,7 @@ function wfn_generate_title_format($last_name, $post_id) {
  * @param string $name The raw name string to clean
  * @return string The cleaned name suitable for titles
  */
-function wfn_clean_name_for_title($name) {
+function hkfn_clean_name_for_title($name) {
     // Start with basic cleanup
     $clean_name = trim(strip_tags($name));
     
@@ -1036,13 +619,13 @@ function wfn_clean_name_for_title($name) {
  * @param int $post_id The post ID (to exclude from conflict checking)
  * @return string The unique slug
  */
-function wfn_generate_unique_slug($title, $post_id) {
+function hkfn_generate_unique_slug($title, $post_id) {
     $base_slug = sanitize_title($title);
     $slug = $base_slug;
     $counter = 1;
     
     // Check for slug conflicts and resolve them
-    while (wfn_slug_exists($slug, $post_id)) {
+    while (hkfn_slug_exists($slug, $post_id)) {
         $slug = $base_slug . '-' . $counter;
         $counter++;
         
@@ -1063,7 +646,7 @@ function wfn_generate_unique_slug($title, $post_id) {
  * @param int $exclude_post_id Post ID to exclude from the check
  * @return bool True if slug exists, false otherwise
  */
-function wfn_slug_exists($slug, $exclude_post_id) {
+function hkfn_slug_exists($slug, $exclude_post_id) {
     global $wpdb;
     
     $query = $wpdb->prepare(
@@ -1084,7 +667,7 @@ function wfn_slug_exists($slug, $exclude_post_id) {
  * @param int $post_id The newly created post ID
  * @return void
  */
-function wfn_set_temporary_funeral_title($post_id) {
+function hkfn_set_temporary_funeral_title($post_id) {
     // Only process funeral notices
     if (get_post_type($post_id) !== 'funeral-notice') return;
     
@@ -1104,7 +687,7 @@ function wfn_set_temporary_funeral_title($post_id) {
         error_log("WFN Auto-Title: Set temporary title '{$temp_title}' for new post {$post_id}");
     }
 }
-add_action('wp_insert_post', 'wfn_set_temporary_funeral_title');
+add_action('wp_insert_post', 'hkfn_set_temporary_funeral_title');
 
 
 
@@ -1202,7 +785,7 @@ add_action('admin_head', 'oneroom_fields_show_hide');
 	  // Check if the get_field function exists (ACF is active)
 	  if (function_exists('get_field')) {
 		  // Get the value of the ACF true/false field on the options page
-		  $show_field = get_field('wfn_settings_use_oneroom_api', 'option');
+		  $show_field = get_field('hkfn_settings_use_oneroom_api', 'option');
   
 		  // Show/hide the fields based on the true/false field value
 		  ?>
@@ -1231,15 +814,15 @@ add_action('admin_head', 'oneroom_fields_show_hide');
 /**
  * Register custom image sizes for funeral notices
  */
-function wfn_register_image_sizes() {
+function hkfn_register_image_sizes() {
 	// Legacy 1:1 square size (500x500)
 	add_image_size( 'funeral-image', 500, 500, true );
 
 	// Grid crop size for card/grid layouts (4:3 ratio, 800x600)
 	// Used by Crop-Thumbnails plugin
-	add_image_size( 'wfn-grid-crop', 800, 600, true );
+	add_image_size( 'hkfn-grid-crop', 800, 600, true );
 }
-add_action( 'init', 'wfn_register_image_sizes' );
+add_action( 'init', 'hkfn_register_image_sizes' );
 
 function remove_editor_buttons_from_funeral_notice_editor($settings, $editor_id) {
 	if (function_exists('get_current_screen') && get_current_screen()->post_type === 'funeral-notice') {
@@ -1319,10 +902,10 @@ function render_funeral_notices_shortcode($atts = []) {
 	$show_search = $atts['show_search'] === 'yes';
 	
 	// Override with GET parameters if search form was submitted
-	$location_search = sanitize_text_field($_GET['wfn_location_search'] ?? $atts['location'] ?? '');
-	$date_from = sanitize_text_field($_GET['wfn_date_from'] ?? $atts['date_from']);
-	$date_to = sanitize_text_field($_GET['wfn_date_to'] ?? $atts['date_to']);
-	$search_term = sanitize_text_field($_GET['wfn_search'] ?? '');
+	$location_search = sanitize_text_field($_GET['hkfn_location_search'] ?? $atts['location'] ?? '');
+	$date_from = sanitize_text_field($_GET['hkfn_date_from'] ?? $atts['date_from']);
+	$date_to = sanitize_text_field($_GET['hkfn_date_to'] ?? $atts['date_to']);
+	$search_term = sanitize_text_field($_GET['hkfn_search'] ?? '');
 
 	// Get current page for pagination
 	$paged = max(1, (int) (get_query_var('paged') ?: 1));
@@ -1373,12 +956,12 @@ function render_funeral_notices_shortcode($atts = []) {
 		$search_meta_query = [
 			'relation' => 'OR',
 			[
-				'key' => 'wfn_person_group_firstname',
+				'key' => 'hkfn_person_group_firstname',
 				'value' => $search_term,
 				'compare' => 'LIKE'
 			],
 			[
-				'key' => 'wfn_person_group_lastname', 
+				'key' => 'hkfn_person_group_lastname', 
 				'value' => $search_term,
 				'compare' => 'LIKE'
 			]
@@ -1408,7 +991,7 @@ function render_funeral_notices_shortcode($atts = []) {
 	}
 	
 	if (!$query->have_posts()) {
-		echo '<div class="wfn-no-results">No funerals found.</div>';
+		echo '<div class="hkfn-no-results">No funerals found.</div>';
 		wp_reset_postdata();
 		return ob_get_clean();
 	}
@@ -1444,9 +1027,9 @@ function render_funeral_notices_shortcode($atts = []) {
  */
 function render_firehawk_grid($query, $columns) {
 	// Enqueue Firehawk CSS
-	wp_enqueue_style('wfn-firehawk', plugin_dir_url(__FILE__) . '../assets/css/firehawk-compat.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../assets/css/firehawk-compat.css', [], HKFN_VERSION);
 	
-	echo '<div class="firehawk-crm firehawk-crm-large-grid" id="wfn-tributes-list">';
+	echo '<div class="firehawk-crm firehawk-crm-large-grid" id="hkfn-tributes-list">';
 	echo '<div class="firehawk-crm-large-grid-view">';
 
 	while ($query->have_posts()) {
@@ -1454,7 +1037,7 @@ function render_firehawk_grid($query, $columns) {
 		$post_id = get_the_ID();
 
 		// Use direct ACF access
-		$person_group = get_field('wfn_person_group', $post_id) ?: [];
+		$person_group = get_field('hkfn_person_group', $post_id) ?: [];
 		$first_name = $person_group['firstname'] ?? '';
 		$last_name = $person_group['lastname'] ?? '';
 		$birth_year = $person_group['birth_year'] ?? '';
@@ -1468,7 +1051,7 @@ function render_firehawk_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_image = get_field('hkfn_fallback_image', 'option');
 		$fallback_url = '';
 		if (is_array($fallback_image) && isset($fallback_image['url'])) {
 			$fallback_url = $fallback_image['url'];
@@ -1496,9 +1079,9 @@ function render_firehawk_grid($query, $columns) {
  */
 function render_modern_grid($query, $columns) {
 	// Enqueue modern CSS
-	wp_enqueue_style('wfn-modern', plugin_dir_url(__FILE__) . '../assets/css/modern.css', [], '2.0.1');
+	wp_enqueue_style('hkfn-modern', plugin_dir_url(__FILE__) . '../assets/css/modern.css', [], HKFN_VERSION);
 	
-	$grid_class = "wfn-modern-grid wfn-cols-{$columns}";
+	$grid_class = "hkfn-modern-grid hkfn-cols-{$columns}";
 	echo "<div class=\"{$grid_class}\">";
 
 	while ($query->have_posts()) {
@@ -1506,7 +1089,7 @@ function render_modern_grid($query, $columns) {
 		$post_id = get_the_ID();
 
 		// Use direct ACF access
-		$person_group = get_field('wfn_person_group', $post_id) ?: [];
+		$person_group = get_field('hkfn_person_group', $post_id) ?: [];
 		$first_name = $person_group['firstname'] ?? '';
 		$last_name = $person_group['lastname'] ?? '';
 		$birth_year = $person_group['birth_year'] ?? '';
@@ -1517,30 +1100,30 @@ function render_modern_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_image = get_field('hkfn_fallback_image', 'option');
 		$fallback_url = '';
 		if (is_array($fallback_image) && isset($fallback_image['url'])) {
 			$fallback_url = $fallback_image['url'];
 		}
 		$image_url = $featured_image ?: $fallback_url;
 
-		echo '<article class="wfn-funeral-card">';
-		echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-card-link">';
+		echo '<article class="hkfn-funeral-card">';
+		echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="hkfn-card-link">';
 		
 		if ($image_url) {
-			echo '<div class="wfn-card-image">';
+			echo '<div class="hkfn-card-image">';
 			echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" loading="lazy">';
 			echo '</div>';
 		}
 		
-		echo '<div class="wfn-card-content">';
-		echo '<h3 class="wfn-card-title">' . esc_html($full_name) . '</h3>';
+		echo '<div class="hkfn-card-content">';
+		echo '<h3 class="hkfn-card-title">' . esc_html($full_name) . '</h3>';
 		
 		if ($years_display) {
-			echo '<p class="wfn-card-dates">' . esc_html($years_display) . '</p>';
+			echo '<p class="hkfn-card-dates">' . esc_html($years_display) . '</p>';
 		}
 		
-		echo '<span class="wfn-card-more">View details</span>';
+		echo '<span class="hkfn-card-more">View details</span>';
 		echo '</div></a></article>';
 	}
 
@@ -1552,9 +1135,9 @@ function render_modern_grid($query, $columns) {
  */
 function render_elegant_grid($query, $columns) {
 	// Enqueue elegant CSS
-	wp_enqueue_style('wfn-elegant', plugin_dir_url(__FILE__) . '../assets/css/elegant.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-elegant', plugin_dir_url(__FILE__) . '../assets/css/elegant.css', [], HKFN_VERSION);
 	
-	$grid_class = "wfn-elegant-grid wfn-cols-{$columns}";
+	$grid_class = "hkfn-elegant-grid hkfn-cols-{$columns}";
 	echo "<div class=\"{$grid_class}\">";
 
 	while ($query->have_posts()) {
@@ -1562,8 +1145,8 @@ function render_elegant_grid($query, $columns) {
 		$post_id = get_the_ID();
 
 		// Use direct ACF access
-		$person_group = get_field('wfn_person_group', $post_id) ?: [];
-		$details_group = get_field('wfn_details_group', $post_id) ?: [];
+		$person_group = get_field('hkfn_person_group', $post_id) ?: [];
+		$details_group = get_field('hkfn_details_group', $post_id) ?: [];
 		
 		$first_name = $person_group['firstname'] ?? '';
 		$last_name = $person_group['lastname'] ?? '';
@@ -1579,29 +1162,29 @@ function render_elegant_grid($query, $columns) {
 		
 		// Get image
 		$featured_image = get_the_post_thumbnail_url($post_id, 'medium');
-		$fallback_image = get_field('wfn_fallback_image', 'option');
+		$fallback_image = get_field('hkfn_fallback_image', 'option');
 		$fallback_url = '';
 		if (is_array($fallback_image) && isset($fallback_image['url'])) {
 			$fallback_url = $fallback_image['url'];
 		}
 		$image_url = $featured_image ?: $fallback_url;
 
-		echo '<article class="wfn-elegant-card">';
-		echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-elegant-link">';
+		echo '<article class="hkfn-elegant-card">';
+		echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="hkfn-elegant-link">';
 		
-		echo '<div class="wfn-elegant-header">';
+		echo '<div class="hkfn-elegant-header">';
 		if ($image_url) {
-			echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" class="wfn-elegant-portrait">';
+			echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" class="hkfn-elegant-portrait">';
 		}
-		echo '<div class="wfn-elegant-details">';
-		echo '<h3 class="wfn-elegant-name">' . esc_html($full_name) . '</h3>';
+		echo '<div class="hkfn-elegant-details">';
+		echo '<h3 class="hkfn-elegant-name">' . esc_html($full_name) . '</h3>';
 		if ($years_display) {
-			echo '<p class="wfn-elegant-years">' . esc_html($years_display) . '</p>';
+			echo '<p class="hkfn-elegant-years">' . esc_html($years_display) . '</p>';
 		}
 		echo '</div></div>';
 		
 		if ($funeral_date) {
-			echo '<div class="wfn-elegant-date">';
+			echo '<div class="hkfn-elegant-date">';
 			echo '<strong>Service:</strong> ' . esc_html(date('j F Y', strtotime($funeral_date)));
 			if ($funeral_time) {
 				echo ' at ' . esc_html($funeral_time);
@@ -1623,30 +1206,30 @@ function render_funeral_notices_search_form($type, $location_search, $date_from,
 	$current_url = is_front_page() ? home_url('/') : get_permalink();
 	
 	// Enqueue search CSS
-	wp_enqueue_style('wfn-search', plugin_dir_url(__FILE__) . '../assets/css/search.css', [], '2.0.0');
+	wp_enqueue_style('hkfn-search', plugin_dir_url(__FILE__) . '../assets/css/search.css', [], HKFN_VERSION);
 	?>
-	<div class="wfn-shortcode-search-form">
-		<form method="get" action="<?php echo esc_url($current_url); ?>" class="wfn-search-form wfn-shortcode-form">
-			<div class="wfn-search-row">
-				<div class="wfn-search-field">
+	<div class="hkfn-shortcode-search-form">
+		<form method="get" action="<?php echo esc_url($current_url); ?>" class="hkfn-search-form hkfn-shortcode-form">
+			<div class="hkfn-search-row">
+				<div class="hkfn-search-field">
 					<input type="text" 
-						   name="wfn_search" 
+						   name="hkfn_search" 
 						   placeholder="Search by name" 
 						   value="<?php echo esc_attr($search_term); ?>" />
 				</div>
 				
-				<div class="wfn-search-field">
+				<div class="hkfn-search-field">
 					<input type="text" 
-						   name="wfn_location_search" 
+						   name="hkfn_location_search" 
 						   placeholder="Location, venue, or address..." 
-						   value="<?php echo esc_attr($_GET['wfn_location_search'] ?? $location_search); ?>" />
+						   value="<?php echo esc_attr($_GET['hkfn_location_search'] ?? $location_search); ?>" />
 				</div>
 				
-				<div class="wfn-search-actions">
-					<button type="submit" class="wfn-btn wfn-btn-primary">Search</button>
+				<div class="hkfn-search-actions">
+					<button type="submit" class="hkfn-btn hkfn-btn-primary">Search</button>
 					<?php if ($search_term || $location_search || $date_from || $date_to): ?>
 					<a href="<?php echo esc_url($current_url); ?>" 
-					   class="wfn-btn wfn-btn-secondary">Clear</a>
+					   class="hkfn-btn hkfn-btn-secondary">Clear</a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -1659,7 +1242,7 @@ function render_funeral_notices_search_form($type, $location_search, $date_from,
  * Render pagination
  */
 function render_funeral_notices_pagination($query, $paged) {
-	echo '<div class="wfn-pagination">';
+	echo '<div class="hkfn-pagination">';
 	echo paginate_links([
 		'base' => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
 		'format' => '?paged=%#%',
@@ -1677,7 +1260,7 @@ function render_funeral_notices_pagination($query, $paged) {
 /**
  * Customize funeral notice post update messages
  */
-function wfn_custom_post_update_messages($messages) {
+function hkfn_custom_post_update_messages($messages) {
 	global $post, $post_ID;
 
 	$messages['funeral-notice'] = array(
@@ -1696,5 +1279,5 @@ function wfn_custom_post_update_messages($messages) {
 
 	return $messages;
 }
-add_filter('post_updated_messages', 'wfn_custom_post_update_messages');
+add_filter('post_updated_messages', 'hkfn_custom_post_update_messages');
 

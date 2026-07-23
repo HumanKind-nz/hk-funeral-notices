@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Shortcodes;
+namespace HumanKind\FuneralNotices\Shortcodes;
 
-use WeaveStudios\FuneralNotices\Templates\TemplateManager;
-use WeaveStudios\FuneralNotices\Plugin;
+use HumanKind\FuneralNotices\Templates\TemplateManager;
+use HumanKind\FuneralNotices\Plugin;
 
 /**
  * Funeral Notices Shortcode Handler
@@ -58,7 +58,7 @@ class FuneralNoticesShortcode {
      */
     public function render_funeral_grid($atts = []): string {
         // Get default layout from settings
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $default_layout = $settings['default_layout'] ?? 'modern';
 
         // Parse shortcode attributes
@@ -89,10 +89,10 @@ class FuneralNoticesShortcode {
         $show_search = $atts['show_search'] === 'yes';
         
         // Override with GET parameters if search form was submitted
-        $location_search = sanitize_text_field($_GET['wfn_location_search'] ?? $atts['location'] ?? '');
-        $date_from = sanitize_text_field($_GET['wfn_date_from'] ?? $atts['date_from']);
-        $date_to = sanitize_text_field($_GET['wfn_date_to'] ?? $atts['date_to']);
-        $search_term = sanitize_text_field($_GET['wfn_search'] ?? '');
+        $location_search = sanitize_text_field($_GET['hkfn_location_search'] ?? $atts['location'] ?? '');
+        $date_from = sanitize_text_field($_GET['hkfn_date_from'] ?? $atts['date_from']);
+        $date_to = sanitize_text_field($_GET['hkfn_date_to'] ?? $atts['date_to']);
+        $search_term = sanitize_text_field($_GET['hkfn_search'] ?? '');
 
         // Get current page for pagination
         $paged = max(1, (int) (get_query_var('paged') ?: 1));
@@ -220,7 +220,7 @@ class FuneralNoticesShortcode {
         // Add location filtering
         if (!empty($location_search)) {
             // Use the SearchManager's location search functionality
-            $search_manager = new \WeaveStudios\FuneralNotices\Admin\SearchManager();
+            $search_manager = new \HumanKind\FuneralNotices\Admin\SearchManager();
             
             // Get posts with matching taxonomy locations
             $tax_posts = [];
@@ -276,22 +276,22 @@ class FuneralNoticesShortcode {
                     ],
                     // Legacy field support
                     [
-                        'key' => 'wfn_location_group_other_funeral_address_address',
+                        'key' => 'hkfn_location_group_other_funeral_address_address',
                         'value' => $location_search,
                         'compare' => 'LIKE'
                     ],
                     [
-                        'key' => 'wfn_location_group_other_funeral_address_name',
+                        'key' => 'hkfn_location_group_other_funeral_address_name',
                         'value' => $location_search,
                         'compare' => 'LIKE'
                     ],
                     [
-                        'key' => 'wfn_location_group_other_funeral_address_street_name',
+                        'key' => 'hkfn_location_group_other_funeral_address_street_name',
                         'value' => $location_search,
                         'compare' => 'LIKE'
                     ],
                     [
-                        'key' => 'wfn_location_group_other_funeral_address_city',
+                        'key' => 'hkfn_location_group_other_funeral_address_city',
                         'value' => $location_search,
                         'compare' => 'LIKE'
                     ]
@@ -322,12 +322,12 @@ class FuneralNoticesShortcode {
                 $search_meta_query = [
                     'relation' => 'OR',
                     [
-                        'key' => 'wfn_person_group_firstname',
+                        'key' => 'hkfn_person_group_firstname',
                         'value' => $search_term,
                         'compare' => 'LIKE'
                     ],
                     [
-                        'key' => 'wfn_person_group_lastname', 
+                        'key' => 'hkfn_person_group_lastname', 
                         'value' => $search_term,
                         'compare' => 'LIKE'
                     ]
@@ -360,45 +360,45 @@ class FuneralNoticesShortcode {
         if ($show_search) {
             // Enqueue search CSS for shortcode forms (without JavaScript)
             wp_enqueue_style(
-                'wfn-search',
+                'hkfn-search',
                 plugin_dir_url(__FILE__) . '../../assets/css/search.css',
                 [],
-                '2.0.2'
+                HKFN_VERSION
             );
             
             // Add inline CSS to ensure mobile responsive styles work
             $inline_css = '
                 @media screen and (max-width: 900px) {
-                    .wfn-shortcode-search-form .wfn-search-row {
+                    .hkfn-shortcode-search-form .hkfn-search-row {
                         flex-direction: column !important;
                         gap: 10px !important;
                         width: 100% !important;
                     }
-                    .wfn-shortcode-search-form .wfn-search-field {
+                    .hkfn-shortcode-search-form .hkfn-search-field {
                         min-width: auto !important;
                         width: 100% !important;
                         flex: none !important;
                         max-width: 100% !important;
                     }
-                    .wfn-shortcode-search-form .wfn-search-field input,
-                    .wfn-shortcode-search-form .wfn-search-field select {
+                    .hkfn-shortcode-search-form .hkfn-search-field input,
+                    .hkfn-shortcode-search-form .hkfn-search-field select {
                         width: 100% !important;
                         box-sizing: border-box !important;
                         max-width: 100% !important;
                     }
-                    .wfn-shortcode-search-form .wfn-search-field.wfn-date-field {
+                    .hkfn-shortcode-search-form .hkfn-search-field.hkfn-date-field {
                         display: none !important;
                     }
                 }
             ';
-            wp_add_inline_style('wfn-search', $inline_css);
+            wp_add_inline_style('hkfn-search', $inline_css);
             
             $this->render_shortcode_search_form($type, $location_search, $date_from, $date_to, $search_term);
         }
         
         if (!$query->have_posts()) {
             // Show no results message after search form
-            echo '<div class="wfn-no-results">No funerals found, please try another search.</div>';
+            echo '<div class="hkfn-no-results">No funerals found, please try another search.</div>';
             wp_reset_postdata();
             return ob_get_clean();
         }
@@ -423,23 +423,23 @@ class FuneralNoticesShortcode {
 
         // Enqueue Load More assets (always enqueue to avoid issues)
         wp_enqueue_style(
-            'wfn-load-more',
+            'hkfn-load-more',
             plugin_dir_url(__FILE__) . '../../assets/css/load-more.css',
             [],
-            '2.4.0'
+            HKFN_VERSION
         );
 
         wp_enqueue_script(
-            'wfn-load-more',
+            'hkfn-load-more',
             plugin_dir_url(__FILE__) . '../../assets/js/load-more.js',
             ['jquery'],
-            '2.4.0',
+            HKFN_VERSION,
             true
         );
 
-        wp_localize_script('wfn-load-more', 'wfnLoadMore', [
+        wp_localize_script('hkfn-load-more', 'hkfnLoadMore', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wfn_load_more_nonce')
+            'nonce' => wp_create_nonce('hkfn_load_more_nonce')
         ]);
 
         // Add Load More button if there are more posts
@@ -447,7 +447,7 @@ class FuneralNoticesShortcode {
         $shown_posts = $query->post_count;
 
         if ($total_posts > $shown_posts) {
-            $settings_option = get_option('wfn_module_settings', []);
+            $settings_option = hkfn_get_option('module_settings', []);
             $load_more_posts = $settings_option['load_more_posts'] ?? 9;
 
             // Build filters array for AJAX
@@ -459,8 +459,8 @@ class FuneralNoticesShortcode {
                 'search_term' => $search_term
             ];
 
-            echo '<div class="wfn-load-more-container">';
-            echo '<button class="wfn-load-more-button"';
+            echo '<div class="hkfn-load-more-container">';
+            echo '<button class="hkfn-load-more-button"';
             echo ' data-offset="' . esc_attr($shown_posts) . '"';
             echo ' data-per-load="' . esc_attr($load_more_posts) . '"';
             echo ' data-layout="' . esc_attr($style) . '"';
@@ -507,9 +507,9 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue Firehawk CSS
-        wp_enqueue_style('wfn-firehawk', plugin_dir_url(__FILE__) . '../../assets/css/firehawk-compat.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-firehawk', plugin_dir_url(__FILE__) . '../../assets/css/firehawk-compat.css', [], HKFN_VERSION);
         
-        echo '<div class="firehawk-crm firehawk-crm-large-grid" id="wfn-tributes-list">';
+        echo '<div class="firehawk-crm firehawk-crm-large-grid" id="hkfn-tributes-list">';
         echo '<div class="firehawk-crm-large-grid-view">';
 
         while ($query->have_posts()) {
@@ -571,11 +571,11 @@ class FuneralNoticesShortcode {
             $post_id = get_the_ID();
 
             // Use direct ACF access like the old working version
-            $person_group = get_field('wfn_person_group', $post_id) ?: [];
-            $details_group = get_field('wfn_details_group', $post_id) ?: [];
-            $location_group = get_field('wfn_location_group', $post_id) ?: [];
-            $notice_group = get_field('wfn_notice_group', $post_id) ?: [];
-            $streaming_group = get_field('wfn_streaming_group', $post_id) ?: [];
+            $person_group = get_field('hkfn_person_group', $post_id) ?: [];
+            $details_group = get_field('hkfn_details_group', $post_id) ?: [];
+            $location_group = get_field('hkfn_location_group', $post_id) ?: [];
+            $notice_group = get_field('hkfn_notice_group', $post_id) ?: [];
+            $streaming_group = get_field('hkfn_streaming_group', $post_id) ?: [];
             
             $first_name = $person_group['firstname'] ?? '';
             $last_name = $person_group['lastname'] ?? '';
@@ -693,10 +693,10 @@ class FuneralNoticesShortcode {
      */
     private function render_pagination(\WP_Query $query, int $paged): void {
         // Enqueue pagination CSS
-        wp_enqueue_style('wfn-pagination', plugin_dir_url(__FILE__) . '../../assets/css/pagination.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-pagination', plugin_dir_url(__FILE__) . '../../assets/css/pagination.css', [], HKFN_VERSION);
         
-        echo '<div class="wfn-pagination">';
-        echo '<ul class="wfn-pagination-list">';
+        echo '<div class="hkfn-pagination">';
+        echo '<ul class="hkfn-pagination-list">';
         
         $total_pages = $query->max_num_pages;
         $current_page = $paged;
@@ -704,7 +704,7 @@ class FuneralNoticesShortcode {
         // Previous button
         if ($current_page > 1) {
             $prev_url = str_replace('999999999', (string)($current_page - 1), esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $prev_url . '" class="wfn-pagination-btn wfn-pagination-prev">&laquo;</a></li>';
+            echo '<li><a href="' . $prev_url . '" class="hkfn-pagination-btn hkfn-pagination-prev">&laquo;</a></li>';
         }
         
         // Page numbers with smart range
@@ -714,35 +714,35 @@ class FuneralNoticesShortcode {
         // Show first page if we're not showing it in range
         if ($start > 1) {
             $first_url = str_replace('999999999', '1', esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $first_url . '" class="wfn-pagination-btn">1</a></li>';
+            echo '<li><a href="' . $first_url . '" class="hkfn-pagination-btn">1</a></li>';
             if ($start > 2) {
-                echo '<li><span class="wfn-pagination-dots">...</span></li>';
+                echo '<li><span class="hkfn-pagination-dots">...</span></li>';
             }
         }
         
         // Page range
         for ($i = $start; $i <= $end; $i++) {
             if ($i == $current_page) {
-                echo '<li><span class="wfn-pagination-btn wfn-pagination-current">' . $i . '</span></li>';
+                echo '<li><span class="hkfn-pagination-btn hkfn-pagination-current">' . $i . '</span></li>';
             } else {
                 $page_url = str_replace('999999999', (string)$i, esc_url(get_pagenum_link(999999999)));
-                echo '<li><a href="' . $page_url . '" class="wfn-pagination-btn">' . $i . '</a></li>';
+                echo '<li><a href="' . $page_url . '" class="hkfn-pagination-btn">' . $i . '</a></li>';
             }
         }
         
         // Show last page if we're not showing it in range
         if ($end < $total_pages) {
             if ($end < $total_pages - 1) {
-                echo '<li><span class="wfn-pagination-dots">...</span></li>';
+                echo '<li><span class="hkfn-pagination-dots">...</span></li>';
             }
             $last_url = str_replace('999999999', (string)$total_pages, esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $last_url . '" class="wfn-pagination-btn">' . $total_pages . '</a></li>';
+            echo '<li><a href="' . $last_url . '" class="hkfn-pagination-btn">' . $total_pages . '</a></li>';
         }
         
         // Next button
         if ($current_page < $total_pages) {
             $next_url = str_replace('999999999', (string)($current_page + 1), esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $next_url . '" class="wfn-pagination-btn wfn-pagination-next">&raquo;</a></li>';
+            echo '<li><a href="' . $next_url . '" class="hkfn-pagination-btn hkfn-pagination-next">&raquo;</a></li>';
         }
         
         echo '</ul>';
@@ -757,19 +757,19 @@ class FuneralNoticesShortcode {
         $current_url = is_front_page() ? home_url('/') : get_permalink();
         
         // Enqueue Enhancement Suite search CSS
-        wp_enqueue_style('wfn-enhancement-search', plugin_dir_url(__FILE__) . '../../assets/css/layouts/enhancement-search.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-search', plugin_dir_url(__FILE__) . '../../assets/css/layouts/enhancement-search.css', [], HKFN_VERSION);
         ?>
-        <div class="wfn-enhancement-search">
-            <form method="get" action="<?php echo esc_url($current_url); ?>" class="wfn-enhancement-search-form">
+        <div class="hkfn-enhancement-search">
+            <form method="get" action="<?php echo esc_url($current_url); ?>" class="hkfn-enhancement-search-form">
                 <!-- Hidden field to maintain page context -->
                 <?php if (is_front_page()): ?>
-                    <input type="hidden" name="wfn_shortcode_search" value="1" />
+                    <input type="hidden" name="hkfn_shortcode_search" value="1" />
                 <?php endif; ?>
                 
                 <div class="search-container">
                     <!-- Name Search - Primary -->
                     <div class="name-search-field">
-                        <label for="wfn_search_input" class="visually-hidden">Search by name</label>
+                        <label for="hkfn_search_input" class="visually-hidden">Search by name</label>
                         <div class="input-group">
                             <span class="input-icon" aria-hidden="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -778,8 +778,8 @@ class FuneralNoticesShortcode {
                                 </svg>
                             </span>
                             <input type="text" 
-                                   id="wfn_search_input"
-                                   name="wfn_search" 
+                                   id="hkfn_search_input"
+                                   name="hkfn_search" 
                                    class="search-input"
                                    placeholder="Search by name..." 
                                    aria-label="Search funeral notices by name"
@@ -810,9 +810,9 @@ class FuneralNoticesShortcode {
                                     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </span>
-                            <label for="wfn-date-range" class="visually-hidden">Select date range</label>
+                            <label for="hkfn-date-range" class="visually-hidden">Select date range</label>
                             <input type="text"
-                                   id="wfn-date-range"
+                                   id="hkfn-date-range"
                                    class="date-input"
                                    placeholder="Select date range..."
                                    aria-label="Select date range for filtering"
@@ -821,18 +821,18 @@ class FuneralNoticesShortcode {
 
                             <!-- Hidden inputs for backend compatibility -->
                             <input type="hidden"
-                                   id="wfn-date-from"
-                                   name="wfn_date_from"
-                                   value="<?php echo esc_attr($_GET['wfn_date_from'] ?? $date_from); ?>">
+                                   id="hkfn-date-from"
+                                   name="hkfn_date_from"
+                                   value="<?php echo esc_attr($_GET['hkfn_date_from'] ?? $date_from); ?>">
                             <input type="hidden"
-                                   id="wfn-date-to"
-                                   name="wfn_date_to"
-                                   value="<?php echo esc_attr($_GET['wfn_date_to'] ?? $date_to); ?>">
+                                   id="hkfn-date-to"
+                                   name="hkfn_date_to"
+                                   value="<?php echo esc_attr($_GET['hkfn_date_to'] ?? $date_to); ?>">
 
                             <?php if ($date_from || $date_to): ?>
-                            <button type="button" class="clear-btn wfn-date-clear"
+                            <button type="button" class="clear-btn hkfn-date-clear"
                                     aria-label="Clear date filter"
-                                    onclick="const group = this.parentElement; group.querySelector('#wfn-date-range').value=''; group.querySelector('#wfn-date-from').value=''; group.querySelector('#wfn-date-to').value=''; group.closest('form').submit();">
+                                    onclick="const group = this.parentElement; group.querySelector('#hkfn-date-range').value=''; group.querySelector('#hkfn-date-from').value=''; group.querySelector('#hkfn-date-to').value=''; group.closest('form').submit();">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
                                     <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
@@ -902,7 +902,7 @@ class FuneralNoticesShortcode {
 
         $post_id = (int) $atts['id'];
         if (!$post_id || get_post_type($post_id) !== 'funeral-notice') {
-            return '<div class="wfn-error">Invalid funeral notice ID.</div>';
+            return '<div class="hkfn-error">Invalid funeral notice ID.</div>';
         }
 
         return $this->template_manager->render_template('single', [
@@ -919,11 +919,11 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite modern grid CSS
-        wp_enqueue_style('wfn-enhancement-modern', plugin_dir_url(__FILE__) . '../../assets/css/layouts/modern-grid.css', ['wfn-enhancement-base'], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-modern', plugin_dir_url(__FILE__) . '../../assets/css/layouts/modern-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
-        $grid_class = "wfn-enhancement-modern-grid wfn-cols-{$columns}";
+        $grid_class = "hkfn-enhancement-modern-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";
 
         while ($query->have_posts()) {
@@ -948,7 +948,7 @@ class FuneralNoticesShortcode {
 
             if ($thumbnail_id) {
                 // Try to get the grid crop size first
-                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
 
                 // If no grid crop exists, fall back to medium size
                 if (!$featured_image) {
@@ -959,16 +959,16 @@ class FuneralNoticesShortcode {
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 
-            echo '<article class="wfn-enhancement-modern-card">';
-            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-modern-link">';
+            echo '<article class="hkfn-enhancement-modern-card">';
+            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="hkfn-enhancement-modern-link">';
             
             if ($image_url) {
-                echo '<div class="wfn-enhancement-modern-image">';
+                echo '<div class="hkfn-enhancement-modern-image">';
                 echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" loading="lazy">';
                 echo '</div>';
             }
             
-            echo '<div class="wfn-enhancement-modern-content">';
+            echo '<div class="hkfn-enhancement-modern-content">';
             
             // Check if we should hide date/time/venue
             $hide_details = $event['hide_time'] ?? false;
@@ -976,22 +976,22 @@ class FuneralNoticesShortcode {
             // Show floating streaming icon when details are hidden but streaming is available
             $streaming = $data['streaming'];
             if ($hide_details && $streaming['is_public'] && !empty($streaming['streaming_url'])) {
-                echo '<span class="wfn-streaming-icon-float" title="Live streaming available">';
+                echo '<span class="hkfn-streaming-icon-float" title="Live streaming available">';
                 echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
                 echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
                 echo '</svg>';
                 echo '</span>';
             }
             
-            echo '<h3 class="wfn-enhancement-modern-title">' . esc_html($full_name) . '</h3>';
+            echo '<h3 class="hkfn-enhancement-modern-title">' . esc_html($full_name) . '</h3>';
             
             if ($years_display) {
-                echo '<p class="wfn-enhancement-modern-dates">' . esc_html($years_display) . '</p>';
+                echo '<p class="hkfn-enhancement-modern-dates">' . esc_html($years_display) . '</p>';
             }
             
             if ($funeral_date && !$hide_details) {
-                echo '<div class="wfn-enhancement-modern-service">';
-                echo '<span class="wfn-service-info">';
+                echo '<div class="hkfn-enhancement-modern-service">';
+                echo '<span class="hkfn-service-info">';
                 echo '<span class="service-label">Service:</span> ';
                 echo esc_html(date('j M Y', strtotime($funeral_date)));
                 if ($funeral_time) {
@@ -1003,7 +1003,7 @@ class FuneralNoticesShortcode {
                 // Check for streaming and add icon
                 $streaming = $data['streaming'];
                 if ($streaming['is_public'] && !empty($streaming['streaming_url'])) {
-                    echo '<span class="wfn-streaming-icon" title="Live streaming available">';
+                    echo '<span class="hkfn-streaming-icon" title="Live streaming available">';
                     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
                     echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
                     echo '</svg>';
@@ -1028,11 +1028,11 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite elegant grid CSS
-        wp_enqueue_style('wfn-enhancement-elegant', plugin_dir_url(__FILE__) . '../../assets/css/layouts/elegant-grid.css', ['wfn-enhancement-base'], '2.0.1');
+        wp_enqueue_style('hkfn-enhancement-elegant', plugin_dir_url(__FILE__) . '../../assets/css/layouts/elegant-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
-        $grid_class = "wfn-enhancement-elegant-grid wfn-cols-{$columns}";
+        $grid_class = "hkfn-enhancement-elegant-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";
 
         while ($query->have_posts()) {
@@ -1057,7 +1057,7 @@ class FuneralNoticesShortcode {
 
             if ($thumbnail_id) {
                 // Try to get the grid crop size first
-                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'wfn-grid-crop');
+                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
 
                 // If no grid crop exists, fall back to medium size
                 if (!$featured_image) {
@@ -1068,10 +1068,10 @@ class FuneralNoticesShortcode {
             $fallback_url = $this->get_fallback_image_url();
             $image_url = $featured_image ?: $fallback_url;
 
-            echo '<article class="wfn-enhancement-elegant-card">';
-            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-elegant-link">';
+            echo '<article class="hkfn-enhancement-elegant-card">';
+            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="hkfn-enhancement-elegant-link">';
             
-            echo '<div class="wfn-enhancement-elegant-header">';
+            echo '<div class="hkfn-enhancement-elegant-header">';
             
             // Check if we should hide date/time/venue
             $hide_details = $event['hide_time'] ?? false;
@@ -1079,7 +1079,7 @@ class FuneralNoticesShortcode {
             // Show floating streaming icon when details are hidden but streaming is available
             $streaming = $data['streaming'];
             if ($hide_details && $streaming['is_public'] && !empty($streaming['streaming_url'])) {
-                echo '<span class="wfn-streaming-icon-float" title="Live streaming available">';
+                echo '<span class="hkfn-streaming-icon-float" title="Live streaming available">';
                 echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
                 echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
                 echo '</svg>';
@@ -1087,17 +1087,17 @@ class FuneralNoticesShortcode {
             }
             
             if ($image_url) {
-                echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" class="wfn-enhancement-elegant-portrait">';
+                echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($full_name) . '" class="hkfn-enhancement-elegant-portrait">';
             }
-            echo '<div class="wfn-enhancement-elegant-details">';
-            echo '<h3 class="wfn-enhancement-elegant-name">' . esc_html($full_name) . '</h3>';
+            echo '<div class="hkfn-enhancement-elegant-details">';
+            echo '<h3 class="hkfn-enhancement-elegant-name">' . esc_html($full_name) . '</h3>';
             if ($years_display) {
-                echo '<p class="wfn-enhancement-elegant-years">' . esc_html($years_display) . '</p>';
+                echo '<p class="hkfn-enhancement-elegant-years">' . esc_html($years_display) . '</p>';
             }
             echo '</div></div>';
             
             if ($funeral_date && !$hide_details) {
-                echo '<div class="wfn-enhancement-elegant-service">';
+                echo '<div class="hkfn-enhancement-elegant-service">';
                 echo '<strong>Service:</strong> ' . esc_html(date('j F Y', strtotime($funeral_date)));
                 if ($funeral_time) {
                     $formatted_time = date('g:i A', strtotime($funeral_time));
@@ -1106,7 +1106,7 @@ class FuneralNoticesShortcode {
 
                 // Check for streaming and add icon
                 if ($streaming['is_public'] && !empty($streaming['streaming_url'])) {
-                    echo '<span class="wfn-streaming-icon" title="Live streaming available">';
+                    echo '<span class="hkfn-streaming-icon" title="Live streaming available">';
                     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">';
                     echo '<path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm128-64l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-40 80 40 0-128-80 40 0-40c0-17.7-14.3-32-32-32l-128 0c-17.7 0-32 14.3-32 32z"/>';
                     echo '</svg>';
@@ -1130,11 +1130,11 @@ class FuneralNoticesShortcode {
         $this->ensure_styling_module_assets();
         
         // Enqueue shared base styles first
-        wp_enqueue_style('wfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-base', plugin_dir_url(__FILE__) . '../../assets/css/layouts/shared-base.css', [], HKFN_VERSION);
         // Enqueue Enhancement Suite minimal CSS
-        wp_enqueue_style('wfn-enhancement-minimal', plugin_dir_url(__FILE__) . '../../assets/css/layouts/minimal.css', ['wfn-enhancement-base'], '2.0.0');
+        wp_enqueue_style('hkfn-enhancement-minimal', plugin_dir_url(__FILE__) . '../../assets/css/layouts/minimal.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
-        $grid_class = "wfn-enhancement-minimal-grid wfn-cols-{$columns}";
+        $grid_class = "hkfn-enhancement-minimal-grid hkfn-cols-{$columns}";
         echo "<div class=\"{$grid_class}\">";
 
         while ($query->have_posts()) {
@@ -1148,15 +1148,15 @@ class FuneralNoticesShortcode {
             $full_name = $person['full_name'];
             $years_display = $person['years_display'];
             
-            echo '<article class="wfn-enhancement-minimal-card">';
-            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="wfn-enhancement-minimal-link">';
+            echo '<article class="hkfn-enhancement-minimal-card">';
+            echo '<a href="' . esc_url(get_permalink($post_id)) . '" class="hkfn-enhancement-minimal-link">';
 
-            echo '<div class="wfn-enhancement-minimal-content">';
-            echo '<h3 class="wfn-enhancement-minimal-name">' . esc_html($full_name) . '</h3>';
+            echo '<div class="hkfn-enhancement-minimal-content">';
+            echo '<h3 class="hkfn-enhancement-minimal-name">' . esc_html($full_name) . '</h3>';
 
-            echo '<div class="wfn-enhancement-minimal-details">';
+            echo '<div class="hkfn-enhancement-minimal-details">';
             if ($years_display) {
-                echo '<span class="wfn-enhancement-minimal-years">' . esc_html($years_display) . '</span>';
+                echo '<span class="hkfn-enhancement-minimal-years">' . esc_html($years_display) . '</span>';
             }
             echo '</div>';
             
@@ -1171,7 +1171,7 @@ class FuneralNoticesShortcode {
      */
     private function get_fallback_image_url(): string {
         // Get fallback image from Settings module
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $fallback_url = $settings['default_person_image'] ?? '';
 
         if (!empty($fallback_url)) {

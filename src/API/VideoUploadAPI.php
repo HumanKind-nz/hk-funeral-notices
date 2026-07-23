@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\API;
+namespace HumanKind\FuneralNotices\API;
 
-use WeaveStudios\FuneralNotices\Services\BunnyStreamService;
-use WeaveStudios\FuneralNotices\Services\LicenseService;
+use HumanKind\FuneralNotices\Services\BunnyStreamService;
+use HumanKind\FuneralNotices\Services\LicenseService;
 use WP_REST_Controller;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -27,7 +27,7 @@ class VideoUploadAPI extends WP_REST_Controller {
     /**
      * @var string REST API namespace
      */
-    protected $namespace = 'wfn/v1';
+    protected $namespace = 'hkfn/v1';
 
     /**
      * @var string Base route
@@ -46,7 +46,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         $this->bunny_service = new BunnyStreamService();
 
         // Register cleanup hooks
-        add_action('wfn_cleanup_abandoned_uploads', [$this, 'cleanup_abandoned_uploads']);
+        add_action('hkfn_cleanup_abandoned_uploads', [$this, 'cleanup_abandoned_uploads']);
 
         // Register post deletion hook to cleanup videos from Bunny
         add_action('before_delete_post', [$this, 'cleanup_video_on_post_delete']);
@@ -181,7 +181,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Store upload session metadata
-        update_post_meta($post_id, '_wfn_video_upload_session', [
+        update_post_meta($post_id, '_hkfn_video_upload_session', [
             'video_id' => $result['video_id'],
             'filename' => $filename,
             'filesize' => $filesize,
@@ -230,7 +230,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Verify this video_id matches the session
-        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        $session = get_post_meta($post_id, '_hkfn_video_upload_session', true);
         if (!$session || $session['video_id'] !== $video_id) {
             return new WP_Error(
                 'invalid_video_id',
@@ -240,7 +240,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Check if there's an existing video to replace
-        $old_video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $old_video_id = get_post_meta($post_id, '_hkfn_video_id', true);
         if (!empty($old_video_id) && $old_video_id !== $video_id) {
             // Delete the old video from Bunny CDN
             $delete_result = $this->bunny_service->delete_video($old_video_id);
@@ -253,12 +253,12 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Store video ID in post meta (matches existing VideoModule pattern)
-        update_post_meta($post_id, '_wfn_video_id', $video_id);
-        update_post_meta($post_id, '_wfn_video_status', 'ready'); // Video is ready for playback immediately
-        update_post_meta($post_id, '_wfn_video_uploaded_at', current_time('mysql'));
+        update_post_meta($post_id, '_hkfn_video_id', $video_id);
+        update_post_meta($post_id, '_hkfn_video_status', 'ready'); // Video is ready for playback immediately
+        update_post_meta($post_id, '_hkfn_video_uploaded_at', current_time('mysql'));
 
         // Track which site uploaded this video (for safe cross-site migrations)
-        update_post_meta($post_id, '_wfn_bunny_video_source_site', get_site_url());
+        update_post_meta($post_id, '_hkfn_bunny_video_source_site', get_site_url());
 
         // Store basic video data for frontend rendering
         $video_data = [
@@ -268,12 +268,12 @@ class VideoUploadAPI extends WP_REST_Controller {
             'duration' => 0, // Unknown until transcoding completes
             'uploaded_at' => current_time('mysql')
         ];
-        update_post_meta($post_id, '_wfn_video_data', json_encode($video_data));
+        update_post_meta($post_id, '_hkfn_video_data', json_encode($video_data));
 
         // Update session status
         $session['status'] = 'completed';
         $session['completed_at'] = current_time('mysql');
-        update_post_meta($post_id, '_wfn_video_upload_session', $session);
+        update_post_meta($post_id, '_hkfn_video_upload_session', $session);
 
         // Check transcoding status (async)
         $transcoding_status = $this->bunny_service->get_video_status($video_id);
@@ -314,8 +314,8 @@ class VideoUploadAPI extends WP_REST_Controller {
             );
         }
 
-        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $session = get_post_meta($post_id, '_hkfn_video_upload_session', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
 
         return new WP_REST_Response([
             'success' => true,
@@ -354,7 +354,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Get video ID
-        $video_id = get_post_meta($post_id, '_wfn_video_id', true);
+        $video_id = get_post_meta($post_id, '_hkfn_video_id', true);
 
         if (!$video_id) {
             return new WP_Error(
@@ -365,18 +365,18 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Step 1: Unlink from post - clear meta fields first (graceful degradation)
-        delete_post_meta($post_id, '_wfn_video_id');
-        delete_post_meta($post_id, '_wfn_video_metadata');
-        delete_post_meta($post_id, '_wfn_video_status');
-        delete_post_meta($post_id, '_wfn_video_upload_status');
-        delete_post_meta($post_id, '_wfn_video_upload_session');
-        delete_post_meta($post_id, '_wfn_video_data');
+        delete_post_meta($post_id, '_hkfn_video_id');
+        delete_post_meta($post_id, '_hkfn_video_metadata');
+        delete_post_meta($post_id, '_hkfn_video_status');
+        delete_post_meta($post_id, '_hkfn_video_upload_status');
+        delete_post_meta($post_id, '_hkfn_video_upload_session');
+        delete_post_meta($post_id, '_hkfn_video_data');
 
         // Clear the ACF field value as well
-        $media_group = get_field('wfn_media_group', $post_id);
+        $media_group = get_field('hkfn_media_group', $post_id);
         if (is_array($media_group)) {
             $media_group['video_slideshow'] = null;
-            update_field('wfn_media_group', $media_group, $post_id);
+            update_field('hkfn_media_group', $media_group, $post_id);
         }
 
         // Step 2: Delete from BunnyStream (gracefully handle failures)
@@ -516,7 +516,7 @@ class VideoUploadAPI extends WP_REST_Controller {
      * @return array Result with success status
      */
     public function cancel_upload(int $post_id): array {
-        $session = get_post_meta($post_id, '_wfn_video_upload_session', true);
+        $session = get_post_meta($post_id, '_hkfn_video_upload_session', true);
 
         if (!$session || !is_array($session)) {
             return [
@@ -536,7 +536,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Remove session metadata
-        delete_post_meta($post_id, '_wfn_video_upload_session');
+        delete_post_meta($post_id, '_hkfn_video_upload_session');
 
         return [
             'success' => true,
@@ -592,7 +592,7 @@ class VideoUploadAPI extends WP_REST_Controller {
      */
     private function generate_video_title(int $post_id): string {
         // Try to get person's name from ACF fields (works even for auto-drafts)
-        $person_group = get_field('wfn_person_group', $post_id);
+        $person_group = get_field('hkfn_person_group', $post_id);
 
         // Try grouped format first
         $first_name = $person_group['firstname'] ?? '';
@@ -600,10 +600,10 @@ class VideoUploadAPI extends WP_REST_Controller {
 
         // Fallback to individual fields
         if (empty($first_name)) {
-            $first_name = get_field('wfn_person_group_firstname', $post_id) ?? '';
+            $first_name = get_field('hkfn_person_group_firstname', $post_id) ?? '';
         }
         if (empty($last_name)) {
-            $last_name = get_field('wfn_person_group_lastname', $post_id) ?? '';
+            $last_name = get_field('hkfn_person_group_lastname', $post_id) ?? '';
         }
 
         // Build title based on what we have

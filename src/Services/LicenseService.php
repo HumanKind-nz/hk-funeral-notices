@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Services;
+namespace HumanKind\FuneralNotices\Services;
 
 /**
  * License Service
  * Handles premium feature validation and license checking
  *
- * @package WeaveStudios\FuneralNotices\Services
+ * @package HumanKind\FuneralNotices\Services
  * @version 1.0.0
  */
 class LicenseService {
@@ -16,7 +16,7 @@ class LicenseService {
     private $license_handler = null;
 
     // Cache key for license status
-    private const LICENSE_STATUS_CACHE = 'wfn_license_status_cache';
+    private const LICENSE_STATUS_CACHE = 'hkfn_license_status_cache';
 
     /**
      * Get singleton instance
@@ -44,7 +44,7 @@ class LicenseService {
      * @return bool
      */
     public static function hasValidVideoLicense(): bool {
-        return self::getInstance()->checkFeatureLicense(WFN_PREMIUM_FEATURE_VIDEO);
+        return self::getInstance()->checkFeatureLicense(HKFN_PREMIUM_FEATURE_VIDEO);
     }
 
     /**
@@ -55,13 +55,18 @@ class LicenseService {
      */
     public function checkFeatureLicense(string $feature): bool {
 
+        // Testing bypass — same constant VideoModule honours (HKFN_ or legacy WFN_ name)
+        if (hkfn_get_constant('BYPASS_LICENSE')) {
+            return true;
+        }
+
         // For now, we only have video streaming as premium feature
-        if ($feature !== WFN_PREMIUM_FEATURE_VIDEO) {
+        if ($feature !== HKFN_PREMIUM_FEATURE_VIDEO) {
             return true; // Non-premium features are always available
         }
 
         // Get stored license key
-        $license_key = get_option('wfn_license_key', '');
+        $license_key = hkfn_get_option('license_key', '');
         if (empty($license_key)) {
             return false;
         }
@@ -74,7 +79,7 @@ class LicenseService {
 
         // If no license handler is available, fallback to stored license status
         if ($this->license_handler === null) {
-            $license_status = get_option('wfn_license_status', []);
+            $license_status = hkfn_get_option('license_status', []);
             return ($license_status['valid'] ?? false) === true;
         }
 
@@ -103,7 +108,7 @@ class LicenseService {
      */
     public function getLicenseStatus(): array {
 
-        $license_key = get_option('wfn_license_key', '');
+        $license_key = hkfn_get_option('license_key', '');
 
         if (empty($license_key)) {
             return [
@@ -193,10 +198,10 @@ class LicenseService {
 
         if ($response && isset($response['success']) && $response['success'] === true) {
             // Store the license key
-            update_option('wfn_license_key', $license_key);
+            update_option('hkfn_license_key', $license_key);
 
             // Update license status to active
-            update_option('wfn_license_status', [
+            update_option('hkfn_license_status', [
                 'valid' => true,
                 'features' => ['video_hosting'],
                 'expires' => $response['expires'] ?? '',
@@ -236,7 +241,7 @@ class LicenseService {
             ];
         }
 
-        $license_key = get_option('wfn_license_key', '');
+        $license_key = hkfn_get_option('license_key', '');
 
         if (empty($license_key)) {
             return [
@@ -249,10 +254,10 @@ class LicenseService {
         $response = $this->license_handler->deactivate_license($license_key);
 
         // Remove the license key regardless of API response
-        delete_option('wfn_license_key');
+        delete_option('hkfn_license_key');
 
         // Update license status to invalid
-        update_option('wfn_license_status', [
+        update_option('hkfn_license_status', [
             'valid' => false,
             'features' => [],
             'expires' => '',
@@ -288,7 +293,7 @@ class LicenseService {
     public function getPremiumFeatureStatus(): array {
         return [
             'video_streaming' => [
-                'available' => $this->checkFeatureLicense(WFN_PREMIUM_FEATURE_VIDEO),
+                'available' => $this->checkFeatureLicense(HKFN_PREMIUM_FEATURE_VIDEO),
                 'name' => 'Video Streaming',
                 'description' => 'Upload and display video slideshows using BunnyStream'
             ]
@@ -322,7 +327,7 @@ class LicenseService {
      * @return string
      */
     public function getLicenseKey(): string {
-        return get_option('wfn_license_key', '');
+        return hkfn_get_option('license_key', '');
     }
 
     /**

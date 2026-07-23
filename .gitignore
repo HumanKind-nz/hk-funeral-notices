@@ -17,9 +17,18 @@ Thumbs.db
 *~
 *.swp
 *.swo
+screenshots/
+
+# Development docs (not shipped)
+CLAUDE.md
+PROJECT-STATE-SUMMARY.md
+ANALYTICS-COLLECTION-EXTENSION.md
+INCIDENT-REPORT-NOV-21-2025.md
+COLLECTION-MANAGEMENT-FEATURE.md
 
 # Development and build files
 node_modules/
+build/
 *.log
 *.map
 *.tmp
@@ -29,9 +38,9 @@ node_modules/
 wp-config.php
 .htaccess
 
-
 # PHP
 composer.phar
+/vendor/
 
 # Temporary files
 *.tmp

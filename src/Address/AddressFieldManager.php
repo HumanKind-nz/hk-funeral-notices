@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Address;
+namespace HumanKind\FuneralNotices\Address;
 
 /**
  * Address Field Manager
@@ -35,14 +35,14 @@ class AddressFieldManager {
      */
     public function get_field_mode(): string {
         // Check module settings first (allows manual override)
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $admin_preference = $settings['address_field_mode'] ?? 'auto';
         
         // Debug logging removed for production
         
         // Also check ACF options as fallback for backwards compatibility
         if (empty($admin_preference) || $admin_preference === 'auto') {
-            $admin_preference = get_field('wfn_address_field_mode', 'option') ?: 'auto';
+            $admin_preference = get_field('hkfn_address_field_mode', 'option') ?: 'auto';
             // Debug logging removed for production
         }
         
@@ -98,26 +98,26 @@ class AddressFieldManager {
      * @return array Normalized address data
      */
     public function get_address_data($post_id): array {
-        // Try new custom field first (wfn_details_group -> custom_address)
-        $custom_data = get_field('wfn_details_group', $post_id);
+        // Try new custom field first (hkfn_details_group -> custom_address)
+        $custom_data = get_field('hkfn_details_group', $post_id);
         if (!empty($custom_data['custom_address']) && is_array($custom_data['custom_address'])) {
             return $this->normalize_address_data($custom_data['custom_address'], self::SOURCE_CUSTOM);
         }
         
-        // Try ACFE field (wfn_location_group -> other_funeral_address)
-        $location_group = get_field('wfn_location_group', $post_id);
+        // Try ACFE field (hkfn_location_group -> other_funeral_address)
+        $location_group = get_field('hkfn_location_group', $post_id);
         if (!empty($location_group['other_funeral_address']) && is_array($location_group['other_funeral_address'])) {
             return $this->normalize_address_data($location_group['other_funeral_address'], self::SOURCE_ACFE);
         }
         
         // Try direct ACFE field access (meta key format)
-        $acfe_direct = get_field('wfn_location_group_other_funeral_address', $post_id);
+        $acfe_direct = get_field('hkfn_location_group_other_funeral_address', $post_id);
         if (!empty($acfe_direct) && is_array($acfe_direct)) {
             return $this->normalize_address_data($acfe_direct, self::SOURCE_ACFE);
         }
         
         // Try legacy simple text address
-        $simple_address = get_field('wfn_details_group', $post_id);
+        $simple_address = get_field('hkfn_details_group', $post_id);
         if (!empty($simple_address['custom_address']) && is_string($simple_address['custom_address'])) {
             return $this->convert_simple_address($simple_address['custom_address']);
         }
@@ -301,14 +301,14 @@ class AddressFieldManager {
      */
     public function is_api_key_configured(): bool {
         // Check module settings first
-        $settings = get_option('wfn_module_settings', []);
+        $settings = hkfn_get_option('module_settings', []);
         $api_key = $settings['google_places_api_key'] ?? '';
         
         // Debug logging removed for production
         
         // Fallback to ACF options for backwards compatibility
         if (empty($api_key)) {
-            $api_key = get_field('wfn_google_places_api_key', 'option') ?: '';
+            $api_key = get_field('hkfn_google_places_api_key', 'option') ?: '';
         }
         
         $is_configured = !empty($api_key) && strlen($api_key) > 20;

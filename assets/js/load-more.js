@@ -21,7 +21,7 @@
          * Initialize
          */
         init: function() {
-            this.button = $('.wfn-load-more-button');
+            this.button = $('.hkfn-load-more-button');
 
             if (!this.button.length) {
                 return;
@@ -49,11 +49,11 @@
          */
         findGridContainer: function() {
             var containerMap = {
-                'modern': '.wfn-enhancement-modern-grid, .wfn-modern-grid',
-                'elegant': '.wfn-enhancement-elegant-grid, .wfn-elegant-grid',
-                'minimal': '.wfn-enhancement-minimal-grid, .wfn-minimal-grid',
+                'modern': '.hkfn-enhancement-modern-grid, .hkfn-modern-grid',
+                'elegant': '.hkfn-enhancement-elegant-grid, .hkfn-elegant-grid',
+                'minimal': '.hkfn-enhancement-minimal-grid, .hkfn-minimal-grid',
                 'firehawk': '.firehawk-crm-large-grid-view',
-                'current': '.wfn-current-grid'
+                'current': '.hkfn-current-grid'
             };
 
             var selector = containerMap[this.layout] || containerMap['modern'];
@@ -74,11 +74,11 @@
             var self = this;
 
             $.ajax({
-                url: wfnLoadMore.ajaxUrl,
+                url: hkfnLoadMore.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_load_more',
-                    nonce: wfnLoadMore.nonce,
+                    action: 'hkfn_load_more',
+                    nonce: hkfnLoadMore.nonce,
                     offset: self.offset,
                     posts_per_load: self.postsPerLoad,
                     layout: self.layout,
@@ -131,12 +131,12 @@
             if (loading) {
                 this.button.prop('disabled', true);
                 this.button.data('original-text', this.button.html());
-                this.button.html('<span class="wfn-spinner"></span> Loading...');
-                this.button.addClass('wfn-loading');
+                this.button.html('<span class="hkfn-spinner"></span> Loading...');
+                this.button.addClass('hkfn-loading');
             } else {
                 this.button.prop('disabled', false);
                 this.button.html(this.button.data('original-text') || 'Load More');
-                this.button.removeClass('wfn-loading');
+                this.button.removeClass('hkfn-loading');
             }
         },
 
@@ -146,7 +146,7 @@
         showError: function(message) {
             var self = this;
             // Create error notice
-            var errorNotice = $('<div class="wfn-error-notice">')
+            var errorNotice = $('<div class="hkfn-error-notice">')
                 .text(message)
                 .insertBefore(this.button);
 

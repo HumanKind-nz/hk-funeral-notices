@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
-use WeaveStudios\FuneralNotices\Services\SupabaseService;
+use HumanKind\FuneralNotices\Services\SupabaseService;
 
 /**
  * Analytics Module
@@ -41,7 +41,7 @@ use WeaveStudios\FuneralNotices\Services\SupabaseService;
  * for their specific site by contacting support@weave.co.nz.
  *
  * Developers can disable analytics per-site using:
- * add_filter('wfn_enable_analytics', '__return_false');
+ * add_filter('hkfn_enable_analytics', '__return_false');
  *
  * Data Security:
  * All analytics data is transmitted securely and stored in compliance with
@@ -78,23 +78,23 @@ class AnalyticsModule extends BaseModule {
         }
 
         // Schedule monthly analytics report
-        if (!wp_next_scheduled('wfn_send_monthly_analytics')) {
+        if (!wp_next_scheduled('hkfn_send_monthly_analytics')) {
             // Schedule for 2am on the 1st of next month
             $next_run = strtotime('first day of next month 02:00:00');
-            wp_schedule_event($next_run, 'wfn_monthly', 'wfn_send_monthly_analytics');
+            wp_schedule_event($next_run, 'hkfn_monthly', 'hkfn_send_monthly_analytics');
         }
 
         // Schedule weekly heartbeat to keep Supabase project active (free tier requirement)
         // Supabase pauses projects after 7 days of inactivity
-        if (!wp_next_scheduled('wfn_supabase_heartbeat')) {
-            wp_schedule_event(time(), 'weekly', 'wfn_supabase_heartbeat');
+        if (!wp_next_scheduled('hkfn_supabase_heartbeat')) {
+            wp_schedule_event(time(), 'weekly', 'hkfn_supabase_heartbeat');
         }
 
-        add_action('wfn_send_monthly_analytics', [$this, 'send_monthly_stats']);
-        add_action('wfn_supabase_heartbeat', [$this, 'send_heartbeat']);
+        add_action('hkfn_send_monthly_analytics', [$this, 'send_monthly_stats']);
+        add_action('hkfn_supabase_heartbeat', [$this, 'send_heartbeat']);
 
         // Allow manual trigger via admin (for testing)
-        add_action('admin_post_wfn_test_analytics', [$this, 'handle_test_analytics']);
+        add_action('admin_post_hkfn_test_analytics', [$this, 'handle_test_analytics']);
     }
 
     /**
@@ -107,7 +107,7 @@ class AnalyticsModule extends BaseModule {
      * @return array Modified schedules
      */
     public function add_monthly_cron_schedule(array $schedules): array {
-        $schedules['wfn_monthly'] = [
+        $schedules['hkfn_monthly'] = [
             'interval' => 2592000, // 30 days in seconds
             'display'  => __('Once Monthly (WFN Analytics)', 'hk-funeral-notices'),
         ];
@@ -118,8 +118,8 @@ class AnalyticsModule extends BaseModule {
      * Check if analytics are enabled
      *
      * Respects multiple opt-out methods:
-     * 1. WordPress filter (wfn_enable_analytics) - for agency control
-     * 2. wp-config.php constant (WFN_DISABLE_ANALYTICS) - for deployment control
+     * 1. WordPress filter (hkfn_enable_analytics) - for agency control
+     * 2. wp-config.php constant (HKFN_DISABLE_ANALYTICS) - for deployment control
      *
      * Default: Enabled (since this is agency-managed)
      *
@@ -127,13 +127,13 @@ class AnalyticsModule extends BaseModule {
      */
     private function is_analytics_enabled(): bool {
         // Check wp-config.php constant first (deployment-level control)
-        if (defined('WFN_DISABLE_ANALYTICS') && WFN_DISABLE_ANALYTICS) {
+        if (hkfn_get_constant('DISABLE_ANALYTICS')) {
             return false;
         }
 
         // Check WordPress filter (per-site control for agencies)
         // Default to true since this is agency-managed
-        return (bool) apply_filters('wfn_enable_analytics', true);
+        return (bool) apply_filters('hkfn_enable_analytics', true);
     }
 
     /**
@@ -150,7 +150,7 @@ class AnalyticsModule extends BaseModule {
      * @return string 8-character anonymous site ID
      */
     private function get_site_identifier(): string {
-        $cached = get_option('wfn_analytics_site_id');
+        $cached = hkfn_get_option('analytics_site_id');
 
         if ($cached) {
             return $cached;
@@ -158,8 +158,8 @@ class AnalyticsModule extends BaseModule {
 
         // Generate consistent anonymous ID using site URL + salt
         // This ensures the same site always gets the same ID
-        $site_id = substr(md5(get_site_url() . 'wfn-analytics-salt-v1'), 0, 8);
-        update_option('wfn_analytics_site_id', $site_id);
+        $site_id = substr(md5(get_site_url() . 'hkfn-analytics-salt-v1'), 0, 8);
+        update_option('hkfn_analytics_site_id', $site_id);
 
         return $site_id;
     }
@@ -182,7 +182,7 @@ class AnalyticsModule extends BaseModule {
             return false;
         }
 
-        $is_first_time = !get_option('wfn_analytics_registered', false);
+        $is_first_time = !hkfn_get_option('analytics_registered', false);
 
         // Build analytics payload
         $payload = [
@@ -196,7 +196,7 @@ class AnalyticsModule extends BaseModule {
                 'streaming_percentage' => $this->calculate_streaming_percentage_last_month(),
                 'total_venues' => $this->count_total_venues(),
                 'total_funerals_all_time' => $this->count_total_funerals(),
-                'plugin_version' => WFN_VERSION,
+                'plugin_version' => HKFN_VERSION,
                 'wp_version' => get_bloginfo('version'),
                 'php_version' => PHP_VERSION,
             ],
@@ -217,7 +217,7 @@ class AnalyticsModule extends BaseModule {
             $result = $service->send_stats($payload);
 
             if ($is_first_time && $result) {
-                update_option('wfn_analytics_registered', true);
+                update_option('hkfn_analytics_registered', true);
                 error_log('WFN Analytics: First-time registration completed for site ID ' . $payload['site_id']);
             }
 
@@ -324,7 +324,7 @@ class AnalyticsModule extends BaseModule {
             ],
             'meta_query' => [
                 [
-                    'key' => 'wfn_streaming_group_streaming_url',
+                    'key' => 'hkfn_streaming_group_streaming_url',
                     'value' => '',
                     'compare' => '!=',
                 ],
@@ -381,7 +381,7 @@ class AnalyticsModule extends BaseModule {
      * Handle manual analytics test trigger
      *
      * Allows admins to manually trigger analytics send for testing purposes.
-     * Accessible via: wp-admin/admin-post.php?action=wfn_test_analytics
+     * Accessible via: wp-admin/admin-post.php?action=hkfn_test_analytics
      */
     public function handle_test_analytics(): void {
         if (!current_user_can('manage_options')) {

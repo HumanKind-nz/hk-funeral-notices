@@ -3,7 +3,7 @@
  * Native WFN version of the FCRM Enhancement Suite elegant grid
  */
 
-.wfn-enhancement-elegant-grid {
+.hkfn-enhancement-elegant-grid {
     display: grid;
     gap: 2rem; /* Increased for better breathing room */
     margin: 1.5rem 0;
@@ -11,48 +11,48 @@
 }
 
 /* Column layouts */
-.wfn-enhancement-elegant-grid.wfn-cols-1 { grid-template-columns: 1fr; }
-.wfn-enhancement-elegant-grid.wfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.wfn-enhancement-elegant-grid.wfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.wfn-enhancement-elegant-grid.wfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.hkfn-enhancement-elegant-grid.hkfn-cols-1 { grid-template-columns: 1fr; }
+.hkfn-enhancement-elegant-grid.hkfn-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.hkfn-enhancement-elegant-grid.hkfn-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.hkfn-enhancement-elegant-grid.hkfn-cols-4 { grid-template-columns: repeat(4, 1fr); }
 
 /* Card styling */
-.wfn-enhancement-elegant-card {
+.hkfn-enhancement-elegant-card {
     position: relative;
-    background: var(--wfn-color-card-background, #ffffff);
-    border: 1px solid var(--wfn-color-border, #e5e5e5);
-    border-radius: var(--wfn-border-radius, 8px);
+    background: var(--hkfn-color-card-background, #ffffff);
+    border: 1px solid var(--hkfn-color-border, #e5e5e5);
+    border-radius: var(--hkfn-border-radius, 8px);
     overflow: hidden;
-    transition: all var(--wfn-transition-speed, 0.3s) ease;
-    box-shadow: var(--wfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
+    transition: all var(--hkfn-transition-speed, 0.3s) ease;
+    box-shadow: var(--hkfn-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
 }
 }
 
-.wfn-enhancement-elegant-card:hover {
+.hkfn-enhancement-elegant-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.wfn-enhancement-elegant-link {
+.hkfn-enhancement-elegant-link {
     display: block;
     text-decoration: none;
     color: inherit;
 }
 
-.wfn-enhancement-elegant-link:hover {
+.hkfn-enhancement-elegant-link:hover {
     text-decoration: none;
     color: inherit;
 }
 
 /* Header with image and details */
-.wfn-enhancement-elegant-header {
+.hkfn-enhancement-elegant-header {
     display: flex;
     align-items: center;
-    padding: var(--wfn-card-padding, 1.25rem);
+    padding: var(--hkfn-card-padding, 1.25rem);
     gap: 1rem;
 }
 
-.wfn-enhancement-elegant-portrait {
+.hkfn-enhancement-elegant-portrait {
     width: 150px !important;
     height: 150px !important;
     border-radius: 50% !important;
@@ -61,61 +61,61 @@
     border: 6px solid #d4af37 !important; /* Gold border 6px */
 }
 
-.wfn-enhancement-elegant-details {
+.hkfn-enhancement-elegant-details {
     flex: 1;
 }
 
-.wfn-enhancement-elegant-name {
-    font-size: var(--wfn-heading-size, 1.1rem);
+.hkfn-enhancement-elegant-name {
+    font-size: var(--hkfn-heading-size, 1.1rem);
     font-weight: 600;
     margin: 0 0 0.25rem 0;
-    color: var(--wfn-color-text-primary, #2c3e50);
+    color: var(--hkfn-color-text-primary, #2c3e50);
     line-height: 1.3;
-    font-family: var(--wfn-font-heading, inherit);
+    font-family: var(--hkfn-font-heading, inherit);
 }
 
-.wfn-enhancement-elegant-years {
-    font-size: var(--wfn-text-size, 0.9rem);
-    color: var(--wfn-color-text-secondary, #7f8c8d);
+.hkfn-enhancement-elegant-years {
+    font-size: var(--hkfn-text-size, 0.9rem);
+    color: var(--hkfn-color-text-secondary, #7f8c8d);
     margin: 0;
     font-style: italic;
-    font-family: var(--wfn-font-body, inherit);
+    font-family: var(--hkfn-font-body, inherit);
 }
 
 /* Service information */
-.wfn-enhancement-elegant-service {
-    padding: 0 var(--wfn-card-padding, 1.25rem) var(--wfn-card-padding, 1rem) var(--wfn-card-padding, 1.25rem);
-    font-size: var(--wfn-text-size, 0.9rem);
-    color: var(--wfn-color-text-secondary, #5d6d7e);
-    border-top: 1px solid var(--wfn-color-border, #f8f9fa);
+.hkfn-enhancement-elegant-service {
+    padding: 0 var(--hkfn-card-padding, 1.25rem) var(--hkfn-card-padding, 1rem) var(--hkfn-card-padding, 1.25rem);
+    font-size: var(--hkfn-text-size, 0.9rem);
+    color: var(--hkfn-color-text-secondary, #5d6d7e);
+    border-top: 1px solid var(--hkfn-color-border, #f8f9fa);
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    font-family: var(--wfn-font-body, inherit);
+    font-family: var(--hkfn-font-body, inherit);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.wfn-enhancement-elegant-service strong {
-    color: var(--wfn-color-text-primary, #34495e);
+.hkfn-enhancement-elegant-service strong {
+    color: var(--hkfn-color-text-primary, #34495e);
     font-weight: 600;
 }
 
 /* Streaming icon in service info (elegant) */
-.wfn-enhancement-elegant-service .wfn-streaming-icon {
+.hkfn-enhancement-elegant-service .hkfn-streaming-icon {
     display: inline-flex;
     align-items: center;
     margin-left: auto;
 }
 
-.wfn-enhancement-elegant-service .wfn-streaming-icon svg {
+.hkfn-enhancement-elegant-service .hkfn-streaming-icon svg {
     width: 18px;
     height: 18px;
-    fill: var(--wfn-color-primary, #8B0000);
+    fill: var(--hkfn-color-primary, #8B0000);
 }
 
 /* Floating streaming icon when date/time/venue hidden (elegant) */
-.wfn-streaming-icon-float {
+.hkfn-streaming-icon-float {
     position: absolute;
     bottom: 0.75rem; /* bottom-right of card */
     right: 0.75rem;
@@ -127,42 +127,42 @@
     z-index: 2;
 }
 
-.wfn-streaming-icon-float svg {
+.hkfn-streaming-icon-float svg {
     width: 22px;
     height: 22px;
-    fill: var(--wfn-color-primary, #8B0000);
+    fill: var(--hkfn-color-primary, #8B0000);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .wfn-enhancement-elegant-grid.wfn-cols-3,
-    .wfn-enhancement-elegant-grid.wfn-cols-4 {
+    .hkfn-enhancement-elegant-grid.hkfn-cols-3,
+    .hkfn-enhancement-elegant-grid.hkfn-cols-4 {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
     }
 
-    .wfn-enhancement-elegant-header {
+    .hkfn-enhancement-elegant-header {
         padding: 1rem;
     }
 
-    .wfn-enhancement-elegant-service {
+    .hkfn-enhancement-elegant-service {
         padding: 0 1rem 1rem 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .wfn-enhancement-elegant-grid {
+    .hkfn-enhancement-elegant-grid {
         grid-template-columns: 1fr !important;
         gap: 1rem;
     }
     
-    .wfn-enhancement-elegant-header {
+    .hkfn-enhancement-elegant-header {
         flex-direction: column;
         text-align: center;
         padding: 0.875rem;
     }
     
-    .wfn-enhancement-elegant-portrait {
+    .hkfn-enhancement-elegant-portrait {
         width: 80px;
         height: 80px;
     }

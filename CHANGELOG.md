@@ -4,6 +4,24 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.0.0] – July 24, 2026
+
+Major release. The plugin is slimmer and moves to the `hkfn_` naming used across HumanKind plugins. Upgrades from 2.x migrate automatically and keep existing content and settings.
+
+### Built-in image cropper
+
+Replaced the external Crop-Thumbnails plugin with a built-in cropper (Cropper.js). One less plugin to install and maintain.
+
+### `wfn_` → `hkfn_` rename with automatic migration
+
+Options, CSS classes, and post meta now use the `hkfn_` prefix. Upgrading sites migrate on update: notice data is carried across, and saved settings and custom CSS keep working (custom CSS that targets old `.wfn-` classes is rewritten automatically).
+
+### Requirements
+
+Now requires PHP 8.1 and WordPress 6.6.
+
+---
+
 ## [2.6.7] – March 6, 2026
 
 ### Increased Video Upload Limit

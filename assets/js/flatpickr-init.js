@@ -21,9 +21,9 @@
             return;
         }
 
-        // Check if wfnFlatpickr is available
-        if (typeof wfnFlatpickr === 'undefined') {
-            console.error('WFN: Flatpickr configuration not loaded. wfnFlatpickr is undefined.');
+        // Check if hkfnFlatpickr is available
+        if (typeof hkfnFlatpickr === 'undefined') {
+            console.error('WFN: Flatpickr configuration not loaded. hkfnFlatpickr is undefined.');
             return;
         }
 
@@ -41,20 +41,20 @@
         // Load CSS
         var cssLink = document.createElement('link');
         cssLink.rel = 'stylesheet';
-        cssLink.href = wfnFlatpickr.cssUrl;
+        cssLink.href = hkfnFlatpickr.cssUrl;
         cssLink.onload = checkAllLoaded;
         cssLink.onerror = function() {
-            console.error('WFN: Failed to load Flatpickr CSS from ' + wfnFlatpickr.cssUrl);
+            console.error('WFN: Failed to load Flatpickr CSS from ' + hkfnFlatpickr.cssUrl);
             checkAllLoaded();
         };
         document.head.appendChild(cssLink);
 
         // Load JS
         var script = document.createElement('script');
-        script.src = wfnFlatpickr.jsUrl;
+        script.src = hkfnFlatpickr.jsUrl;
         script.onload = checkAllLoaded;
         script.onerror = function() {
-            console.error('WFN: Failed to load Flatpickr JS from ' + wfnFlatpickr.jsUrl);
+            console.error('WFN: Failed to load Flatpickr JS from ' + hkfnFlatpickr.jsUrl);
             checkAllLoaded();
         };
         document.head.appendChild(script);
@@ -64,14 +64,14 @@
      * Initialize Flatpickr on date range input
      */
     function initializeFlatpickr() {
-        var dateInput = document.getElementById('wfn-date-range');
+        var dateInput = document.getElementById('hkfn-date-range');
         if (!dateInput || flatpickrInstance) {
             return;
         }
 
         // Get hidden input fields for backend compatibility
-        var dateFromInput = document.getElementById('wfn-date-from');
-        var dateToInput = document.getElementById('wfn-date-to');
+        var dateFromInput = document.getElementById('hkfn-date-from');
+        var dateToInput = document.getElementById('hkfn-date-to');
 
         if (!dateFromInput || !dateToInput) {
             console.error('WFN: Hidden date inputs not found');
@@ -131,7 +131,7 @@
 
         // Add clear button functionality
         var clearButton = dateInput.nextElementSibling;
-        if (clearButton && clearButton.classList.contains('wfn-date-clear')) {
+        if (clearButton && clearButton.classList.contains('hkfn-date-clear')) {
             clearButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (flatpickrInstance) {
@@ -182,14 +182,14 @@
      * Initialize on DOM ready
      */
     function init() {
-        var dateInput = document.getElementById('wfn-date-range');
+        var dateInput = document.getElementById('hkfn-date-range');
         if (!dateInput) {
             return;
         }
 
         // Check if we have existing date values and display them immediately
-        var dateFromInput = document.getElementById('wfn-date-from');
-        var dateToInput = document.getElementById('wfn-date-to');
+        var dateFromInput = document.getElementById('hkfn-date-from');
+        var dateToInput = document.getElementById('hkfn-date-to');
 
         if (dateFromInput && dateToInput) {
             var existingFrom = dateFromInput.value;
@@ -222,7 +222,7 @@
                 var checkInterval = setInterval(function() {
                     if (typeof flatpickr !== 'undefined') {
                         clearInterval(checkInterval);
-                        dateInput.placeholder = wfnFlatpickr.placeholder || 'Select date range...';
+                        dateInput.placeholder = hkfnFlatpickr.placeholder || 'Select date range...';
                         dateInput.disabled = false;
                         initializeFlatpickr();
 

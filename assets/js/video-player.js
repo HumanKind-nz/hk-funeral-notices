@@ -29,8 +29,8 @@
             $(document).on('click', '[data-video-modal]', this.openModal.bind(this));
 
             // Modal close buttons and overlay
-            $(document).on('click', '.wfn-video-modal-close', this.closeModal.bind(this));
-            $(document).on('click', '.wfn-video-modal-overlay', this.closeModalOnOverlay.bind(this));
+            $(document).on('click', '.hkfn-video-modal-close', this.closeModal.bind(this));
+            $(document).on('click', '.hkfn-video-modal-overlay', this.closeModalOnOverlay.bind(this));
 
             // Keyboard events
             $(document).on('keydown', this.handleKeydown.bind(this));
@@ -39,7 +39,7 @@
             $(window).on('resize', this.handleResize.bind(this));
 
             // Focus management
-            $(document).on('focus', '.wfn-video-modal', this.manageFocus.bind(this));
+            $(document).on('focus', '.hkfn-video-modal', this.manageFocus.bind(this));
         }
 
         /**
@@ -47,7 +47,7 @@
          */
         setupAccessibility() {
             // Ensure all modals have proper ARIA attributes
-            $('.wfn-video-modal').each(function() {
+            $('.hkfn-video-modal').each(function() {
                 const $modal = $(this);
                 if (!$modal.attr('role')) {
                     $modal.attr('role', 'dialog');
@@ -74,7 +74,7 @@
          */
         preloadModals() {
             // This could be expanded to preload video thumbnails or metadata
-            $('.wfn-video-modal').each(function() {
+            $('.hkfn-video-modal').each(function() {
                 const $modal = $(this);
                 // Add any preload logic here
             });
@@ -100,7 +100,7 @@
 
             // Show modal
             $modal.show().attr('aria-hidden', 'false');
-            $('body').addClass('wfn-video-modal-open');
+            $('body').addClass('hkfn-video-modal-open');
 
             // Focus management
             this.focusModal($modal);
@@ -109,7 +109,7 @@
             this.initializeVideo($modal);
 
             // Fire custom event
-            $(document).trigger('wfn:modal:opened', { modal: $modal, trigger: $trigger });
+            $(document).trigger('hkfn:modal:opened', { modal: $modal, trigger: $trigger });
         }
 
         /**
@@ -132,7 +132,7 @@
          */
         closeModalOnOverlay(event) {
             if (event.target === event.currentTarget) {
-                const $modal = $(event.currentTarget).closest('.wfn-video-modal');
+                const $modal = $(event.currentTarget).closest('.hkfn-video-modal');
                 this.closeModalElement($modal);
             }
         }
@@ -147,7 +147,7 @@
 
             // Hide modal
             $modal.hide().attr('aria-hidden', 'true');
-            $('body').removeClass('wfn-video-modal-open');
+            $('body').removeClass('hkfn-video-modal-open');
 
             // Pause video if playing
             this.pauseVideo($modal);
@@ -159,7 +159,7 @@
             }
 
             // Fire custom event
-            $(document).trigger('wfn:modal:closed', { modal: $modal });
+            $(document).trigger('hkfn:modal:closed', { modal: $modal });
         }
 
         /**
@@ -168,7 +168,7 @@
         handleKeydown(event) {
             // Close modal on Escape key
             if (event.key === 'Escape') {
-                const $openModal = $('.wfn-video-modal[aria-hidden="false"]');
+                const $openModal = $('.hkfn-video-modal[aria-hidden="false"]');
                 if ($openModal.length) {
                     this.closeModalElement($openModal);
                 }
@@ -184,7 +184,7 @@
          * Handle window resize
          */
         handleResize() {
-            const $openModal = $('.wfn-video-modal[aria-hidden="false"]');
+            const $openModal = $('.hkfn-video-modal[aria-hidden="false"]');
             if ($openModal.length) {
                 this.adjustModalSize($openModal);
             }
@@ -208,7 +208,7 @@
          * Trap focus within modal
          */
         trapFocus(event) {
-            const $modal = $('.wfn-video-modal[aria-hidden="false"]');
+            const $modal = $('.hkfn-video-modal[aria-hidden="false"]');
 
             if ($modal.length === 0) {
                 return;
@@ -238,7 +238,7 @@
          */
         manageFocus(event) {
             const $modal = $(event.currentTarget);
-            if ($modal.hasClass('wfn-video-modal') && $modal.attr('aria-hidden') === 'false') {
+            if ($modal.hasClass('hkfn-video-modal') && $modal.attr('aria-hidden') === 'false') {
                 // Modal is open and focused
             }
         }
@@ -247,7 +247,7 @@
          * Initialize video when modal opens
          */
         initializeVideo($modal) {
-            const $videoContainer = $modal.find('.wfn-video-container');
+            const $videoContainer = $modal.find('.hkfn-video-container');
             let $iframe = $videoContainer.find('iframe');
 
             // If iframe doesn't exist, create it from data attributes
@@ -272,23 +272,23 @@
             }
 
             // Add loading state
-            $videoContainer.addClass('wfn-video-loading');
+            $videoContainer.addClass('hkfn-video-loading');
 
             // Set up a timeout to remove loading state after 3 seconds regardless
             const loadingTimeout = setTimeout(() => {
-                $videoContainer.removeClass('wfn-video-loading').addClass('wfn-video-ready');
+                $videoContainer.removeClass('hkfn-video-loading').addClass('hkfn-video-ready');
             }, 3000);
 
             // Handle iframe load
             $iframe.on('load', function() {
                 clearTimeout(loadingTimeout);
-                $videoContainer.removeClass('wfn-video-loading').addClass('wfn-video-ready');
+                $videoContainer.removeClass('hkfn-video-loading').addClass('hkfn-video-ready');
             });
 
             // Handle iframe errors
             $iframe.on('error', function() {
                 clearTimeout(loadingTimeout);
-                $videoContainer.removeClass('wfn-video-loading').addClass('wfn-video-error');
+                $videoContainer.removeClass('hkfn-video-loading').addClass('hkfn-video-error');
                 console.error('Failed to load video iframe');
             });
 
@@ -325,21 +325,21 @@
          * Handle video play event
          */
         onVideoPlay(data) {
-            $(document).trigger('wfn:video:play', data);
+            $(document).trigger('hkfn:video:play', data);
         }
 
         /**
          * Handle video pause event
          */
         onVideoPause(data) {
-            $(document).trigger('wfn:video:pause', data);
+            $(document).trigger('hkfn:video:pause', data);
         }
 
         /**
          * Handle video ended event
          */
         onVideoEnded(data) {
-            $(document).trigger('wfn:video:ended', data);
+            $(document).trigger('hkfn:video:ended', data);
         }
 
         /**
@@ -381,7 +381,7 @@
         adjustModalSize($modal) {
             const windowHeight = $(window).height();
             const windowWidth = $(window).width();
-            const $content = $modal.find('.wfn-video-modal-content');
+            const $content = $modal.find('.hkfn-video-modal-content');
 
             // Adjust modal size for mobile
             if (windowWidth < 768) {
@@ -414,14 +414,14 @@
         }
 
         init() {
-            if (typeof wfnVideo === 'undefined') {
+            if (typeof hkfnVideo === 'undefined') {
                 return;
             }
 
-            this.postId = wfnVideo.postId;
-            this.videoId = wfnVideo.videoId;
-            this.ajaxUrl = wfnVideo.ajaxUrl;
-            this.nonces = wfnVideo.nonces;
+            this.postId = hkfnVideo.postId;
+            this.videoId = hkfnVideo.videoId;
+            this.ajaxUrl = hkfnVideo.ajaxUrl;
+            this.nonces = hkfnVideo.nonces;
 
             this.startTracking();
         }
@@ -447,7 +447,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wfn_video_upload_status',
+                    action: 'hkfn_video_upload_status',
                     post_id: this.postId,
                     nonce: this.nonces.status
                 },
@@ -484,10 +484,10 @@
          * Show progress bar
          */
         showProgressBar(status) {
-            let $progressContainer = $('.wfn-upload-progress');
+            let $progressContainer = $('.hkfn-upload-progress');
 
             if ($progressContainer.length === 0) {
-                $progressContainer = $('<div class="wfn-upload-progress"></div>');
+                $progressContainer = $('<div class="hkfn-upload-progress"></div>');
                 $('.acf-field[data-name="memorial_video"]').append($progressContainer);
             }
 
@@ -495,11 +495,11 @@
             const message = status.message || 'Processing...';
 
             $progressContainer.html(`
-                <div class="wfn-progress-bar">
-                    <div class="wfn-progress-fill" style="width: ${progress}%"></div>
-                    <span class="wfn-progress-text">${progress}%</span>
+                <div class="hkfn-progress-bar">
+                    <div class="hkfn-progress-fill" style="width: ${progress}%"></div>
+                    <span class="hkfn-progress-text">${progress}%</span>
                 </div>
-                <p class="wfn-progress-message">${message}</p>
+                <p class="hkfn-progress-message">${message}</p>
             `);
         }
 
@@ -507,8 +507,8 @@
          * Show video ready state
          */
         showVideoReady() {
-            $('.wfn-upload-progress').html(`
-                <div class="wfn-upload-success">
+            $('.hkfn-upload-progress').html(`
+                <div class="hkfn-upload-success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     Memorial video is ready for viewing!
                 </div>
@@ -521,8 +521,8 @@
         showUploadError(status) {
             const message = status?.message || 'Upload failed';
 
-            $('.wfn-upload-progress').html(`
-                <div class="wfn-upload-error">
+            $('.hkfn-upload-progress').html(`
+                <div class="hkfn-upload-error">
                     <span class="dashicons dashicons-warning"></span>
                     ${message}
                 </div>

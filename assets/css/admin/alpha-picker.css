@@ -109,16 +109,16 @@
 }
 
 /* WFN Color picker styling */
-.wfn-color-picker-wrapper {
+.hkfn-color-picker-wrapper {
 	position: relative;
 	display: inline-block;
 }
 
-.wfn-color-picker-wrapper .wp-picker-container {
+.hkfn-color-picker-wrapper .wp-picker-container {
 	margin-bottom: 10px;
 }
 
-.wfn-color-picker-wrapper .description {
+.hkfn-color-picker-wrapper .description {
 	margin-top: 8px;
 	margin-bottom: 0;
 }
@@ -135,14 +135,14 @@
 }
 
 /* Enhanced color picker for WFN */
-.wfn-color-control {
+.hkfn-color-control {
 	display: flex;
 	align-items: center;
 	gap: 15px;
 	margin-bottom: 15px;
 }
 
-.wfn-color-control .color-preview {
+.hkfn-color-control .color-preview {
 	width: 40px;
 	height: 40px;
 	border-radius: 8px;
@@ -153,12 +153,12 @@
 	transition: all 0.3s ease;
 }
 
-.wfn-color-control .color-preview:hover {
+.hkfn-color-control .color-preview:hover {
 	border-color: #667eea;
 	transform: scale(1.05);
 }
 
-.wfn-color-control .color-preview::before {
+.hkfn-color-control .color-preview::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -170,7 +170,7 @@
 	z-index: 1;
 }
 
-.wfn-color-control .color-preview .color-value {
+.hkfn-color-control .color-preview .color-value {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -179,18 +179,18 @@
 	z-index: 2;
 }
 
-.wfn-color-control .color-info {
+.hkfn-color-control .color-info {
 	flex: 1;
 }
 
-.wfn-color-control .color-info label {
+.hkfn-color-control .color-info label {
 	display: block;
 	font-weight: 600;
 	color: #333;
 	margin-bottom: 5px;
 }
 
-.wfn-color-control .color-info .color-code {
+.hkfn-color-control .color-info .color-code {
 	font-family: monospace;
 	font-size: 0.9em;
 	color: #666;

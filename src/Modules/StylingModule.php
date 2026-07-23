@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WeaveStudios\FuneralNotices\Modules;
+namespace HumanKind\FuneralNotices\Modules;
 
 /**
  * Styling Module
@@ -211,7 +211,7 @@ class StylingModule extends BaseModule {
         add_filter('body_class', [$this, 'add_styling_body_classes']);
         
         // Generate CSS
-        add_action('wfn_generate_css', [$this, 'generate_css_file']);
+        add_action('hkfn_generate_css', [$this, 'generate_css_file']);
     }
     
     /**
@@ -278,7 +278,7 @@ class StylingModule extends BaseModule {
         // Enqueue Google Fonts if enabled
         if ($settings['load_google_fonts'] && $this->has_google_fonts()) {
             wp_enqueue_style(
-                'wfn-google-fonts',
+                'hkfn-google-fonts',
                 $this->get_google_fonts_url(),
                 [],
                 $this->get_version()
@@ -288,7 +288,7 @@ class StylingModule extends BaseModule {
         // Enqueue generated CSS
         if ($settings['css_optimization'] && file_exists($this->get_css_file_path())) {
             wp_enqueue_style(
-                'wfn-custom-styling',
+                'hkfn-custom-styling',
                 $this->get_css_file_url(),
                 [],
                 filemtime($this->get_css_file_path())
@@ -309,10 +309,10 @@ class StylingModule extends BaseModule {
         
         // Check for both possible screen ID patterns
         $is_styling_page = $screen && (
-            strpos($screen->id, 'wfn-module-styling') !== false ||
+            strpos($screen->id, 'hkfn-module-styling') !== false ||
             strpos($screen->id, 'hkfn-module-styling') !== false ||
             $screen->id === 'hkfn-module-styling' ||
-            $screen->id === 'wfn-module-styling'
+            $screen->id === 'hkfn-module-styling'
         );
         
         if ($is_styling_page) {
@@ -326,13 +326,13 @@ class StylingModule extends BaseModule {
                     height: 32px;
                     margin-right: 10px;
                 }
-                .wfn-color-field {
+                .hkfn-color-field {
                     margin-bottom: 20px;
                 }
-                .wfn-color-field .wp-picker-container {
+                .hkfn-color-field .wp-picker-container {
                     margin-top: 5px;
                 }
-                .wfn-color-field label {
+                .hkfn-color-field label {
                     font-weight: 600;
                     margin-bottom: 8px;
                     display: block;
@@ -340,15 +340,15 @@ class StylingModule extends BaseModule {
             ');
             
             wp_enqueue_script(
-                'wfn-admin-styling',
-                WFN_PLUGIN_URL . 'assets/js/admin/styling-module.js',
+                'hkfn-admin-styling',
+                HKFN_PLUGIN_URL . 'assets/js/admin/styling-module.js',
                 ['jquery', 'wp-color-picker'],
                 $this->get_version(),
                 true
             );
             
             // Add debug script to check if everything loads properly
-            wp_add_inline_script('wfn-admin-styling', '
+            wp_add_inline_script('hkfn-admin-styling', '
                 console.log("WFN Styling: Admin JS loaded");
                 console.log("WFN Styling: jQuery version:", jQuery.fn.jquery);
                 console.log("WFN Styling: wp-color-picker available:", typeof jQuery.fn.wpColorPicker);
@@ -367,23 +367,37 @@ class StylingModule extends BaseModule {
         $settings = $this->get_settings();
         
         // Generate CSS variables
-        echo '<style id="wfn-styling-variables">';
+        echo '<style id="hkfn-styling-variables">';
         echo $this->generate_css_variables();
         echo '</style>';
         
         // Output inline CSS if not optimized
         if (!$settings['css_optimization']) {
-            echo '<style id="wfn-custom-styling">';
+            echo '<style id="hkfn-custom-styling">';
             echo $this->generate_custom_css();
             echo '</style>';
         }
         
         // Output custom CSS
         if ($settings['enable_custom_css'] && !empty($settings['custom_css'])) {
-            echo '<style id="wfn-user-custom-css">';
-            echo wp_strip_all_tags($settings['custom_css']);
+            echo '<style id="hkfn-user-custom-css">';
+            echo wp_strip_all_tags($this->upgrade_legacy_css_selectors($settings['custom_css']));
             echo '</style>';
         }
+    }
+
+    /**
+     * Rewrite legacy wfn- class selectors to the hkfn- prefix.
+     *
+     * Sites upgraded from v2.x carry hand-written custom CSS that targets the
+     * old .wfn- frontend classes. The v3 markup renamed every class to hkfn-,
+     * so that CSS silently stops matching (e.g. a custom page background
+     * disappears). Rewriting the token on output keeps legacy custom CSS
+     * working without reintroducing the old classes into the markup. Idempotent:
+     * CSS already using hkfn- is left untouched.
+     */
+    private function upgrade_legacy_css_selectors(string $css): string {
+        return preg_replace('/\bwfn-/', 'hkfn-', $css);
     }
     
     /**
@@ -396,20 +410,20 @@ class StylingModule extends BaseModule {
         
         $settings = $this->get_settings();
         
-        $classes[] = 'wfn-styling-enabled';
-        $classes[] = 'wfn-scheme-' . $settings['color_scheme'];
-        $classes[] = 'wfn-spacing-' . $settings['layout_spacing']['card_margin'];
+        $classes[] = 'hkfn-styling-enabled';
+        $classes[] = 'hkfn-scheme-' . $settings['color_scheme'];
+        $classes[] = 'hkfn-spacing-' . $settings['layout_spacing']['card_margin'];
         
         if ($settings['enable_dark_mode']) {
-            $classes[] = 'wfn-dark-mode';
+            $classes[] = 'hkfn-dark-mode';
         }
         
         if ($settings['enable_high_contrast']) {
-            $classes[] = 'wfn-high-contrast';
+            $classes[] = 'hkfn-high-contrast';
         }
         
         if ($settings['enable_reduced_motion']) {
-            $classes[] = 'wfn-reduced-motion';
+            $classes[] = 'hkfn-reduced-motion';
         }
         
         return $classes;
@@ -426,16 +440,16 @@ class StylingModule extends BaseModule {
         
         // Color variables
         foreach ($colors as $key => $value) {
-            $css .= '--wfn-color-' . str_replace('_', '-', $key) . ': ' . $value . ';';
+            $css .= '--hkfn-color-' . str_replace('_', '-', $key) . ': ' . $value . ';';
         }
         
         // Typography variables
         $typography = $settings['typography'];
         if ($typography['heading_font'] !== 'inherit') {
-            $css .= '--wfn-font-heading: "' . $typography['heading_font'] . '", sans-serif;';
+            $css .= '--hkfn-font-heading: "' . $typography['heading_font'] . '", sans-serif;';
         }
         if ($typography['body_font'] !== 'inherit') {
-            $css .= '--wfn-font-body: "' . $typography['body_font'] . '", sans-serif;';
+            $css .= '--hkfn-font-body: "' . $typography['body_font'] . '", sans-serif;';
         }
         
         // Size variables
@@ -446,8 +460,8 @@ class StylingModule extends BaseModule {
             'extra-large' => '1.25rem'
         ];
         
-        $css .= '--wfn-text-size: ' . ($size_map[$typography['body_size']] ?? '1rem') . ';';
-        $css .= '--wfn-heading-size: ' . ($size_map[$typography['heading_size']] ?? '1.25rem') . ';';
+        $css .= '--hkfn-text-size: ' . ($size_map[$typography['body_size']] ?? '1rem') . ';';
+        $css .= '--hkfn-heading-size: ' . ($size_map[$typography['heading_size']] ?? '1.25rem') . ';';
         
         // Spacing variables
         $spacing_map = [
@@ -459,9 +473,9 @@ class StylingModule extends BaseModule {
         ];
         
         $spacing = $settings['layout_spacing'];
-        $css .= '--wfn-card-padding: ' . ($spacing_map[$spacing['card_padding']] ?? '1rem') . ';';
-        $css .= '--wfn-card-margin: ' . ($spacing_map[$spacing['card_margin']] ?? '1rem') . ';';
-        $css .= '--wfn-section-spacing: ' . ($spacing_map[$spacing['section_spacing']] ?? '1rem') . ';';
+        $css .= '--hkfn-card-padding: ' . ($spacing_map[$spacing['card_padding']] ?? '1rem') . ';';
+        $css .= '--hkfn-card-margin: ' . ($spacing_map[$spacing['card_margin']] ?? '1rem') . ';';
+        $css .= '--hkfn-section-spacing: ' . ($spacing_map[$spacing['section_spacing']] ?? '1rem') . ';';
         
         // Border radius
         $radius_map = [
@@ -472,7 +486,7 @@ class StylingModule extends BaseModule {
             'extra-large' => '1.5rem'
         ];
         
-        $css .= '--wfn-border-radius: ' . ($radius_map[$spacing['border_radius']] ?? '0.5rem') . ';';
+        $css .= '--hkfn-border-radius: ' . ($radius_map[$spacing['border_radius']] ?? '0.5rem') . ';';
         
         // Card styling
         $card = $settings['card_styling'];
@@ -484,8 +498,8 @@ class StylingModule extends BaseModule {
             'extra-large' => '0 20px 25px rgba(0, 0, 0, 0.15)'
         ];
         
-        $css .= '--wfn-card-shadow: ' . ($shadow_map[$card['shadow_intensity']] ?? $shadow_map['medium']) . ';';
-        $css .= '--wfn-border-width: ' . $card['border_width'] . 'px;';
+        $css .= '--hkfn-card-shadow: ' . ($shadow_map[$card['shadow_intensity']] ?? $shadow_map['medium']) . ';';
+        $css .= '--hkfn-border-width: ' . $card['border_width'] . 'px;';
         
         // Transition speed
         $transition_map = [
@@ -495,7 +509,7 @@ class StylingModule extends BaseModule {
             'slow' => '0.5s'
         ];
         
-        $css .= '--wfn-transition-speed: ' . ($transition_map[$card['transition_speed']] ?? '0.3s') . ';';
+        $css .= '--hkfn-transition-speed: ' . ($transition_map[$card['transition_speed']] ?? '0.3s') . ';';
         
         $css .= '}';
         
@@ -511,218 +525,218 @@ class StylingModule extends BaseModule {
         $css = '';
         
         // Base funeral notices styling
-        $css .= '.wfn-funeral-notices {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-body, inherit);';
-        $css .= 'font-size: var(--wfn-text-size);';
+        $css .= '.hkfn-funeral-notices {';
+        $css .= 'color: var(--hkfn-color-text-primary);';
+        $css .= 'font-family: var(--hkfn-font-body, inherit);';
+        $css .= 'font-size: var(--hkfn-text-size);';
         $css .= '}';
         
         // Card styling
-        $css .= '.wfn-funeral-card {';
-        $css .= 'background: var(--wfn-color-card-background);';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border);';
-        $css .= 'border-radius: var(--wfn-border-radius);';
-        $css .= 'box-shadow: var(--wfn-card-shadow);';
-        $css .= 'padding: var(--wfn-card-padding);';
-        $css .= 'margin: var(--wfn-card-margin);';
-        $css .= 'transition: all var(--wfn-transition-speed) ease;';
+        $css .= '.hkfn-funeral-card {';
+        $css .= 'background: var(--hkfn-color-card-background);';
+        $css .= 'border: var(--hkfn-border-width) solid var(--hkfn-color-border);';
+        $css .= 'border-radius: var(--hkfn-border-radius);';
+        $css .= 'box-shadow: var(--hkfn-card-shadow);';
+        $css .= 'padding: var(--hkfn-card-padding);';
+        $css .= 'margin: var(--hkfn-card-margin);';
+        $css .= 'transition: all var(--hkfn-transition-speed) ease;';
         $css .= '}';
         
         // Hover effects
         if ($settings['card_styling']['hover_effect'] === 'lift') {
-            $css .= '.wfn-funeral-card:hover {';
+            $css .= '.hkfn-funeral-card:hover {';
             $css .= 'transform: translateY(-2px);';
             $css .= 'box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);';
             $css .= '}';
         } elseif ($settings['card_styling']['hover_effect'] === 'glow') {
-            $css .= '.wfn-funeral-card:hover {';
-            $css .= 'box-shadow: 0 0 20px var(--wfn-color-accent);';
+            $css .= '.hkfn-funeral-card:hover {';
+            $css .= 'box-shadow: 0 0 20px var(--hkfn-color-accent);';
             $css .= '}';
         }
         
         // Heading styling
-        $css .= '.wfn-funeral-card h3, .wfn-funeral-card h4 {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-heading, inherit);';
-        $css .= 'font-size: var(--wfn-heading-size);';
+        $css .= '.hkfn-funeral-card h3, .hkfn-funeral-card h4 {';
+        $css .= 'color: var(--hkfn-color-text-primary);';
+        $css .= 'font-family: var(--hkfn-font-heading, inherit);';
+        $css .= 'font-size: var(--hkfn-heading-size);';
         $css .= 'margin-bottom: 0.5rem;';
         $css .= '}';
         
         // Link styling
-        $css .= '.wfn-funeral-card a {';
-        $css .= 'color: var(--wfn-color-primary);';
+        $css .= '.hkfn-funeral-card a {';
+        $css .= 'color: var(--hkfn-color-primary);';
         $css .= 'text-decoration: none;';
-        $css .= 'transition: color var(--wfn-transition-speed) ease;';
+        $css .= 'transition: color var(--hkfn-transition-speed) ease;';
         $css .= '}';
         
-        $css .= '.wfn-funeral-card a:hover {';
-        $css .= 'color: var(--wfn-color-accent);';
+        $css .= '.hkfn-funeral-card a:hover {';
+        $css .= 'color: var(--hkfn-color-accent);';
         $css .= '}';
         
         // Search form styling
-        $css .= '.wfn-search-form {';
-        $css .= 'background: var(--wfn-color-background);';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border);';
-        $css .= 'border-radius: var(--wfn-border-radius);';
-        $css .= 'padding: var(--wfn-card-padding);';
-        $css .= 'margin-bottom: var(--wfn-section-spacing);';
+        $css .= '.hkfn-search-form {';
+        $css .= 'background: var(--hkfn-color-background);';
+        $css .= 'border: var(--hkfn-border-width) solid var(--hkfn-color-border);';
+        $css .= 'border-radius: var(--hkfn-border-radius);';
+        $css .= 'padding: var(--hkfn-card-padding);';
+        $css .= 'margin-bottom: var(--hkfn-section-spacing);';
         $css .= '}';
         
         // Alternating row styling (for list/current layout)
-        $css .= '.fn_notices li:nth-child(odd), .wfn-funeral-notices .wfn-funeral-row:nth-child(odd) {';
-        $css .= 'background: var(--wfn-color-row-alternate);';
+        $css .= '.fn_notices li:nth-child(odd), .hkfn-funeral-notices .hkfn-funeral-row:nth-child(odd) {';
+        $css .= 'background: var(--hkfn-color-row-alternate);';
         $css .= '}';
         
         // Enhancement Suite shortcode styling - Modern Grid
-        $css .= '.wfn-enhancement-modern-grid {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-body, inherit);';
+        $css .= '.hkfn-enhancement-modern-grid {';
+        $css .= 'color: var(--hkfn-color-text-primary);';
+        $css .= 'font-family: var(--hkfn-font-body, inherit);';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-modern-card {';
-        $css .= 'background: var(--wfn-color-card-background) !important;';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
-        $css .= 'border-radius: var(--wfn-border-radius) !important;';
-        $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
+        $css .= '.hkfn-enhancement-modern-card {';
+        $css .= 'background: var(--hkfn-color-card-background) !important;';
+        $css .= 'border: var(--hkfn-border-width) solid var(--hkfn-color-border) !important;';
+        $css .= 'border-radius: var(--hkfn-border-radius) !important;';
+        $css .= 'box-shadow: var(--hkfn-card-shadow) !important;';
         $css .= '/* padding and margin removed to allow layout CSS to control spacing */';
-        $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
+        $css .= 'transition: all var(--hkfn-transition-speed) ease !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-modern-link {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
+        $css .= '.hkfn-enhancement-modern-link {';
+        $css .= 'color: var(--hkfn-color-text-primary) !important;';
         $css .= 'text-decoration: none !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-modern-title {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
-        $css .= 'font-family: var(--wfn-font-heading, inherit) !important;';
-        $css .= 'font-size: var(--wfn-heading-size) !important;';
+        $css .= '.hkfn-enhancement-modern-title {';
+        $css .= 'color: var(--hkfn-color-text-primary) !important;';
+        $css .= 'font-family: var(--hkfn-font-heading, inherit) !important;';
+        $css .= 'font-size: var(--hkfn-heading-size) !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-modern-dates {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
+        $css .= '.hkfn-enhancement-modern-dates {';
+        $css .= 'color: var(--hkfn-color-text-secondary) !important;';
         $css .= '}';
         
         // Service info color removed - let modern-grid.css control it with primary color
-        // .wfn-enhancement-modern-service uses var(--wfn-color-primary) in modern-grid.css
+        // .hkfn-enhancement-modern-service uses var(--hkfn-color-primary) in modern-grid.css
         
-        $css .= '.wfn-enhancement-modern-more {';
+        $css .= '.hkfn-enhancement-modern-more {';
         $css .= 'color: white !important;';
-        $css .= 'background: var(--wfn-color-primary) !important;';
+        $css .= 'background: var(--hkfn-color-primary) !important;';
         $css .= '}';
         
         // Enhancement Suite shortcode styling - Elegant Grid
-        $css .= '.wfn-enhancement-elegant-grid {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-body, inherit);';
+        $css .= '.hkfn-enhancement-elegant-grid {';
+        $css .= 'color: var(--hkfn-color-text-primary);';
+        $css .= 'font-family: var(--hkfn-font-body, inherit);';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-elegant-card {';
-        $css .= 'background: var(--wfn-color-card-background) !important;';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
-        $css .= 'border-radius: var(--wfn-border-radius) !important;';
-        $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
+        $css .= '.hkfn-enhancement-elegant-card {';
+        $css .= 'background: var(--hkfn-color-card-background) !important;';
+        $css .= 'border: var(--hkfn-border-width) solid var(--hkfn-color-border) !important;';
+        $css .= 'border-radius: var(--hkfn-border-radius) !important;';
+        $css .= 'box-shadow: var(--hkfn-card-shadow) !important;';
         $css .= '/* padding and margin removed to allow layout CSS to control spacing */';
-        $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
+        $css .= 'transition: all var(--hkfn-transition-speed) ease !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-elegant-link {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
+        $css .= '.hkfn-enhancement-elegant-link {';
+        $css .= 'color: var(--hkfn-color-text-primary) !important;';
         $css .= 'text-decoration: none !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-elegant-name {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
-        $css .= 'font-family: var(--wfn-font-heading, inherit) !important;';
-        $css .= 'font-size: var(--wfn-heading-size) !important;';
+        $css .= '.hkfn-enhancement-elegant-name {';
+        $css .= 'color: var(--hkfn-color-text-primary) !important;';
+        $css .= 'font-family: var(--hkfn-font-heading, inherit) !important;';
+        $css .= 'font-size: var(--hkfn-heading-size) !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-elegant-years {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
+        $css .= '.hkfn-enhancement-elegant-years {';
+        $css .= 'color: var(--hkfn-color-text-secondary) !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-elegant-service {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
+        $css .= '.hkfn-enhancement-elegant-service {';
+        $css .= 'color: var(--hkfn-color-text-secondary) !important;';
         $css .= '}';
         
         
         // Enhancement Suite shortcode styling - Minimal Grid
-        $css .= '.wfn-enhancement-minimal-grid {';
-        $css .= 'color: var(--wfn-color-text-primary);';
-        $css .= 'font-family: var(--wfn-font-body, inherit);';
+        $css .= '.hkfn-enhancement-minimal-grid {';
+        $css .= 'color: var(--hkfn-color-text-primary);';
+        $css .= 'font-family: var(--hkfn-font-body, inherit);';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-minimal-card {';
-        $css .= 'background: var(--wfn-color-card-background) !important;';
-        $css .= 'border: var(--wfn-border-width) solid var(--wfn-color-border) !important;';
-        $css .= 'border-radius: var(--wfn-border-radius) !important;';
-        $css .= 'box-shadow: var(--wfn-card-shadow) !important;';
-        $css .= 'padding: var(--wfn-card-padding) !important;';
-        $css .= 'margin: var(--wfn-card-margin) !important;';
-        $css .= 'transition: all var(--wfn-transition-speed) ease !important;';
+        $css .= '.hkfn-enhancement-minimal-card {';
+        $css .= 'background: var(--hkfn-color-card-background) !important;';
+        $css .= 'border: var(--hkfn-border-width) solid var(--hkfn-color-border) !important;';
+        $css .= 'border-radius: var(--hkfn-border-radius) !important;';
+        $css .= 'box-shadow: var(--hkfn-card-shadow) !important;';
+        $css .= 'padding: var(--hkfn-card-padding) !important;';
+        $css .= 'margin: var(--hkfn-card-margin) !important;';
+        $css .= 'transition: all var(--hkfn-transition-speed) ease !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-minimal-name {';
-        $css .= 'color: var(--wfn-color-text-primary) !important;';
-        $css .= 'font-family: var(--wfn-font-heading, inherit) !important;';
-        $css .= 'font-size: var(--wfn-heading-size) !important;';
+        $css .= '.hkfn-enhancement-minimal-name {';
+        $css .= 'color: var(--hkfn-color-text-primary) !important;';
+        $css .= 'font-family: var(--hkfn-font-heading, inherit) !important;';
+        $css .= 'font-size: var(--hkfn-heading-size) !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-minimal-years {';
-        $css .= 'color: var(--wfn-color-text-secondary) !important;';
+        $css .= '.hkfn-enhancement-minimal-years {';
+        $css .= 'color: var(--hkfn-color-text-secondary) !important;';
         $css .= '}';
         
         // Search form button styling
-        $css .= '.wfn-enhancement-search-form .search-btn {';
-        $css .= 'background: var(--wfn-color-primary) !important;';
-        $css .= 'border-color: var(--wfn-color-primary) !important;';
+        $css .= '.hkfn-enhancement-search-form .search-btn {';
+        $css .= 'background: var(--hkfn-color-primary) !important;';
+        $css .= 'border-color: var(--hkfn-color-primary) !important;';
         $css .= 'color: white !important;';
         $css .= '}';
         
-        $css .= '.wfn-enhancement-search-form .search-btn:hover {';
-        $css .= 'background: var(--wfn-color-secondary) !important;';
-        $css .= 'border-color: var(--wfn-color-secondary) !important;';
+        $css .= '.hkfn-enhancement-search-form .search-btn:hover {';
+        $css .= 'background: var(--hkfn-color-secondary) !important;';
+        $css .= 'border-color: var(--hkfn-color-secondary) !important;';
         $css .= '}';
         
         // Hover effects for shortcode cards
         if ($settings['card_styling']['hover_effect'] === 'lift') {
-            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-minimal-card:hover {';
+            $css .= '.hkfn-enhancement-modern-card:hover, .hkfn-enhancement-elegant-card:hover, .hkfn-enhancement-minimal-card:hover {';
             $css .= 'transform: translateY(-2px) !important;';
             $css .= 'box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;';
             $css .= '}';
         } elseif ($settings['card_styling']['hover_effect'] === 'glow') {
-            $css .= '.wfn-enhancement-modern-card:hover, .wfn-enhancement-elegant-card:hover, .wfn-enhancement-minimal-card:hover {';
-            $css .= 'box-shadow: 0 0 20px var(--wfn-color-accent) !important;';
+            $css .= '.hkfn-enhancement-modern-card:hover, .hkfn-enhancement-elegant-card:hover, .hkfn-enhancement-minimal-card:hover {';
+            $css .= 'box-shadow: 0 0 20px var(--hkfn-color-accent) !important;';
             $css .= '}';
         }
         
         // Dark mode adjustments
         if ($settings['enable_dark_mode']) {
             $css .= '@media (prefers-color-scheme: dark) {';
-            $css .= '.wfn-dark-mode {';
-            $css .= '--wfn-color-background: #1a202c;';
-            $css .= '--wfn-color-card-background: #2d3748;';
-            $css .= '--wfn-color-text-primary: #f7fafc;';
-            $css .= '--wfn-color-text-secondary: #e2e8f0;';
-            $css .= '--wfn-color-border: #4a5568;';
-            $css .= '--wfn-color-row-alternate: #2d3748;';
+            $css .= '.hkfn-dark-mode {';
+            $css .= '--hkfn-color-background: #1a202c;';
+            $css .= '--hkfn-color-card-background: #2d3748;';
+            $css .= '--hkfn-color-text-primary: #f7fafc;';
+            $css .= '--hkfn-color-text-secondary: #e2e8f0;';
+            $css .= '--hkfn-color-border: #4a5568;';
+            $css .= '--hkfn-color-row-alternate: #2d3748;';
             $css .= '}';
             $css .= '}';
         }
         
         // High contrast mode
         if ($settings['enable_high_contrast']) {
-            $css .= '.wfn-high-contrast {';
-            $css .= '--wfn-color-text-primary: #000000;';
-            $css .= '--wfn-color-background: #ffffff;';
-            $css .= '--wfn-color-border: #000000;';
-            $css .= '--wfn-border-width: 2px;';
+            $css .= '.hkfn-high-contrast {';
+            $css .= '--hkfn-color-text-primary: #000000;';
+            $css .= '--hkfn-color-background: #ffffff;';
+            $css .= '--hkfn-color-border: #000000;';
+            $css .= '--hkfn-border-width: 2px;';
             $css .= '}';
         }
         
         // Reduced motion
         if ($settings['enable_reduced_motion']) {
-            $css .= '.wfn-reduced-motion * {';
+            $css .= '.hkfn-reduced-motion * {';
             $css .= 'animation-duration: 0.01ms !important;';
             $css .= 'animation-iteration-count: 1 !important;';
             $css .= 'transition-duration: 0.01ms !important;';
@@ -780,7 +794,7 @@ class StylingModule extends BaseModule {
      */
     private function get_css_file_path(): string {
         $upload_dir = wp_upload_dir();
-        return $upload_dir['basedir'] . '/wfn-styling.css';
+        return $upload_dir['basedir'] . '/hkfn-styling.css';
     }
     
     /**
@@ -788,7 +802,7 @@ class StylingModule extends BaseModule {
      */
     private function get_css_file_url(): string {
         $upload_dir = wp_upload_dir();
-        $url = $upload_dir['baseurl'] . '/wfn-styling.css';
+        $url = $upload_dir['baseurl'] . '/hkfn-styling.css';
         
         // Ensure URL uses the same protocol as the site
         if (is_ssl()) {
@@ -817,8 +831,8 @@ class StylingModule extends BaseModule {
         <form method="post" action="">
             <?php $this->render_nonce_field(); ?>
             
-            <div class="wfn-styling-admin">
-                <div class="wfn-admin-tabs">
+            <div class="hkfn-styling-admin">
+                <div class="hkfn-admin-tabs">
                     <nav class="nav-tab-wrapper">
                         <a href="#colors" class="nav-tab nav-tab-active">Color Schemes</a>
                         <a href="#typography" class="nav-tab">Typography</a>
@@ -829,21 +843,21 @@ class StylingModule extends BaseModule {
                     <!-- Color Schemes Tab -->
                     <div id="colors" class="tab-content active">
                         <h3>Custom Colors</h3>
-                        <p class="wfn-form-description">Customize the colors to match your website's theme. Leave fields at default to inherit from your theme.</p>
+                        <p class="hkfn-form-description">Customize the colors to match your website's theme. Leave fields at default to inherit from your theme.</p>
                         
                         <!-- Always show custom colors since that's the only option now -->
-                        <div class="wfn-custom-colors">
-                            <input type="hidden" name="wfn_module_settings[color_scheme]" value="custom">
+                        <div class="hkfn-custom-colors">
+                            <input type="hidden" name="hkfn_module_settings[color_scheme]" value="custom">
                             <h4>Color Settings</h4>
-                            <div class="wfn-color-grid">
+                            <div class="hkfn-color-grid">
                                 <?php foreach ($settings['custom_colors'] as $key => $value): ?>
-                                    <div class="wfn-color-field">
+                                    <div class="hkfn-color-field">
                                         <label for="color_<?php echo esc_attr($key); ?>">
                                             <?php echo esc_html(ucwords(str_replace('_', ' ', $key))); ?>
                                         </label>
                                         <input type="text" 
                                                id="color_<?php echo esc_attr($key); ?>" 
-                                               name="wfn_module_settings[custom_colors][<?php echo esc_attr($key); ?>]" 
+                                               name="hkfn_module_settings[custom_colors][<?php echo esc_attr($key); ?>]" 
                                                value="<?php echo esc_attr($value); ?>" 
                                                class="wp-color-picker-field"
                                                data-default-color="<?php echo esc_attr($this->default_settings['custom_colors'][$key] ?? $value); ?>">
@@ -857,10 +871,10 @@ class StylingModule extends BaseModule {
                     <div id="typography" class="tab-content">
                         <h3>Typography Settings</h3>
                         
-                        <div class="wfn-typography-grid">
-                            <div class="wfn-form-group">
+                        <div class="hkfn-typography-grid">
+                            <div class="hkfn-form-group">
                                 <label for="heading_font">Heading Font</label>
-                                <select name="wfn_module_settings[typography][heading_font]" id="heading_font">
+                                <select name="hkfn_module_settings[typography][heading_font]" id="heading_font">
                                     <?php foreach ($this->google_fonts as $font_value => $font_name): ?>
                                         <option value="<?php echo esc_attr($font_value); ?>" 
                                                 <?php selected($settings['typography']['heading_font'], $font_value); ?>>
@@ -870,9 +884,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="body_font">Body Font</label>
-                                <select name="wfn_module_settings[typography][body_font]" id="body_font">
+                                <select name="hkfn_module_settings[typography][body_font]" id="body_font">
                                     <?php foreach ($this->google_fonts as $font_value => $font_name): ?>
                                         <option value="<?php echo esc_attr($font_value); ?>" 
                                                 <?php selected($settings['typography']['body_font'], $font_value); ?>>
@@ -882,9 +896,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="heading_size">Heading Size</label>
-                                <select name="wfn_module_settings[typography][heading_size]" id="heading_size">
+                                <select name="hkfn_module_settings[typography][heading_size]" id="heading_size">
                                     <?php foreach ($this->size_options as $size_value => $size_name): ?>
                                         <option value="<?php echo esc_attr($size_value); ?>" 
                                                 <?php selected($settings['typography']['heading_size'], $size_value); ?>>
@@ -894,9 +908,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="body_size">Body Size</label>
-                                <select name="wfn_module_settings[typography][body_size]" id="body_size">
+                                <select name="hkfn_module_settings[typography][body_size]" id="body_size">
                                     <?php foreach ($this->size_options as $size_value => $size_name): ?>
                                         <option value="<?php echo esc_attr($size_value); ?>" 
                                                 <?php selected($settings['typography']['body_size'], $size_value); ?>>
@@ -907,17 +921,17 @@ class StylingModule extends BaseModule {
                             </div>
                         </div>
                         
-                        <div class="wfn-form-group">
-                            <label class="wfn-toggle-switch">
+                        <div class="hkfn-form-group">
+                            <label class="hkfn-toggle-switch">
                                 <input type="checkbox"
-                                       name="wfn_module_settings[load_google_fonts]"
+                                       name="hkfn_module_settings[load_google_fonts]"
                                        id="load_google_fonts"
                                        value="1"
                                        <?php checked($settings['load_google_fonts']); ?>>
-                                <span class="wfn-toggle-slider"></span>
-                                <span class="wfn-toggle-label">Load Google Fonts</span>
+                                <span class="hkfn-toggle-slider"></span>
+                                <span class="hkfn-toggle-label">Load Google Fonts</span>
                             </label>
-                            <p class="wfn-form-description">Automatically load Google Fonts for selected font families.</p>
+                            <p class="hkfn-form-description">Automatically load Google Fonts for selected font families.</p>
                         </div>
                     </div>
                     
@@ -925,10 +939,10 @@ class StylingModule extends BaseModule {
                     <div id="layout" class="tab-content">
                         <h3>Layout & Spacing</h3>
                         
-                        <div class="wfn-spacing-grid">
-                            <div class="wfn-form-group">
+                        <div class="hkfn-spacing-grid">
+                            <div class="hkfn-form-group">
                                 <label for="card_padding">Card Padding</label>
-                                <select name="wfn_module_settings[layout_spacing][card_padding]" id="card_padding">
+                                <select name="hkfn_module_settings[layout_spacing][card_padding]" id="card_padding">
                                     <?php foreach ($this->spacing_options as $spacing_value => $spacing_name): ?>
                                         <option value="<?php echo esc_attr($spacing_value); ?>" 
                                                 <?php selected($settings['layout_spacing']['card_padding'], $spacing_value); ?>>
@@ -938,9 +952,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="card_margin">Card Margin</label>
-                                <select name="wfn_module_settings[layout_spacing][card_margin]" id="card_margin">
+                                <select name="hkfn_module_settings[layout_spacing][card_margin]" id="card_margin">
                                     <?php foreach ($this->spacing_options as $spacing_value => $spacing_name): ?>
                                         <option value="<?php echo esc_attr($spacing_value); ?>" 
                                                 <?php selected($settings['layout_spacing']['card_margin'], $spacing_value); ?>>
@@ -950,9 +964,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="section_spacing">Section Spacing</label>
-                                <select name="wfn_module_settings[layout_spacing][section_spacing]" id="section_spacing">
+                                <select name="hkfn_module_settings[layout_spacing][section_spacing]" id="section_spacing">
                                     <?php foreach ($this->spacing_options as $spacing_value => $spacing_name): ?>
                                         <option value="<?php echo esc_attr($spacing_value); ?>" 
                                                 <?php selected($settings['layout_spacing']['section_spacing'], $spacing_value); ?>>
@@ -962,9 +976,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="border_radius">Border Radius</label>
-                                <select name="wfn_module_settings[layout_spacing][border_radius]" id="border_radius">
+                                <select name="hkfn_module_settings[layout_spacing][border_radius]" id="border_radius">
                                     <?php foreach ($this->spacing_options as $spacing_value => $spacing_name): ?>
                                         <option value="<?php echo esc_attr($spacing_value); ?>" 
                                                 <?php selected($settings['layout_spacing']['border_radius'], $spacing_value); ?>>
@@ -976,10 +990,10 @@ class StylingModule extends BaseModule {
                         </div>
                         
                         <h4>Card Styling</h4>
-                        <div class="wfn-card-styling-grid">
-                            <div class="wfn-form-group">
+                        <div class="hkfn-card-styling-grid">
+                            <div class="hkfn-form-group">
                                 <label for="shadow_intensity">Shadow Intensity</label>
-                                <select name="wfn_module_settings[card_styling][shadow_intensity]" id="shadow_intensity">
+                                <select name="hkfn_module_settings[card_styling][shadow_intensity]" id="shadow_intensity">
                                     <option value="none" <?php selected($settings['card_styling']['shadow_intensity'], 'none'); ?>>None</option>
                                     <option value="small" <?php selected($settings['card_styling']['shadow_intensity'], 'small'); ?>>Small</option>
                                     <option value="medium" <?php selected($settings['card_styling']['shadow_intensity'], 'medium'); ?>>Medium</option>
@@ -988,19 +1002,19 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="border_width">Border Width (px)</label>
                                 <input type="number" 
-                                       name="wfn_module_settings[card_styling][border_width]" 
+                                       name="hkfn_module_settings[card_styling][border_width]" 
                                        id="border_width" 
                                        value="<?php echo esc_attr($settings['card_styling']['border_width']); ?>" 
                                        min="0" 
                                        max="5">
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="hover_effect">Hover Effect</label>
-                                <select name="wfn_module_settings[card_styling][hover_effect]" id="hover_effect">
+                                <select name="hkfn_module_settings[card_styling][hover_effect]" id="hover_effect">
                                     <option value="none" <?php selected($settings['card_styling']['hover_effect'], 'none'); ?>>None</option>
                                     <option value="lift" <?php selected($settings['card_styling']['hover_effect'], 'lift'); ?>>Lift</option>
                                     <option value="glow" <?php selected($settings['card_styling']['hover_effect'], 'glow'); ?>>Glow</option>
@@ -1008,9 +1022,9 @@ class StylingModule extends BaseModule {
                                 </select>
                             </div>
                             
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="transition_speed">Transition Speed</label>
-                                <select name="wfn_module_settings[card_styling][transition_speed]" id="transition_speed">
+                                <select name="hkfn_module_settings[card_styling][transition_speed]" id="transition_speed">
                                     <option value="none" <?php selected($settings['card_styling']['transition_speed'], 'none'); ?>>None</option>
                                     <option value="fast" <?php selected($settings['card_styling']['transition_speed'], 'fast'); ?>>Fast</option>
                                     <option value="medium" <?php selected($settings['card_styling']['transition_speed'], 'medium'); ?>>Medium</option>
@@ -1024,103 +1038,103 @@ class StylingModule extends BaseModule {
                     <div id="advanced" class="tab-content">
                         <h3>Advanced Settings</h3>
                         
-                        <div class="wfn-accessibility-settings">
+                        <div class="hkfn-accessibility-settings">
                             <h4>Accessibility</h4>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[enable_dark_mode]"
+                                           name="hkfn_module_settings[enable_dark_mode]"
                                            id="enable_dark_mode"
                                            value="1"
                                            <?php checked($settings['enable_dark_mode']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Enable Dark Mode Support</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Enable Dark Mode Support</span>
                                 </label>
-                                <p class="wfn-form-description">Automatically adjust colors for users with dark mode preference.</p>
+                                <p class="hkfn-form-description">Automatically adjust colors for users with dark mode preference.</p>
                             </div>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[enable_high_contrast]"
+                                           name="hkfn_module_settings[enable_high_contrast]"
                                            id="enable_high_contrast"
                                            value="1"
                                            <?php checked($settings['enable_high_contrast']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Enable High Contrast Mode</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Enable High Contrast Mode</span>
                                 </label>
-                                <p class="wfn-form-description">Provide high contrast styling for accessibility.</p>
+                                <p class="hkfn-form-description">Provide high contrast styling for accessibility.</p>
                             </div>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[enable_reduced_motion]"
+                                           name="hkfn_module_settings[enable_reduced_motion]"
                                            id="enable_reduced_motion"
                                            value="1"
                                            <?php checked($settings['enable_reduced_motion']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Respect Reduced Motion Preference</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Respect Reduced Motion Preference</span>
                                 </label>
-                                <p class="wfn-form-description">Reduce animations for users with motion sensitivity.</p>
+                                <p class="hkfn-form-description">Reduce animations for users with motion sensitivity.</p>
                             </div>
                         </div>
                         
-                        <div class="wfn-performance-settings">
+                        <div class="hkfn-performance-settings">
                             <h4>Performance</h4>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[css_optimization]"
+                                           name="hkfn_module_settings[css_optimization]"
                                            id="css_optimization"
                                            value="1"
                                            <?php checked($settings['css_optimization']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Enable CSS Optimization</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Enable CSS Optimization</span>
                                 </label>
-                                <p class="wfn-form-description">Generate optimized CSS file instead of inline styles.</p>
+                                <p class="hkfn-form-description">Generate optimized CSS file instead of inline styles.</p>
                             </div>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[enable_css_variables]"
+                                           name="hkfn_module_settings[enable_css_variables]"
                                            id="enable_css_variables"
                                            value="1"
                                            <?php checked($settings['enable_css_variables']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Use CSS Variables</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Use CSS Variables</span>
                                 </label>
-                                <p class="wfn-form-description">Use CSS custom properties for better performance and flexibility.</p>
+                                <p class="hkfn-form-description">Use CSS custom properties for better performance and flexibility.</p>
                             </div>
                         </div>
                         
-                        <div class="wfn-custom-css-settings">
+                        <div class="hkfn-custom-css-settings">
                             <h4>Custom CSS</h4>
                             
-                            <div class="wfn-form-group">
-                                <label class="wfn-toggle-switch">
+                            <div class="hkfn-form-group">
+                                <label class="hkfn-toggle-switch">
                                     <input type="checkbox"
-                                           name="wfn_module_settings[enable_custom_css]"
+                                           name="hkfn_module_settings[enable_custom_css]"
                                            id="enable_custom_css"
                                            value="1"
                                            <?php checked($settings['enable_custom_css']); ?>>
-                                    <span class="wfn-toggle-slider"></span>
-                                    <span class="wfn-toggle-label">Enable Custom CSS</span>
+                                    <span class="hkfn-toggle-slider"></span>
+                                    <span class="hkfn-toggle-label">Enable Custom CSS</span>
                                 </label>
-                                <p class="wfn-form-description">Add custom CSS rules for advanced styling.</p>
+                                <p class="hkfn-form-description">Add custom CSS rules for advanced styling.</p>
                             </div>
                             
                             <?php if ($settings['enable_custom_css']): ?>
-                            <div class="wfn-form-group">
+                            <div class="hkfn-form-group">
                                 <label for="custom_css">Custom CSS</label>
-                                <textarea name="wfn_module_settings[custom_css]" 
+                                <textarea name="hkfn_module_settings[custom_css]" 
                                           id="custom_css" 
                                           rows="10" 
-                                          class="wfn-custom-css-editor"><?php echo esc_textarea($settings['custom_css']); ?></textarea>
-                                <p class="wfn-form-description">Enter custom CSS rules. Use CSS variables like var(--wfn-color-primary) for consistency.</p>
+                                          class="hkfn-custom-css-editor"><?php echo esc_textarea($settings['custom_css']); ?></textarea>
+                                <p class="hkfn-form-description">Enter custom CSS rules. Use CSS variables like var(--hkfn-color-primary) for consistency.</p>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -1170,8 +1184,8 @@ class StylingModule extends BaseModule {
                     });
                     
                     // Custom colors toggle
-                    $('input[name="wfn_module_settings[color_scheme]"]').on('change', function() {
-                        var $customColors = $('.wfn-custom-colors');
+                    $('input[name="hkfn_module_settings[color_scheme]"]').on('change', function() {
+                        var $customColors = $('.hkfn-custom-colors');
                         if ($(this).val() === 'custom') {
                             $customColors.show();
                         } else {
@@ -1192,14 +1206,14 @@ class StylingModule extends BaseModule {
                 display: block;
             }
             
-            .wfn-color-schemes {
+            .hkfn-color-schemes {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 20px;
                 margin-top: 20px;
             }
             
-            .wfn-color-scheme {
+            .hkfn-color-scheme {
                 border: 2px solid #ddd;
                 border-radius: 8px;
                 overflow: hidden;
@@ -1207,33 +1221,33 @@ class StylingModule extends BaseModule {
                 transition: all 0.3s ease;
             }
             
-            .wfn-color-scheme:hover {
+            .hkfn-color-scheme:hover {
                 border-color: #667eea;
                 transform: translateY(-2px);
             }
             
-            .wfn-color-scheme input[type="radio"] {
+            .hkfn-color-scheme input[type="radio"] {
                 display: none;
             }
             
-            .wfn-color-scheme input[type="radio"]:checked + .wfn-scheme-preview {
+            .hkfn-color-scheme input[type="radio"]:checked + .hkfn-scheme-preview {
                 border-color: #667eea;
                 background: #f0f4ff;
             }
             
-            .wfn-scheme-preview {
+            .hkfn-scheme-preview {
                 padding: 20px;
                 border: 2px solid transparent;
                 transition: all 0.3s ease;
             }
             
-            .wfn-scheme-colors {
+            .hkfn-scheme-colors {
                 display: flex;
                 gap: 5px;
                 margin-bottom: 15px;
             }
             
-            .wfn-color-swatch {
+            .hkfn-color-swatch {
                 width: 30px;
                 height: 30px;
                 border-radius: 50%;
@@ -1241,31 +1255,31 @@ class StylingModule extends BaseModule {
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
-            .wfn-scheme-info h4 {
+            .hkfn-scheme-info h4 {
                 margin: 0 0 5px 0;
                 font-size: 16px;
             }
             
-            .wfn-scheme-info p {
+            .hkfn-scheme-info p {
                 margin: 0;
                 color: #666;
                 font-size: 13px;
             }
             
-            .wfn-color-grid {
+            .hkfn-color-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 20px;
                 margin-top: 20px;
             }
             
-            .wfn-color-field label {
+            .hkfn-color-field label {
                 display: block;
                 margin-bottom: 5px;
                 font-weight: 500;
             }
             
-            .wfn-color-picker {
+            .hkfn-color-picker {
                 width: 100%;
                 height: 40px;
                 border: 1px solid #ddd;
@@ -1273,16 +1287,16 @@ class StylingModule extends BaseModule {
                 cursor: pointer;
             }
             
-            .wfn-typography-grid,
-            .wfn-spacing-grid,
-            .wfn-card-styling-grid {
+            .hkfn-typography-grid,
+            .hkfn-spacing-grid,
+            .hkfn-card-styling-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 20px;
                 margin-top: 20px;
             }
             
-            .wfn-custom-css-editor {
+            .hkfn-custom-css-editor {
                 width: 100%;
                 font-family: monospace;
                 font-size: 14px;
@@ -1292,9 +1306,9 @@ class StylingModule extends BaseModule {
                 padding: 10px;
             }
             
-            .wfn-accessibility-settings,
-            .wfn-performance-settings,
-            .wfn-custom-css-settings {
+            .hkfn-accessibility-settings,
+            .hkfn-performance-settings,
+            .hkfn-custom-css-settings {
                 margin-bottom: 30px;
                 padding: 20px;
                 border: 1px solid #ddd;
@@ -1302,9 +1316,9 @@ class StylingModule extends BaseModule {
                 background: #f9f9f9;
             }
             
-            .wfn-accessibility-settings h4,
-            .wfn-performance-settings h4,
-            .wfn-custom-css-settings h4 {
+            .hkfn-accessibility-settings h4,
+            .hkfn-performance-settings h4,
+            .hkfn-custom-css-settings h4 {
                 margin-top: 0;
                 margin-bottom: 15px;
                 color: #333;
@@ -1335,7 +1349,7 @@ class StylingModule extends BaseModule {
                 
                 // Custom CSS toggle
                 const customCssCheckbox = document.getElementById('enable_custom_css');
-                const customCssEditor = document.querySelector('.wfn-form-group:has(#custom_css)');
+                const customCssEditor = document.querySelector('.hkfn-form-group:has(#custom_css)');
                 
                 if (customCssCheckbox && customCssEditor) {
                     customCssCheckbox.addEventListener('change', function() {
@@ -1345,16 +1359,16 @@ class StylingModule extends BaseModule {
                 
                 // Initialize WordPress color pickers with alpha support
                 if (typeof jQuery !== 'undefined' && jQuery.fn.wpColorPicker) {
-                    jQuery('.wfn-color-picker').each(function() {
+                    jQuery('.hkfn-color-picker').each(function() {
                         var $input = jQuery(this);
                         var options = {
                             defaultColor: $input.data('default-color') || false,
                             change: function(event, ui) {
                                 // Trigger change for live preview if implemented
-                                $input.trigger('wfn-color-change', ui.color.toString());
+                                $input.trigger('hkfn-color-change', ui.color.toString());
                             },
                             clear: function() {
-                                $input.trigger('wfn-color-clear');
+                                $input.trigger('hkfn-color-clear');
                             },
                             hide: true,
                             palettes: [

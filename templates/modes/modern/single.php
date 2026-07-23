@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WeaveStudios\FuneralNotices\Templates\TemplateManager;
+use HumanKind\FuneralNotices\Templates\TemplateManager;
 
 // Load SVG icon functions
 require_once __DIR__ . '/../../partials/svg-icons.php';
@@ -28,28 +28,28 @@ $tribute = $data['tribute'];
 $share = $data['share'];
 ?>
 
-<div class="wfn-modern-single">
-    <div class="wfn-modern-container">
+<div class="hkfn-modern-single">
+    <div class="hkfn-modern-container">
         
         <!-- Hero Section -->
-        <div class="wfn-modern-hero">
+        <div class="hkfn-modern-hero">
             <?php if ($image['featured_url'] || $image['fallback_url']): ?>
-                <div class="wfn-modern-image">
+                <div class="hkfn-modern-image">
                     <img src="<?php echo esc_url($image['featured_url'] ?: $image['fallback_url']); ?>" 
                          alt="<?php echo esc_attr($person['full_name']); ?>" 
-                         class="wfn-modern-portrait">
+                         class="hkfn-modern-portrait">
                 </div>
             <?php endif; ?>
             
-            <div class="wfn-modern-details">
-                <h1 class="wfn-modern-name"><?php echo esc_html($person['full_name']); ?></h1>
+            <div class="hkfn-modern-details">
+                <h1 class="hkfn-modern-name"><?php echo esc_html($person['full_name']); ?></h1>
                 <?php if ($person['years_display']): ?>
-                    <p class="wfn-modern-years"><?php echo esc_html($person['years_display']); ?></p>
+                    <p class="hkfn-modern-years"><?php echo esc_html($person['years_display']); ?></p>
                 <?php endif; ?>
                 
                 <?php 
                 // Get celebration text from field
-                $notice_group = get_field('wfn_notice_group', get_the_ID());
+                $notice_group = get_field('hkfn_notice_group', get_the_ID());
                 $celebration_text = isset($notice_group['celebration_text']) ? trim($notice_group['celebration_text']) : '';
                 
                 // Only show if not explicitly empty (allows user to clear it)
@@ -66,7 +66,7 @@ $share = $data['share'];
                         $celebration_text
                     );
                 ?>
-                    <p class="wfn-modern-intro">
+                    <p class="hkfn-modern-intro">
                         <?php echo wp_kses_post($celebration_text); ?>
                     </p>
                 <?php endif; ?>
@@ -75,37 +75,37 @@ $share = $data['share'];
 
         <!-- Service Information -->
         <?php if (!$event['hide_time'] && ($event['formatted_date'] || $event['formatted_time'] || ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))))): ?>
-            <div class="wfn-modern-service">
+            <div class="hkfn-modern-service">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 class="wfn-modern-section-title" style="margin: 0;">Service Information</h2>
-                    <button class="wfn-share-button"
+                    <h2 class="hkfn-modern-section-title" style="margin: 0;">Service Information</h2>
+                    <button class="hkfn-share-button"
                             data-url="<?php echo esc_url($share['url']); ?>"
                             data-title="<?php echo esc_attr($share['title']); ?>"
                             data-message="<?php echo esc_attr(wp_unslash($share['message'])); ?>"
                             aria-label="Share this funeral notice">
-                        <?php echo wfn_get_share_icon('', 18); ?>
+                        <?php echo hkfn_get_share_icon('', 18); ?>
                         <span>Share</span>
                     </button>
                 </div>
-                <div class="wfn-modern-service-details">
+                <div class="hkfn-modern-service-details">
                     <?php if ($event['formatted_date']): ?>
-                        <div class="wfn-modern-detail">
-                            <span class="wfn-modern-label">Date:</span>
-                            <span class="wfn-modern-value"><?php echo esc_html($event['formatted_date']); ?></span>
+                        <div class="hkfn-modern-detail">
+                            <span class="hkfn-modern-label">Date:</span>
+                            <span class="hkfn-modern-value"><?php echo esc_html($event['formatted_date']); ?></span>
                         </div>
                     <?php endif; ?>
                     <?php if ($event['formatted_time']): ?>
-                        <div class="wfn-modern-detail">
-                            <span class="wfn-modern-label">Time:</span>
-                            <span class="wfn-modern-value"><?php echo esc_html($event['formatted_time']); ?></span>
+                        <div class="hkfn-modern-detail">
+                            <span class="hkfn-modern-label">Time:</span>
+                            <span class="hkfn-modern-value"><?php echo esc_html($event['formatted_time']); ?></span>
                         </div>
                     <?php endif; ?>
                     
                     <!-- Location moved here to group with date/time -->
                     <?php if ($location['show_location'] && ($location['display_venue'] || !empty($location['display_address']))): ?>
-                        <div class="wfn-modern-detail wfn-modern-location-detail">
-                            <span class="wfn-modern-label">Location:</span>
-                            <div class="wfn-modern-value">
+                        <div class="hkfn-modern-detail hkfn-modern-location-detail">
+                            <span class="hkfn-modern-label">Location:</span>
+                            <div class="hkfn-modern-value">
                                 <?php if ($location['display_venue']): ?>
                                     <strong><?php echo esc_html($location['display_venue']); ?></strong><br>
                                 <?php endif; ?>
@@ -126,7 +126,7 @@ $share = $data['share'];
                                     <a href="<?php echo esc_url($location['maps_url']); ?>" 
                                        target="_blank" 
                                        rel="noopener"
-                                       class="wfn-modern-maps-link">
+                                       class="hkfn-modern-maps-link">
                                        View on Google Maps
                                     </a>
                                 <?php endif; ?>
@@ -139,9 +139,9 @@ $share = $data['share'];
 
         <!-- Main Content -->
         <?php if ($content['notice']): ?>
-            <div class="wfn-modern-content">
-                <h2 class="wfn-modern-section-title">Funeral Notice</h2>
-                <div class="wfn-modern-notice">
+            <div class="hkfn-modern-content">
+                <h2 class="hkfn-modern-section-title">Funeral Notice</h2>
+                <div class="hkfn-modern-notice">
                     <?php echo wp_kses_post($content['notice']); ?>
                 </div>
             </div>
@@ -149,9 +149,9 @@ $share = $data['share'];
 
         <!-- Streaming Section -->
         <?php if ($streaming['is_public']): ?>
-            <div class="wfn-modern-streaming">
-                <h2 class="wfn-modern-section-title">Live Stream</h2>
-                <div class="wfn-modern-stream-wrapper">
+            <div class="hkfn-modern-streaming">
+                <h2 class="hkfn-modern-section-title">Live Stream</h2>
+                <div class="hkfn-modern-stream-wrapper">
 
                     <?php if ($streaming['embed_code']): ?>
                         <!-- StreamingDetector has generated the appropriate embed or button -->
@@ -163,7 +163,7 @@ $share = $data['share'];
                         <a href="<?php echo esc_url($streaming['streaming_url']); ?>"
                            target="_blank"
                            rel="noopener"
-                           class="wfn-modern-button">
+                           class="hkfn-modern-button">
                            📺 View Live Stream
                         </a>
 
@@ -173,7 +173,7 @@ $share = $data['share'];
                     <?php endif; ?>
 
                     <?php if ($streaming['streaming_note']): ?>
-                        <p class="wfn-streaming-note"><?php echo esc_html($streaming['streaming_note']); ?></p>
+                        <p class="hkfn-streaming-note"><?php echo esc_html($streaming['streaming_note']); ?></p>
                     <?php endif; ?>
 
                 </div>
@@ -188,16 +188,16 @@ $share = $data['share'];
 
         <!-- Actions -->
         <?php if ($tribute['show_button']): ?>
-            <div class="wfn-modern-actions">
+            <div class="hkfn-modern-actions">
                 <?php if ($tribute['has_url']): ?>
                     <a href="<?php echo esc_url($tribute['full_url']); ?>" 
                        target="_blank" 
                        rel="noopener"
-                       class="wfn-modern-button">
+                       class="hkfn-modern-button">
                        Send a tribute to the family
                     </a>
                 <?php else: ?>
-                    <span class="wfn-modern-button wfn-modern-button-disabled">
+                    <span class="hkfn-modern-button hkfn-modern-button-disabled">
                        Send a tribute to the family (Configure URL in Settings)
                     </span>
                 <?php endif; ?>
