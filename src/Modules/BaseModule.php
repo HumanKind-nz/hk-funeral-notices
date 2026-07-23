@@ -130,7 +130,22 @@ abstract class BaseModule implements ModuleInterface {
      * Get module settings
      */
     public function get_settings(): array {
-        $settings = get_option($this->get_settings_option_name(), []);
+        $option_name = $this->get_settings_option_name();
+        $settings    = get_option($option_name, null);
+
+        // Dual-read fallback for sites upgrading from v2.x, whose settings are
+        // still stored under the wfn_ prefix. Without this, upgraded sites lose
+        // all saved module configuration (custom CSS, colours, layout) and
+        // silently revert to defaults. Writes still go to the hkfn_ key.
+        if ($settings === null) {
+            $legacy_name = preg_replace('/^hkfn_/', 'wfn_', $option_name);
+            $settings    = get_option($legacy_name, []);
+        }
+
+        if (!is_array($settings)) {
+            $settings = [];
+        }
+
         return array_merge($this->get_default_settings(), $settings);
     }
     

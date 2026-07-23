@@ -381,9 +381,23 @@ class StylingModule extends BaseModule {
         // Output custom CSS
         if ($settings['enable_custom_css'] && !empty($settings['custom_css'])) {
             echo '<style id="hkfn-user-custom-css">';
-            echo wp_strip_all_tags($settings['custom_css']);
+            echo wp_strip_all_tags($this->upgrade_legacy_css_selectors($settings['custom_css']));
             echo '</style>';
         }
+    }
+
+    /**
+     * Rewrite legacy wfn- class selectors to the hkfn- prefix.
+     *
+     * Sites upgraded from v2.x carry hand-written custom CSS that targets the
+     * old .wfn- frontend classes. The v3 markup renamed every class to hkfn-,
+     * so that CSS silently stops matching (e.g. a custom page background
+     * disappears). Rewriting the token on output keeps legacy custom CSS
+     * working without reintroducing the old classes into the markup. Idempotent:
+     * CSS already using hkfn- is left untouched.
+     */
+    private function upgrade_legacy_css_selectors(string $css): string {
+        return preg_replace('/\bwfn-/', 'hkfn-', $css);
     }
     
     /**
