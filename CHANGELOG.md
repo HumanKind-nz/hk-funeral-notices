@@ -4,6 +4,14 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.0.1] – Unreleased
+
+### Google Maps key is now a setting, not hardcoded
+
+The Google Maps API key for the admin location field (the ACF/ACFE address map) is no longer hardcoded in the plugin. Each site sets its own under **Settings → Google Maps / Places API Key**, or defines `HKFN_GOOGLE_MAPS_KEY` in `wp-config.php` / `user-config.php` for centrally-managed fleets. The setting takes precedence; the constant is the fallback. Enable the Maps JavaScript API, Places API, and Geocoding API on the key and restrict it to your domain.
+
+---
+
 ## [3.0.0] – July 24, 2026
 
 Major release. The plugin is slimmer and moves to the `hkfn_` naming used across HumanKind plugins. Upgrades from 2.x migrate automatically and keep existing content and settings.

@@ -179,6 +179,19 @@ Data is aggregated and handled in line with New Zealand and Australian privacy s
 
 ---
 
+## Google Maps key
+
+The location address field uses Google Maps. Set the key under **Settings → Google Maps / Places API Key**, or define it once for a fleet:
+
+```php
+// wp-config.php or user-config.php
+define('HKFN_GOOGLE_MAPS_KEY', 'AIza...');
+```
+
+The setting takes precedence; the constant is the fallback. On the Google Cloud key, enable **Maps JavaScript API**, **Places API**, and **Geocoding API**, and add an HTTP-referrer restriction for your domain. The key powers address autocomplete and the admin location map only. A Maps key is exposed in page markup by design, so restrict it by referrer rather than trying to keep it secret.
+
+---
+
 ## Support
 
 - Email: **support@weave.co.nz**

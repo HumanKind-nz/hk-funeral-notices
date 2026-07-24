@@ -277,16 +277,17 @@ class SettingsModule extends BaseModule {
                     </div>
                     
                     <div class="hkfn-form-group">
-                        <label for="google_places_api_key">Google Places API Key</label>
-                        <input type="password" 
-                               name="hkfn_module_settings[google_places_api_key]" 
-                               id="google_places_api_key" 
-                               value="<?php echo esc_attr($settings['google_places_api_key']); ?>" 
+                        <label for="google_places_api_key">Google Maps / Places API Key</label>
+                        <input type="password"
+                               name="hkfn_module_settings[google_places_api_key]"
+                               id="google_places_api_key"
+                               value="<?php echo esc_attr($settings['google_places_api_key']); ?>"
                                placeholder="AIzaSyD..."
                                style="width: 100%; max-width: 400px;">
                         <p class="hkfn-form-description">
-                            Required for both ACFE Pro and Native address fields. 
-                            <a href="https://developers.google.com/maps/documentation/places/web-service/get-api-key" target="_blank">Get API Key</a>
+                            Powers address autocomplete and the location map when adding a funeral notice.
+                            On your Google Cloud key, enable the <strong>Maps JavaScript API</strong>, <strong>Places API</strong>, and <strong>Geocoding API</strong>, and restrict it to your site's domain.
+                            <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Get API Key</a>
                             <?php if (!empty($settings['google_places_api_key'])): ?>
                                 <br><span style="color: #00a32a;">✓ API Key configured</span>
                             <?php endif; ?>

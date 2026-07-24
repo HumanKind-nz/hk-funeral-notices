@@ -397,11 +397,23 @@ if ( function_exists( 'acf_add_options_sub_page' ) ){
 	));
 }
 
-// Google Maps Key for locations
-function my_acf_init() {
-	acf_update_setting('google_api_key', 'AIzaSyB5mmP3SZYjAuHgDTs5OthIBA7rVK1GWVk');
+// Google Maps API key for the ACF/ACFE location map field (admin address picker).
+// Reads the site's configured key from the plugin setting, falling back to an
+// HKFN_GOOGLE_MAPS_KEY wp-config constant. No key is hardcoded — each site
+// supplies its own (Settings > Google Maps / Places API Key).
+function hkfn_acf_google_map_key() {
+	$settings = hkfn_get_option( 'module_settings', array() );
+	$key      = is_array( $settings ) ? ( $settings['google_places_api_key'] ?? '' ) : '';
+
+	if ( '' === $key ) {
+		$key = (string) hkfn_get_constant( 'GOOGLE_MAPS_KEY', '' );
+	}
+
+	if ( '' !== $key ) {
+		acf_update_setting( 'google_api_key', $key );
+	}
 }
-add_action('acf/init', 'my_acf_init');
+add_action( 'acf/init', 'hkfn_acf_google_map_key' );
 
 
 //  Load Funeral ACF fields from JSON (DISABLED - using modern FieldGroupManager)
