@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace HumanKind\FuneralNotices\Shortcodes;
 
+use HumanKind\FuneralNotices\Admin\ImageCropHandler;
 use HumanKind\FuneralNotices\Templates\TemplateManager;
 use HumanKind\FuneralNotices\Plugin;
 
@@ -947,13 +948,8 @@ class FuneralNoticesShortcode {
             $featured_image = false;
 
             if ($thumbnail_id) {
-                // Try to get the grid crop size first
-                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
-
-                // If no grid crop exists, fall back to medium size
-                if (!$featured_image) {
-                    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'medium');
-                }
+                // Grid crop if available, legacy v2 crop or large image otherwise
+                $featured_image = ImageCropHandler::grid_image_url($thumbnail_id);
             }
 
             $fallback_url = $this->get_fallback_image_url();
@@ -1056,13 +1052,8 @@ class FuneralNoticesShortcode {
             $featured_image = false;
 
             if ($thumbnail_id) {
-                // Try to get the grid crop size first
-                $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
-
-                // If no grid crop exists, fall back to medium size
-                if (!$featured_image) {
-                    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'medium');
-                }
+                // Grid crop if available, legacy v2 crop or large image otherwise
+                $featured_image = ImageCropHandler::grid_image_url($thumbnail_id);
             }
 
             $fallback_url = $this->get_fallback_image_url();

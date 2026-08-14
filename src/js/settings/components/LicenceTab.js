@@ -5,6 +5,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	PanelBody,
 	PanelRow,
@@ -22,25 +23,104 @@ export default function LicenceTab( {
 		setSettings( { ...settings, [ key ]: value } );
 	};
 
+	// The key as it was when the tab opened — a saved key is shown masked
+	// and read-only until "Change licence key" is clicked, so it reads as
+	// stored rather than as something waiting to be typed over.
+	const [ initialKey ] = useState( settings.license_key || '' );
+	const [ replacing, setReplacing ] = useState( false );
+	const showMasked = initialKey !== '' && ! replacing;
+	const maskedKey =
+		initialKey.length > 8
+			? initialKey.slice( 0, 4 ) +
+			  '••••••••••••••••' +
+			  initialKey.slice( -4 )
+			: '••••••••';
+
 	return (
 		<>
 			<PanelBody
 				title={ __( 'Premium Licence', 'hk-funeral-notices' ) }
 				initialOpen
 			>
-				<PanelRow>
-					<TextControl
-						label={ __( 'Licence Key', 'hk-funeral-notices' ) }
-						value={ settings.license_key }
-						onChange={ ( v ) =>
-							updateSetting( 'license_key', v )
-						}
-						help={ __(
-							'Enter your premium licence key to unlock video hosting features.',
-							'hk-funeral-notices'
+				{ showMasked ? (
+					<>
+						<PanelRow>
+							<TextControl
+								label={ __(
+									'Licence Key',
+									'hk-funeral-notices'
+								) }
+								value={ maskedKey }
+								onChange={ () => {} }
+								disabled
+								help={ __(
+									'Licence key saved. Video hosting features are unlocked.',
+									'hk-funeral-notices'
+								) }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<Button
+								variant="secondary"
+								onClick={ () => {
+									updateSetting( 'license_key', '' );
+									setReplacing( true );
+								} }
+							>
+								{ __(
+									'Change licence key',
+									'hk-funeral-notices'
+								) }
+							</Button>
+						</PanelRow>
+					</>
+				) : (
+					<>
+						<PanelRow>
+							<TextControl
+								label={ __(
+									'Licence Key',
+									'hk-funeral-notices'
+								) }
+								value={ settings.license_key }
+								onChange={ ( v ) =>
+									updateSetting( 'license_key', v )
+								}
+								placeholder={
+									replacing
+										? __(
+												'Paste the new licence key',
+												'hk-funeral-notices'
+										  )
+										: undefined
+								}
+								help={ __(
+									'Enter your premium licence key, then Save Settings. It activates automatically.',
+									'hk-funeral-notices'
+								) }
+							/>
+						</PanelRow>
+						{ replacing && (
+							<PanelRow>
+								<Button
+									variant="tertiary"
+									onClick={ () => {
+										updateSetting(
+											'license_key',
+											initialKey
+										);
+										setReplacing( false );
+									} }
+								>
+									{ __(
+										'Keep existing key',
+										'hk-funeral-notices'
+									) }
+								</Button>
+							</PanelRow>
 						) }
-					/>
-				</PanelRow>
+					</>
+				) }
 			</PanelBody>
 
 			<PanelBody
@@ -65,9 +145,16 @@ export default function LicenceTab( {
 				</PanelRow>
 			</PanelBody>
 
-			<Button variant="primary" onClick={ saveSettings } isBusy={ isSaving }>
-				{ __( 'Save Settings', 'hk-funeral-notices' ) }
-			</Button>
+			<div style={ { marginTop: '24px', marginBottom: '16px' } }>
+				<Button
+					variant="primary"
+					onClick={ saveSettings }
+					isBusy={ isSaving }
+					disabled={ isSaving }
+				>
+					{ __( 'Save Settings', 'hk-funeral-notices' ) }
+				</Button>
+			</div>
 		</>
 	);
 }

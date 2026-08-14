@@ -16,7 +16,6 @@ use HumanKind\FuneralNotices\Modules\SearchModule;
 use HumanKind\FuneralNotices\Modules\StylingModule;
 use HumanKind\FuneralNotices\Modules\LicenseModule;
 use HumanKind\FuneralNotices\Modules\VideoModule;
-use HumanKind\FuneralNotices\Modules\AnalyticsModule;
 use HumanKind\FuneralNotices\Fields\GoogleMapsField;
 use HumanKind\FuneralNotices\AJAX\LoadMoreHandler;
 use HumanKind\FuneralNotices\API\VideoUploadAPI;
@@ -310,8 +309,7 @@ class Plugin {
             'search' => new SearchModule(),
             'styling' => new StylingModule(),
             'license' => new LicenseModule(),
-            'video' => new VideoModule(),
-            'analytics' => new AnalyticsModule()
+            'video' => new VideoModule()
         ];
     }
     

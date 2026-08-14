@@ -4,6 +4,58 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.0.3] – August 14, 2026
+
+### Grid cards are now square
+
+Grid and list cards use a square (1:1) photo instead of 4:3 landscape. Most photos supplied by families are portrait head shots, and square framing fits the whole head where the old ratio often could not. Landscape photos still fill the frame with tighter framing on the person. The full uncropped photo on the notice page is unchanged.
+
+Existing crops keep displaying (trimmed at the sides by the browser) until the notice is re-cropped, so nothing breaks on update. Staff can tidy any current notice with **Re-crop photo**. Crops made by the previous Crop-Thumbnails-era tool on 2.x sites are also picked up again after updating, instead of being ignored.
+
+### Crop can extend past the photo's edges
+
+For photos that still can't fit, like a very tall scan or a wide group shot, the crop tool now lets you zoom out beyond the photo. The space around it is filled with a soft blurred enlargement of the photo, the same treatment television uses for portrait footage. No more choosing which part of a head to cut off.
+
+### Steadier notice edit screen
+
+The notice edit screen no longer flashes a large empty box and reshuffles itself while loading. The content editor and photo box (repositioned into the form by ACF Extended) now appear directly in their final place instead of jumping there a moment after the page opens.
+
+### Settings screen connected and tidied
+
+The settings screen now shows the site's real saved settings, including the premium licence key, instead of defaults, and changes made there apply to the site immediately. Entering a new licence key activates it automatically. Visually the screen gains the plugin icon in the header, a comfortable content width so the section arrows sit beside their headings, and better spacing around the save button.
+
+### Faster crop saving on live sites
+
+Applying a crop no longer clears the whole site's caches. Only the page cache is refreshed (so grid pages show the new photo straight away), and it happens after the editor gets its response, so the crop dialog closes immediately instead of waiting on the purge. This also stops the next save from running against a cold cache.
+
+---
+
+## [3.0.2] – August 14, 2026
+
+### Fixed: "Send a tribute" link could be blocked
+
+Where a notice recorded a nickname in round brackets, some server firewalls rejected the tribute link and families reached an error page instead of the form. Bracketed nicknames are no longer included in the link. Notices still display the full name exactly as entered.
+
+The same fix applies to the "Request Streaming" link in the Firehawk layout. The link can now be customised with the `hkfn_tribute_url` filter.
+
+### Usage analytics removed
+
+The anonymous usage-analytics module has been removed. The plugin no longer sends any data externally.
+
+The `hkfn_enable_analytics` filter and `HKFN_DISABLE_ANALYTICS` constant no longer do anything and can be removed from any site that defines them. Updating clears the old scheduled tasks and settings automatically, with nothing to do on your part.
+
+Search analytics in the Search module is unaffected. It stays local to your site and remains off by default.
+
+---
+
+## [3.0.1] – August 14, 2026
+
+### Google Maps key is now a setting, not hardcoded
+
+The Google Maps API key for the admin location field (the ACF/ACFE address map) is no longer hardcoded in the plugin. Each site sets its own under **Settings → Google Maps / Places API Key**, or defines `HKFN_GOOGLE_MAPS_KEY` in `wp-config.php` / `user-config.php` for centrally-managed fleets. The setting takes precedence; the constant is the fallback. Enable the Maps JavaScript API, Places API, and Geocoding API on the key and restrict it to your domain.
+
+---
+
 ## [3.0.0] – July 24, 2026
 
 Major release. The plugin is slimmer and moves to the `hkfn_` naming used across HumanKind plugins. Upgrades from 2.x migrate automatically and keep existing content and settings.

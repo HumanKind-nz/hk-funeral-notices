@@ -139,9 +139,16 @@ export default function SearchTab( {
 				</PanelRow>
 			</PanelBody>
 
-			<Button variant="primary" onClick={ saveSettings } isBusy={ isSaving }>
-				{ __( 'Save Settings', 'hk-funeral-notices' ) }
-			</Button>
+			<div style={ { marginTop: '24px', marginBottom: '16px' } }>
+				<Button
+					variant="primary"
+					onClick={ saveSettings }
+					isBusy={ isSaving }
+					disabled={ isSaving }
+				>
+					{ __( 'Save Settings', 'hk-funeral-notices' ) }
+				</Button>
+			</div>
 		</>
 	);
 }

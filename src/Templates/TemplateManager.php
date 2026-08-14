@@ -330,6 +330,9 @@ class TemplateManager {
                 'first_name' => $first_name,
                 'last_name' => $last_name,
                 'full_name' => trim("{$first_name} {$last_name}"),
+                // Same name with any bracketed nickname removed, safe to put in
+                // a query string. See sanitise_tribute_name() for why.
+                'url_safe_name' => $this->sanitise_tribute_name("{$first_name} {$last_name}"),
                 'birth_year' => $birth_year,
                 'death_year' => $death_year,
                 'years_display' => $birth_year && $death_year ? "{$birth_year} - {$death_year}" : ''
@@ -633,34 +636,79 @@ class TemplateManager {
     }
 
     /**
+     * Strip bracketed nicknames from a name before it goes into a query string.
+     *
+     * Funeral notices commonly record a nickname in round brackets. Putting
+     * that straight into a query string can trip server security rules, which
+     * reject the request before WordPress runs, so the tribute form never
+     * loads for those families.
+     *
+     * Dropping the bracketed part from the URL only, never from the displayed
+     * name, keeps the link working wherever the site is hosted.
+     *
+     * @param string $name Name as entered on the notice.
+     * @return string Name with bracketed nicknames and stray brackets removed.
+     */
+    private function sanitise_tribute_name(string $name): string {
+        $clean = preg_replace('/\s*\([^)]*\)/', '', $name);
+        // Catch unbalanced brackets the pattern above cannot match.
+        $clean = str_replace(['(', ')'], '', (string) $clean);
+        $clean = trim((string) preg_replace('/\s+/', ' ', $clean));
+
+        // If the name was nothing but a bracketed nickname, keep the words and
+        // drop only the brackets so the form still receives something useful.
+        if ($clean === '') {
+            $clean = trim((string) preg_replace('/\s+/', ' ', str_replace(['(', ')'], '', $name)));
+        }
+
+        return $clean;
+    }
+
+    /**
      * Generate full tribute URL with person's name using flexible placeholders
      */
     private function generate_tribute_url(string $first_name, string $last_name): string {
         $base_url = $this->get_tribute_url();
-        
+
         if (empty($base_url)) {
             return '';
         }
-        
+
+        // Names go into a query string, so strip bracketed nicknames first.
+        $first_name = $this->sanitise_tribute_name($first_name);
+        $last_name  = $this->sanitise_tribute_name($last_name);
+        $full_name  = trim($first_name . ' ' . $last_name);
+
         // Check if URL contains placeholders
         if (preg_match('/\{[a-zA-Z_]+\}/', $base_url)) {
             // New placeholder system - replace placeholders in the URL
             $placeholders = [
-                '{firstname}' => urlencode(trim($first_name)),
-                '{lastname}' => urlencode(trim($last_name)),
-                '{fullname}' => urlencode(trim($first_name . ' ' . $last_name)),
-                '{first_name}' => urlencode(trim($first_name)), // Alternative format
-                '{last_name}' => urlencode(trim($last_name)),   // Alternative format
-                '{full_name}' => urlencode(trim($first_name . ' ' . $last_name)) // Alternative format
+                '{firstname}' => urlencode($first_name),
+                '{lastname}' => urlencode($last_name),
+                '{fullname}' => urlencode($full_name),
+                '{first_name}' => urlencode($first_name), // Alternative format
+                '{last_name}' => urlencode($last_name),   // Alternative format
+                '{full_name}' => urlencode($full_name)    // Alternative format
             ];
-            
-            return str_replace(array_keys($placeholders), array_values($placeholders), $base_url);
+
+            $url = str_replace(array_keys($placeholders), array_values($placeholders), $base_url);
         } else {
             // Legacy system - append as tribute parameter (backwards compatibility)
-            $tribute_param = urlencode(trim($first_name . ' ' . $last_name));
             $separator = strpos($base_url, '?') !== false ? '&' : '?';
-            return $base_url . $separator . 'tribute=' . $tribute_param;
+            $url = $base_url . $separator . 'tribute=' . urlencode($full_name);
         }
+
+        /**
+         * Filter the generated tribute URL.
+         *
+         * Lets a site rewrite the link entirely, for example to pass the notice
+         * ID instead of a name.
+         *
+         * @param string $url        Generated tribute URL.
+         * @param string $first_name First name, bracketed nickname already removed.
+         * @param string $last_name  Last name, bracketed nickname already removed.
+         */
+        return (string) apply_filters('hkfn_tribute_url', $url, $first_name, $last_name);
     }
 
     /**
