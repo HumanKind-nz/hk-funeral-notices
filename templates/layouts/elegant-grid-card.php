@@ -31,13 +31,8 @@ $thumbnail_id = get_post_thumbnail_id($post_id);
 $featured_image = false;
 
 if ($thumbnail_id) {
-    // Try to get the grid crop size first
-    $featured_image = wp_get_attachment_image_url($thumbnail_id, 'hkfn-grid-crop');
-
-    // If no grid crop exists, fall back to medium size
-    if (!$featured_image) {
-        $featured_image = wp_get_attachment_image_url($thumbnail_id, 'medium');
-    }
+    // Grid crop if available, legacy v2 crop or large image otherwise
+    $featured_image = \HumanKind\FuneralNotices\Admin\ImageCropHandler::grid_image_url($thumbnail_id);
 }
 
 $settings = hkfn_get_option('module_settings', []);

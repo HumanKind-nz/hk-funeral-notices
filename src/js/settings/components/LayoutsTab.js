@@ -87,24 +87,6 @@ export default function LayoutsTab( {
 					/>
 				</PanelRow>
 				<PanelRow>
-					<SelectControl
-						label={ __(
-							'Image Aspect Ratio',
-							'hk-funeral-notices'
-						) }
-						value={ settings.image_aspect_ratio }
-						options={ [
-							{ label: '4:3', value: '4:3' },
-							{ label: '16:9', value: '16:9' },
-							{ label: '1:1 (Square)', value: '1:1' },
-							{ label: '3:2', value: '3:2' },
-						] }
-						onChange={ ( v ) =>
-							updateSetting( 'image_aspect_ratio', v )
-						}
-					/>
-				</PanelRow>
-				<PanelRow>
 					<RangeControl
 						label={ __(
 							'Card Spacing (px)',
@@ -162,9 +144,16 @@ export default function LayoutsTab( {
 				</PanelRow>
 			</PanelBody>
 
-			<Button variant="primary" onClick={ saveSettings } isBusy={ isSaving }>
-				{ __( 'Save Settings', 'hk-funeral-notices' ) }
-			</Button>
+			<div style={ { marginTop: '24px', marginBottom: '16px' } }>
+				<Button
+					variant="primary"
+					onClick={ saveSettings }
+					isBusy={ isSaving }
+					disabled={ isSaving }
+				>
+					{ __( 'Save Settings', 'hk-funeral-notices' ) }
+				</Button>
+			</div>
 		</>
 	);
 }

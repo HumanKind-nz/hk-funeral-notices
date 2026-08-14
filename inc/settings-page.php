@@ -142,7 +142,8 @@ function enqueue_settings_assets( string $hook ): void {
 		'hkfnPlugin',
 		[
 			'version' => HKFN_VERSION,
-			'iconUrl' => \HumanKind\FuneralNotices\GitHubUpdater\HK_Funeral_Notices_Updater::ICON_SMALL,
+			// Bundled HumanKind mark — the CDN updater icon is the Weave logo.
+			'iconUrl' => HKFN_PLUGIN_URL . 'assets/images/icon-256x256.png',
 		]
 	);
 }

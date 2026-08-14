@@ -19,10 +19,27 @@ class ImageCropHandler {
     private const GRID_CROP_SIZE = 'hkfn-grid-crop';
 
     /**
-     * Grid crop dimensions (4:3 aspect ratio)
+     * Pre-3.0 image size name — renditions with this name still exist in
+     * attachment metadata on sites upgraded from v2.x. Read-only fallback.
+     */
+    private const LEGACY_GRID_CROP_SIZE = 'wfn-grid-crop';
+
+    /**
+     * Grid crop dimensions (1:1 square)
+     *
+     * Square is the compromise between portrait and landscape source photos:
+     * a landscape photo can always fill a square, and a portrait photo can
+     * almost always fit the whole head in one. Crops that extend past the
+     * image edges are padded with a blurred fill (see composite_extended_crop).
      */
     private const GRID_WIDTH = 800;
-    private const GRID_HEIGHT = 600;
+    private const GRID_HEIGHT = 800;
+
+    /**
+     * Aspect ratio label stored with crop meta, used to detect crops saved
+     * under an older ratio so regeneration can adjust instead of distorting.
+     */
+    private const ASPECT_RATIO_LABEL = '1:1';
 
     /**
      * Metadata key for storing user crop coordinates
@@ -157,12 +174,65 @@ class ImageCropHandler {
             }
         }
 
+        $src_x = (float) $crop_data['src_x'];
+        $src_y = (float) $crop_data['src_y'];
+        $src_w = (float) $crop_data['src_w'];
+        $src_h = (float) $crop_data['src_h'];
+
+        // Crops stored under an older aspect ratio (e.g. 4:3 from pre-square
+        // versions) must not be squashed into the current output size on
+        // regeneration — recentre the rectangle to the current ratio instead.
+        $stored_ratio = isset($crop_data['aspect_ratio']) ? (string) $crop_data['aspect_ratio'] : '';
+        if ($stored_ratio !== self::ASPECT_RATIO_LABEL) {
+            $image_size = $image_editor->get_size();
+            if (!is_wp_error($image_size)) {
+                [$src_x, $src_y, $src_w, $src_h] = $this->adjust_rect_to_ratio(
+                    $src_x,
+                    $src_y,
+                    $src_w,
+                    $src_h,
+                    (int) $image_size['width'],
+                    (int) $image_size['height']
+                );
+            }
+        }
+
+        // Crops extending past the image edges are composited with a blurred
+        // fill; the WordPress editor can only crop within the source image.
+        $image_size = $image_editor->get_size();
+        $out_of_bounds = !is_wp_error($image_size) && (
+            $src_x < 0 || $src_y < 0
+            || $src_x + $src_w > (int) $image_size['width']
+            || $src_y + $src_h > (int) $image_size['height']
+        );
+
+        // Generate filename for cropped image in SAME directory as original
+        $filename = $this->generate_crop_filename($source_path);
+        $destination = dirname($source_path) . '/' . $filename;
+
+        if ($out_of_bounds) {
+            // Composite works from the source file in natural coordinates, so
+            // map legacy-zoomed coordinates back to the unzoomed image.
+            $zoom_scale = $zoom_level > 100 ? $zoom_level / 100 : 1.0;
+
+            return self::composite_extended_crop(
+                $source_path,
+                $src_x / $zoom_scale,
+                $src_y / $zoom_scale,
+                $src_w / $zoom_scale,
+                $src_h / $zoom_scale,
+                self::GRID_WIDTH,
+                self::GRID_HEIGHT,
+                $destination
+            );
+        }
+
         // Apply crop using user coordinates (coordinates are already calculated for zoomed image)
         $crop_result = $image_editor->crop(
-            (int) $crop_data['src_x'],
-            (int) $crop_data['src_y'],
-            (int) $crop_data['src_w'],
-            (int) $crop_data['src_h'],
+            (int) round($src_x),
+            (int) round($src_y),
+            (int) round($src_w),
+            (int) round($src_h),
             self::GRID_WIDTH,
             self::GRID_HEIGHT
         );
@@ -171,10 +241,6 @@ class ImageCropHandler {
             error_log('WFN Image Crop: Crop operation failed - ' . $crop_result->get_error_message());
             return false;
         }
-
-        // Generate filename for cropped image in SAME directory as original
-        $filename = $this->generate_crop_filename($source_path);
-        $destination = dirname($source_path) . '/' . $filename;
 
         // Save cropped image
         $save_result = $image_editor->save($destination);
@@ -185,6 +251,204 @@ class ImageCropHandler {
         }
 
         return $save_result;
+    }
+
+    /**
+     * Recentre a crop rectangle onto the current output aspect ratio
+     *
+     * Expands the deficient dimension around the rectangle's centre, then
+     * shifts back inside the image where possible so a regenerated legacy
+     * crop stays blur-free unless the image genuinely cannot contain it.
+     *
+     * @return array{0: float, 1: float, 2: float, 3: float} [x, y, w, h]
+     */
+    private function adjust_rect_to_ratio(float $x, float $y, float $w, float $h, int $img_w, int $img_h): array {
+        if ($w <= 0 || $h <= 0) {
+            return [$x, $y, $w, $h];
+        }
+
+        $target = self::GRID_WIDTH / self::GRID_HEIGHT;
+        $current = $w / $h;
+
+        if (abs($current - $target) / $target < 0.01) {
+            return [$x, $y, $w, $h];
+        }
+
+        if ($current > $target) {
+            // Too wide for the target ratio — grow height around the centre
+            $new_h = $w / $target;
+            $y -= ($new_h - $h) / 2;
+            $h = $new_h;
+        } else {
+            $new_w = $h * $target;
+            $x -= ($new_w - $w) / 2;
+            $w = $new_w;
+        }
+
+        // Shift back inside the image where the rectangle fits
+        if ($w <= $img_w) {
+            $x = max(0.0, min($x, $img_w - $w));
+        } else {
+            $x = ($img_w - $w) / 2;
+        }
+        if ($h <= $img_h) {
+            $y = max(0.0, min($y, $img_h - $h));
+        } else {
+            $y = ($img_h - $h) / 2;
+        }
+
+        return [$x, $y, $w, $h];
+    }
+
+    /**
+     * Generate a crop that extends past the image edges
+     *
+     * The area outside the photo is filled with a heavily blurred, slightly
+     * darkened enlargement of the cropped region — the pillarbox treatment
+     * used for portrait photos on television. A heavy blur reads as soft
+     * ambient colour; a light blur would show recognisable smeared detail.
+     *
+     * Pure GD, no WordPress dependencies, so it can be exercised standalone.
+     *
+     * @param string $source_path Path to the source image file
+     * @param float  $x           Crop X in natural coordinates (may be negative)
+     * @param float  $y           Crop Y in natural coordinates (may be negative)
+     * @param float  $w           Crop width (may exceed image bounds)
+     * @param float  $h           Crop height (may exceed image bounds)
+     * @param int    $out_w       Output width in pixels
+     * @param int    $out_h       Output height in pixels
+     * @param string $destination Path to write the output file
+     * @return array|false Same shape as WP_Image_Editor::save() or false
+     */
+    public static function composite_extended_crop(
+        string $source_path,
+        float $x,
+        float $y,
+        float $w,
+        float $h,
+        int $out_w,
+        int $out_h,
+        string $destination
+    ) {
+        if ($w <= 0 || $h <= 0 || !function_exists('imagecreatetruecolor')) {
+            return false;
+        }
+
+        $info = @getimagesize($source_path);
+        $contents = @file_get_contents($source_path);
+        if (!$info || $contents === false) {
+            error_log('WFN Image Crop: Extended crop could not read source image');
+            return false;
+        }
+
+        $source = @imagecreatefromstring($contents);
+        unset($contents);
+        if (!$source) {
+            error_log('WFN Image Crop: Extended crop could not decode source image');
+            return false;
+        }
+
+        $img_w = imagesx($source);
+        $img_h = imagesy($source);
+
+        // Portion of the crop rectangle actually covered by the photo
+        $ix = max(0.0, $x);
+        $iy = max(0.0, $y);
+        $ix2 = min((float) $img_w, $x + $w);
+        $iy2 = min((float) $img_h, $y + $h);
+        $int_w = $ix2 - $ix;
+        $int_h = $iy2 - $iy;
+
+        // Refuse crops that are nearly all padding
+        if ($int_w < 1 || $int_h < 1 || ($int_w * $int_h) / ($w * $h) < 0.05) {
+            error_log('WFN Image Crop: Extended crop rejected - crop area barely covers the photo');
+            return false;
+        }
+
+        $canvas = imagecreatetruecolor($out_w, $out_h);
+
+        // Background: cover-fit the visible region through two tiny
+        // intermediate canvases. Downscale to 16px strips away all detail,
+        // then blurring at 120px and upscaling again yields a smooth
+        // gradient with none of the block artefacts a single giant
+        // bilinear upscale produces.
+        $tiny_w = 16;
+        $tiny_h = max(1, (int) round($tiny_w * $out_h / $out_w));
+        $tiny = imagecreatetruecolor($tiny_w, $tiny_h);
+
+        $cover = max($tiny_w / $int_w, $tiny_h / $int_h);
+        $cover_w = (int) max(1, round($int_w * $cover));
+        $cover_h = (int) max(1, round($int_h * $cover));
+        imagecopyresampled(
+            $tiny,
+            $source,
+            (int) round(($tiny_w - $cover_w) / 2),
+            (int) round(($tiny_h - $cover_h) / 2),
+            (int) round($ix),
+            (int) round($iy),
+            $cover_w,
+            $cover_h,
+            (int) round($int_w),
+            (int) round($int_h)
+        );
+
+        $mid_w = 120;
+        $mid_h = max(1, (int) round($mid_w * $out_h / $out_w));
+        $mid = imagecreatetruecolor($mid_w, $mid_h);
+        imagecopyresampled($mid, $tiny, 0, 0, 0, 0, $mid_w, $mid_h, $tiny_w, $tiny_h);
+        for ($i = 0; $i < 4; $i++) {
+            imagefilter($mid, IMG_FILTER_GAUSSIAN_BLUR);
+        }
+
+        imagecopyresampled($canvas, $mid, 0, 0, 0, 0, $out_w, $out_h, $mid_w, $mid_h);
+        imagefilter($canvas, IMG_FILTER_GAUSSIAN_BLUR);
+        imagefilter($canvas, IMG_FILTER_BRIGHTNESS, -12);
+
+        // Foreground: the sharp photo region at its correct position
+        $scale = $out_w / $w;
+        imagecopyresampled(
+            $canvas,
+            $source,
+            (int) round(($ix - $x) * $scale),
+            (int) round(($iy - $y) * $scale),
+            (int) round($ix),
+            (int) round($iy),
+            (int) max(1, round($int_w * $scale)),
+            (int) max(1, round($int_h * $scale)),
+            (int) round($int_w),
+            (int) round($int_h)
+        );
+
+        $mime = $info['mime'] ?? 'image/jpeg';
+        $saved = false;
+        switch ($mime) {
+            case 'image/png':
+                $saved = imagepng($canvas, $destination, 6);
+                break;
+            case 'image/webp':
+                $saved = imagewebp($canvas, $destination, 82);
+                break;
+            case 'image/gif':
+                $saved = imagegif($canvas, $destination);
+                break;
+            default:
+                $mime = 'image/jpeg';
+                $saved = imagejpeg($canvas, $destination, 82);
+                break;
+        }
+
+        if (!$saved) {
+            error_log('WFN Image Crop: Extended crop save failed');
+            return false;
+        }
+
+        return [
+            'path' => $destination,
+            'file' => wp_basename($destination),
+            'width' => $out_w,
+            'height' => $out_h,
+            'mime-type' => $mime,
+        ];
     }
 
     /**
@@ -250,7 +514,9 @@ class ImageCropHandler {
             }
         }
 
-        return true;
+        // X/Y may be negative (crop extended past the image edges) but the
+        // rectangle itself must have positive area
+        return (float) $crop_data['src_w'] > 0 && (float) $crop_data['src_h'] > 0;
     }
 
     /**
@@ -285,7 +551,7 @@ class ImageCropHandler {
             'src_w' => isset($_POST['src_w']) ? (float) $_POST['src_w'] : 0,
             'src_h' => isset($_POST['src_h']) ? (float) $_POST['src_h'] : 0,
             'zoom_level' => $zoom_level,
-            'aspect_ratio' => '4:3',
+            'aspect_ratio' => self::ASPECT_RATIO_LABEL,
             'created_at' => current_time('mysql'),
         ];
 
@@ -334,22 +600,49 @@ class ImageCropHandler {
             $cropped_image['path']
         ));
 
-        // Trigger cache purge if Weave Cache Purge Helper is active
-        // This ensures grid pages show the new cropped image immediately
-        if (function_exists('wcph_direct_purge')) {
-            wcph_direct_purge();
-            error_log('WFN Image Crop: Cache purge triggered after successful crop');
-        }
-
         // WP_Image_Editor::save() returns a path, not a URL — map it for the JS preview
         $upload_dir = wp_upload_dir();
         $crop_url = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $cropped_image['path']);
 
-        wp_send_json_success([
+        $response = [
             'message' => 'Crop saved successfully',
             'crop_data' => $crop_data,
             'crop_url' => $crop_url,
-        ]);
+        ];
+
+        // Refresh the page cache so grid pages pick up the new crop — and
+        // only the page cache. A crop can't invalidate object-cache data or
+        // Beaver Builder assets (the crop file even gets a fresh filename),
+        // so a full purge just leaves the whole site cache-cold and makes
+        // this request and the editor's next one crawl. Under PHP-FPM the
+        // response is handed to the browser before the purge runs, so the
+        // crop modal closes immediately.
+        if (function_exists('fastcgi_finish_request')) {
+            @header('Content-Type: application/json; charset=' . get_option('blog_charset'));
+            echo wp_json_encode(['success' => true, 'data' => $response]);
+            fastcgi_finish_request();
+            $this->purge_page_cache();
+            exit;
+        }
+
+        $this->purge_page_cache();
+        wp_send_json_success($response);
+    }
+
+    /**
+     * Purge the page cache after a crop
+     *
+     * Deliberately narrower than a full cache-helper purge: no object-cache
+     * flush and no Beaver Builder asset rebuild, neither of which a crop
+     * affects. Covers the Nginx Helper and LiteSpeed page caches.
+     */
+    private function purge_page_cache(): void {
+        global $nginx_purger;
+        if (isset($nginx_purger) && is_object($nginx_purger) && method_exists($nginx_purger, 'purge_all')) {
+            $nginx_purger->purge_all();
+        } elseif (function_exists('litespeed_purge_all')) {
+            do_action('litespeed_purge_all');
+        }
     }
 
     /**
@@ -404,6 +697,21 @@ class ImageCropHandler {
             HKFN_VERSION . '.' . (string) filemtime(dirname(__DIR__, 2) . '/assets/css/admin/image-crop-b.css')
         );
 
+        // ACF Extended relocates the native content editor and featured image
+        // boxes into our field groups with JS after first paint, so they
+        // briefly render in their default positions and the page visibly
+        // jumps when they move. Collapse the default positions from first
+        // paint — these child selectors stop matching the moment ACFE
+        // re-parents the boxes into .acf-input, so nothing stays hidden.
+        if (class_exists('ACFE')) {
+            wp_add_inline_style(
+                'hkfn-image-crop',
+                '#post-body-content > #postdivrich, .meta-box-sortables > #postimagediv {' .
+                ' visibility: hidden; height: 0; min-height: 0; overflow: hidden;' .
+                ' margin: 0; padding: 0; border: 0; }'
+            );
+        }
+
         // Current grid crop for the post being edited (persistent preview)
         $current_crop_url = '';
         $thumb_id = (int) get_post_thumbnail_id($post);
@@ -423,7 +731,7 @@ class ImageCropHandler {
             'currentCropUrl' => $current_crop_url,
             'gridWidth' => self::GRID_WIDTH,
             'gridHeight' => self::GRID_HEIGHT,
-            'aspectRatio' => '4:3',
+            'aspectRatio' => self::ASPECT_RATIO_LABEL,
             'zoomMin' => 100,
             'zoomMax' => 300,
             'zoomIncrement' => 10,
@@ -437,7 +745,7 @@ class ImageCropHandler {
      * @return array Modified sizes
      */
     public function add_grid_crop_to_media_sizes(array $sizes): array {
-        $sizes[self::GRID_CROP_SIZE] = __('Grid Crop (4:3)', 'hk-funeral-notices');
+        $sizes[self::GRID_CROP_SIZE] = __('Grid Crop (Square)', 'hk-funeral-notices');
         return $sizes;
     }
 
@@ -459,6 +767,36 @@ class ImageCropHandler {
     public static function has_grid_crop(int $attachment_id): bool {
         $metadata = wp_get_attachment_metadata($attachment_id);
         return isset($metadata['sizes'][self::GRID_CROP_SIZE]);
+    }
+
+    /**
+     * Get the best available grid image URL for an attachment
+     *
+     * Prefers the current grid crop, then a legacy v2.x crop rendition
+     * (so staff crops survive the wfn_ → hkfn_ rename until re-cropped),
+     * then the large/full image for CSS to centre-crop.
+     *
+     * @param int $attachment_id Attachment post ID
+     * @return string|false Image URL or false if the attachment is invalid
+     */
+    public static function grid_image_url(int $attachment_id) {
+        if ($attachment_id <= 0) {
+            return false;
+        }
+
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        foreach ([self::GRID_CROP_SIZE, self::LEGACY_GRID_CROP_SIZE] as $size) {
+            if (!empty($metadata['sizes'][$size]['file'])) {
+                $url = wp_get_attachment_image_url($attachment_id, $size);
+                if ($url) {
+                    return $url;
+                }
+            }
+        }
+
+        // No staff crop exists — a large rendition is plenty for a grid card
+        $url = wp_get_attachment_image_url($attachment_id, 'large');
+        return $url ?: wp_get_attachment_image_url($attachment_id, 'full');
     }
 
     /**

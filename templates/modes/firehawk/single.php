@@ -69,7 +69,7 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
                     <span class="firehawk-action-text">Livestream</span>
                 </a>
             <?php elseif ($streaming['is_private']): ?>
-                <a href="/web-streaming/?tribute=<?php echo urlencode($person['full_name']); ?>" 
+                <a href="/web-streaming/?tribute=<?php echo urlencode($person['url_safe_name']); ?>"
                    target="_blank" 
                    rel="noopener"
                    class="firehawk-action-btn firehawk-action-livestream">

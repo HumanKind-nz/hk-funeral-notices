@@ -5,7 +5,12 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { TabPanel, Notice, Spinner } from '@wordpress/components';
+import {
+	TabPanel,
+	Notice,
+	Spinner,
+	ExternalLink,
+} from '@wordpress/components';
 import useSettings from '../hooks/useSettings';
 import GeneralTab from './GeneralTab';
 import LayoutsTab from './LayoutsTab';
@@ -32,10 +37,30 @@ export default function SettingsApp() {
 	}
 
 	const tabProps = { settings, setSettings, saveSettings, isSaving };
+	const iconUrl = window.hkfnPlugin?.iconUrl || '';
 
 	return (
-		<>
-			<h1>{ __( 'HumanKind Funeral Notices', 'hk-funeral-notices' ) }</h1>
+		<div style={ { maxWidth: '800px' } }>
+			<div
+				style={ {
+					display: 'flex',
+					alignItems: 'center',
+					gap: '12px',
+				} }
+			>
+				{ iconUrl && (
+					<img
+						src={ iconUrl }
+						alt=""
+						width={ 40 }
+						height={ 40 }
+						style={ { borderRadius: '4px' } }
+					/>
+				) }
+				<h1>
+					{ __( 'HumanKind Funeral Notices', 'hk-funeral-notices' ) }
+				</h1>
+			</div>
 
 			{ notice && (
 				<Notice
@@ -67,6 +92,22 @@ export default function SettingsApp() {
 					}
 				} }
 			</TabPanel>
-		</>
+
+			<p
+				style={ {
+					marginTop: '24px',
+					color: '#757575',
+					fontSize: '13px',
+				} }
+			>
+				{ __(
+					'HumanKind is the funeral website and digital brand of',
+					'hk-funeral-notices'
+				) }{ ' ' }
+				<ExternalLink href="https://weave.co.nz">
+					Weave Digital Studio
+				</ExternalLink>
+			</p>
+		</div>
 	);
 }

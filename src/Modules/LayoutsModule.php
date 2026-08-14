@@ -523,17 +523,6 @@ class LayoutsModule extends BaseModule {
                             <p class="hkfn-form-description">Space between funeral notice cards in pixels.</p>
                         </div>
                         
-                        <div class="hkfn-form-group">
-                            <label for="image_aspect_ratio">Image Aspect Ratio</label>
-                            <select name="hkfn_module_settings[image_aspect_ratio]" id="image_aspect_ratio">
-                                <option value="1:1" <?php selected($settings['image_aspect_ratio'], '1:1'); ?>>1:1 (Square)</option>
-                                <option value="4:3" <?php selected($settings['image_aspect_ratio'], '4:3'); ?>>4:3 (Standard)</option>
-                                <option value="16:9" <?php selected($settings['image_aspect_ratio'], '16:9'); ?>>16:9 (Widescreen)</option>
-                                <option value="3:4" <?php selected($settings['image_aspect_ratio'], '3:4'); ?>>3:4 (Portrait)</option>
-                            </select>
-                            <p class="hkfn-form-description">Aspect ratio for featured images in cards.</p>
-                        </div>
-                        
                         <h4>Responsive Breakpoints</h4>
                         <div class="hkfn-breakpoints-grid">
                             <div class="hkfn-form-group">

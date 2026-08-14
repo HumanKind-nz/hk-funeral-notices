@@ -33,7 +33,6 @@ Core features are free to use. Premium features need a licence key and cover ong
 **Premium**
 - Cloud-hosted memorial video slideshows
 - Secure streaming with automatic optimisation
-- Monthly usage and bandwidth reporting
 
 To purchase or manage a licence, contact [humankindwebsites.com](https://humankindwebsites.com) or [weave.co.nz](https://weave.co.nz).
 
@@ -79,7 +78,9 @@ Full shortcode options and filters are in the [Developer Documentation](./DEVELO
 
 ## Privacy
 
-The plugin collects anonymous, aggregated usage counts to help us improve it, for example how many notices a site publishes or how many use livestream links. We never collect names, personal details, or any content from funeral notices. See the [Developer Documentation](./DEVELOPER.md) to turn analytics off.
+The plugin sends no data anywhere. Everything stays in your own WordPress database. The only outside calls are to services you set up yourself, such as Google Maps for the address field, or our cloud video hosting if you use it.
+
+Anonymous usage reporting was removed in 3.0.2. Updating clears anything it left behind.
 
 ---
 

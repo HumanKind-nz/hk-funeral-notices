@@ -14,6 +14,11 @@
  * featured image (full photo on the notice page); the crop only produces
  * the hkfn-grid-crop rendition.
  *
+ * The crop box may extend past the image edges (viewMode 0): zooming out
+ * leaves padding around the photo, which the server fills with a soft
+ * blurred enlargement of the crop. A zoom floor stops the photo shrinking
+ * below half the crop box, so a crop can never be mostly padding.
+ *
  * @since 3.0.0
  */
 
@@ -22,7 +27,7 @@
 
 	const cfg = window.hkfnCrop || {};
 	const GRID_W = parseInt(cfg.gridWidth, 10) || 800;
-	const GRID_H = parseInt(cfg.gridHeight, 10) || 600;
+	const GRID_H = parseInt(cfg.gridHeight, 10) || 800;
 	const RATIO = GRID_W / GRID_H;
 
 	let cropper = null;
@@ -263,8 +268,10 @@
 		body.append('action', 'hkfn_save_crop_coordinates');
 		body.append('nonce', cfg.nonce);
 		body.append('attachment_id', String(currentAttachmentId));
-		body.append('src_x', String(Math.max(0, data.x)));
-		body.append('src_y', String(Math.max(0, data.y)));
+		// x/y may be negative and width/height may exceed the image when the
+		// crop extends past the edges — the server pads with a blurred fill
+		body.append('src_x', String(data.x));
+		body.append('src_y', String(data.y));
 		body.append('src_w', String(data.width));
 		body.append('src_h', String(data.height));
 		body.append('zoom_level', '100');
@@ -320,7 +327,7 @@
 		modal.innerHTML =
 			'<div class="hkfn-cropb-dialog" role="dialog" aria-label="Crop photo for grid">' +
 				'<div class="hkfn-cropb-head">' +
-					'<strong>Crop photo for grid cards (4:3)</strong>' +
+					'<strong>Crop photo for grid cards</strong>' +
 					'<button type="button" class="hkfn-cropb-close" aria-label="Close">&times;</button>' +
 				'</div>' +
 				'<div class="hkfn-cropb-body"><img class="hkfn-cropb-img" alt="Photo to crop"></div>' +
@@ -328,7 +335,7 @@
 					'<span class="hkfn-cropb-zoom">' +
 						'<button type="button" class="button hkfn-cropb-zoom-out" aria-label="Zoom out">&minus;</button>' +
 						'<button type="button" class="button hkfn-cropb-zoom-in" aria-label="Zoom in">+</button>' +
-						'<span class="hkfn-cropb-hint">Drag to reposition, scroll or pinch to zoom</span>' +
+						'<span class="hkfn-cropb-hint">Drag to reposition, scroll or pinch to zoom. Zoom out if the photo doesn&rsquo;t fit &mdash; the edges are filled with a soft blur.</span>' +
 					'</span>' +
 					'<span class="hkfn-cropb-actions">' +
 						'<button type="button" class="button hkfn-cropb-cancel">Cancel</button>' +
@@ -342,11 +349,30 @@
 		img.addEventListener('load', function() {
 			cropper = new Cropper(img, {
 				aspectRatio: RATIO,
-				viewMode: 1,
+				// viewMode 0: the crop box may extend past the image, leaving
+				// padding the server fills with a blurred edge
+				viewMode: 0,
 				autoCropArea: 1,
 				responsive: true,
 				background: true,
-				zoomOnWheel: true
+				zoomOnWheel: true,
+				zoom: function(e) {
+					// Zoom floor: keep the photo at least half the crop box in
+					// one direction so a crop can never be mostly padding
+					if (!cropper || e.detail.ratio >= e.detail.oldRatio) {
+						return;
+					}
+					const image = cropper.getImageData();
+					const box = cropper.getCropBoxData();
+					if (!image.naturalWidth || !box.width) {
+						return;
+					}
+					const newWidth = image.naturalWidth * e.detail.ratio;
+					const newHeight = image.naturalHeight * e.detail.ratio;
+					if (newWidth < box.width / 2 && newHeight < box.height / 2) {
+						e.preventDefault();
+					}
+				}
 			});
 		});
 		img.src = imageUrl;
