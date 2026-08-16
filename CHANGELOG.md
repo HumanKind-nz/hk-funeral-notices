@@ -4,6 +4,26 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.0.4] – August 17, 2026
+
+### Fixed: new notices missing from the grid
+
+Any funeral notice created after a site updated to v3 did not appear in the notices grid, the archive, or search results. It looked completely normal in the WordPress admin list, with the name, date, time and venue all showing, which made it easy to miss.
+
+This affected every site running v3. It was not related to hidden details, the photo, or anything staff did while creating the notice.
+
+The cause was internal. v3 renamed the fields that store a notice's details, and the update copied every existing notice across to the new names. Notices created after that point only ever got the new names, while the grid was still looking for the old ones, so it skipped them entirely.
+
+The plugin now keeps both names in step whenever a notice is saved, and repairs affected notices automatically on update. No action is needed from staff. Any notice that was missing will reappear once the update runs.
+
+If notices are added by bulk import rather than the normal editor, the repair can be re-run at any time with:
+
+```
+wp eval '(new HumanKind\FuneralNotices\FieldGroups\LegacyMetaMirror())->backfill();'
+```
+
+---
+
 ## [3.0.3] – August 14, 2026
 
 ### Grid cards are now square

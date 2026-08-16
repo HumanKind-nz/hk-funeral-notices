@@ -10,6 +10,7 @@ use HumanKind\FuneralNotices\Admin\AdminColumns;
 use HumanKind\FuneralNotices\Admin\ImageCropHandler;
 use HumanKind\FuneralNotices\FieldGroups\FieldGroupManager;
 use HumanKind\FuneralNotices\FieldGroups\FieldGroupMigration;
+use HumanKind\FuneralNotices\FieldGroups\LegacyMetaMirror;
 use HumanKind\FuneralNotices\Modules\SettingsModule;
 use HumanKind\FuneralNotices\Modules\LayoutsModule;
 use HumanKind\FuneralNotices\Modules\SearchModule;
@@ -83,6 +84,11 @@ class Plugin {
         // coordinates to the plugin's crop endpoint (replaces Crop-Thumbnails)
         $this->image_crop_handler = new ImageCropHandler();
 
+        // Mirror hkfn_ meta back to the legacy wfn_ keys the front-end
+        // queries still join on. Not admin-only: imports and REST writes
+        // fire acf/save_post outside the admin screens too.
+        (new LegacyMetaMirror())->register();
+
         // Initialize admin dashboard (only in admin area)
         if (is_admin()) {
             $this->admin_dashboard = new Dashboard('hk-funeral-notices', '2.0.0');
@@ -92,6 +98,12 @@ class Plugin {
             // meta copy). Each step is flag-guarded so this is a no-op once done.
             add_action('admin_init', static function (): void {
                 (new FieldGroupMigration())->maybe_migrate();
+
+                // Repair notices created after the site upgraded to v3 but
+                // before the mirror existed: they only ever got hkfn_ rows,
+                // so the grid's INNER JOIN dropped them. Runs after the
+                // migration above so hkfn_ is populated first.
+                (new LegacyMetaMirror())->maybe_backfill();
             });
         }
     }
