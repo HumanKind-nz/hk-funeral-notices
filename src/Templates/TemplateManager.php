@@ -360,7 +360,7 @@ class TemplateManager {
                 'can_embed' => in_array($streaming_service, ['oneroom', 'youtube', 'vimeo', 'facebook']),
                 'is_button_only' => in_array($streaming_service, ['other', 'vimeo_pro', 'istream']),
                 'license_required' => false, // Regular streaming URLs don't require license
-                'has_video_or_license' => LicenseService::hasValidVideoLicense() // For video modal/button display
+                'has_video_or_license' => LicenseService::isVideoConfigured() // For video modal/button display
             ],
             'location' => [
                 'type' => $location_type,
@@ -743,7 +743,7 @@ class TemplateManager {
      */
     private function get_video_slideshow_data($post_id): ?array {
         // Check if site has valid video license (license check is the real gatekeeper)
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return null;
         }
 

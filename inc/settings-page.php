@@ -92,9 +92,6 @@ function get_defaults(): array {
 		'quality_preset'           => 'balanced',
 		'enable_thumbnails'        => true,
 		'enable_progress_tracking' => true,
-
-		// Licence.
-		'license_key'              => '',
 	];
 }
 
@@ -233,9 +230,6 @@ function register_plugin_settings(): void {
 						'quality_preset'           => [ 'type' => 'string' ],
 						'enable_thumbnails'        => [ 'type' => 'boolean' ],
 						'enable_progress_tracking' => [ 'type' => 'boolean' ],
-
-						// Licence.
-						'license_key'              => [ 'type' => 'string' ],
 					],
 				],
 			],
@@ -314,7 +308,7 @@ function sanitize_settings( $input ): array {
 		'single_slug', 'default_person_image', 'location_name',
 		'default_memorial_header', 'default_venue_location',
 		'google_places_api_key', 'seo_title_suffix',
-		'social_share_image', 'search_placeholder', 'license_key',
+		'social_share_image', 'search_placeholder',
 	];
 
 	foreach ( $text_fields as $key ) {

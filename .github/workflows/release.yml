@@ -1,4 +1,4 @@
-name: Build and Release - Dual System (GitHub + Hoster)
+name: Build and Release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    name: "Build and release plugin for GitHub + Hoster"
+    name: "Build plugin, publish release and update manifest"
     runs-on: ubuntu-latest
 
     steps:
@@ -72,12 +72,82 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Notify Hoster System"
+      - name: "Build update manifest"
+        run: |
+          VERSION_NO_V="${VERSION#v}"
+          # Pull the top section out of CHANGELOG.md (first "## [" block).
+          CHANGELOG=$(awk '/^## \[/{n++} n==1' CHANGELOG.md)
+          jq -n \
+            --arg version      "$VERSION_NO_V" \
+            --arg download_url "https://github.com/${{ github.repository }}/releases/download/${VERSION}/hk-funeral-notices-${VERSION}.zip" \
+            --arg last_updated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg changelog    "$CHANGELOG" \
+            '{
+              name:         "HumanKind Funeral Notices",
+              slug:         "hk-funeral-notices",
+              version:      $version,
+              download_url: $download_url,
+              requires:     "6.6",
+              requires_php: "8.1",
+              tested:       "6.8",
+              last_updated: $last_updated,
+              homepage:     "https://humankindwebsites.com/plugins/funeral-notices/",
+              author:       "Weave Digital Studio",
+              sections:     { changelog: $changelog }
+            }' > update.json
+          cat update.json
+
+      # Publishes the version manifest to BunnyCDN. The release zip stays on
+      # GitHub Releases — asset downloads are not API calls, so they are not
+      # rate limited. Only the version check needs to avoid api.github.com.
+      #
+      # Requires repo secrets: BUNNY_STORAGE_ZONE, BUNNY_STORAGE_ACCESS_KEY,
+      # BUNNY_API_KEY. Optionally BUNNY_STORAGE_ENDPOINT (defaults to
+      # storage.bunnycdn.com). If they are absent this step is skipped and the
+      # plugin falls back to the GitHub API.
+      - name: "Publish update manifest to BunnyCDN"
+        env:
+          BUNNY_STORAGE_ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
+          BUNNY_STORAGE_ACCESS_KEY: ${{ secrets.BUNNY_STORAGE_ACCESS_KEY }}
+          BUNNY_STORAGE_ENDPOINT: ${{ secrets.BUNNY_STORAGE_ENDPOINT }}
+          BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
+        run: |
+          if [ -z "$BUNNY_STORAGE_ZONE" ] || [ -z "$BUNNY_STORAGE_ACCESS_KEY" ]; then
+            echo "::warning::Bunny storage secrets not set — skipping manifest publish. Sites will fall back to the GitHub API."
+            exit 0
+          fi
+
+          ENDPOINT="${BUNNY_STORAGE_ENDPOINT:-storage.bunnycdn.com}"
+          TARGET="https://${ENDPOINT}/${BUNNY_STORAGE_ZONE}/humankind/hk-funeral-notices/update.json"
+
+          echo "Uploading manifest to ${TARGET}"
+          HTTP=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT "$TARGET" \
+            -H "AccessKey: ${BUNNY_STORAGE_ACCESS_KEY}" \
+            -H "Content-Type: application/json" \
+            --data-binary @update.json)
+
+          if [ "$HTTP" != "201" ] && [ "$HTTP" != "200" ]; then
+            echo "::error::Manifest upload failed with HTTP ${HTTP}"
+            exit 1
+          fi
+          echo "Manifest uploaded (HTTP ${HTTP})"
+
+          # Purge the edge cache so sites see the new version immediately.
+          if [ -n "$BUNNY_API_KEY" ]; then
+            PURGE_URL="https://weave-hk-github.b-cdn.net/humankind/hk-funeral-notices/update.json"
+            curl -sS -X POST "https://api.bunny.net/purge?url=$(printf '%s' "$PURGE_URL" | jq -sRr @uri)" \
+              -H "AccessKey: ${BUNNY_API_KEY}" && echo "Edge cache purged"
+          else
+            echo "::warning::BUNNY_API_KEY not set — edge cache not purged. New version may take until the CDN TTL expires to appear."
+          fi
+
+      - name: "Verify published manifest"
         if: success()
         run: |
-          echo "=== Hoster Integration ==="
-          echo "GitHub release created successfully!"
-          echo "Release: ${{ github.ref_name }}"
+          sleep 5
+          echo "Manifest currently served from the CDN:"
+          curl -sS "https://weave-hk-github.b-cdn.net/humankind/hk-funeral-notices/update.json" || \
+            echo "::warning::Could not read the published manifest."
           echo "Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
           echo ""
           echo "Manual Step Required:"

@@ -44,10 +44,11 @@ class BunnyStreamService {
      * @param string $cdn_hostname CDN hostname for video delivery
      */
     public function __construct(string $library_id = '', string $api_key = '', string $cdn_hostname = '') {
-        // Use provided credentials or get from constants/options (constants take precedence)
-        $this->library_id = $library_id ?: (hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', ''));
-        $this->api_key = $api_key ?: (hkfn_get_constant('VIDEO_API_KEY') ?: hkfn_get_option('bunny_api_key', ''));
-        $this->cdn_hostname = $cdn_hostname ?: (hkfn_get_constant('VIDEO_CDN_HOSTNAME') ?: hkfn_get_option('bunny_cdn_hostname', ''));
+        // Use provided credentials, else resolve them the one canonical way
+        // (see LicenseService: BUNNYSTREAM_ constants, then VIDEO_, then options).
+        $this->library_id = $library_id ?: LicenseService::getVideoLibraryId();
+        $this->api_key = $api_key ?: LicenseService::getVideoApiKey();
+        $this->cdn_hostname = $cdn_hostname ?: LicenseService::getVideoCdnHostname();
 
         // Log configuration for debugging
         if ((bool) hkfn_get_constant('DEBUG')) {
@@ -420,7 +421,7 @@ class BunnyStreamService {
      * @return bool
      */
     public function is_licensed(): bool {
-        return LicenseService::hasValidVideoLicense();
+        return LicenseService::isVideoConfigured();
     }
 
     /**
@@ -463,7 +464,7 @@ class BunnyStreamService {
      */
     public function upload_video(string $file_path, array $metadata = []): array {
         // Check license first
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return [
                 'success' => false,
                 'message' => LicenseService::getFeatureRequiresLicenseMessage('video_streaming'),
@@ -1024,7 +1025,7 @@ class BunnyStreamService {
      */
     public function get_playback_url(string $video_id): string {
         // Check license first
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return '';
         }
 

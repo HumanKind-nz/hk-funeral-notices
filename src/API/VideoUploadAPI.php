@@ -146,7 +146,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Verify license for video streaming
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return new WP_Error(
                 'license_required',
                 'Premium license required for video streaming feature',

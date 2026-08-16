@@ -4,6 +4,38 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.0] – August 17, 2026
+
+### Fixed: updates stopped appearing on sites
+
+Sites had not been offered a plugin update since October 2025, and forcing a check made no difference.
+
+The plugin asked our licence server for the latest version before it asked GitHub, and only fell back to GitHub if that first request *failed*. The licence server kept answering successfully, but with a version number that had been frozen at 2.2.15 since 1 October 2025. Every site compared its own newer version against that, decided it was already up to date, and never looked at GitHub at all.
+
+Version checks now read a small file published to our CDN on every release, so there is no longer a step that can quietly go stale. Sites still download the update itself from GitHub, and fall back to checking GitHub directly if the CDN cannot be reached.
+
+### Changed: video hosting no longer needs a licence key
+
+Memorial video hosting was gated behind a premium licence key. That gate never protected anything, because the feature has always run on the site's own Bunny Stream library and API key, billed by Bunny directly to whoever owns the account.
+
+The licence key, the Licence settings tab and the premium licence screen have all been removed. Video hosting is simply available once Bunny credentials are present. Existing sites already have those credentials, so nothing changes for them.
+
+To set video up on a new site, add your Bunny Stream details to `wp-config.php`:
+
+```php
+define('HKFN_VIDEO_LIBRARY_ID',   'your-library-id');
+define('HKFN_VIDEO_API_KEY',      'your-api-key');
+define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
+```
+
+They can also be entered on the Video settings screen. Constants take priority.
+
+### Removed: calls to humankindwebsites.com
+
+The plugin used to contact our licence server on every single page load, front-end and admin, which cost roughly 2.3 seconds per request on a cache miss. It no longer contacts that server at all.
+
+---
+
 ## [3.0.4] – August 17, 2026
 
 ### Fixed: new notices missing from the grid

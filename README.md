@@ -19,22 +19,44 @@ Built by [Weave Digital Studio](https://weave.co.nz) and [HumanKind Funeral Webs
 
 ---
 
-## Free and premium
+## Features
 
-Core features are free to use. Premium features need a licence key and cover ongoing cloud hosting and bandwidth.
+Everything in the plugin is available to everyone. There is no licence key.
 
-**Free**
 - Funeral notice publishing
 - Livestream and tribute links
 - Layout and styling controls
 - Search and filters
 - Default venue setting
+- Memorial video slideshows, hosted on your own Bunny Stream account
 
-**Premium**
-- Cloud-hosted memorial video slideshows
-- Secure streaming with automatic optimisation
+---
 
-To purchase or manage a licence, contact [humankindwebsites.com](https://humankindwebsites.com) or [weave.co.nz](https://weave.co.nz).
+## Video hosting setup
+
+Memorial videos are hosted on [Bunny Stream](https://bunny.net/stream/). You use your own Bunny account, so you control the library and pay Bunny directly for storage and bandwidth. The plugin does not proxy video through us and there is nothing to activate.
+
+1. Create a Bunny Stream video library in the [Bunny dashboard](https://dash.bunny.net/stream).
+2. Copy the **Library ID**, an **API key** with access to it, and the library's **CDN hostname** (the `*.b-cdn.net` pull zone).
+3. Add them to `wp-config.php`:
+
+```php
+define('HKFN_VIDEO_LIBRARY_ID',   'your-library-id');
+define('HKFN_VIDEO_API_KEY',      'your-api-key');
+define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
+```
+
+The video upload field appears on funeral notices as soon as a library ID and API key are present.
+
+Credentials can also be entered on the **Video** settings screen if you would rather not edit `wp-config.php`. Constants take priority over stored settings, which makes them the better option for anything managed by version control or a hosting panel.
+
+Credentials are resolved in this order, so existing installations keep working without changes:
+
+1. `HKFN_BUNNYSTREAM_LIBRARY_ID` / `HKFN_BUNNYSTREAM_API_KEY` (also accepted with the older `WFN_` prefix)
+2. `HKFN_VIDEO_LIBRARY_ID` / `HKFN_VIDEO_API_KEY` (also accepted with `WFN_`)
+3. The values saved on the Video settings screen
+
+Uploads are capped at 900MB and typically take up to 10 minutes to encode.
 
 ---
 
@@ -71,7 +93,7 @@ Full shortcode options and filters are in the [Developer Documentation](./DEVELO
 ## Compatibility
 
 - Works with the HumanKind Funeral Suite CPTs, roles, and permissions
-- Integrates with our premium cloud video hosting for memorial slideshows
+- Integrates with Bunny Stream for memorial video slideshows, using your own account
 - Uses standard WordPress post types and taxonomies, so your content stays portable
 
 ---

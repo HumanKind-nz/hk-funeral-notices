@@ -680,10 +680,10 @@ class FieldGroupManager {
     }
 
     /**
-     * Get video field or upgrade message based on license status
+     * Get video field or setup message based on whether video is configured
      *
-     * Returns either a functional video upload field (if licensed)
-     * or a message field explaining the premium feature (if unlicensed)
+     * Returns either a functional video upload field (when Bunny credentials
+     * are present) or a message field explaining how to set it up.
      */
     private function get_video_field_or_upgrade_message(): array {
         if ($this->has_premium_license()) {
@@ -700,13 +700,13 @@ class FieldGroupManager {
                 'max_size' => 900, // 900MB limit
             ];
         } else {
-            // Return minimal message field explaining premium feature
+            // Return minimal message field explaining how to switch video on
             return [
                 'key' => 'field_hkfn_video_upgrade_message',
                 'label' => 'Memorial Video Slideshow',
                 'name' => 'video_upgrade_message',
                 'type' => 'message',
-                'message' => '<strong>Premium Feature:</strong> Video streaming requires a valid premium license. <a href="' . admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>',
+                'message' => '<strong>Not set up yet:</strong> video hosting needs a Bunny Stream library ID and API key. <a href="' . admin_url('admin.php?page=hkfn-module-video') . '">Set up video</a>',
                 'new_lines' => '',
                 'esc_html' => 0,
             ];
@@ -714,14 +714,14 @@ class FieldGroupManager {
     }
 
     /**
-     * Get instructions for video field based on license status
+     * Get instructions for video field based on whether video is configured
      *
      * @deprecated Use get_video_field_or_upgrade_message() instead
      */
     private function get_video_field_instructions(): string {
         if (!$this->has_premium_license()) {
-            return '<strong>Premium Feature:</strong> Video streaming requires a valid premium license. <a href="' .
-                   admin_url('admin.php?page=hkfn-module-license') . '">Manage License</a>';
+            return '<strong>Not set up yet:</strong> video hosting needs a Bunny Stream library ID and API key. <a href="' .
+                   admin_url('admin.php?page=hkfn-module-video') . '">Set up video</a>';
         }
 
         return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 900MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';
@@ -731,7 +731,7 @@ class FieldGroupManager {
      * Check if premium license is active
      */
     private function has_premium_license(): bool {
-        return LicenseService::hasValidVideoLicense();
+        return LicenseService::isVideoConfigured();
     }
 
     /**
