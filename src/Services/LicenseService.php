@@ -92,11 +92,12 @@ class LicenseService {
      * @return bool True when a Bunny Stream library ID and API key are set.
      */
     public static function isVideoConfigured(): bool {
-        // Testing override, honoured for backwards compatibility.
-        if (hkfn_get_constant('BYPASS_LICENSE')) {
-            return true;
-        }
-
+        // HKFN_BYPASS_LICENSE is deliberately NOT honoured here. It existed to
+        // fake a valid licence during testing, which was a permission question.
+        // This is a factual one: either Bunny credentials are present or they
+        // are not, and no constant can conjure them. Honouring it would show
+        // the upload field on a site that cannot upload, failing later with a
+        // confusing error instead of saying plainly that video is not set up.
         return self::getVideoLibraryId() !== '' && self::getVideoApiKey() !== '';
     }
 
