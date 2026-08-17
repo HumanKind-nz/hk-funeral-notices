@@ -63,15 +63,10 @@ jobs:
           cd build-release
           zip -r hk-funeral-notices-${{ env.VERSION }}.zip hk-funeral-notices
 
-      - name: "Create GitHub Release"
-        uses: softprops/action-gh-release@v2
-        with:
-          files: build-release/hk-funeral-notices-${{ env.VERSION }}.zip
-          name: "HK Funeral Notices ${{ github.ref_name }}"
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      # Built before the release so it can be attached to it. Sites read this
+      # from the stable .../releases/latest/download/update.json URL, which is a
+      # redirect rather than an API call and so is not rate limited. No secrets
+      # are involved: the release is published with the built-in GITHUB_TOKEN.
       - name: "Build update manifest"
         run: |
           VERSION_NO_V="${VERSION#v}"
@@ -97,60 +92,28 @@ jobs:
             }' > update.json
           cat update.json
 
-      # Publishes the version manifest to BunnyCDN. The release zip stays on
-      # GitHub Releases — asset downloads are not API calls, so they are not
-      # rate limited. Only the version check needs to avoid api.github.com.
-      #
-      # Requires repo secrets: BUNNY_STORAGE_ZONE, BUNNY_STORAGE_ACCESS_KEY,
-      # BUNNY_API_KEY. Optionally BUNNY_STORAGE_ENDPOINT (defaults to
-      # storage.bunnycdn.com). If they are absent this step is skipped and the
-      # plugin falls back to the GitHub API.
-      - name: "Publish update manifest to BunnyCDN"
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build-release/hk-funeral-notices-${{ env.VERSION }}.zip
+            update.json
+          name: "HK Funeral Notices ${{ github.ref_name }}"
+          generate_release_notes: true
         env:
-          BUNNY_STORAGE_ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
-          BUNNY_STORAGE_ACCESS_KEY: ${{ secrets.BUNNY_STORAGE_ACCESS_KEY }}
-          BUNNY_STORAGE_ENDPOINT: ${{ secrets.BUNNY_STORAGE_ENDPOINT }}
-          BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Verify the manifest is reachable at the stable URL"
         run: |
-          if [ -z "$BUNNY_STORAGE_ZONE" ] || [ -z "$BUNNY_STORAGE_ACCESS_KEY" ]; then
-            echo "::warning::Bunny storage secrets not set — skipping manifest publish. Sites will fall back to the GitHub API."
-            exit 0
-          fi
-
-          ENDPOINT="${BUNNY_STORAGE_ENDPOINT:-storage.bunnycdn.com}"
-          TARGET="https://${ENDPOINT}/${BUNNY_STORAGE_ZONE}/humankind/hk-funeral-notices/update.json"
-
-          echo "Uploading manifest to ${TARGET}"
-          HTTP=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT "$TARGET" \
-            -H "AccessKey: ${BUNNY_STORAGE_ACCESS_KEY}" \
-            -H "Content-Type: application/json" \
-            --data-binary @update.json)
-
-          if [ "$HTTP" != "201" ] && [ "$HTTP" != "200" ]; then
-            echo "::error::Manifest upload failed with HTTP ${HTTP}"
-            exit 1
-          fi
-          echo "Manifest uploaded (HTTP ${HTTP})"
-
-          # Purge the edge cache so sites see the new version immediately.
-          if [ -n "$BUNNY_API_KEY" ]; then
-            PURGE_URL="https://weave-hk-github.b-cdn.net/humankind/hk-funeral-notices/update.json"
-            curl -sS -X POST "https://api.bunny.net/purge?url=$(printf '%s' "$PURGE_URL" | jq -sRr @uri)" \
-              -H "AccessKey: ${BUNNY_API_KEY}" && echo "Edge cache purged"
-          else
-            echo "::warning::BUNNY_API_KEY not set — edge cache not purged. New version may take until the CDN TTL expires to appear."
-          fi
-
-      - name: "Verify published manifest"
-        if: success()
-        run: |
+          URL="https://github.com/${{ github.repository }}/releases/latest/download/update.json"
+          echo "Checking ${URL}"
           sleep 5
-          echo "Manifest currently served from the CDN:"
-          curl -sS "https://weave-hk-github.b-cdn.net/humankind/hk-funeral-notices/update.json" || \
-            echo "::warning::Could not read the published manifest."
-          echo "Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
-          echo ""
-          echo "Manual Step Required:"
-          echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
-          echo "2. Point download to GitHub release URL above"
-          echo "3. Update version number in hoster system"
+          SERVED=$(curl -sSL --max-time 30 "$URL" || true)
+          echo "$SERVED"
+          SERVED_VERSION=$(printf '%s' "$SERVED" | jq -r '.version // empty' 2>/dev/null || true)
+          EXPECTED="${VERSION#v}"
+          if [ "$SERVED_VERSION" != "$EXPECTED" ]; then
+            echo "::warning::Manifest at the latest URL reports '${SERVED_VERSION}', expected '${EXPECTED}'. Sites will fall back to the releases API until this resolves."
+          else
+            echo "Manifest is live and reports ${SERVED_VERSION}."
+          fi

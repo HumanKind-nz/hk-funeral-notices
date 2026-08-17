@@ -12,7 +12,7 @@ Sites had not been offered a plugin update since October 2025, and forcing a che
 
 The plugin asked our licence server for the latest version before it asked GitHub, and only fell back to GitHub if that first request *failed*. The licence server kept answering successfully, but with a version number that had been frozen at 2.2.15 since 1 October 2025. Every site compared its own newer version against that, decided it was already up to date, and never looked at GitHub at all.
 
-Version checks now read a small file published to our CDN on every release, so there is no longer a step that can quietly go stale. Sites still download the update itself from GitHub, and fall back to checking GitHub directly if the CDN cannot be reached.
+Version checks now read a small file published alongside each GitHub release, so there is no longer a step that can quietly go stale. Nothing has to be updated by hand when a release goes out.
 
 ### Changed: video hosting no longer needs a licence key
 
@@ -49,6 +49,12 @@ Three things caused it, and the first explains why *everything* went blank at on
 **Blank placeholders were hiding real values.** Upgrading wrote an empty entry for every setting that had not yet been moved across, and those empties masked the genuine values underneath.
 
 The screen now reads settings the same way the rest of the plugin does, so what you see is what the site is actually using. A setting you deliberately clear stays cleared, and a switch you turn off stays off.
+
+### Fixed: instant search returned nothing
+
+The search box on funeral notice pages, the one that filters as you type, never returned results. Two faults stacked on top of each other: the search request failed before it could run, and the query behind it looked for names in the wrong place, so it would have found nothing even if it had run.
+
+Searching now works by first name, surname or anything in the notice text. If you have the search form switched on, it is worth a quick try after updating, since this has been broken long enough that it may never have worked on your site.
 
 ### Fixed: sites whose upload cap had already drifted to 500MB
 

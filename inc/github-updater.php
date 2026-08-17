@@ -5,15 +5,15 @@
  * Hooks into the WordPress update system so new releases appear in
  * Dashboard → Updates with one-click install.
  *
- * Version checks read a small JSON manifest served from BunnyCDN. The release
- * zip itself still lives on GitHub Releases, which is fine: asset downloads are
- * not GitHub API calls, so they are not subject to the 60 requests/hour
- * unauthenticated API limit. That limit is the reason the manifest is not read
- * from api.github.com — a GridPane server hosting 90+ sites shares one outbound
- * IP and will sit permanently over quota.
+ * Version checks read a small JSON manifest published as a release asset.
+ * Release assets are served by redirect rather than through the API, so they
+ * are not subject to the 60 requests/hour unauthenticated API limit. That limit
+ * is the reason the manifest is not read from api.github.com: a GridPane server
+ * hosting 90+ sites shares one outbound IP and will sit permanently over quota,
+ * which is exactly how this plugin stopped offering updates.
  *
- * If the manifest cannot be reached the updater falls back to the GitHub
- * releases API, so updates keep working even if the CDN is unavailable.
+ * If the manifest cannot be reached the updater falls back to the releases API,
+ * so a site with no manifest yet still gets updates.
  *
  * Uses a class because the updater maintains state (transients, version
  * info, plugin data). This is the one exception to the functions-only rule.
@@ -61,8 +61,18 @@ class HK_Funeral_Notices_Updater {
 
 	// ── Configuration ────────────────────────────────────────────────────
 
-	/** Update manifest, served from BunnyCDN. */
-	private const MANIFEST_URL = 'https://weave-hk-github.b-cdn.net/humankind/hk-funeral-notices/update.json';
+	/**
+	 * Update manifest.
+	 *
+	 * This is a release asset, not an API call. GitHub answers it with a plain
+	 * 302 to the asset store and no rate-limit headers, so it avoids the 60
+	 * requests/hour unauthenticated API limit that a GridPane server hosting
+	 * 90+ sites would sit permanently over on one shared IP.
+	 *
+	 * The "latest" path always resolves to the newest published release, so the
+	 * URL never changes between versions.
+	 */
+	private const MANIFEST_URL = 'https://github.com/HumanKind-nz/hk-funeral-notices/releases/latest/download/update.json';
 
 	/** GitHub organisation or username — fallback source only. */
 	private const GITHUB_USERNAME = 'HumanKind-nz';
