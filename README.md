@@ -46,9 +46,9 @@ define('HKFN_VIDEO_API_KEY',      'your-api-key');
 define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
 ```
 
-The video upload field appears on funeral notices as soon as a library ID and API key are present. There is no licence key and nothing to activate.
+The video upload field appears on funeral notices as soon as a library ID and API key are present.
 
-There is deliberately no admin screen for entering these. Keys stay out of the database and out of anything that gets exported with a site. If you cannot edit `wp-config.php`, they can be set as options instead:
+Credentials are deliberately not editable in the admin, so keys stay out of the database and out of anything exported with a site. If you cannot edit `wp-config.php`, set them as options instead:
 
 ```bash
 wp option update hkfn_bunny_library_id "your-library-id"
@@ -62,9 +62,9 @@ Credentials are resolved in this order, so existing installations keep working w
 2. `HKFN_VIDEO_LIBRARY_ID` / `HKFN_VIDEO_API_KEY` (also accepted with `WFN_`)
 3. The `hkfn_bunny_*` options above
 
-The **Video Slideshows** screen, under Funeral Notices in the admin menu, controls upload limits and encoding options rather than credentials: maximum file size, maximum duration, allowed formats, quality preset and thumbnails.
+**Settings → Video** covers everything else: it confirms whether the credentials were found, and controls the upload limit, quality preset and thumbnails.
 
-Uploads are capped at 900MB by default and typically take up to 10 minutes to encode. Change the cap under **Video Slideshows → Maximum File Size**, anywhere from 50MB to 2000MB.
+Uploads are capped at 900MB by default and typically take up to 10 minutes to encode. The cap can be set anywhere from 50MB to 2000MB.
 
 ### What deletes a video, and what never does
 

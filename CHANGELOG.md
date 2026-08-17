@@ -6,100 +6,50 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ## [3.1.0] – August 17, 2026
 
-### Fixed: updates stopped appearing on sites
+### Fixed: updates stopped appearing
 
-Sites had not been offered a plugin update since October 2025, and forcing a check made no difference.
+No site had been offered an update since October 2025. The plugin checked a licence server before GitHub and only fell back if that check *failed*. It kept answering successfully with a version frozen at 2.2.15, so every site decided it was already up to date. Version checks now come straight from the GitHub release, with nothing to keep in sync by hand.
 
-The plugin asked our licence server for the latest version before it asked GitHub, and only fell back to GitHub if that first request *failed*. The licence server kept answering successfully, but with a version number that had been frozen at 2.2.15 since 1 October 2025. Every site compared its own newer version against that, decided it was already up to date, and never looked at GitHub at all.
+### Changed: video no longer needs a licence key
 
-Version checks now read a small file published alongside each GitHub release, so there is no longer a step that can quietly go stale. Nothing has to be updated by hand when a release goes out.
+Memorial videos always ran on your own Bunny Stream account, so the licence key protected nothing. It has been removed, along with the Licence tab. Video works as soon as Bunny credentials are present. Existing sites are unaffected.
 
-### Changed: video hosting no longer needs a licence key
-
-Memorial video hosting was gated behind a premium licence key. That gate never protected anything, because the feature has always run on the site's own Bunny Stream library and API key, billed by Bunny directly to whoever owns the account.
-
-The licence key, the Licence settings tab and the premium licence screen have all been removed. Video hosting is simply available once Bunny credentials are present. Existing sites already have those credentials, so nothing changes for them.
-
-To set video up on a new site, add your Bunny Stream details to `wp-config.php`:
+New sites add these to `wp-config.php`:
 
 ```php
 define('HKFN_VIDEO_LIBRARY_ID',   'your-library-id');
 define('HKFN_VIDEO_API_KEY',      'your-api-key');
-define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
+define('HKFN_VIDEO_CDN_HOSTNAME', 'your-zone.b-cdn.net');
 ```
 
-Existing sites using the older `WFN_VIDEO_LIBRARY_ID` and `WFN_VIDEO_API_KEY` names keep working, as do the `BUNNYSTREAM_` variants. If you cannot edit `wp-config.php`, the same values can be set as the `hkfn_bunny_library_id` and `hkfn_bunny_api_key` options via WP-CLI. There is deliberately no admin field for them, so keys stay out of the database and out of site exports.
+The older `WFN_` and `BUNNYSTREAM_` names still work. See the README for setup.
 
-### Added: a Video tab on the settings screen
+### Fixed: settings screen showing blank fields
 
-The video settings had no reachable home. The module registered its page under a menu that does not exist, because the funeral notice post type is registered with `show_in_menu => 'hk-funeral-notices'`, so the page existed but never appeared anywhere. The React settings screen had replaced the other module pages but not this one, which left the upload limit unreachable.
-
-Settings now has a **Video** tab covering maximum file size, quality preset, thumbnails and upload progress. It also reports whether Bunny credentials resolved, and names the missing ones if not, which answers the question people actually have when video is not appearing.
-
-### Fixed: settings screen showing everything as blank
-
-Most controls on the settings screen showed nothing: empty text boxes, dropdowns sitting on their first option, toggles reading as off, all while the site ran on the correct values. Saving in that state could have written those blanks over real configuration.
-
-Three things caused it, and the first explains why *everything* went blank at once rather than a few fields.
-
-**A single wrong value blanked the whole screen.** WordPress validates the entire settings object against its schema and returns nothing at all if any one value fails. One setting holding an image ID where text was expected, or an empty value where a number belonged, was enough to empty every field on the page. Values are now checked individually, so an odd one affects only its own field.
-
-**Older settings were not being read.** Configuration entered through earlier versions of the plugin lives in a different place, which the site itself still reads but the settings screen did not. The tribute form URL was the clearest example: present and working on the front end, blank on the screen.
-
-**Blank placeholders were hiding real values.** Upgrading wrote an empty entry for every setting that had not yet been moved across, and those empties masked the genuine values underneath.
-
-The screen now reads settings the same way the rest of the plugin does, so what you see is what the site is actually using. A setting you deliberately clear stays cleared, and a switch you turn off stays off.
+Most settings appeared empty even though the site was running on the correct values, because a single value of the wrong type made WordPress discard the whole set. Saving in that state could have overwritten real configuration. The screen now reads settings the same way the rest of the plugin does.
 
 ### Fixed: instant search returned nothing
 
-The search box on funeral notice pages, the one that filters as you type, never returned results. Two faults stacked on top of each other: the search request failed before it could run, and the query behind it looked for names in the wrong place, so it would have found nothing even if it had run.
+The search box that filters as you type never returned results. If you have it switched on, try it after updating.
 
-Searching now works by first name, surname or anything in the notice text. If you have the search form switched on, it is worth a quick try after updating, since this has been broken long enough that it may never have worked on your site.
+### Added: Video settings tab
 
-### Fixed: sites whose upload cap had already drifted to 500MB
+Upload limits and encoding options now have a home under Settings, along with a note saying whether Bunny is connected. The upload cap is 900MB; sites that had drifted to 500MB are restored once.
 
-Because of the default mismatch described above, sites that saved the settings screen wrote 500 through to the value that governs uploads. Updating to 3.1.0 restores 900MB once on any site sitting on exactly 500. It runs a single time, so choosing 500 deliberately on the new Video tab sticks.
+### Added: a record of video deletions
 
-`HKFN_BYPASS_LICENSE` no longer switches video on. It existed to fake a valid licence during testing, which was a question of permission. Whether video works is now a question of fact: either Bunny credentials are present or they are not, and no constant can conjure them. Honouring it would show an upload field on a site that cannot upload, then fail with a confusing error. Sites with the constant set and real credentials are unaffected.
-
-### Added: a record of every video deletion
-
-Videos live in your Bunny library, and until now the only trace of a deletion was a line in the PHP error log. Every attempt is now recorded: what was deleted, what was refused, when, which notice it belonged to, who or what triggered it, and why.
+Every deletion attempt is now recorded, and deletion is refused outright if the plugin cannot confirm a video belongs to this site.
 
 ```bash
-wp hkfn video log
-wp hkfn video log --outcome=deleted --format=csv > deletions.csv
+wp hkfn video log          # what was deleted, and why
+wp hkfn video reconcile    # find unused videos, deletes nothing
 ```
 
-There is also a read-only reconcile that compares Bunny against the videos this site still references, so orphans can be found and pruned by hand rather than by a script:
+There is still no automatic cleanup, no retention policy and no orphan sweeper. Videos go only when someone deletes one, permanently deletes a notice, or replaces a video.
 
-```bash
-wp hkfn video reconcile
-```
+### Changed: much quieter logging
 
-It reports orphaned, missing and matched videos, and deletes nothing. Because one Bunny library is shared by many sites, each in its own collection, reconcile is scoped to this site's collection and refuses to run if the site has no collection rather than listing other people's videos as prunable.
-
-For a fleet-wide prune, `wp hkfn video inventory` exports one site's references as JSON. Collect one per site, and anything in the library that appears in no inventory is a genuine candidate for removal.
-
-### Changed: the plugin is much quieter in the log
-
-Routine operations were writing to the PHP error log constantly. Permanently deleting any funeral notice produced four lines even when it had no video, and every save without a surname produced another. Those messages now only appear when `WP_DEBUG` is on. Genuine failures and security refusals still log unconditionally.
-
-### Fixed: deletion no longer proceeds when ownership cannot be verified
-
-Before deleting, the plugin checks that a video's Bunny collection belongs to this site. If that check could not be completed because the Bunny API returned an error, the old code logged a warning and **deleted the video anyway**. A brief API outage during a bulk delete could therefore bypass every safety check, which is the shape of the October 2025 incident.
-
-It now refuses and reports the failure. An orphaned video costs pennies and can be removed by hand. A deleted tribute cannot be recovered.
-
-To be clear about what has not changed: there is still no scheduled cleanup, no retention policy and no orphan sweeper. Videos are only removed when someone deletes one from a notice, permanently deletes a notice, or replaces a video.
-
-### Fixed: video size cap silently dropping to 500MB
-
-The upload cap is 900MB, but the settings schema still declared the old 500MB default. On a site that had never manually saved the Video settings form, saving anything on the settings screen wrote 500 through to the video module and halved the cap, with nothing in the interface showing it had changed.
-
-### Removed: calls to humankindwebsites.com
-
-The plugin used to contact our licence server on every single page load, front-end and admin, which cost roughly 2.3 seconds per request on a cache miss. It no longer contacts that server at all.
+Routine activity no longer writes to the PHP error log. Genuine failures still do.
 
 ---
 
