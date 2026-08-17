@@ -88,7 +88,9 @@ function get_defaults(): array {
 		'css_optimization'         => true,
 
 		// Video.
-		'max_file_size_mb'         => 500,
+		// Must match VideoModule::$default_settings. The bridge maps this key
+		// between the two, so a mismatch silently re-caps uploads on save.
+		'max_file_size_mb'         => 900,
 		'quality_preset'           => 'balanced',
 		'enable_thumbnails'        => true,
 		'enable_progress_tracking' => true,
