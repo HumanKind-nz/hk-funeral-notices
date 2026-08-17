@@ -110,28 +110,49 @@ function get_settings(): array {
 /**
  * Fill in any key the stored option is missing.
  *
- * The stored option only ever holds what has actually been written. A key that
- * has never been saved is simply absent, and the REST endpoint hands the React
- * app exactly what is stored, so those controls render with no value: an empty
- * number box, a select showing its first option, a toggle reading as off.
+ * The consolidated option only holds what has actually been written to it. The
+ * REST endpoint hands the React app exactly that, so a key never written to it
+ * arrives undefined and its control renders with no value: an empty number box,
+ * a select showing its first option, a toggle reading as off.
  *
- * That is not just untidy. Saving the screen in that state writes those blanks
- * back out through the settings bridge, so opening a tab and pressing Save
- * could quietly turn features off that were never deliberately changed. This
- * happens on any site that never saved a given module's own screen, which for
- * video is every site, because that screen was unreachable.
+ * That is not just untidy. Saving in that state writes the blanks back out
+ * through the bridge, so opening a tab and pressing Save could overwrite real
+ * configuration with defaults, or turn features off that nobody touched.
  *
- * Filtering reads rather than back-filling the database keeps the option honest
- * about what was deliberately set, while guaranteeing every consumer sees a
- * complete set of values.
+ * Three layers, lowest priority first:
+ *
+ * 1. The declared defaults.
+ * 2. The runtime module options, which are what the site actually runs on and
+ *    where years of configuration made through the old per-module screens
+ *    still lives. The one-off seed only copied keys that existed at the time,
+ *    so anything added to the map later never made it across.
+ * 3. The consolidated option itself, which wins because it represents a
+ *    deliberate choice made on this screen.
+ *
+ * Filtering reads rather than back-filling the database keeps the stored option
+ * honest about what was deliberately set, while guaranteeing every consumer,
+ * including the REST endpoint, sees the values the site genuinely uses.
  *
  * @param mixed $value Stored option value.
- * @return array Settings with defaults filled in.
+ * @return array Settings with defaults and runtime values filled in.
  */
 function fill_missing_settings( $value ): array {
-	$defaults = get_defaults();
+	$merged = get_defaults();
 
-	return is_array( $value ) ? array_merge( $defaults, $value ) : $defaults;
+	// Layer the live module options over the defaults.
+	if ( function_exists( '\HumanKind\FuneralNotices\SettingsBridge\destination_map' ) ) {
+		foreach ( \HumanKind\FuneralNotices\SettingsBridge\destination_map() as $option => $keys ) {
+			$stored = \HumanKind\FuneralNotices\SettingsBridge\read_destination( $option );
+
+			foreach ( $keys as $key ) {
+				if ( array_key_exists( $key, $stored ) ) {
+					$merged[ $key ] = $stored[ $key ];
+				}
+			}
+		}
+	}
+
+	return is_array( $value ) ? array_merge( $merged, $value ) : $merged;
 }
 add_filter( 'option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
 add_filter( 'default_option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
