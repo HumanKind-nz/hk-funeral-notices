@@ -30,6 +30,35 @@ define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
 
 They can also be entered on the Video settings screen. Constants take priority.
 
+### Added: a record of every video deletion
+
+Videos live in your Bunny library, and until now the only trace of a deletion was a line in the PHP error log. Every attempt is now recorded: what was deleted, what was refused, when, which notice it belonged to, who or what triggered it, and why.
+
+```bash
+wp hkfn video log
+wp hkfn video log --outcome=deleted --format=csv > deletions.csv
+```
+
+There is also a read-only reconcile that compares the Bunny library against the videos this site still references, so orphans can be found and pruned by hand rather than by a script:
+
+```bash
+wp hkfn video reconcile
+```
+
+It reports orphaned, missing and matched videos, and deletes nothing.
+
+### Fixed: deletion no longer proceeds when ownership cannot be verified
+
+Before deleting, the plugin checks that a video's Bunny collection belongs to this site. If that check could not be completed because the Bunny API returned an error, the old code logged a warning and **deleted the video anyway**. A brief API outage during a bulk delete could therefore bypass every safety check, which is the shape of the October 2025 incident.
+
+It now refuses and reports the failure. An orphaned video costs pennies and can be removed by hand. A deleted tribute cannot be recovered.
+
+To be clear about what has not changed: there is still no scheduled cleanup, no retention policy and no orphan sweeper. Videos are only removed when someone deletes one from a notice, permanently deletes a notice, or replaces a video.
+
+### Fixed: video size cap silently dropping to 500MB
+
+The upload cap is 900MB, but the settings schema still declared the old 500MB default. On a site that had never manually saved the Video settings form, saving anything on the settings screen wrote 500 through to the video module and halved the cap, with nothing in the interface showing it had changed.
+
 ### Removed: calls to humankindwebsites.com
 
 The plugin used to contact our licence server on every single page load, front-end and admin, which cost roughly 2.3 seconds per request on a cache miss. It no longer contacts that server at all.

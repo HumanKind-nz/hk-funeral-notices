@@ -56,7 +56,38 @@ Credentials are resolved in this order, so existing installations keep working w
 2. `HKFN_VIDEO_LIBRARY_ID` / `HKFN_VIDEO_API_KEY` (also accepted with `WFN_`)
 3. The values saved on the Video settings screen
 
-Uploads are capped at 900MB and typically take up to 10 minutes to encode.
+Uploads are capped at 900MB by default and typically take up to 10 minutes to encode. Change the cap under **Video Slideshows → Maximum File Size**, anywhere from 50MB to 2000MB.
+
+### What deletes a video, and what never does
+
+Videos are stored in your Bunny library, not ours, so it matters that you can predict what the plugin will and will not remove.
+
+**A video is deleted only when:**
+
+- You delete it yourself from the funeral notice editor
+- A funeral notice is **permanently** deleted (moving one to trash does nothing)
+- You replace an existing video on a notice with a new one
+
+**Nothing else prunes.** There is no scheduled cleanup, no retention policy, and no orphan sweeper. An earlier version had automatic cleanup and it deleted an entire library on 20 October 2025, so it was removed rather than fixed. If a video stops being referenced it simply stays in Bunny until you remove it by hand.
+
+**Before any deletion**, the plugin checks the video's Bunny collection against this site's collection. If they do not match, if the video has no collection, if the site has no collection, or if the Bunny API cannot be reached to check, the deletion is refused. Ownership has to be proven, not assumed. This is what stops one site in a multi-site estate from deleting another's videos, and what stops a network blip during a bulk delete from wiping anything.
+
+Every attempt is recorded, whether it succeeded, was refused, or failed:
+
+```bash
+wp hkfn video log                  # everything, newest first
+wp hkfn video log --outcome=deleted
+wp hkfn video log --format=csv > deletions.csv
+```
+
+To find videos in Bunny that nothing points at any more:
+
+```bash
+wp hkfn video reconcile            # read-only, deletes nothing
+wp hkfn video reconcile --show=all
+```
+
+`reconcile` reports three groups: **orphaned** (in Bunny, unreferenced, safe to prune by hand), **missing** (a notice points at a video that is gone, worth investigating in the log), and **matched**. It never deletes anything. Pruning orphans is a deliberate manual step in the Bunny dashboard.
 
 ---
 

@@ -805,6 +805,11 @@ class BunnyStreamService {
                     get_site_url()
                 ));
 
+                VideoAuditLog::record($video_id, 'blocked', 'No collection assigned, ownership could not be verified', [
+                    'error_code' => 'NO_COLLECTION',
+                    'title' => $video_info['title'] ?? '',
+                ]);
+
                 return [
                     'success' => false,
                     'message' => 'Cannot delete video - no collection assigned. Ownership cannot be verified. Contact support if this is your video.',
@@ -824,6 +829,11 @@ class BunnyStreamService {
                     $site_collection
                 ));
 
+                VideoAuditLog::record($video_id, 'blocked', 'Video belongs to a different site collection', [
+                    'error_code' => 'COLLECTION_MISMATCH',
+                    'title' => $video_info['title'] ?? '',
+                ]);
+
                 return [
                     'success' => false,
                     'message' => 'Cannot delete video - belongs to different site',
@@ -841,6 +851,11 @@ class BunnyStreamService {
                     get_site_url(),
                     $video_id
                 ));
+
+                VideoAuditLog::record($video_id, 'blocked', 'This site has no collection configured, ownership could not be verified', [
+                    'error_code' => 'SITE_NO_COLLECTION',
+                    'title' => $video_info['title'] ?? '',
+                ]);
 
                 return [
                     'success' => false,
@@ -865,8 +880,27 @@ class BunnyStreamService {
                 ];
             }
 
-            // API error during validation - log error but allow deletion
-            error_log("WARNING: Could not validate collection ownership for video {$video_id} - proceeding with deletion. Error: " . ($video_info['message'] ?? 'Unknown'));
+            // API error during validation. Fail closed: if ownership cannot be
+            // verified we do not delete. A transient Bunny outage during a bulk
+            // post deletion would otherwise bypass all three checks above, which
+            // is the shape of the 2025-10-20 incident. An orphaned video costs
+            // pennies; a deleted tribute cannot be recovered.
+            error_log(sprintf(
+                'WFN SECURITY: Blocked deletion of video %s - could not verify ownership. Error: %s',
+                $video_id,
+                $video_info['message'] ?? 'Unknown'
+            ));
+
+            VideoAuditLog::record($video_id, 'blocked', 'Ownership check failed (Bunny API error), refused rather than risk deleting someone else\'s video', [
+                'error_code' => 'VALIDATION_UNAVAILABLE',
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Cannot delete video - ownership could not be verified. Try again later.',
+                'error_code' => 'VALIDATION_UNAVAILABLE',
+                'video_id' => $video_id,
+            ];
         }
 
         // Validation passed or backward compat - proceed with deletion
@@ -877,6 +911,8 @@ class BunnyStreamService {
             // Handle specific error cases
             if ($response['error_code'] === 'NOT_FOUND') {
                 // Video already deleted or doesn't exist
+                VideoAuditLog::record($video_id, 'already_gone', 'Video was already deleted or does not exist');
+
                 return [
                     'success' => true,
                     'message' => 'Video was already deleted or does not exist',
@@ -884,6 +920,11 @@ class BunnyStreamService {
                     'already_deleted' => true
                 ];
             }
+
+            VideoAuditLog::record($video_id, 'failed', 'Bunny rejected the delete request: ' . ($response['message'] ?? 'unknown'), [
+                'error_code' => 'DELETE_FAILED',
+                'title' => $video_info['title'] ?? '',
+            ]);
 
             return [
                 'success' => false,
@@ -897,6 +938,10 @@ class BunnyStreamService {
         // Log successful deletion
         $video_title = $video_info['success'] ? $video_info['title'] : 'Unknown';
         error_log("Video deleted from Bunny Stream: {$video_title} (ID: {$video_id})");
+
+        VideoAuditLog::record($video_id, 'deleted', 'Deleted from Bunny Stream', [
+            'title' => $video_title,
+        ]);
 
         return [
             'success' => true,

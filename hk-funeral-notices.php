@@ -88,6 +88,7 @@ require_once HKFN_PLUGIN_DIR . 'inc/settings-page.php';
 require_once HKFN_PLUGIN_DIR . 'inc/settings-bridge.php';
 require_once HKFN_PLUGIN_DIR . 'inc/github-updater.php';
 require_once HKFN_PLUGIN_DIR . 'inc/cleanup.php';
+require_once HKFN_PLUGIN_DIR . 'inc/cli.php';
 
 // Legacy integration files — will migrate to inc/ individually in future.
 require_once HKFN_PLUGIN_DIR . 'includes/class-acf.php';

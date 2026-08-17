@@ -1169,6 +1169,14 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
 
         if (!empty($source_site) && $source_site !== $current_site) {
             error_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+
+            \HumanKind\FuneralNotices\Services\VideoAuditLog::record(
+                $video_id,
+                'skipped',
+                "Video was uploaded by {$source_site}, not this site",
+                // Raw title, not get_the_title(), so the log is not texturised.
+                [ 'post_id' => $post_id, 'title' => (string) get_post_field('post_title', $post_id), 'trigger' => 'VideoModule::cleanup_video_on_post_delete' ]
+            );
             return;
         }
 
