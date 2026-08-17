@@ -66,3 +66,49 @@ function remove_usage_analytics(): void {
 }
 
 add_action( 'admin_init', __NAMESPACE__ . '\remove_usage_analytics' );
+
+/**
+ * Restore the 900MB video upload cap on sites that drifted back to 500MB.
+ *
+ * The upload limit was raised from 500MB to 900MB, but the consolidated
+ * settings schema kept declaring 500 while the video module declared 900. The
+ * settings bridge maps max_file_size_mb between the two, so on any site that
+ * saved the settings screen the stale 500 was written through to
+ * hkfn_module_video_settings, which is the value that actually governs
+ * uploads. Nothing in the interface showed that it had changed.
+ *
+ * A site sitting on exactly 500 is therefore almost certainly drifted rather
+ * than deliberately configured, since 500 stopped being the intended default
+ * before this could have been chosen on purpose. This restores 900 once.
+ *
+ * Anyone who genuinely wants 500 can set it on Settings → Video, and this will
+ * not run again.
+ */
+function restore_video_upload_cap(): void {
+	if ( get_option( 'hkfn_video_cap_repaired' ) ) {
+		return;
+	}
+
+	// Mark first: a failure here must not retry on every admin request.
+	update_option( 'hkfn_video_cap_repaired', 1, false );
+
+	$stale    = 500;
+	$intended = 900;
+
+	$module = get_option( 'hkfn_module_video_settings', [] );
+
+	if ( is_array( $module ) && isset( $module['max_file_size_mb'] ) && (int) $module['max_file_size_mb'] === $stale ) {
+		$module['max_file_size_mb'] = $intended;
+		update_option( 'hkfn_module_video_settings', $module );
+	}
+
+	// Keep the settings screen in step so it does not write the stale value back.
+	$consolidated = get_option( 'hkfn_settings', [] );
+
+	if ( is_array( $consolidated ) && isset( $consolidated['max_file_size_mb'] ) && (int) $consolidated['max_file_size_mb'] === $stale ) {
+		$consolidated['max_file_size_mb'] = $intended;
+		update_option( 'hkfn_settings', $consolidated, false );
+	}
+}
+
+add_action( 'admin_init', __NAMESPACE__ . '\restore_video_upload_cap' );

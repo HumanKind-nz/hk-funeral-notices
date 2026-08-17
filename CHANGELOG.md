@@ -30,7 +30,15 @@ define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
 
 Existing sites using the older `WFN_VIDEO_LIBRARY_ID` and `WFN_VIDEO_API_KEY` names keep working, as do the `BUNNYSTREAM_` variants. If you cannot edit `wp-config.php`, the same values can be set as the `hkfn_bunny_library_id` and `hkfn_bunny_api_key` options via WP-CLI. There is deliberately no admin field for them, so keys stay out of the database and out of site exports.
 
-The **Video Slideshows** screen, under Funeral Notices, is unchanged and still controls upload limits and encoding: maximum file size, duration, allowed formats, quality and thumbnails.
+### Added: a Video tab on the settings screen
+
+The video settings had no reachable home. The module registered its page under a menu that does not exist, because the funeral notice post type is registered with `show_in_menu => 'hk-funeral-notices'`, so the page existed but never appeared anywhere. The React settings screen had replaced the other module pages but not this one, which left the upload limit unreachable.
+
+Settings now has a **Video** tab covering maximum file size, quality preset, thumbnails and upload progress. It also reports whether Bunny credentials resolved, and names the missing ones if not, which answers the question people actually have when video is not appearing.
+
+### Fixed: sites whose upload cap had already drifted to 500MB
+
+Because of the default mismatch described above, sites that saved the settings screen wrote 500 through to the value that governs uploads. Updating to 3.1.0 restores 900MB once on any site sitting on exactly 500. It runs a single time, so choosing 500 deliberately on the new Video tab sticks.
 
 `HKFN_BYPASS_LICENSE` no longer switches video on. It existed to fake a valid licence during testing, which was a question of permission. Whether video works is now a question of fact: either Bunny credentials are present or they are not, and no constant can conjure them. Honouring it would show an upload field on a site that cannot upload, then fail with a confusing error. Sites with the constant set and real credentials are unaffected.
 

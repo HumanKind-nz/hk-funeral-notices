@@ -16,6 +16,7 @@ import GeneralTab from './GeneralTab';
 import LayoutsTab from './LayoutsTab';
 import SearchTab from './SearchTab';
 import StylingTab from './StylingTab';
+import VideoTab from './VideoTab';
 import AboutTab from './AboutTab';
 
 const TABS = [
@@ -23,6 +24,7 @@ const TABS = [
 	{ name: 'layouts', title: __( 'Layouts', 'hk-funeral-notices' ) },
 	{ name: 'search', title: __( 'Search', 'hk-funeral-notices' ) },
 	{ name: 'styling', title: __( 'Styling', 'hk-funeral-notices' ) },
+	{ name: 'video', title: __( 'Video', 'hk-funeral-notices' ) },
 	{ name: 'about', title: __( 'About', 'hk-funeral-notices' ) },
 ];
 
@@ -81,6 +83,8 @@ export default function SettingsApp() {
 							return <SearchTab { ...tabProps } />;
 						case 'styling':
 							return <StylingTab { ...tabProps } />;
+						case 'video':
+							return <VideoTab { ...tabProps } />;
 						case 'about':
 							return <AboutTab />;
 						default:

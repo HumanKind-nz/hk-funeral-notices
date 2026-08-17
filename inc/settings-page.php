@@ -141,8 +141,16 @@ function enqueue_settings_assets( string $hook ): void {
 		'hkfnPlugin',
 		[
 			'version' => HKFN_VERSION,
-			// Bundled HumanKind mark — the CDN updater icon is the Weave logo.
+			// Bundled HumanKind mark, the CDN updater icon is the Weave logo.
 			'iconUrl' => HKFN_PLUGIN_URL . 'assets/images/icon-256x256.png',
+			// Whether Bunny credentials resolved. Read-only: credentials are
+			// set in wp-config, never through this screen, so keys stay out of
+			// the database and out of site exports.
+			'video'   => [
+				'configured' => \HumanKind\FuneralNotices\Services\LicenseService::isVideoConfigured(),
+				'missing'    => \HumanKind\FuneralNotices\Services\LicenseService::getMissingVideoConfig(),
+				'libraryId'  => \HumanKind\FuneralNotices\Services\LicenseService::getVideoLibraryId(),
+			],
 		]
 	);
 }
