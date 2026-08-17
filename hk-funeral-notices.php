@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       HumanKind Funeral Notices
  * Plugin URI:        https://humankindwebsites.com/plugins/funeral-notices/
- * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and comprehensive styling controls for funeral homes. Premium video streaming features available.
- * Version:           3.0.4
+ * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and styling controls for funeral homes. Optional video hosting via your own Bunny Stream account.
+ * Version:           3.1.0
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            Gareth Bissland | Weave Digital Studio
@@ -26,15 +26,13 @@ namespace HumanKind\FuneralNotices;
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'HKFN_VERSION', '3.0.4' );
+define( 'HKFN_VERSION', '3.1.0' );
 define( 'HKFN_PLUGIN_FILE', __FILE__ );
 define( 'HKFN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKFN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-// Hoster integration constants.
-define( 'HKFN_HOSTER_DOWNLOAD_ID', 8031 );
-define( 'HKFN_HOSTER_API_URL', 'https://humankindwebsites.com/wp-json/hoster/v1' );
-define( 'HKFN_HOSTER_REMOTE_URL', 'https://humankindwebsites.com/wp-content/plugins/hoster/inc/secure-download.php?file=json&download=8031&token=HOSTER_TOKEN_HERE' );
+// Retained only so any site snippet referencing it keeps working. Video is no
+// longer gated by a licence, see LicenseService::isVideoConfigured().
 define( 'HKFN_PREMIUM_FEATURE_VIDEO', 'video_streaming' );
 
 // Backward-compat aliases for any external code referencing old constants.
@@ -90,6 +88,7 @@ require_once HKFN_PLUGIN_DIR . 'inc/settings-page.php';
 require_once HKFN_PLUGIN_DIR . 'inc/settings-bridge.php';
 require_once HKFN_PLUGIN_DIR . 'inc/github-updater.php';
 require_once HKFN_PLUGIN_DIR . 'inc/cleanup.php';
+require_once HKFN_PLUGIN_DIR . 'inc/cli.php';
 
 // Legacy integration files — will migrate to inc/ individually in future.
 require_once HKFN_PLUGIN_DIR . 'includes/class-acf.php';
@@ -98,20 +97,6 @@ require_once HKFN_PLUGIN_DIR . 'includes/class-wpbf.php';
 require_once HKFN_PLUGIN_DIR . 'includes/class-query.php';
 require_once HKFN_PLUGIN_DIR . 'includes/class-seopress.php';
 require_once HKFN_PLUGIN_DIR . 'includes/class-acf-style.php';
-require_once HKFN_PLUGIN_DIR . 'includes/class-hoster-license.php';
-
-/**
- * Initialize license handler early so LicenseService can use it.
- */
-add_action(
-	'init',
-	function (): void {
-		if ( class_exists( 'HK_Funeral_Notices_License_Handler' ) ) {
-			\HK_Funeral_Notices_License_Handler::init();
-		}
-	},
-	1
-);
 
 /**
  * Initialize modern plugin system.

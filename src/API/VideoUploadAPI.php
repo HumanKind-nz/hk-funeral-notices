@@ -146,7 +146,7 @@ class VideoUploadAPI extends WP_REST_Controller {
         }
 
         // Verify license for video streaming
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return new WP_Error(
                 'license_required',
                 'Premium license required for video streaming feature',
@@ -501,7 +501,7 @@ class VideoUploadAPI extends WP_REST_Controller {
      */
     public function cleanup_abandoned_uploads(int $max_age_hours = 24): void {
         // PERMANENTLY DISABLED - Too dangerous for production
-        error_log('WFN: cleanup_abandoned_uploads() called but permanently disabled for safety (v2.6.4)');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: cleanup_abandoned_uploads() called but permanently disabled for safety (v2.6.4)');
         error_log('WFN: Automatic video cleanup disabled due to data loss incidents in Oct/Nov 2025');
         error_log('WFN: Use manual cleanup via admin interface if needed');
         return; // Early exit - function does nothing
@@ -575,9 +575,9 @@ class VideoUploadAPI extends WP_REST_Controller {
      */
     public function cleanup_video_on_post_delete(int $post_id): void {
         // PERMANENTLY DISABLED - Too dangerous for production
-        error_log('WFN: cleanup_video_on_post_delete() called but permanently disabled for safety (v2.6.4)');
-        error_log("WFN: Post {$post_id} is being deleted, but automatic video cleanup is disabled");
-        error_log('WFN: Users should manually delete videos before deleting posts if needed');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: cleanup_video_on_post_delete() called but permanently disabled for safety (v2.6.4)');
+        \HumanKind\FuneralNotices\Hooks\debug_log("WFN: Post {$post_id} is being deleted, but automatic video cleanup is disabled");
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: Users should manually delete videos before deleting posts if needed');
         return; // Early exit - function does nothing
     }
 

@@ -4,22 +4,36 @@ declare(strict_types=1);
 namespace HumanKind\FuneralNotices\Services;
 
 /**
- * License Service
- * Handles premium feature validation and license checking
+ * Video availability service.
+ *
+ * Video hosting used to sit behind a premium licence key checked against
+ * humankindwebsites.com. That gate never protected anything: the Bunny Stream
+ * integration has always required the site's own library ID and API key, and
+ * the site owner pays Bunny directly. There is no shared account to protect.
+ *
+ * As of 3.1.0 the feature is simply available whenever Bunny credentials are
+ * present. Set them in wp-config.php:
+ *
+ *     define('HKFN_VIDEO_LIBRARY_ID',   '...');
+ *     define('HKFN_VIDEO_API_KEY',      '...');
+ *     define('HKFN_VIDEO_CDN_HOSTNAME', '...');
+ *
+ * ...or via the Video settings screen. Constants win over stored options.
+ *
+ * The class name and the hasValidVideoLicense() method are kept as they were so
+ * any theme or snippet on an existing site keeps working.
  *
  * @package HumanKind\FuneralNotices\Services
- * @version 1.0.0
+ * @version 2.0.0
  */
 class LicenseService {
 
     private static $instance = null;
-    private $license_handler = null;
-
-    // Cache key for license status
-    private const LICENSE_STATUS_CACHE = 'hkfn_license_status_cache';
 
     /**
-     * Get singleton instance
+     * Get singleton instance.
+     *
+     * Retained for backwards compatibility — the class holds no state now.
      */
     public static function getInstance(): self {
         if (self::$instance === null) {
@@ -28,320 +42,111 @@ class LicenseService {
         return self::$instance;
     }
 
+    private function __construct() {}
+
     /**
-     * Private constructor for singleton
+     * Resolve the Bunny Stream library ID.
+     *
+     * Checks, in order: the BUNNYSTREAM_ constants (used by existing sites via
+     * wp-config or a GridPane user-config), the VIDEO_ constants, then the
+     * stored option. hkfn_get_constant() covers both HKFN_ and legacy WFN_
+     * prefixes for each name.
+     *
+     * This is the single definition of "where do credentials come from" — both
+     * the availability check and VideoModule read through it, so they cannot
+     * disagree about whether a site is set up.
      */
-    private function __construct() {
-        // Initialize license handler if available
-        if (class_exists('HK_Funeral_Notices_License_Handler')) {
-            $this->license_handler = \HK_Funeral_Notices_License_Handler::init();
-        }
+    public static function getVideoLibraryId(): string {
+        return (string) (
+            hkfn_get_constant('BUNNYSTREAM_LIBRARY_ID')
+            ?: hkfn_get_constant('VIDEO_LIBRARY_ID')
+            ?: hkfn_get_option('bunny_library_id', '')
+        );
     }
 
     /**
-     * Check if video streaming feature is licensed
+     * Resolve the Bunny Stream API key. See getVideoLibraryId() for the order.
+     */
+    public static function getVideoApiKey(): string {
+        return (string) (
+            hkfn_get_constant('BUNNYSTREAM_API_KEY')
+            ?: hkfn_get_constant('VIDEO_API_KEY')
+            ?: hkfn_get_option('bunny_api_key', '')
+        );
+    }
+
+    /**
+     * Resolve the Bunny CDN hostname. Optional — playback works without it.
+     */
+    public static function getVideoCdnHostname(): string {
+        return (string) (
+            hkfn_get_constant('BUNNYSTREAM_CDN_HOSTNAME')
+            ?: hkfn_get_constant('VIDEO_CDN_HOSTNAME')
+            ?: hkfn_get_option('bunny_cdn_hostname', '')
+        );
+    }
+
+    /**
+     * Is video hosting configured and therefore available?
      *
+     * @return bool True when a Bunny Stream library ID and API key are set.
+     */
+    public static function isVideoConfigured(): bool {
+        // HKFN_BYPASS_LICENSE is deliberately NOT honoured here. It existed to
+        // fake a valid licence during testing, which was a permission question.
+        // This is a factual one: either Bunny credentials are present or they
+        // are not, and no constant can conjure them. Honouring it would show
+        // the upload field on a site that cannot upload, failing later with a
+        // confusing error instead of saying plainly that video is not set up.
+        return self::getVideoLibraryId() !== '' && self::getVideoApiKey() !== '';
+    }
+
+    /**
+     * Which pieces of video configuration are missing?
+     *
+     * @return array List of human-readable missing field names.
+     */
+    public static function getMissingVideoConfig(): array {
+        $missing = [];
+
+        if (self::getVideoLibraryId() === '') {
+            $missing[] = 'Library ID';
+        }
+
+        if (self::getVideoApiKey() === '') {
+            $missing[] = 'API Key';
+        }
+
+        return $missing;
+    }
+
+    /**
+     * Message shown when video is used but not configured.
+     *
+     * @return string
+     */
+    public static function getVideoNotConfiguredMessage(): string {
+        return 'Video hosting is not configured. Define HKFN_VIDEO_LIBRARY_ID and HKFN_VIDEO_API_KEY in wp-config.php with your own Bunny Stream credentials.';
+    }
+
+    /**
+     * Whether video streaming is available.
+     *
+     * @deprecated 3.1.0 Use isVideoConfigured(). Kept so existing site code keeps working.
      * @return bool
      */
     public static function hasValidVideoLicense(): bool {
-        return self::getInstance()->checkFeatureLicense(HKFN_PREMIUM_FEATURE_VIDEO);
+        return self::isVideoConfigured();
     }
 
     /**
-     * Check if a specific premium feature is licensed
+     * Message shown when video is unavailable.
      *
-     * @param string $feature Feature identifier
-     * @return bool
-     */
-    public function checkFeatureLicense(string $feature): bool {
-
-        // Testing bypass — same constant VideoModule honours (HKFN_ or legacy WFN_ name)
-        if (hkfn_get_constant('BYPASS_LICENSE')) {
-            return true;
-        }
-
-        // For now, we only have video streaming as premium feature
-        if ($feature !== HKFN_PREMIUM_FEATURE_VIDEO) {
-            return true; // Non-premium features are always available
-        }
-
-        // Get stored license key
-        $license_key = hkfn_get_option('license_key', '');
-        if (empty($license_key)) {
-            return false;
-        }
-
-        // Check cached status first
-        $cached_status = get_transient(self::LICENSE_STATUS_CACHE . '_' . md5($license_key));
-        if ($cached_status !== false) {
-            return $cached_status['valid'] ?? false;
-        }
-
-        // If no license handler is available, fallback to stored license status
-        if ($this->license_handler === null) {
-            $license_status = hkfn_get_option('license_status', []);
-            return ($license_status['valid'] ?? false) === true;
-        }
-
-        // Check license with API
-        $response = $this->license_handler->check_license($license_key);
-
-        $is_valid = false;
-        if ($response && isset($response['success']) && $response['success'] === true) {
-            $is_valid = isset($response['status']) && $response['status'] === 'active';
-        }
-
-        // Cache the result
-        set_transient(
-            self::LICENSE_STATUS_CACHE . '_' . md5($license_key),
-            ['valid' => $is_valid],
-            4 * HOUR_IN_SECONDS
-        );
-
-        return $is_valid;
-    }
-
-    /**
-     * Get license status information
-     *
-     * @return array
-     */
-    public function getLicenseStatus(): array {
-
-        $license_key = hkfn_get_option('license_key', '');
-
-        if (empty($license_key)) {
-            return [
-                'status' => 'inactive',
-                'message' => 'No license key entered',
-                'type' => 'error'
-            ];
-        }
-
-        if ($this->license_handler === null) {
-            return [
-                'status' => 'error',
-                'message' => 'License system unavailable',
-                'type' => 'error'
-            ];
-        }
-
-        // Force fresh check for status display
-        $response = $this->license_handler->check_license($license_key, null, true);
-
-        if (!$response) {
-            return [
-                'status' => 'error',
-                'message' => 'Unable to verify license',
-                'type' => 'error'
-            ];
-        }
-
-        if (isset($response['success']) && $response['success'] === true) {
-            if (isset($response['status']) && $response['status'] === 'active') {
-                return [
-                    'status' => 'active',
-                    'message' => 'License is active and valid',
-                    'type' => 'success',
-                    'license_data' => $response
-                ];
-            } else {
-                // License is invalid/expired - clean up stored data
-                if ($this->license_handler !== null) {
-                    $this->license_handler->cleanup_invalid_license();
-                }
-                return [
-                    'status' => 'invalid',
-                    'message' => $response['message'] ?? 'License is not valid',
-                    'type' => 'error'
-                ];
-            }
-        } else {
-            // License verification failed - clean up stored data
-            if ($this->license_handler !== null) {
-                $this->license_handler->cleanup_invalid_license();
-            }
-            return [
-                'status' => 'invalid',
-                'message' => $response['message'] ?? 'License verification failed',
-                'type' => 'error'
-            ];
-        }
-    }
-
-    /**
-     * Activate a license key
-     *
-     * @param string $license_key
-     * @return array
-     */
-    public function activateLicense(string $license_key): array {
-        if ($this->license_handler === null) {
-            return [
-                'success' => false,
-                'message' => 'License system unavailable'
-            ];
-        }
-
-        // Clean and store the license key
-        $license_key = sanitize_text_field(trim($license_key));
-
-        if (empty($license_key)) {
-            return [
-                'success' => false,
-                'message' => 'Please enter a valid license key'
-            ];
-        }
-
-        // Attempt activation
-        $response = $this->license_handler->activate_license($license_key);
-
-        if ($response && isset($response['success']) && $response['success'] === true) {
-            // Store the license key
-            update_option('hkfn_license_key', $license_key);
-
-            // Update license status to active
-            update_option('hkfn_license_status', [
-                'valid' => true,
-                'features' => ['video_hosting'],
-                'expires' => $response['expires'] ?? '',
-                'message' => 'License activated successfully',
-                'license_type' => 'premium',
-                'site_limit' => $response['site_limit'] ?? 'Unlimited',
-                'customer_name' => $response['customer_name'] ?? '',
-                'last_check' => current_time('mysql'),
-                'validated_at' => current_time('mysql')
-            ]);
-
-            // Clear license cache
-            $this->clearLicenseCache();
-
-            return [
-                'success' => true,
-                'message' => 'License activated successfully'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => $response['message'] ?? 'License activation failed'
-            ];
-        }
-    }
-
-    /**
-     * Deactivate the current license
-     *
-     * @return array
-     */
-    public function deactivateLicense(): array {
-        if ($this->license_handler === null) {
-            return [
-                'success' => false,
-                'message' => 'License system unavailable'
-            ];
-        }
-
-        $license_key = hkfn_get_option('license_key', '');
-
-        if (empty($license_key)) {
-            return [
-                'success' => false,
-                'message' => 'No license key to deactivate'
-            ];
-        }
-
-        // Attempt deactivation
-        $response = $this->license_handler->deactivate_license($license_key);
-
-        // Remove the license key regardless of API response
-        delete_option('hkfn_license_key');
-
-        // Update license status to invalid
-        update_option('hkfn_license_status', [
-            'valid' => false,
-            'features' => [],
-            'expires' => '',
-            'message' => 'License deactivated',
-            'license_type' => '',
-            'site_limit' => '',
-            'customer_name' => '',
-            'last_check' => current_time('mysql'),
-            'validated_at' => ''
-        ]);
-
-        // Clear license cache
-        $this->clearLicenseCache();
-
-        if ($response && isset($response['success']) && $response['success'] === true) {
-            return [
-                'success' => true,
-                'message' => 'License deactivated successfully'
-            ];
-        } else {
-            return [
-                'success' => true, // Still successful locally even if API fails
-                'message' => 'License removed locally' . (isset($response['message']) ? ' (' . $response['message'] . ')' : '')
-            ];
-        }
-    }
-
-    /**
-     * Get premium feature availability status
-     *
-     * @return array
-     */
-    public function getPremiumFeatureStatus(): array {
-        return [
-            'video_streaming' => [
-                'available' => $this->checkFeatureLicense(HKFN_PREMIUM_FEATURE_VIDEO),
-                'name' => 'Video Streaming',
-                'description' => 'Upload and display video slideshows using BunnyStream'
-            ]
-        ];
-    }
-
-    /**
-     * Clear all license-related caches
-     */
-    public function clearLicenseCache(): void {
-        global $wpdb;
-
-        // Clear license status cache
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-                '_transient_' . self::LICENSE_STATUS_CACHE . '%',
-                '_transient_timeout_' . self::LICENSE_STATUS_CACHE . '%'
-            )
-        );
-
-        // Clear license handler cache if available
-        if ($this->license_handler && method_exists($this->license_handler, 'clear_cache')) {
-            $this->license_handler->clear_cache();
-        }
-    }
-
-    /**
-     * Get the stored license key
-     *
-     * @return string
-     */
-    public function getLicenseKey(): string {
-        return hkfn_get_option('license_key', '');
-    }
-
-    /**
-     * Get user-friendly error message for unlicensed feature access
-     *
-     * @param string $feature
+     * @deprecated 3.1.0 Use getVideoNotConfiguredMessage().
+     * @param string $feature Unused, retained for signature compatibility.
      * @return string
      */
     public static function getFeatureRequiresLicenseMessage(string $feature = 'video_streaming'): string {
-        switch ($feature) {
-            case 'video_streaming':
-                return 'Video streaming features require a premium license. Please contact your administrator to activate this feature.';
-            default:
-                return 'This premium feature requires a valid license.';
-        }
+        return self::getVideoNotConfiguredMessage();
     }
 }

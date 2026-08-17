@@ -539,7 +539,7 @@ class AdminColumns {
      */
     private function has_video_license(): bool {
         if (class_exists('HumanKind\FuneralNotices\Services\LicenseService')) {
-            return \HumanKind\FuneralNotices\Services\LicenseService::hasValidVideoLicense();
+            return \HumanKind\FuneralNotices\Services\LicenseService::isVideoConfigured();
         }
         return false;
     }

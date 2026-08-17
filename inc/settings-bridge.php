@@ -5,17 +5,15 @@
  * The React settings app reads and writes one consolidated option
  * (hkfn_settings, see settings-page.php) but the plugin runtime reads
  * per-module options: the hkfn_module_settings aggregate (SettingsModule)
- * plus hkfn_module_{id}_settings for layouts, search, styling, and video,
- * and the standalone hkfn_license_key managed by LicenseService.
+ * plus hkfn_module_{id}_settings for layouts, search, styling, and video.
  *
  * This bridge keeps the two in sync in both directions:
  *
  * - Seed: a one-off, version-flagged copy of the current runtime values
  *   into hkfn_settings so the React UI reflects what the site actually
- *   uses (upgraded sites otherwise show defaults and an empty licence).
+ *   uses (upgraded sites otherwise show defaults).
  * - Write-back: whenever hkfn_settings is saved, changed keys fan out to
- *   the module options the runtime reads. A changed licence key triggers
- *   real activation through LicenseService.
+ *   the module options the runtime reads.
  *
  * @package HumanKind\FuneralNotices
  */
@@ -23,8 +21,6 @@
 declare( strict_types=1 );
 
 namespace HumanKind\FuneralNotices\SettingsBridge;
-
-use HumanKind\FuneralNotices\Services\LicenseService;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +31,6 @@ const SEEDED_FLAG = 'hkfn_settings_seeded';
 
 /**
  * Map of runtime destination option => consolidated keys stored in it.
- *
- * license_key is handled separately (standalone option via LicenseService).
  *
  * @return array<string, string[]>
  */
@@ -158,11 +152,6 @@ function maybe_seed(): void {
 		}
 	}
 
-	$license_key = hkfn_get_option( 'license_key', '' );
-	if ( is_string( $license_key ) && $license_key !== '' ) {
-		$seeded['license_key'] = $license_key;
-	}
-
 	suppress_write_back( true );
 	update_option( 'hkfn_settings', $seeded, false );
 	suppress_write_back( false );
@@ -201,40 +190,9 @@ function write_back( $old_value, $new_value ): void {
 			update_option( $option, array_merge( read_destination( $option ), $changed ) );
 		}
 	}
-
-	sync_license_key( $old_value, $new_value );
 }
 add_action( 'update_option_hkfn_settings', __NAMESPACE__ . '\write_back', 10, 2 );
 add_action( 'add_option_hkfn_settings', function ( $option, $value ): void {
 	write_back( [], $value );
 }, 10, 2 );
 
-/**
- * Activate a licence key changed through the settings screen.
- *
- * An emptied field is ignored on purpose: nothing consumed this value
- * before v3.0.3, so an empty field is far more likely a stale UI state
- * than a deliberate deactivation. Deactivation stays in LicenseService.
- *
- * @param array $old_value Previous consolidated value.
- * @param array $new_value New consolidated value.
- */
-function sync_license_key( array $old_value, array $new_value ): void {
-	$new_key = isset( $new_value['license_key'] ) ? sanitize_text_field( trim( (string) $new_value['license_key'] ) ) : '';
-	$old_key = isset( $old_value['license_key'] ) ? sanitize_text_field( trim( (string) $old_value['license_key'] ) ) : '';
-
-	if ( $new_key === '' || $new_key === $old_key ) {
-		return;
-	}
-	if ( $new_key === hkfn_get_option( 'license_key', '' ) ) {
-		return;
-	}
-
-	$result = LicenseService::getInstance()->activateLicense( $new_key );
-	if ( empty( $result['success'] ) ) {
-		error_log(
-			'HKFN Settings: licence activation failed for key entered on settings screen - '
-			. ( $result['message'] ?? 'unknown error' )
-		);
-	}
-}

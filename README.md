@@ -19,22 +19,98 @@ Built by [Weave Digital Studio](https://weave.co.nz) and [HumanKind Funeral Webs
 
 ---
 
-## Free and premium
+## Features
 
-Core features are free to use. Premium features need a licence key and cover ongoing cloud hosting and bandwidth.
+Everything in the plugin is available to everyone. There is no licence key.
 
-**Free**
 - Funeral notice publishing
 - Livestream and tribute links
 - Layout and styling controls
 - Search and filters
 - Default venue setting
+- Memorial video slideshows, hosted on your own Bunny Stream account
 
-**Premium**
-- Cloud-hosted memorial video slideshows
-- Secure streaming with automatic optimisation
+---
 
-To purchase or manage a licence, contact [humankindwebsites.com](https://humankindwebsites.com) or [weave.co.nz](https://weave.co.nz).
+## Video hosting setup
+
+Memorial videos are hosted on [Bunny Stream](https://bunny.net/stream/). You use your own Bunny account, so you control the library and pay Bunny directly for storage and bandwidth. The plugin does not proxy video through us and there is nothing to activate.
+
+1. Create a Bunny Stream video library in the [Bunny dashboard](https://dash.bunny.net/stream).
+2. Copy the **Library ID**, an **API key** with access to it, and the library's **CDN hostname** (the `*.b-cdn.net` pull zone).
+3. Add them to `wp-config.php`:
+
+```php
+define('HKFN_VIDEO_LIBRARY_ID',   'your-library-id');
+define('HKFN_VIDEO_API_KEY',      'your-api-key');
+define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
+```
+
+The video upload field appears on funeral notices as soon as a library ID and API key are present.
+
+Credentials are deliberately not editable in the admin, so keys stay out of the database and out of anything exported with a site. If you cannot edit `wp-config.php`, set them as options instead:
+
+```bash
+wp option update hkfn_bunny_library_id "your-library-id"
+wp option update hkfn_bunny_api_key "your-api-key"
+wp option update hkfn_bunny_cdn_hostname "your-zone.b-cdn.net"
+```
+
+Credentials are resolved in this order, so existing installations keep working without changes:
+
+1. `HKFN_BUNNYSTREAM_LIBRARY_ID` / `HKFN_BUNNYSTREAM_API_KEY` (also accepted with the older `WFN_` prefix)
+2. `HKFN_VIDEO_LIBRARY_ID` / `HKFN_VIDEO_API_KEY` (also accepted with `WFN_`)
+3. The `hkfn_bunny_*` options above
+
+**Settings → Video** covers everything else: it confirms whether the credentials were found, and controls the upload limit, quality preset and thumbnails.
+
+Uploads are capped at 900MB by default and typically take up to 10 minutes to encode. The cap can be set anywhere from 50MB to 2000MB.
+
+### What deletes a video, and what never does
+
+Videos are stored in your Bunny library, not ours, so it matters that you can predict what the plugin will and will not remove.
+
+**A video is deleted only when:**
+
+- You delete it yourself from the funeral notice editor
+- A funeral notice is **permanently** deleted (moving one to trash does nothing)
+- You replace an existing video on a notice with a new one
+
+**Nothing else prunes.** There is no scheduled cleanup, no retention policy, and no orphan sweeper. An earlier version had automatic cleanup and it deleted an entire library on 20 October 2025, so it was removed rather than fixed. If a video stops being referenced it simply stays in Bunny until you remove it by hand.
+
+**Before any deletion**, the plugin checks the video's Bunny collection against this site's collection. If they do not match, if the video has no collection, if the site has no collection, or if the Bunny API cannot be reached to check, the deletion is refused. Ownership has to be proven, not assumed. This is what stops one site in a multi-site estate from deleting another's videos, and what stops a network blip during a bulk delete from wiping anything.
+
+The plugin is quiet in normal use. It does not write to the log on every page load or every save. Deletion attempts are recorded to the database, and only deletion attempts, so there is something to report against later:
+
+```bash
+wp hkfn video log                  # everything, newest first
+wp hkfn video log --outcome=deleted
+wp hkfn video log --format=csv > deletions.csv
+```
+
+Set `WP_DEBUG` if you want the verbose developer trace as well.
+
+### Finding videos to prune
+
+```bash
+wp hkfn video reconcile            # read-only, deletes nothing
+wp hkfn video reconcile --show=all
+```
+
+`reconcile` reports **orphaned** (in Bunny, nothing points at it), **missing** (a notice points at a video that is gone, worth checking the log for), and **matched**. It never deletes anything. Pruning is a deliberate manual step in the Bunny dashboard.
+
+**One Bunny library can be shared by many sites**, each in its own collection. `reconcile` is therefore scoped to this site's own collection by default, and if the site has no collection it refuses to run rather than guess. Anything outside your collection belongs to someone else, and treating a whole-library listing as a prune list is how you delete another site's videos. `--scope=library` exists for inspection and warns loudly.
+
+For a fleet-wide prune you need every site's references before you can judge any single video. Export each site's inventory, then compare the union against the library:
+
+```bash
+# one file per site
+for d in $(ls /var/www); do
+  wp --path="/var/www/$d/htdocs" hkfn video inventory --allow-root > "/tmp/inv-$d.json" 2>/dev/null
+done
+```
+
+Each file records the site URL, its Bunny collection, and the video IDs it references. Any video in the library that appears in no inventory, or sits in a collection whose site no longer exists, is a genuine candidate for removal.
 
 ---
 
@@ -71,7 +147,7 @@ Full shortcode options and filters are in the [Developer Documentation](./DEVELO
 ## Compatibility
 
 - Works with the HumanKind Funeral Suite CPTs, roles, and permissions
-- Integrates with our premium cloud video hosting for memorial slideshows
+- Integrates with Bunny Stream for memorial video slideshows, using your own account
 - Uses standard WordPress post types and taxonomies, so your content stays portable
 
 ---

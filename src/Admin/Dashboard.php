@@ -370,10 +370,10 @@ class Dashboard {
 
                 <?php if (!empty($module['settings_page'])): ?>
                     <?php if ($is_grayed_out): ?>
-                        <!-- Premium module without license - show upgrade message -->
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=hkfn-module-license')); ?>"
+                        <!-- Not yet configured - send them to the module's own settings -->
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=' . $module['settings_page'])); ?>"
                            class="button button-primary hkfn-upgrade-button">
-                            Upgrade License
+                            Set Up
                         </a>
                     <?php else: ?>
                         <!-- Regular configure button -->
@@ -396,8 +396,7 @@ class Dashboard {
             'layouts' => true,
             'styling' => false,
             'search' => true,
-            'settings' => true,
-            'license' => false
+            'settings' => true
         ]);
 
         return [
@@ -457,31 +456,17 @@ class Dashboard {
                     'Archive Page Options'
                 ]
             ],
-            'license' => [
-                'name' => 'Premium License',
-                'description' => 'Manage premium license for advanced features like memorial video slideshows.',
-                'icon' => 'dashicons-admin-network',
-                'icon_color' => '#e74c3c',
-                'enabled' => true, // Always enabled, no toggle
-                'settings_page' => 'hkfn-module-license',
-                'no_toggle' => true, // Don't show toggle switch
-                'features' => [
-                    'Video Slideshow Upload',
-                    'Professional CDN Hosting',
-                    'Modal Video Player',
-                    'Advanced Media Management'
-                ]
-            ],
             'video' => [
                 'name' => 'Video Slideshows',
-                'description' => 'Upload and manage memorial video slideshows with professional hosting.',
+                'description' => 'Upload and manage memorial video slideshows. Requires your own Bunny Stream library ID and API key.',
                 'icon' => 'dashicons-video-alt3',
                 'icon_color' => '#9b59b6',
-                'enabled' => true, // Always enabled when license is valid (no toggle)
+                'enabled' => true, // Always enabled when configured (no toggle)
                 'settings_page' => 'hkfn-module-video',
+                // Greys the card out until Bunny credentials are present.
                 'premium_required' => true,
                 'no_toggle' => true, // Don't show toggle switch
-                'license_valid' => LicenseService::hasValidVideoLicense(),
+                'license_valid' => LicenseService::isVideoConfigured(),
                 'features' => [
                     'Video Upload & Validation',
                     'Modal Video Players',

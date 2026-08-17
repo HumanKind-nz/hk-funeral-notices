@@ -44,10 +44,11 @@ class BunnyStreamService {
      * @param string $cdn_hostname CDN hostname for video delivery
      */
     public function __construct(string $library_id = '', string $api_key = '', string $cdn_hostname = '') {
-        // Use provided credentials or get from constants/options (constants take precedence)
-        $this->library_id = $library_id ?: (hkfn_get_constant('VIDEO_LIBRARY_ID') ?: hkfn_get_option('bunny_library_id', ''));
-        $this->api_key = $api_key ?: (hkfn_get_constant('VIDEO_API_KEY') ?: hkfn_get_option('bunny_api_key', ''));
-        $this->cdn_hostname = $cdn_hostname ?: (hkfn_get_constant('VIDEO_CDN_HOSTNAME') ?: hkfn_get_option('bunny_cdn_hostname', ''));
+        // Use provided credentials, else resolve them the one canonical way
+        // (see LicenseService: BUNNYSTREAM_ constants, then VIDEO_, then options).
+        $this->library_id = $library_id ?: LicenseService::getVideoLibraryId();
+        $this->api_key = $api_key ?: LicenseService::getVideoApiKey();
+        $this->cdn_hostname = $cdn_hostname ?: LicenseService::getVideoCdnHostname();
 
         // Log configuration for debugging
         if ((bool) hkfn_get_constant('DEBUG')) {
@@ -315,7 +316,18 @@ class BunnyStreamService {
                 return "API Error ({$http_code}): " . $data['error'];
             }
             if (isset($data['errors']) && is_array($data['errors'])) {
-                return "API Error ({$http_code}): " . implode(', ', $data['errors']);
+                // Bunny returns errors as a map of field => array of messages,
+                // so flatten before joining rather than imploding nested arrays.
+                $messages = [];
+                array_walk_recursive($data['errors'], static function ($value) use (&$messages) {
+                    if (is_scalar($value)) {
+                        $messages[] = (string) $value;
+                    }
+                });
+
+                if ($messages) {
+                    return "API Error ({$http_code}): " . implode(', ', $messages);
+                }
             }
         }
 
@@ -420,7 +432,7 @@ class BunnyStreamService {
      * @return bool
      */
     public function is_licensed(): bool {
-        return LicenseService::hasValidVideoLicense();
+        return LicenseService::isVideoConfigured();
     }
 
     /**
@@ -463,7 +475,7 @@ class BunnyStreamService {
      */
     public function upload_video(string $file_path, array $metadata = []): array {
         // Check license first
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return [
                 'success' => false,
                 'message' => LicenseService::getFeatureRequiresLicenseMessage('video_streaming'),
@@ -804,6 +816,11 @@ class BunnyStreamService {
                     get_site_url()
                 ));
 
+                VideoAuditLog::record($video_id, 'blocked', 'No collection assigned, ownership could not be verified', [
+                    'error_code' => 'NO_COLLECTION',
+                    'title' => $video_info['title'] ?? '',
+                ]);
+
                 return [
                     'success' => false,
                     'message' => 'Cannot delete video - no collection assigned. Ownership cannot be verified. Contact support if this is your video.',
@@ -823,6 +840,11 @@ class BunnyStreamService {
                     $site_collection
                 ));
 
+                VideoAuditLog::record($video_id, 'blocked', 'Video belongs to a different site collection', [
+                    'error_code' => 'COLLECTION_MISMATCH',
+                    'title' => $video_info['title'] ?? '',
+                ]);
+
                 return [
                     'success' => false,
                     'message' => 'Cannot delete video - belongs to different site',
@@ -840,6 +862,11 @@ class BunnyStreamService {
                     get_site_url(),
                     $video_id
                 ));
+
+                VideoAuditLog::record($video_id, 'blocked', 'This site has no collection configured, ownership could not be verified', [
+                    'error_code' => 'SITE_NO_COLLECTION',
+                    'title' => $video_info['title'] ?? '',
+                ]);
 
                 return [
                     'success' => false,
@@ -864,8 +891,27 @@ class BunnyStreamService {
                 ];
             }
 
-            // API error during validation - log error but allow deletion
-            error_log("WARNING: Could not validate collection ownership for video {$video_id} - proceeding with deletion. Error: " . ($video_info['message'] ?? 'Unknown'));
+            // API error during validation. Fail closed: if ownership cannot be
+            // verified we do not delete. A transient Bunny outage during a bulk
+            // post deletion would otherwise bypass all three checks above, which
+            // is the shape of the 2025-10-20 incident. An orphaned video costs
+            // pennies; a deleted tribute cannot be recovered.
+            error_log(sprintf(
+                'WFN SECURITY: Blocked deletion of video %s - could not verify ownership. Error: %s',
+                $video_id,
+                $video_info['message'] ?? 'Unknown'
+            ));
+
+            VideoAuditLog::record($video_id, 'blocked', 'Ownership check failed (Bunny API error), refused rather than risk deleting someone else\'s video', [
+                'error_code' => 'VALIDATION_UNAVAILABLE',
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Cannot delete video - ownership could not be verified. Try again later.',
+                'error_code' => 'VALIDATION_UNAVAILABLE',
+                'video_id' => $video_id,
+            ];
         }
 
         // Validation passed or backward compat - proceed with deletion
@@ -876,6 +922,8 @@ class BunnyStreamService {
             // Handle specific error cases
             if ($response['error_code'] === 'NOT_FOUND') {
                 // Video already deleted or doesn't exist
+                VideoAuditLog::record($video_id, 'already_gone', 'Video was already deleted or does not exist');
+
                 return [
                     'success' => true,
                     'message' => 'Video was already deleted or does not exist',
@@ -883,6 +931,11 @@ class BunnyStreamService {
                     'already_deleted' => true
                 ];
             }
+
+            VideoAuditLog::record($video_id, 'failed', 'Bunny rejected the delete request: ' . ($response['message'] ?? 'unknown'), [
+                'error_code' => 'DELETE_FAILED',
+                'title' => $video_info['title'] ?? '',
+            ]);
 
             return [
                 'success' => false,
@@ -896,6 +949,10 @@ class BunnyStreamService {
         // Log successful deletion
         $video_title = $video_info['success'] ? $video_info['title'] : 'Unknown';
         error_log("Video deleted from Bunny Stream: {$video_title} (ID: {$video_id})");
+
+        VideoAuditLog::record($video_id, 'deleted', 'Deleted from Bunny Stream', [
+            'title' => $video_title,
+        ]);
 
         return [
             'success' => true,
@@ -1024,7 +1081,7 @@ class BunnyStreamService {
      */
     public function get_playback_url(string $video_id): string {
         // Check license first
-        if (!LicenseService::hasValidVideoLicense()) {
+        if (!LicenseService::isVideoConfigured()) {
             return '';
         }
 
@@ -2075,7 +2132,7 @@ class BunnyStreamService {
      * @return string|null Collection ID for current site, or null if not found
      * @since 2.6.5
      */
-    private function get_site_collection_id(): ?string {
+    public function get_site_collection_id(): ?string {
         $collections = $this->get_site_collections();
 
         if (!$collections['success']) {

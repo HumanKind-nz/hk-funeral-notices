@@ -167,36 +167,23 @@ class VideoModule extends BaseModule {
      * define('HKFN_VIDEO_API_KEY', 'your_api_key');
      */
     private function get_bunny_credentials(): array {
-        // Check new names first, then legacy names; each also falls back
-        // to the WFN_-prefixed v2.x constant via hkfn_get_constant().
-        $library_id = hkfn_get_constant('BUNNYSTREAM_LIBRARY_ID') ?: hkfn_get_constant('VIDEO_LIBRARY_ID') ?: '';
-        $api_key = hkfn_get_constant('BUNNYSTREAM_API_KEY') ?: hkfn_get_constant('VIDEO_API_KEY') ?: '';
-
+        // Resolution order lives in LicenseService so the availability check and
+        // the service that actually talks to Bunny cannot disagree.
         return [
-            'library_id' => $library_id,
-            'api_key' => $api_key,
-            'cdn_hostname' => '' // Not needed for basic video hosting
+            'library_id' => \HumanKind\FuneralNotices\Services\LicenseService::getVideoLibraryId(),
+            'api_key' => \HumanKind\FuneralNotices\Services\LicenseService::getVideoApiKey(),
+            'cdn_hostname' => \HumanKind\FuneralNotices\Services\LicenseService::getVideoCdnHostname(),
         ];
     }
 
     /**
-     * Check if premium license is active
+     * Check whether video hosting is configured and therefore available.
+     *
+     * Was a licence check against humankindwebsites.com until 3.1.0. Video now
+     * simply works once the site's own Bunny Stream credentials are present.
      */
     private function has_premium_license(): bool {
-        // For testing purposes, allow temporary bypass with constant
-        if (hkfn_get_constant('BYPASS_LICENSE')) {
-            return true;
-        }
-
-        $license_status = hkfn_get_option('license_status', [
-            'valid' => false,
-            'features' => [],
-            'expires' => '',
-            'message' => 'No license key entered',
-            'last_check' => ''
-        ]);
-
-        return $license_status['valid'] && in_array('video_hosting', $license_status['features'] ?? []);
+        return \HumanKind\FuneralNotices\Services\LicenseService::isVideoConfigured();
     }
 
     /**
@@ -887,21 +874,24 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         ?>
         <div class="hkfn-license-required">
             <div class="hkfn-notice hkfn-notice-warning">
-                <h3>Premium License Required</h3>
-                <p>The Memorial Video feature requires an active premium license to enable video hosting and management capabilities.</p>
+                <h3>Video Hosting Not Set Up</h3>
+                <p>Memorial videos are hosted on Bunny Stream using your own account, billed to you by Bunny. Create a video library in the Bunny dashboard, then add its credentials to <code>wp-config.php</code>:</p>
+
+                <p><code>define('HKFN_VIDEO_LIBRARY_ID', 'your-library-id');</code><br>
+                   <code>define('HKFN_VIDEO_API_KEY', 'your-api-key');</code><br>
+                   <code>define('HKFN_VIDEO_CDN_HOSTNAME', 'your-zone.b-cdn.net');</code></p>
+
+                <p>The upload field appears on funeral notices as soon as a library ID and API key are present. There is no licence key and nothing to activate.</p>
 
                 <div class="hkfn-license-actions">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=hkfn-module-license')); ?>" class="button button-primary">
-                        Configure License
-                    </a>
-                    <a href="https://humankindwebsites.com/pricing" target="_blank" class="button button-secondary">
-                        View Pricing Plans
+                    <a href="https://dash.bunny.net/stream" target="_blank" rel="noopener" class="button button-secondary">
+                        Open Bunny Stream
                     </a>
                 </div>
             </div>
 
             <div class="hkfn-feature-preview">
-                <h4>Premium Video Features Include:</h4>
+                <h4>Once set up you get:</h4>
                 <ul class="hkfn-feature-list">
                     <li>Professional video hosting via secure CDN</li>
                     <li>Automatic video transcoding and optimization</li>
@@ -1180,7 +1170,15 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         $current_site = get_site_url();
 
         if (!empty($source_site) && $source_site !== $current_site) {
-            error_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+            \HumanKind\FuneralNotices\Hooks\debug_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+
+            \HumanKind\FuneralNotices\Services\VideoAuditLog::record(
+                $video_id,
+                'skipped',
+                "Video was uploaded by {$source_site}, not this site",
+                // Raw title, not get_the_title(), so the log is not texturised.
+                [ 'post_id' => $post_id, 'title' => (string) get_post_field('post_title', $post_id), 'trigger' => 'VideoModule::cleanup_video_on_post_delete' ]
+            );
             return;
         }
 
@@ -1274,7 +1272,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         ];
 
         // PERMANENTLY DISABLED - Too dangerous for production
-        error_log('WFN: cleanup_orphaned_videos() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: cleanup_orphaned_videos() called but permanently disabled for safety');
         return $results;
 
         try {
@@ -1448,7 +1446,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * @return array Empty result - function disabled
      */
     public function run_maintenance(): array {
-        error_log('WFN: run_maintenance() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: run_maintenance() called but permanently disabled for safety');
 
         return [
             'started_at' => current_time('mysql'),
@@ -1683,7 +1681,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             'restUrl' => rest_url(),
             'nonce' => wp_create_nonce('wp_rest'),
             'hasLicense' => $this->has_premium_license() ? '1' : '',  // Pass as string for JS boolean check
-            'licenseUrl' => admin_url('admin.php?page=hkfn-module-license'),
+            'licenseUrl' => admin_url('admin.php?page=hkfn-module-video'),
             'settings' => [
                 'maxFileSize' => ($this->get_settings()['max_file_size_mb'] ?? 900) * 1024 * 1024, // Convert to bytes
                 'allowedFormats' => $this->get_settings()['allowed_formats'] ?? ['mp4', 'mov', 'avi', 'webm'],
@@ -2170,7 +2168,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     public function run_scheduled_maintenance(): void {
         // PERMANENTLY DISABLED - Too dangerous for automatic execution
-        error_log('WFN: run_scheduled_maintenance() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: run_scheduled_maintenance() called but permanently disabled for safety');
         error_log('WFN: Automatic video cleanup has been removed due to data loss incidents in Oct/Nov 2025');
         return;
 

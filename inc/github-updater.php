@@ -1,10 +1,19 @@
 <?php
 /**
- * GitHub release auto-updater with Hoster fallback.
+ * Plugin auto-updater.
  *
- * Hooks into the WordPress update system so updates from GitHub releases
- * appear in Dashboard → Updates with one-click install. Supports both
- * GitHub (public) and Hoster (premium token-based) update sources.
+ * Hooks into the WordPress update system so new releases appear in
+ * Dashboard → Updates with one-click install.
+ *
+ * Version checks read a small JSON manifest published as a release asset.
+ * Release assets are served by redirect rather than through the API, so they
+ * are not subject to the 60 requests/hour unauthenticated API limit. That limit
+ * is the reason the manifest is not read from api.github.com: a GridPane server
+ * hosting 90+ sites shares one outbound IP and will sit permanently over quota,
+ * which is exactly how this plugin stopped offering updates.
+ *
+ * If the manifest cannot be reached the updater falls back to the releases API,
+ * so a site with no manifest yet still gets updates.
  *
  * Uses a class because the updater maintains state (transients, version
  * info, plugin data). This is the one exception to the functions-only rule.
@@ -26,12 +35,12 @@ function init(): void {
 		return;
 	}
 
-	HK_Funeral_Notices_Updater::init( HKFN_PLUGIN_FILE, HKFN_HOSTER_REMOTE_URL );
+	HK_Funeral_Notices_Updater::init( HKFN_PLUGIN_FILE );
 }
 add_action( 'plugins_loaded', __NAMESPACE__ . '\init' );
 
 /**
- * GitHub + Hoster release updater for self-hosted plugins.
+ * Release updater for self-hosted plugins.
  */
 class HK_Funeral_Notices_Updater {
 
@@ -47,21 +56,28 @@ class HK_Funeral_Notices_Updater {
 	/** @var bool Whether the plugin is currently active. */
 	private bool $active;
 
-	/** @var object|null|false Cached GitHub API response. */
-	private $github_response = null;
-
-	/** @var object|null|false Cached Hoster API response. */
-	private $hoster_response = null;
-
-	/** @var string Hoster remote URL template. */
-	private string $hoster_remote_url;
+	/** @var object|null|false Cached update manifest. */
+	private $update_info = null;
 
 	// ── Configuration ────────────────────────────────────────────────────
 
-	/** GitHub organisation or username. */
+	/**
+	 * Update manifest.
+	 *
+	 * This is a release asset, not an API call. GitHub answers it with a plain
+	 * 302 to the asset store and no rate-limit headers, so it avoids the 60
+	 * requests/hour unauthenticated API limit that a GridPane server hosting
+	 * 90+ sites would sit permanently over on one shared IP.
+	 *
+	 * The "latest" path always resolves to the newest published release, so the
+	 * URL never changes between versions.
+	 */
+	private const MANIFEST_URL = 'https://github.com/HumanKind-nz/hk-funeral-notices/releases/latest/download/update.json';
+
+	/** GitHub organisation or username — fallback source only. */
 	private const GITHUB_USERNAME = 'HumanKind-nz';
 
-	/** GitHub repository name. */
+	/** GitHub repository name — fallback source only. */
 	private const GITHUB_REPO = 'hk-funeral-notices';
 
 	/** Plugin icon — small (128×128). Served from BunnyCDN. */
@@ -70,31 +86,32 @@ class HK_Funeral_Notices_Updater {
 	/** Plugin icon — large (256×256). Served from BunnyCDN. */
 	public const ICON_LARGE = 'https://weave-hk-github.b-cdn.net/humankind/icon-256x256.png';
 
-	/** Transient key for caching the GitHub API response. */
-	private const GITHUB_CACHE_KEY = 'hkfn_github_response';
+	/** Transient key for caching the resolved update manifest. */
+	private const CACHE_KEY = 'hkfn_update_manifest';
 
-	/** Transient key for caching the Hoster API response. */
-	private const HOSTER_CACHE_KEY = 'hkfn_hoster_response';
+	/** Hours to cache a successful response. */
+	private const CACHE_DURATION = 6;
 
-	/** Hours to cache a successful API response. */
-	private const CACHE_DURATION = 4;
-
-	/** Hours to cache an error response (prevents constant retries). */
-	private const ERROR_CACHE_DURATION = 1;
+	/**
+	 * Hours to cache an error response.
+	 *
+	 * Deliberately longer than the success cache. A short error cache makes a
+	 * failing fleet retry faster than a healthy one, which is how the previous
+	 * updater held a shared IP permanently over GitHub's rate limit.
+	 */
+	private const ERROR_CACHE_DURATION = 12;
 
 	// ── Lifecycle ────────────────────────────────────────────────────────
 
 	/**
 	 * Private constructor — use init() instead.
 	 *
-	 * @param string $file             Main plugin file path.
-	 * @param string $hoster_remote_url Hoster API URL template.
+	 * @param string $file Main plugin file path.
 	 */
-	private function __construct( string $file, string $hoster_remote_url = '' ) {
-		$this->file              = $file;
-		$this->basename          = plugin_basename( $this->file );
-		$this->active            = is_plugin_active( $this->basename );
-		$this->hoster_remote_url = $hoster_remote_url;
+	private function __construct( string $file ) {
+		$this->file     = $file;
+		$this->basename = plugin_basename( $this->file );
+		$this->active   = is_plugin_active( $this->basename );
 
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ] );
 		add_filter( 'plugins_api', [ $this, 'plugin_info' ], 20, 3 );
@@ -106,15 +123,14 @@ class HK_Funeral_Notices_Updater {
 	/**
 	 * Create (or return) the singleton instance.
 	 *
-	 * @param string $file             Main plugin file path.
-	 * @param string $hoster_remote_url Hoster API URL template.
+	 * @param string $file Main plugin file path.
 	 * @return self
 	 */
-	public static function init( string $file, string $hoster_remote_url = '' ): self {
+	public static function init( string $file ): self {
 		static $instance = null;
 
 		if ( null === $instance ) {
-			$instance = new self( $file, $hoster_remote_url );
+			$instance = new self( $file );
 		}
 
 		return $instance;
@@ -142,170 +158,156 @@ class HK_Funeral_Notices_Updater {
 	 * @return string Normalised version (e.g. "1.2.3").
 	 */
 	private function normalize_version( string $version ): string {
-		return ltrim( $version, 'v' );
+		return ltrim( $version, 'vV' );
 	}
 
 	/**
-	 * Get update information from Hoster first, GitHub as fallback.
+	 * Cache an error result so a failing check does not retry on every load.
 	 *
-	 * @return object|false Update info or false on failure.
+	 * A small random offset spreads retries out across a fleet of sites that
+	 * would otherwise all expire their cache at the same moment.
+	 */
+	private function cache_error(): void {
+		$ttl = ( self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS ) + wp_rand( 0, HOUR_IN_SECONDS );
+		set_transient( self::CACHE_KEY, [ 'status' => 'error' ], $ttl );
+	}
+
+	/**
+	 * Get update information, preferring the CDN manifest.
+	 *
+	 * @return object|false Normalised update info, or false on failure.
 	 */
 	private function get_update_info() {
-		// Try Hoster first if URL is provided.
-		if ( ! empty( $this->hoster_remote_url ) ) {
-			$hoster_info = $this->get_hoster_info();
-			if ( $hoster_info ) {
-				return $hoster_info;
-			}
+		if ( null !== $this->update_info ) {
+			return $this->update_info;
 		}
 
-		// Fallback to GitHub.
-		return $this->get_github_info();
-	}
-
-	/**
-	 * Build Hoster URL with stored token (premium) or null for freemium fallback.
-	 *
-	 * @return string|null Hoster URL with token, or null to trigger GitHub fallback.
-	 */
-	private function build_hoster_url(): ?string {
-		if ( class_exists( 'HK_Funeral_Notices_License_Handler' ) ) {
-			$license_handler = \HK_Funeral_Notices_License_Handler::init();
-			$stored_token    = $license_handler->get_stored_token();
-
-			if ( ! empty( $stored_token ) ) {
-				return str_replace( 'HOSTER_TOKEN_HERE', $stored_token, $this->hoster_remote_url );
-			}
-		}
-
-		// Freemium users get updates from GitHub (repo is public).
-		return null;
-	}
-
-	/**
-	 * Get update information from Hoster API.
-	 *
-	 * @return object|false Hoster info or false on failure.
-	 */
-	private function get_hoster_info() {
-		if ( null !== $this->hoster_response ) {
-			return $this->hoster_response;
-		}
-
-		$cached = get_transient( self::HOSTER_CACHE_KEY );
+		$cached = get_transient( self::CACHE_KEY );
 
 		if ( false !== $cached ) {
 			if ( is_array( $cached ) && isset( $cached['status'] ) && 'error' === $cached['status'] ) {
 				return false;
 			}
 
-			$this->hoster_response = $cached;
-			return $this->hoster_response;
+			$this->update_info = $cached;
+			return $this->update_info;
 		}
 
-		$hoster_url = $this->build_hoster_url();
+		$info = $this->fetch_manifest();
 
-		if ( empty( $hoster_url ) ) {
-			set_transient( self::HOSTER_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
+		if ( ! $info ) {
+			$info = $this->fetch_github_release();
+		}
+
+		if ( ! $info ) {
+			$this->cache_error();
 			return false;
 		}
 
-		$response = wp_remote_get( $hoster_url, [
+		set_transient( self::CACHE_KEY, $info, self::CACHE_DURATION * HOUR_IN_SECONDS );
+		$this->update_info = $info;
+
+		return $this->update_info;
+	}
+
+	/**
+	 * Perform a remote GET and return the decoded JSON body.
+	 *
+	 * @param string $url Request URL.
+	 * @param string $accept Accept header value.
+	 * @return object|array|null Decoded body, or null on any failure.
+	 */
+	private function get_json( string $url, string $accept = 'application/json' ) {
+		$response = wp_remote_get( $url, [
 			'timeout' => 15,
 			'headers' => [
-				'Accept'     => 'application/json',
+				'Accept'     => $accept,
 				'User-Agent' => 'HumanKind-FuneralNotices/' . HKFN_VERSION . '; ' . get_bloginfo( 'url' ),
 			],
 		] );
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			set_transient( self::HOSTER_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
-			return false;
-		}
-
-		$decoded = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( JSON_ERROR_NONE !== json_last_error() ) {
-			set_transient( self::HOSTER_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
-			return false;
-		}
-
-		set_transient( self::HOSTER_CACHE_KEY, $decoded, self::CACHE_DURATION * HOUR_IN_SECONDS );
-		$this->hoster_response = $decoded;
-
-		return $this->hoster_response;
-	}
-
-	/**
-	 * Fetch the latest release info from GitHub with transient caching.
-	 *
-	 * @return object|false Release object or false on failure.
-	 */
-	private function get_github_info() {
-		if ( null !== $this->github_response ) {
-			return $this->github_response;
-		}
-
-		$cached = get_transient( self::GITHUB_CACHE_KEY );
-
-		if ( false !== $cached ) {
-			if ( is_array( $cached ) && isset( $cached['status'] ) && 'error' === $cached['status'] ) {
-				return false;
-			}
-
-			$this->github_response = $cached;
-			return $this->github_response;
-		}
-
-		$request_uri = sprintf(
-			'https://api.github.com/repos/%s/%s/releases/latest',
-			self::GITHUB_USERNAME,
-			self::GITHUB_REPO
-		);
-
-		$response = wp_remote_get( $request_uri, [
-			'timeout' => 15,
-			'headers' => [
-				'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
-				'Accept'     => 'application/vnd.github.v3+json',
-			],
-		] );
-
 		if ( is_wp_error( $response ) ) {
-			\HumanKind\FuneralNotices\Hooks\debug_log( 'GitHub API error: ' . $response->get_error_message() );
-			set_transient( self::GITHUB_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
-			return false;
+			\HumanKind\FuneralNotices\Hooks\debug_log( 'Update check failed for ' . $url . ': ' . $response->get_error_message() );
+			return null;
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $code ) {
-			\HumanKind\FuneralNotices\Hooks\debug_log( 'GitHub API returned HTTP ' . $code );
-			set_transient( self::GITHUB_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
-			return false;
+			\HumanKind\FuneralNotices\Hooks\debug_log( 'Update check for ' . $url . ' returned HTTP ' . $code );
+			return null;
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( ! isset( $body->tag_name, $body->assets ) || empty( $body->assets ) ) {
-			\HumanKind\FuneralNotices\Hooks\debug_log( 'GitHub API response missing tag_name or assets.' );
-			set_transient( self::GITHUB_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			\HumanKind\FuneralNotices\Hooks\debug_log( 'Update check for ' . $url . ' returned invalid JSON.' );
+			return null;
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Fetch the update manifest from the CDN.
+	 *
+	 * @return object|false Normalised update info, or false on failure.
+	 */
+	private function fetch_manifest() {
+		$body = $this->get_json( self::MANIFEST_URL );
+
+		if ( ! is_object( $body ) || empty( $body->version ) || empty( $body->download_url ) ) {
 			return false;
 		}
 
-		// Use the first release asset (the zip built by GitHub Actions).
-		$body->zipball_url = $body->assets[0]->browser_download_url ?? '';
+		return (object) [
+			'version'      => $this->normalize_version( (string) $body->version ),
+			'download_url' => (string) $body->download_url,
+			'last_updated' => $body->last_updated ?? '',
+			'requires'     => $body->requires ?? '',
+			'requires_php' => $body->requires_php ?? '',
+			'tested'       => $body->tested ?? '',
+			'changelog'    => $body->sections->changelog ?? '',
+		];
+	}
 
-		if ( empty( $body->zipball_url ) ) {
-			\HumanKind\FuneralNotices\Hooks\debug_log( 'No download URL found in release assets.' );
-			set_transient( self::GITHUB_CACHE_KEY, [ 'status' => 'error' ], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS );
+	/**
+	 * Fetch the latest release from the GitHub API.
+	 *
+	 * Fallback only, used when the CDN manifest is unreachable. Subject to
+	 * GitHub's unauthenticated rate limit, which is shared across every site
+	 * on the same outbound IP.
+	 *
+	 * @return object|false Normalised update info, or false on failure.
+	 */
+	private function fetch_github_release() {
+		$url = sprintf(
+			'https://api.github.com/repos/%s/%s/releases/latest',
+			self::GITHUB_USERNAME,
+			self::GITHUB_REPO
+		);
+
+		$body = $this->get_json( $url, 'application/vnd.github.v3+json' );
+
+		if ( ! is_object( $body ) || empty( $body->tag_name ) || empty( $body->assets ) ) {
 			return false;
 		}
 
-		set_transient( self::GITHUB_CACHE_KEY, $body, self::CACHE_DURATION * HOUR_IN_SECONDS );
-		$this->github_response = $body;
+		$download_url = $body->assets[0]->browser_download_url ?? '';
 
-		return $this->github_response;
+		if ( empty( $download_url ) ) {
+			return false;
+		}
+
+		return (object) [
+			'version'      => $this->normalize_version( (string) $body->tag_name ),
+			'download_url' => (string) $download_url,
+			'last_updated' => $body->published_at ?? '',
+			'requires'     => '',
+			'requires_php' => '',
+			'tested'       => '',
+			'changelog'    => $body->body ?? '',
+		];
 	}
 
 	// ── WordPress update hooks ───────────────────────────────────────────
@@ -329,30 +331,17 @@ class HK_Funeral_Notices_Updater {
 		}
 
 		$current = $this->normalize_version( $plugin_data['Version'] );
-
-		// Handle different response formats (Hoster vs GitHub).
-		$latest       = '';
-		$download_url = '';
-
-		if ( isset( $update_info->version ) ) {
-			// Hoster format.
-			$latest       = $this->normalize_version( $update_info->version );
-			$download_url = $update_info->download_url ?? '';
-		} elseif ( isset( $update_info->tag_name ) ) {
-			// GitHub format.
-			$latest       = $this->normalize_version( $update_info->tag_name );
-			$download_url = $update_info->zipball_url ?? '';
-		}
+		$latest  = $update_info->version;
 
 		$plugin_entry = [
 			'slug'         => dirname( $this->basename ),
 			'plugin'       => $this->basename,
 			'new_version'  => $latest,
 			'url'          => $plugin_data['PluginURI'] ?? '',
-			'tested'       => get_bloginfo( 'version' ),
-			'requires_php' => $plugin_data['RequiresPHP'] ?? '8.1',
-			'requires'     => $plugin_data['RequiresWP'] ?? '6.6',
-			'package'      => $download_url,
+			'tested'       => $update_info->tested ?: get_bloginfo( 'version' ),
+			'requires_php' => $update_info->requires_php ?: ( $plugin_data['RequiresPHP'] ?? '8.1' ),
+			'requires'     => $update_info->requires ?: ( $plugin_data['RequiresWP'] ?? '6.6' ),
+			'package'      => $update_info->download_url,
 			'icons'        => [
 				'1x' => self::ICON_SMALL,
 				'2x' => self::ICON_LARGE,
@@ -365,7 +354,7 @@ class HK_Funeral_Notices_Updater {
 			unset( $transient->response[ $this->basename ] );
 
 			if ( ! isset( $transient->no_update[ $this->basename ] ) ) {
-				$plugin_entry['package'] = '';
+				$plugin_entry['package']                 = '';
 				$transient->no_update[ $this->basename ] = (object) $plugin_entry;
 			}
 		}
@@ -398,30 +387,17 @@ class HK_Funeral_Notices_Updater {
 		$info->slug         = dirname( $this->basename );
 		$info->author       = $plugin_data['AuthorName'] ?? 'Weave Digital Studio';
 		$info->homepage     = $plugin_data['PluginURI'] ?? '';
-		$info->tested       = get_bloginfo( 'version' );
-		$info->requires     = $plugin_data['RequiresWP'] ?? '6.6';
-		$info->requires_php = $plugin_data['RequiresPHP'] ?? '8.1';
+		$info->version      = $update_info->version;
+		$info->last_updated = $update_info->last_updated;
+		$info->tested       = $update_info->tested ?: get_bloginfo( 'version' );
+		$info->requires     = $update_info->requires ?: ( $plugin_data['RequiresWP'] ?? '6.6' );
+		$info->requires_php = $update_info->requires_php ?: ( $plugin_data['RequiresPHP'] ?? '8.1' );
+		$info->download_link = $update_info->download_url;
 
-		// Handle different response formats.
-		if ( isset( $update_info->version ) ) {
-			// Hoster format.
-			$info->version       = $this->normalize_version( $update_info->version );
-			$info->last_updated  = $update_info->last_updated ?? '';
-			$info->download_link = $update_info->download_url ?? '';
-			$info->sections      = [
-				'description' => $plugin_data['Description'] ?? '',
-				'changelog'   => $update_info->sections->changelog ?? '',
-			];
-		} elseif ( isset( $update_info->tag_name ) ) {
-			// GitHub format.
-			$info->version       = $this->normalize_version( $update_info->tag_name );
-			$info->last_updated  = $update_info->published_at ?? '';
-			$info->download_link = $update_info->zipball_url ?? '';
-			$info->sections      = [
-				'description' => $plugin_data['Description'] ?? '',
-				'changelog'   => $update_info->body ?? '',
-			];
-		}
+		$info->sections = [
+			'description' => $plugin_data['Description'] ?? '',
+			'changelog'   => $update_info->changelog,
+		];
 
 		$info->icons = [
 			'1x' => self::ICON_SMALL,
@@ -460,12 +436,12 @@ class HK_Funeral_Notices_Updater {
 
 		check_admin_referer( 'hkfn_check_for_updates' );
 
-		// Clear both caches to force fresh check.
-		delete_transient( self::GITHUB_CACHE_KEY );
-		delete_transient( self::HOSTER_CACHE_KEY );
+		// Clear our cache and WordPress's, then force a fresh check.
+		delete_transient( self::CACHE_KEY );
+		delete_site_transient( 'update_plugins' );
 
-		// Trigger fresh check.
-		$this->get_update_info();
+		$this->update_info = null;
+		wp_update_plugins();
 
 		wp_safe_redirect( admin_url( 'plugins.php' ) );
 		exit;
@@ -474,8 +450,8 @@ class HK_Funeral_Notices_Updater {
 	/**
 	 * After installing an update, move files to the correct directory.
 	 *
-	 * GitHub release zips extract to a directory named {repo}-{version}.
-	 * This renames it to match the existing plugin directory.
+	 * Release zips extract to a directory named after the repo. This renames it
+	 * to match the existing plugin directory.
 	 *
 	 * @param bool|\WP_Error $response   Install response.
 	 * @param array          $hook_extra Extra arguments.
@@ -498,9 +474,8 @@ class HK_Funeral_Notices_Updater {
 			activate_plugin( $this->basename );
 		}
 
-		// Clear caches so the next check fetches fresh data.
-		delete_transient( self::GITHUB_CACHE_KEY );
-		delete_transient( self::HOSTER_CACHE_KEY );
+		// Clear the cache so the next check fetches fresh data.
+		delete_transient( self::CACHE_KEY );
 
 		return $result;
 	}

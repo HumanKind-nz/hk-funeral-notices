@@ -4,6 +4,55 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.0] – August 17, 2026
+
+### Fixed: updates stopped appearing
+
+No site had been offered an update since October 2025. The plugin checked a licence server before GitHub and only fell back if that check *failed*. It kept answering successfully with a version frozen at 2.2.15, so every site decided it was already up to date. Version checks now come straight from the GitHub release, with nothing to keep in sync by hand.
+
+### Changed: video no longer needs a licence key
+
+Memorial videos always ran on your own Bunny Stream account, so the licence key protected nothing. It has been removed, along with the Licence tab. Video works as soon as Bunny credentials are present. Existing sites are unaffected.
+
+New sites add these to `wp-config.php`:
+
+```php
+define('HKFN_VIDEO_LIBRARY_ID',   'your-library-id');
+define('HKFN_VIDEO_API_KEY',      'your-api-key');
+define('HKFN_VIDEO_CDN_HOSTNAME', 'your-zone.b-cdn.net');
+```
+
+The older `WFN_` and `BUNNYSTREAM_` names still work. See the README for setup.
+
+### Fixed: settings screen showing blank fields
+
+Most settings appeared empty even though the site was running on the correct values, because a single value of the wrong type made WordPress discard the whole set. Saving in that state could have overwritten real configuration. The screen now reads settings the same way the rest of the plugin does.
+
+### Fixed: instant search returned nothing
+
+The search box that filters as you type never returned results. If you have it switched on, try it after updating.
+
+### Added: Video settings tab
+
+Upload limits and encoding options now have a home under Settings, along with a note saying whether Bunny is connected. The upload cap is 900MB; sites that had drifted to 500MB are restored once.
+
+### Added: a record of video deletions
+
+Every deletion attempt is now recorded, and deletion is refused outright if the plugin cannot confirm a video belongs to this site.
+
+```bash
+wp hkfn video log          # what was deleted, and why
+wp hkfn video reconcile    # find unused videos, deletes nothing
+```
+
+There is still no automatic cleanup, no retention policy and no orphan sweeper. Videos go only when someone deletes one, permanently deletes a notice, or replaces a video.
+
+### Changed: much quieter logging
+
+Routine activity no longer writes to the PHP error log. Genuine failures still do.
+
+---
+
 ## [3.0.4] – August 17, 2026
 
 ### Fixed: new notices missing from the grid

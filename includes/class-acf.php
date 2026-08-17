@@ -483,7 +483,7 @@ function hkfn_generate_funeral_title_from_names($post_id) {
     
     // Generate title only if we have at least a last name
     if (empty($names['last_name'])) {
-        error_log("WFN Auto-Title: No last name found for post {$post_id}, skipping title generation");
+        \HumanKind\FuneralNotices\Hooks\debug_log("WFN Auto-Title: No last name found for post {$post_id}, skipping title generation");
         return;
     }
     
@@ -509,7 +509,7 @@ function hkfn_generate_funeral_title_from_names($post_id) {
     if (is_wp_error($result)) {
         error_log("WFN Auto-Title Error: Failed to update post {$post_id} - " . $result->get_error_message());
     } else {
-        error_log("WFN Auto-Title: Updated post {$post_id} title to '{$new_title}' with slug '{$new_slug}'");
+        \HumanKind\FuneralNotices\Hooks\debug_log("WFN Auto-Title: Updated post {$post_id} title to '{$new_title}' with slug '{$new_slug}'");
     }
     
     // Re-hook the function
@@ -696,7 +696,7 @@ function hkfn_set_temporary_funeral_title($post_id) {
             'post_name' => sanitize_title($temp_title)
         ]);
         
-        error_log("WFN Auto-Title: Set temporary title '{$temp_title}' for new post {$post_id}");
+        \HumanKind\FuneralNotices\Hooks\debug_log("WFN Auto-Title: Set temporary title '{$temp_title}' for new post {$post_id}");
     }
 }
 add_action('wp_insert_post', 'hkfn_set_temporary_funeral_title');

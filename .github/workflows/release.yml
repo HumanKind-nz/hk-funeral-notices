@@ -1,4 +1,4 @@
-name: Build and Release - Dual System (GitHub + Hoster)
+name: Build and Release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    name: "Build and release plugin for GitHub + Hoster"
+    name: "Build plugin, publish release and update manifest"
     runs-on: ubuntu-latest
 
     steps:
@@ -63,24 +63,57 @@ jobs:
           cd build-release
           zip -r hk-funeral-notices-${{ env.VERSION }}.zip hk-funeral-notices
 
+      # Built before the release so it can be attached to it. Sites read this
+      # from the stable .../releases/latest/download/update.json URL, which is a
+      # redirect rather than an API call and so is not rate limited. No secrets
+      # are involved: the release is published with the built-in GITHUB_TOKEN.
+      - name: "Build update manifest"
+        run: |
+          VERSION_NO_V="${VERSION#v}"
+          # Pull the top section out of CHANGELOG.md (first "## [" block).
+          CHANGELOG=$(awk '/^## \[/{n++} n==1' CHANGELOG.md)
+          jq -n \
+            --arg version      "$VERSION_NO_V" \
+            --arg download_url "https://github.com/${{ github.repository }}/releases/download/${VERSION}/hk-funeral-notices-${VERSION}.zip" \
+            --arg last_updated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg changelog    "$CHANGELOG" \
+            '{
+              name:         "HumanKind Funeral Notices",
+              slug:         "hk-funeral-notices",
+              version:      $version,
+              download_url: $download_url,
+              requires:     "6.6",
+              requires_php: "8.1",
+              tested:       "6.8",
+              last_updated: $last_updated,
+              homepage:     "https://humankindwebsites.com/plugins/funeral-notices/",
+              author:       "Weave Digital Studio",
+              sections:     { changelog: $changelog }
+            }' > update.json
+          cat update.json
+
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
-          files: build-release/hk-funeral-notices-${{ env.VERSION }}.zip
+          files: |
+            build-release/hk-funeral-notices-${{ env.VERSION }}.zip
+            update.json
           name: "HK Funeral Notices ${{ github.ref_name }}"
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Notify Hoster System"
-        if: success()
+      - name: "Verify the manifest is reachable at the stable URL"
         run: |
-          echo "=== Hoster Integration ==="
-          echo "GitHub release created successfully!"
-          echo "Release: ${{ github.ref_name }}"
-          echo "Download URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/hk-funeral-notices-${{ env.VERSION }}.zip"
-          echo ""
-          echo "Manual Step Required:"
-          echo "1. Update hoster system at https://humankindwebsites.com/wp-admin/"
-          echo "2. Point download to GitHub release URL above"
-          echo "3. Update version number in hoster system"
+          URL="https://github.com/${{ github.repository }}/releases/latest/download/update.json"
+          echo "Checking ${URL}"
+          sleep 5
+          SERVED=$(curl -sSL --max-time 30 "$URL" || true)
+          echo "$SERVED"
+          SERVED_VERSION=$(printf '%s' "$SERVED" | jq -r '.version // empty' 2>/dev/null || true)
+          EXPECTED="${VERSION#v}"
+          if [ "$SERVED_VERSION" != "$EXPECTED" ]; then
+            echo "::warning::Manifest at the latest URL reports '${SERVED_VERSION}', expected '${EXPECTED}'. Sites will fall back to the releases API until this resolves."
+          else
+            echo "Manifest is live and reports ${SERVED_VERSION}."
+          fi
