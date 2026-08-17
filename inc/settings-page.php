@@ -137,22 +137,113 @@ function get_settings(): array {
  * @return array Settings with defaults and runtime values filled in.
  */
 function fill_missing_settings( $value ): array {
-	$merged = get_defaults();
+	$defaults = get_defaults();
+	$stored   = is_array( $value ) ? $value : [];
 
-	// Layer the live module options over the defaults.
+	// Sources in the order the runtime consults them, highest priority first.
+	$sources = [ $stored ];
+
 	if ( function_exists( '\HumanKind\FuneralNotices\SettingsBridge\destination_map' ) ) {
 		foreach ( \HumanKind\FuneralNotices\SettingsBridge\destination_map() as $option => $keys ) {
-			$stored = \HumanKind\FuneralNotices\SettingsBridge\read_destination( $option );
-
-			foreach ( $keys as $key ) {
-				if ( array_key_exists( $key, $stored ) ) {
-					$merged[ $key ] = $stored[ $key ];
-				}
-			}
+			$sources[] = \HumanKind\FuneralNotices\SettingsBridge\read_destination( $option );
 		}
 	}
 
-	return is_array( $value ) ? array_merge( $merged, $value ) : $merged;
+	// Settings still held on the ACF options page, which the runtime falls back
+	// to and which is where the real value lives on a long-lived site.
+	$acf = [];
+	foreach ( acf_backed_settings() as $key => $field ) {
+		$acf_value = get_option( 'options_' . $field, null );
+
+		if ( null !== $acf_value ) {
+			$acf[ $key ] = $acf_value;
+		}
+	}
+	$sources[] = $acf;
+
+	$merged = $defaults;
+
+	foreach ( $defaults as $key => $default ) {
+		$is_text = is_string( $default );
+
+		foreach ( $sources as $source ) {
+			if ( ! array_key_exists( $key, $source ) ) {
+				continue;
+			}
+
+			// For text settings an empty value means "not set here, look
+			// further down", which is exactly how the runtime reads them. The
+			// consolidated option was seeded with empty strings for anything
+			// unset at the time, and those would otherwise mask the real value.
+			// For anything else, presence is the choice: a toggle switched off
+			// is a decision, not an absence.
+			if ( $is_text && ( null === $source[ $key ] || '' === $source[ $key ] ) ) {
+				continue;
+			}
+
+			$merged[ $key ] = $source[ $key ];
+			break;
+		}
+	}
+
+	return coerce_to_schema( $merged, $defaults );
+}
+
+/**
+ * Settings whose real value may still live on the ACF options page.
+ *
+ * Each of these is read by the runtime as "module option first, ACF option as
+ * fallback", so the ACF value is authoritative on any site that never re-saved
+ * the setting through a newer screen.
+ *
+ * @return array<string, string> Setting key => ACF field name.
+ */
+function acf_backed_settings(): array {
+	return [
+		'tribute_form_url'      => 'hkfn_tribute_url',
+		'google_places_api_key' => 'hkfn_google_places_api_key',
+		'address_field_mode'    => 'hkfn_address_field_mode',
+	];
+}
+
+/**
+ * Force every value to the type its schema declares, and drop unknown keys.
+ *
+ * This is not tidiness. WP_REST_Settings_Controller::prepare_value() validates
+ * the whole option against the schema and returns **null for the entire thing**
+ * if any single value fails. One setting holding an attachment ID where the
+ * schema says string, or a null where it expects text, blanks every control on
+ * the screen at once.
+ *
+ * The values merged in above come from module options and ACF fields that were
+ * never constrained by this schema, so they cannot be trusted to match it.
+ * Coercing here means a single odd value degrades that one field instead of
+ * taking the entire settings screen down with it.
+ *
+ * @param array $values   Merged settings.
+ * @param array $defaults Declared defaults, whose PHP types mirror the schema.
+ * @return array Values conforming to the schema.
+ */
+function coerce_to_schema( array $values, array $defaults ): array {
+	$clean = [];
+
+	foreach ( $defaults as $key => $default ) {
+		$val = $values[ $key ] ?? $default;
+
+		if ( is_bool( $default ) ) {
+			$clean[ $key ] = is_bool( $val ) ? $val : (bool) $val;
+		} elseif ( is_int( $default ) ) {
+			$clean[ $key ] = is_numeric( $val ) ? (int) $val : $default;
+		} elseif ( is_float( $default ) ) {
+			$clean[ $key ] = is_numeric( $val ) ? (float) $val : $default;
+		} elseif ( is_array( $default ) ) {
+			$clean[ $key ] = is_array( $val ) ? $val : $default;
+		} else {
+			$clean[ $key ] = is_scalar( $val ) ? (string) $val : $default;
+		}
+	}
+
+	return $clean;
 }
 add_filter( 'option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
 add_filter( 'default_option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
