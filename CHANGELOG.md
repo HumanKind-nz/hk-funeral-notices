@@ -36,11 +36,19 @@ The video settings had no reachable home. The module registered its page under a
 
 Settings now has a **Video** tab covering maximum file size, quality preset, thumbnails and upload progress. It also reports whether Bunny credentials resolved, and names the missing ones if not, which answers the question people actually have when video is not appearing.
 
-### Fixed: settings screen showing blank controls for values never saved
+### Fixed: settings screen showing everything as blank
 
-The settings screen only received what was actually stored, so any setting that had never been written arrived empty: a blank number box, a dropdown showing its first option, a toggle reading as off. Pressing Save in that state wrote those blanks back out, which could turn features off that nobody had touched.
+Most controls on the settings screen showed nothing: empty text boxes, dropdowns sitting on their first option, toggles reading as off, all while the site ran on the correct values. Saving in that state could have written those blanks over real configuration.
 
-This affected every site for the video settings, because that screen had no reachable home and so was never saved. Reads now fill in any missing value, while still leaving a deliberately chosen setting untouched.
+Three things caused it, and the first explains why *everything* went blank at once rather than a few fields.
+
+**A single wrong value blanked the whole screen.** WordPress validates the entire settings object against its schema and returns nothing at all if any one value fails. One setting holding an image ID where text was expected, or an empty value where a number belonged, was enough to empty every field on the page. Values are now checked individually, so an odd one affects only its own field.
+
+**Older settings were not being read.** Configuration entered through earlier versions of the plugin lives in a different place, which the site itself still reads but the settings screen did not. The tribute form URL was the clearest example: present and working on the front end, blank on the screen.
+
+**Blank placeholders were hiding real values.** Upgrading wrote an empty entry for every setting that had not yet been moved across, and those empties masked the genuine values underneath.
+
+The screen now reads settings the same way the rest of the plugin does, so what you see is what the site is actually using. A setting you deliberately clear stays cleared, and a switch you turn off stays off.
 
 ### Fixed: sites whose upload cap had already drifted to 500MB
 
