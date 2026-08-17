@@ -202,8 +202,8 @@ class GoogleMapsField extends \acf_field {
             // Show admin notice if no API key
             add_action('admin_notices', function() {
                 echo '<div class="notice notice-warning"><p>';
-                echo '<strong>Weave Funeral Notices:</strong> Google Places API key is required for address autocomplete. ';
-                echo '<a href="' . admin_url('admin.php?page=hkfn-module-settings') . '">Configure API key here</a>';
+                echo '<strong>HumanKind Funeral Notices:</strong> a Google Places API key is needed for address autocomplete. ';
+                echo '<a href="' . admin_url('admin.php?page=hk-funeral-notices-settings') . '">Add one under Settings, General, Advanced</a>';
                 echo '</p></div>';
             });
             return;

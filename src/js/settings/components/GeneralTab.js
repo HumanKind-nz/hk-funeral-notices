@@ -334,6 +334,22 @@ export default function GeneralTab( {
 						}
 					/>
 				</PanelRow>
+				<PanelRow>
+					<TextControl
+						label={ __(
+							'Google Places API Key',
+							'hk-funeral-notices'
+						) }
+						value={ settings.google_places_api_key }
+						onChange={ ( v ) =>
+							updateSetting( 'google_places_api_key', v )
+						}
+						help={ __(
+							'Enables address autocomplete on the venue field. Needs the Maps JavaScript, Places and Geocoding APIs enabled, and should be restricted to this domain. HKFN_GOOGLE_MAPS_KEY in wp-config.php overrides this.',
+							'hk-funeral-notices'
+						) }
+					/>
+				</PanelRow>
 			</PanelBody>
 
 			<div style={ { marginTop: '24px', marginBottom: '16px' } }>

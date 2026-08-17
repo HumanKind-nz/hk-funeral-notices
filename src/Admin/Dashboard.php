@@ -9,7 +9,7 @@ use HumanKind\FuneralNotices\Services\LicenseService;
  * Admin Dashboard - FCRM-Style Interface
  * 
  * Modern admin dashboard matching FCRM Enhancement Suite design patterns
- * with Weave Funeral Notices branding and module management
+ * with HumanKind Funeral Notices branding and module management
  * 
  * @package HumanKind\FuneralNotices\Admin
  * @since 2.0.0
@@ -303,7 +303,7 @@ class Dashboard {
                 <div class="hkfn-header-banner">
                     <div class="hkfn-plugin-logo">
                         <img src="<?php echo plugin_dir_url(__FILE__) . '../../assets/images/hkfn-logo.png'; ?>"
-                              alt="Weave Funeral Notices" 
+                              alt="HumanKind Funeral Notices" 
                               class="hkfn-logo-image" />
                     </div>
                 </div>
