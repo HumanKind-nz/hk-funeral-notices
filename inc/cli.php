@@ -202,9 +202,16 @@ class Video_Command {
 		$site_collection = $service->get_site_collection_id();
 
 		if ( 'collection' === $scope && empty( $site_collection ) ) {
+			// A collection is created on the first upload. No collection and no
+			// references simply means nothing has been uploaded yet.
+			if ( ! self::referenced_videos() ) {
+				\WP_CLI::success( 'No videos have been uploaded from this site yet, so there is nothing to reconcile.' );
+				return;
+			}
+
 			\WP_CLI::error(
-				"This site has no Bunny collection, so its videos cannot be told apart from other sites sharing the library.\n"
-				. 'Refusing to guess. Run with --scope=library to see the whole library, but do not treat that as a prune list.'
+				"This site references videos but has no Bunny collection, so they cannot be told apart from other sites sharing the library.\n"
+				. 'Refusing to guess. Run with --scope=library to inspect the whole library, but do not treat that as a prune list.'
 			);
 		}
 

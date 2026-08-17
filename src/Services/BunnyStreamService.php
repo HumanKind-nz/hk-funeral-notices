@@ -316,7 +316,18 @@ class BunnyStreamService {
                 return "API Error ({$http_code}): " . $data['error'];
             }
             if (isset($data['errors']) && is_array($data['errors'])) {
-                return "API Error ({$http_code}): " . implode(', ', $data['errors']);
+                // Bunny returns errors as a map of field => array of messages,
+                // so flatten before joining rather than imploding nested arrays.
+                $messages = [];
+                array_walk_recursive($data['errors'], static function ($value) use (&$messages) {
+                    if (is_scalar($value)) {
+                        $messages[] = (string) $value;
+                    }
+                });
+
+                if ($messages) {
+                    return "API Error ({$http_code}): " . implode(', ', $messages);
+                }
             }
         }
 
