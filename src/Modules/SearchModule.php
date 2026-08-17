@@ -134,19 +134,15 @@ class SearchModule extends BaseModule {
         add_action('wp_ajax_hkfn_search', [$this, 'handle_ajax_search']);
         add_action('wp_ajax_nopriv_hkfn_search', [$this, 'handle_ajax_search']);
         
-        // Search form filters
         add_filter('hkfn_search_form_html', [$this, 'render_search_form']);
-        add_filter('hkfn_search_query_args', [$this, 'modify_search_query']);
-        
-        // Search result filters
-        add_filter('hkfn_search_results', [$this, 'process_search_results']);
-        add_filter('hkfn_search_highlight', [$this, 'highlight_search_terms']);
-        
-        // Analytics tracking
-        if ($this->get_settings()['enable_search_analytics']) {
-            add_action('wp_ajax_hkfn_track_search', [$this, 'track_search_analytics']);
-            add_action('wp_ajax_nopriv_hkfn_track_search', [$this, 'track_search_analytics']);
-        }
+
+        // hkfn_search_query_args, hkfn_search_results, hkfn_search_highlight and
+        // hkfn_track_search were registered here against methods that do not
+        // exist on this class. The first two fire during every AJAX search
+        // (lines ~347 and ~377), so each request died with a TypeError before
+        // returning results. The filters remain available for anyone extending
+        // search; the module simply no longer registers itself as a listener it
+        // never implemented.
     }
     
     /**
@@ -276,29 +272,16 @@ class SearchModule extends BaseModule {
         
         // Add search term query
         if (!empty($search_term) && strlen($search_term) >= $settings['min_search_length']) {
+            // A notice's post title is generated from the person's name, so the
+            // standard text search covers name lookups as well as content.
+            //
+            // There used to be a meta_query here against 'firstname',
+            // 'lastname' and 'maidenname'. Those are not the meta keys this
+            // plugin stores under (they are hkfn_person_group_firstname, or
+            // wfn_person_group_firstname on older data), so it matched nothing.
+            // WP_Query ANDs meta_query with 's', so every AJAX search returned
+            // zero results regardless of the term.
             $args['s'] = $search_term;
-            
-            // Add meta query for custom fields
-            if (in_array('name', $settings['search_fields'])) {
-                $args['meta_query'][] = [
-                    'relation' => 'OR',
-                    [
-                        'key' => 'firstname',
-                        'value' => $search_term,
-                        'compare' => 'LIKE'
-                    ],
-                    [
-                        'key' => 'lastname',
-                        'value' => $search_term,
-                        'compare' => 'LIKE'
-                    ],
-                    [
-                        'key' => 'maidenname',
-                        'value' => $search_term,
-                        'compare' => 'LIKE'
-                    ]
-                ];
-            }
         }
         
         // Add date range query
