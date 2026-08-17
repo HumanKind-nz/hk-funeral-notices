@@ -28,7 +28,9 @@ define('HKFN_VIDEO_API_KEY',      'your-api-key');
 define('HKFN_VIDEO_CDN_HOSTNAME', 'your-pull-zone.b-cdn.net');
 ```
 
-They can also be entered on the Video settings screen. Constants take priority. Existing sites using the older `WFN_VIDEO_LIBRARY_ID` and `WFN_VIDEO_API_KEY` names keep working, as do the `BUNNYSTREAM_` variants.
+Existing sites using the older `WFN_VIDEO_LIBRARY_ID` and `WFN_VIDEO_API_KEY` names keep working, as do the `BUNNYSTREAM_` variants. If you cannot edit `wp-config.php`, the same values can be set as the `hkfn_bunny_library_id` and `hkfn_bunny_api_key` options via WP-CLI. There is deliberately no admin field for them, so keys stay out of the database and out of site exports.
+
+The **Video Slideshows** screen, under Funeral Notices, is unchanged and still controls upload limits and encoding: maximum file size, duration, allowed formats, quality and thumbnails.
 
 `HKFN_BYPASS_LICENSE` no longer switches video on. It existed to fake a valid licence during testing, which was a question of permission. Whether video works is now a question of fact: either Bunny credentials are present or they are not, and no constant can conjure them. Honouring it would show an upload field on a site that cannot upload, then fail with a confusing error. Sites with the constant set and real credentials are unaffected.
 

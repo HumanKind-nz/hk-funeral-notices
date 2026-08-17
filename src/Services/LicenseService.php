@@ -126,7 +126,7 @@ class LicenseService {
      * @return string
      */
     public static function getVideoNotConfiguredMessage(): string {
-        return 'Video hosting is not configured. Add your Bunny Stream library ID and API key in the Video settings, or define HKFN_VIDEO_LIBRARY_ID and HKFN_VIDEO_API_KEY in wp-config.php.';
+        return 'Video hosting is not configured. Define HKFN_VIDEO_LIBRARY_ID and HKFN_VIDEO_API_KEY in wp-config.php with your own Bunny Stream credentials.';
     }
 
     /**

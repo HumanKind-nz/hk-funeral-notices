@@ -706,7 +706,7 @@ class FieldGroupManager {
                 'label' => 'Memorial Video Slideshow',
                 'name' => 'video_upgrade_message',
                 'type' => 'message',
-                'message' => '<strong>Not set up yet:</strong> video hosting needs a Bunny Stream library ID and API key. <a href="' . admin_url('admin.php?page=hkfn-module-video') . '">Set up video</a>',
+                'message' => '<strong>Not set up yet:</strong> memorial videos need your own Bunny Stream credentials. Add <code>HKFN_VIDEO_LIBRARY_ID</code> and <code>HKFN_VIDEO_API_KEY</code> to wp-config.php.',
                 'new_lines' => '',
                 'esc_html' => 0,
             ];
@@ -720,8 +720,8 @@ class FieldGroupManager {
      */
     private function get_video_field_instructions(): string {
         if (!$this->has_premium_license()) {
-            return '<strong>Not set up yet:</strong> video hosting needs a Bunny Stream library ID and API key. <a href="' .
-                   admin_url('admin.php?page=hkfn-module-video') . '">Set up video</a>';
+            return '<strong>Not set up yet:</strong> memorial videos need your own Bunny Stream credentials. ' .
+                   'Add <code>HKFN_VIDEO_LIBRARY_ID</code> and <code>HKFN_VIDEO_API_KEY</code> to wp-config.php.';
         }
 
         return 'Upload a memorial video slideshow (MP4, MOV, AVI, WMV). Maximum 900MB. Video will be professionally hosted and streamed with BunnyStream CDN.<br><strong>Videos will take up to 10 minutes to be encoded and added to the funeral notice.</strong>';

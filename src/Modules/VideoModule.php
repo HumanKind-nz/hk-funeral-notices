@@ -875,11 +875,13 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         <div class="hkfn-license-required">
             <div class="hkfn-notice hkfn-notice-warning">
                 <h3>Video Hosting Not Set Up</h3>
-                <p>Memorial videos are hosted on Bunny Stream using your own account. Add your library ID and API key below, or define them in wp-config.php:</p>
+                <p>Memorial videos are hosted on Bunny Stream using your own account, billed to you by Bunny. Create a video library in the Bunny dashboard, then add its credentials to <code>wp-config.php</code>:</p>
 
-                <p><code>define('HKFN_VIDEO_LIBRARY_ID', '...');</code><br>
-                   <code>define('HKFN_VIDEO_API_KEY', '...');</code><br>
-                   <code>define('HKFN_VIDEO_CDN_HOSTNAME', '...');</code></p>
+                <p><code>define('HKFN_VIDEO_LIBRARY_ID', 'your-library-id');</code><br>
+                   <code>define('HKFN_VIDEO_API_KEY', 'your-api-key');</code><br>
+                   <code>define('HKFN_VIDEO_CDN_HOSTNAME', 'your-zone.b-cdn.net');</code></p>
+
+                <p>The upload field appears on funeral notices as soon as a library ID and API key are present. There is no licence key and nothing to activate.</p>
 
                 <div class="hkfn-license-actions">
                     <a href="https://dash.bunny.net/stream" target="_blank" rel="noopener" class="button button-secondary">
