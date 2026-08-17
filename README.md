@@ -72,7 +72,7 @@ Videos are stored in your Bunny library, not ours, so it matters that you can pr
 
 **Before any deletion**, the plugin checks the video's Bunny collection against this site's collection. If they do not match, if the video has no collection, if the site has no collection, or if the Bunny API cannot be reached to check, the deletion is refused. Ownership has to be proven, not assumed. This is what stops one site in a multi-site estate from deleting another's videos, and what stops a network blip during a bulk delete from wiping anything.
 
-Every attempt is recorded, whether it succeeded, was refused, or failed:
+The plugin is quiet in normal use. It does not write to the log on every page load or every save. Deletion attempts are recorded to the database, and only deletion attempts, so there is something to report against later:
 
 ```bash
 wp hkfn video log                  # everything, newest first
@@ -80,14 +80,29 @@ wp hkfn video log --outcome=deleted
 wp hkfn video log --format=csv > deletions.csv
 ```
 
-To find videos in Bunny that nothing points at any more:
+Set `WP_DEBUG` if you want the verbose developer trace as well.
+
+### Finding videos to prune
 
 ```bash
 wp hkfn video reconcile            # read-only, deletes nothing
 wp hkfn video reconcile --show=all
 ```
 
-`reconcile` reports three groups: **orphaned** (in Bunny, unreferenced, safe to prune by hand), **missing** (a notice points at a video that is gone, worth investigating in the log), and **matched**. It never deletes anything. Pruning orphans is a deliberate manual step in the Bunny dashboard.
+`reconcile` reports **orphaned** (in Bunny, nothing points at it), **missing** (a notice points at a video that is gone, worth checking the log for), and **matched**. It never deletes anything. Pruning is a deliberate manual step in the Bunny dashboard.
+
+**One Bunny library can be shared by many sites**, each in its own collection. `reconcile` is therefore scoped to this site's own collection by default, and if the site has no collection it refuses to run rather than guess. Anything outside your collection belongs to someone else, and treating a whole-library listing as a prune list is how you delete another site's videos. `--scope=library` exists for inspection and warns loudly.
+
+For a fleet-wide prune you need every site's references before you can judge any single video. Export each site's inventory, then compare the union against the library:
+
+```bash
+# one file per site
+for d in $(ls /var/www); do
+  wp --path="/var/www/$d/htdocs" hkfn video inventory --allow-root > "/tmp/inv-$d.json" 2>/dev/null
+done
+```
+
+Each file records the site URL, its Bunny collection, and the video IDs it references. Any video in the library that appears in no inventory, or sits in a collection whose site no longer exists, is a genuine candidate for removal.
 
 ---
 

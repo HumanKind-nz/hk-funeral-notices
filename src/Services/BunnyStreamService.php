@@ -2121,7 +2121,7 @@ class BunnyStreamService {
      * @return string|null Collection ID for current site, or null if not found
      * @since 2.6.5
      */
-    private function get_site_collection_id(): ?string {
+    public function get_site_collection_id(): ?string {
         $collections = $this->get_site_collections();
 
         if (!$collections['success']) {

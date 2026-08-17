@@ -1168,7 +1168,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         $current_site = get_site_url();
 
         if (!empty($source_site) && $source_site !== $current_site) {
-            error_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
+            \HumanKind\FuneralNotices\Hooks\debug_log("WFN VideoModule: Skipping video deletion for post {$post_id} - video {$video_id} belongs to {$source_site}, not {$current_site}");
 
             \HumanKind\FuneralNotices\Services\VideoAuditLog::record(
                 $video_id,
@@ -1270,7 +1270,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         ];
 
         // PERMANENTLY DISABLED - Too dangerous for production
-        error_log('WFN: cleanup_orphaned_videos() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: cleanup_orphaned_videos() called but permanently disabled for safety');
         return $results;
 
         try {
@@ -1444,7 +1444,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      * @return array Empty result - function disabled
      */
     public function run_maintenance(): array {
-        error_log('WFN: run_maintenance() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: run_maintenance() called but permanently disabled for safety');
 
         return [
             'started_at' => current_time('mysql'),
@@ -2166,7 +2166,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     public function run_scheduled_maintenance(): void {
         // PERMANENTLY DISABLED - Too dangerous for automatic execution
-        error_log('WFN: run_scheduled_maintenance() called but permanently disabled for safety');
+        \HumanKind\FuneralNotices\Hooks\debug_log('WFN: run_scheduled_maintenance() called but permanently disabled for safety');
         error_log('WFN: Automatic video cleanup has been removed due to data loss incidents in Oct/Nov 2025');
         return;
 

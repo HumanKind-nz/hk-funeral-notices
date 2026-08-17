@@ -83,12 +83,85 @@ class Video_Command {
 	}
 
 	/**
-	 * Compare the Bunny library against videos this site still references.
+	 * Export this site's video references, for a fleet-wide prune.
 	 *
-	 * Read-only. Reports three groups:
-	 *   - orphaned: in Bunny, no funeral notice points at it (safe to prune by hand)
-	 *   - missing:  a notice points at a video that is no longer in Bunny
-	 *   - matched:  in Bunny and referenced
+	 * One Bunny library is shared by many sites, each with its own collection.
+	 * To work out what is genuinely unused you need every site's inventory
+	 * before you can judge any single video, so run this on each site, collect
+	 * the JSON, then compare the union against the library.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : json (default) or csv.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp hkfn video inventory > /tmp/inventory-$(hostname).json
+	 *
+	 *     # across a GridPane server, one file per site
+	 *     for d in $(ls /var/www); do
+	 *       wp --path="/var/www/$d/htdocs" hkfn video inventory --allow-root > "/tmp/inv-$d.json" 2>/dev/null
+	 *     done
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Flags.
+	 */
+	public function inventory( $args, $assoc_args ): void {
+		$format = $assoc_args['format'] ?? 'json';
+		$refs   = self::referenced_videos();
+
+		$collection = null;
+		if ( LicenseService::isVideoConfigured() ) {
+			$service    = new BunnyStreamService();
+			$collection = $service->get_site_collection_id();
+		}
+
+		if ( 'csv' === $format ) {
+			$rows = [];
+			foreach ( $refs as $id => $row ) {
+				$rows[] = [
+					'site'       => get_site_url(),
+					'collection' => (string) $collection,
+					'video_id'   => $id,
+					'post_id'    => $row['post_id'],
+					'status'     => $row['post_status'],
+					'notice'     => $row['post_title'],
+				];
+			}
+			if ( ! $rows ) {
+				\WP_CLI::log( 'site,collection,video_id,post_id,status,notice' );
+				return;
+			}
+			\WP_CLI\Utils\format_items( 'csv', $rows, array_keys( $rows[0] ) );
+			return;
+		}
+
+		echo wp_json_encode(
+			[
+				'site'          => get_site_url(),
+				'domain'        => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+				'collection_id' => $collection,
+				'generated'     => current_time( 'mysql', true ),
+				'plugin_version' => HKFN_VERSION,
+				'video_ids'     => array_keys( $refs ),
+				'count'         => count( $refs ),
+			],
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+		) . "\n";
+	}
+
+	/**
+	 * Compare Bunny against the videos this site references.
+	 *
+	 * Read-only. Scoped to this site's own Bunny collection by default,
+	 * because one library is shared by many sites and everything outside your
+	 * collection belongs to someone else.
+	 *
+	 * Reports:
+	 *   - orphaned: in your collection, no notice points at it
+	 *   - missing:  a notice points at a video that is not in Bunny
+	 *   - matched:  in your collection and referenced
 	 *
 	 * ## OPTIONS
 	 *
@@ -97,6 +170,11 @@ class Video_Command {
 	 *
 	 * [--show=<group>]
 	 * : Which group to list. One of: orphaned, missing, matched, all. Default orphaned.
+	 *
+	 * [--scope=<scope>]
+	 * : collection (default) or library. "library" lists the entire shared
+	 *   library including other sites' videos, and must never be used as a
+	 *   prune list on its own.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -108,19 +186,36 @@ class Video_Command {
 	 * @param array $assoc_args Flags.
 	 */
 	public function reconcile( $args, $assoc_args ): void {
-		global $wpdb;
-
 		if ( ! LicenseService::isVideoConfigured() ) {
 			\WP_CLI::error( 'Video hosting is not configured on this site. Missing: ' . implode( ', ', LicenseService::getMissingVideoConfig() ) );
 		}
 
 		$format = $assoc_args['format'] ?? 'table';
 		$show   = $assoc_args['show'] ?? 'orphaned';
+		$scope  = $assoc_args['scope'] ?? 'collection';
 
-		\WP_CLI::log( 'Fetching video library from Bunny...' );
+		if ( ! in_array( $scope, [ 'collection', 'library' ], true ) ) {
+			\WP_CLI::error( 'scope must be "collection" or "library".' );
+		}
 
-		$service = new BunnyStreamService();
+		$service        = new BunnyStreamService();
+		$site_collection = $service->get_site_collection_id();
+
+		if ( 'collection' === $scope && empty( $site_collection ) ) {
+			\WP_CLI::error(
+				"This site has no Bunny collection, so its videos cannot be told apart from other sites sharing the library.\n"
+				. 'Refusing to guess. Run with --scope=library to see the whole library, but do not treat that as a prune list.'
+			);
+		}
+
+		\WP_CLI::log( sprintf( 'Library: %s', $service->get_library_id() ) );
+		if ( $site_collection ) {
+			\WP_CLI::log( sprintf( 'This site\'s collection: %s', $site_collection ) );
+		}
+		\WP_CLI::log( 'Fetching videos from Bunny...' );
+
 		$remote  = [];
+		$skipped = 0;
 		$page    = 1;
 
 		do {
@@ -135,31 +230,29 @@ class Video_Command {
 			foreach ( $items as $video ) {
 				// Bunny identifies a video by its guid.
 				$id = $video['guid'] ?? '';
-				if ( $id ) {
-					$remote[ $id ] = $video['title'] ?? '';
+				if ( ! $id ) {
+					continue;
 				}
+
+				if ( 'collection' === $scope && ( $video['collectionId'] ?? null ) !== $site_collection ) {
+					$skipped++;
+					continue;
+				}
+
+				$remote[ $id ] = $video['title'] ?? '';
 			}
 
 			$page++;
 		} while ( count( $items ) === 100 );
 
-		\WP_CLI::log( sprintf( 'Bunny library holds %d video(s).', count( $remote ) ) );
-
-		// Videos this site still points at.
-		$rows = $wpdb->get_results(
-			"SELECT pm.post_id, pm.meta_value AS video_id, p.post_title, p.post_status
-			 FROM {$wpdb->postmeta} pm
-			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			 WHERE pm.meta_key IN ( '_hkfn_video_id', '_wfn_video_id' )
-			   AND pm.meta_value != ''",
-			ARRAY_A
-		);
-
-		$referenced = [];
-		foreach ( $rows as $row ) {
-			$referenced[ $row['video_id'] ] = $row;
+		if ( 'collection' === $scope ) {
+			\WP_CLI::log( sprintf( 'Your collection holds %d video(s). Ignored %d belonging to other sites.', count( $remote ), $skipped ) );
+		} else {
+			\WP_CLI::warning( 'Listing the ENTIRE shared library. Videos outside your collection belong to other sites. Do not prune from this list.' );
+			\WP_CLI::log( sprintf( 'Library holds %d video(s).', count( $remote ) ) );
 		}
 
+		$referenced = self::referenced_videos();
 		\WP_CLI::log( sprintf( 'This site references %d video(s).', count( $referenced ) ) );
 
 		$orphaned = [];
@@ -192,7 +285,7 @@ class Video_Command {
 
 		\WP_CLI::log( '' );
 		\WP_CLI::log( sprintf( 'matched:  %d', count( $matched ) ) );
-		\WP_CLI::log( sprintf( 'orphaned: %d  (in Bunny, nothing points at them)', count( $orphaned ) ) );
+		\WP_CLI::log( sprintf( 'orphaned: %d  (in Bunny, nothing on this site points at them)', count( $orphaned ) ) );
 		\WP_CLI::log( sprintf( 'missing:  %d  (a notice points at them, not in Bunny)', count( $missing ) ) );
 		\WP_CLI::log( '' );
 
@@ -226,7 +319,32 @@ class Video_Command {
 			\WP_CLI::log( '' );
 		}
 
-		\WP_CLI::log( 'Nothing was deleted. Prune orphans manually in the Bunny dashboard once you have checked them.' );
+		\WP_CLI::log( 'Nothing was deleted. Check orphans against the other sites sharing this library before removing anything.' );
+	}
+
+	/**
+	 * Videos this site's funeral notices point at, keyed by Bunny video ID.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function referenced_videos(): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			"SELECT pm.post_id, pm.meta_value AS video_id, p.post_title, p.post_status
+			 FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key IN ( '_hkfn_video_id', '_wfn_video_id' )
+			   AND pm.meta_value != ''",
+			ARRAY_A
+		);
+
+		$referenced = [];
+		foreach ( $rows as $row ) {
+			$referenced[ $row['video_id'] ] = $row;
+		}
+
+		return $referenced;
 	}
 }
 

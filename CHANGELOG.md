@@ -39,13 +39,19 @@ wp hkfn video log
 wp hkfn video log --outcome=deleted --format=csv > deletions.csv
 ```
 
-There is also a read-only reconcile that compares the Bunny library against the videos this site still references, so orphans can be found and pruned by hand rather than by a script:
+There is also a read-only reconcile that compares Bunny against the videos this site still references, so orphans can be found and pruned by hand rather than by a script:
 
 ```bash
 wp hkfn video reconcile
 ```
 
-It reports orphaned, missing and matched videos, and deletes nothing.
+It reports orphaned, missing and matched videos, and deletes nothing. Because one Bunny library is shared by many sites, each in its own collection, reconcile is scoped to this site's collection and refuses to run if the site has no collection rather than listing other people's videos as prunable.
+
+For a fleet-wide prune, `wp hkfn video inventory` exports one site's references as JSON. Collect one per site, and anything in the library that appears in no inventory is a genuine candidate for removal.
+
+### Changed: the plugin is much quieter in the log
+
+Routine operations were writing to the PHP error log constantly. Permanently deleting any funeral notice produced four lines even when it had no video, and every save without a surname produced another. Those messages now only appear when `WP_DEBUG` is on. Genuine failures and security refusals still log unconditionally.
 
 ### Fixed: deletion no longer proceeds when ownership cannot be verified
 
