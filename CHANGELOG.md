@@ -36,6 +36,12 @@ The video settings had no reachable home. The module registered its page under a
 
 Settings now has a **Video** tab covering maximum file size, quality preset, thumbnails and upload progress. It also reports whether Bunny credentials resolved, and names the missing ones if not, which answers the question people actually have when video is not appearing.
 
+### Fixed: settings screen showing blank controls for values never saved
+
+The settings screen only received what was actually stored, so any setting that had never been written arrived empty: a blank number box, a dropdown showing its first option, a toggle reading as off. Pressing Save in that state wrote those blanks back out, which could turn features off that nobody had touched.
+
+This affected every site for the video settings, because that screen had no reachable home and so was never saved. Reads now fill in any missing value, while still leaving a deliberately chosen setting untouched.
+
 ### Fixed: sites whose upload cap had already drifted to 500MB
 
 Because of the default mismatch described above, sites that saved the settings screen wrote 500 through to the value that governs uploads. Updating to 3.1.0 restores 900MB once on any site sitting on exactly 500. It runs a single time, so choosing 500 deliberately on the new Video tab sticks.

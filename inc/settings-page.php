@@ -108,6 +108,35 @@ function get_settings(): array {
 }
 
 /**
+ * Fill in any key the stored option is missing.
+ *
+ * The stored option only ever holds what has actually been written. A key that
+ * has never been saved is simply absent, and the REST endpoint hands the React
+ * app exactly what is stored, so those controls render with no value: an empty
+ * number box, a select showing its first option, a toggle reading as off.
+ *
+ * That is not just untidy. Saving the screen in that state writes those blanks
+ * back out through the settings bridge, so opening a tab and pressing Save
+ * could quietly turn features off that were never deliberately changed. This
+ * happens on any site that never saved a given module's own screen, which for
+ * video is every site, because that screen was unreachable.
+ *
+ * Filtering reads rather than back-filling the database keeps the option honest
+ * about what was deliberately set, while guaranteeing every consumer sees a
+ * complete set of values.
+ *
+ * @param mixed $value Stored option value.
+ * @return array Settings with defaults filled in.
+ */
+function fill_missing_settings( $value ): array {
+	$defaults = get_defaults();
+
+	return is_array( $value ) ? array_merge( $defaults, $value ) : $defaults;
+}
+add_filter( 'option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
+add_filter( 'default_option_' . OPTION_NAME, __NAMESPACE__ . '\fill_missing_settings' );
+
+/**
  * Enqueue the React settings app on the settings page only.
  *
  * @param string $hook The current admin page hook suffix.

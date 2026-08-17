@@ -9,7 +9,7 @@
  * @package hk-funeral-notices
  */
 
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	PanelBody,
 	PanelRow,
@@ -96,9 +96,15 @@ export default function VideoTab( { settings, setSettings } ) {
 							'Maximum file size (MB)',
 							'hk-funeral-notices'
 						) }
-						help={ __(
-							'Larger files take longer to encode. Uploads typically take up to 10 minutes to appear on the notice.',
-							'hk-funeral-notices'
+						help={ sprintf(
+							/* translators: 1: current cap in MB, 2: lowest allowed, 3: highest allowed */
+							__(
+								'Staff can upload videos up to %1$dMB. Anything larger is rejected before it reaches Bunny. Allowed range %2$d to %3$dMB. Larger files take longer to encode; uploads typically take up to 10 minutes to appear on the notice.',
+								'hk-funeral-notices'
+							),
+							settings.max_file_size_mb || 900,
+							50,
+							2000
 						) }
 						value={ settings.max_file_size_mb }
 						onChange={ ( v ) =>
