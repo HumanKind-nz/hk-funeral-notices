@@ -4,6 +4,24 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.1] – August 18, 2026
+
+Small fixes found while installing 3.1.0 on a site with no settings configured.
+
+### Fixed: Google Places API key had nowhere to go
+
+The notice about address autocomplete linked to an old settings screen that is no longer part of the menu, and the modern screen had no field for the key. It can now be entered under **Settings → General → Advanced**, and the notice points there. A key set in `wp-config.php` still takes precedence.
+
+### Fixed: old plugin name in one notice
+
+That same notice was the last place still calling the plugin "Weave Funeral Notices".
+
+### Removed: an unused file
+
+An old copy of the dashboard was being included in the release despite never being used.
+
+---
+
 ## [3.1.0] – August 17, 2026
 
 ### Fixed: updates stopped appearing
