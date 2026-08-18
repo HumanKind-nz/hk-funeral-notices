@@ -345,7 +345,7 @@ export default function GeneralTab( {
 							updateSetting( 'google_places_api_key', v )
 						}
 						help={ __(
-							'Enables address autocomplete on the venue field. Needs the Maps JavaScript, Places and Geocoding APIs enabled, and should be restricted to this domain. HKFN_GOOGLE_MAPS_KEY in wp-config.php overrides this.',
+							'Enables address autocomplete on the venue field. Needs the Maps JavaScript, Places and Geocoding APIs enabled, and should be restricted to this domain. This setting takes precedence: HKFN_GOOGLE_MAPS_KEY in wp-config.php is only used when this is empty.',
 							'hk-funeral-notices'
 						) }
 					/>
