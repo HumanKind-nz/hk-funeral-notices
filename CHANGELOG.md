@@ -4,6 +4,17 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.2] – August 21, 2026
+
+### Fixed
+- The GitHub updater wrote its `no_update` entry only when one did not already
+  exist. WordPress core populates `no_update` for every plugin it checked,
+  including plugins it does not host, and a core entry carries none of our
+  metadata, so core's entry always won. The plugin icon and version metadata
+  therefore vanished from the Plugins screen whenever the plugin was already up
+  to date, and only appeared while an update was pending. The entry is now
+  always written. Same fix applied across the Weave and HumanKind plugins.
+
 ## [3.1.1] – August 18, 2026
 
 Small fixes found while installing 3.1.0 on a site with no settings configured.
