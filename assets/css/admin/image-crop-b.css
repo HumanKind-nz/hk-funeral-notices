@@ -49,6 +49,16 @@
 	padding: 16px;
 	overflow: hidden;
 	flex: 1 1 auto;
+}
+
+/**
+ * Cropper.js sizes its container from the parent's offsetWidth/offsetHeight,
+ * both of which include padding. Given a padded parent it builds a container
+ * 32px too wide and too tall, which hangs off the right and bottom edges of
+ * the dialog. The stage carries no padding of its own, so the crop area
+ * measures the same box it is drawn into.
+ */
+.hkfn-cropb-stage {
 	min-height: 300px;
 }
 

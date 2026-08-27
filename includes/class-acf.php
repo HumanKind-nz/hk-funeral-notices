@@ -830,9 +830,10 @@ function hkfn_register_image_sizes() {
 	// Legacy 1:1 square size (500x500)
 	add_image_size( 'funeral-image', 500, 500, true );
 
-	// Grid crop size for card/grid layouts (4:3 ratio, 800x600)
-	// Used by Crop-Thumbnails plugin
-	add_image_size( 'hkfn-grid-crop', 800, 600, true );
+	// hkfn-grid-crop is NOT registered here. It belongs to ImageCropHandler,
+	// which registers it square on after_setup_theme. A second registration
+	// on init silently overwrote that with the retired Crop-Thumbnails 4:3
+	// size, so photos uploaded without a crop came out landscape.
 }
 add_action( 'init', 'hkfn_register_image_sizes' );
 

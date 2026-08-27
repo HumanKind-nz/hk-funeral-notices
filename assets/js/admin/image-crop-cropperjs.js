@@ -56,20 +56,53 @@
 			return;
 		}
 		const label = document.createElement('p');
-		label.textContent = 'Current grid image (shown on grid and list pages):';
+		label.textContent = 'Square photo, shown on the funeral notices list:';
 		label.style.margin = '10px 0 4px';
 		label.style.fontWeight = '600';
 
 		const img = document.createElement('img');
 		img.src = cropUrl;
-		img.alt = 'Current grid crop';
+		img.alt = 'Current square photo';
 		img.style.maxWidth = '220px';
-		img.style.border = '1px solid #c3c4c7';
-		img.style.borderRadius = '4px';
+		img.style.borderRadius = '3px';
 		img.style.display = 'block';
 
+		// Clicking the square is the shortest way back into the cropper, and
+		// it is the thing staff look at when they decide it needs redoing
+		const trigger = document.createElement('button');
+		trigger.type = 'button';
+		trigger.title = 'Crop this photo again';
+		trigger.setAttribute('aria-label', 'Crop this photo again');
+		trigger.style.display = 'block';
+		trigger.style.padding = '0';
+		trigger.style.lineHeight = '0';
+		trigger.style.background = 'none';
+		trigger.style.border = '1px solid #c3c4c7';
+		trigger.style.borderRadius = '4px';
+		trigger.style.cursor = 'pointer';
+		trigger.addEventListener('mouseenter', function() {
+			trigger.style.borderColor = '#2271b1';
+		});
+		trigger.addEventListener('mouseleave', function() {
+			trigger.style.borderColor = '#c3c4c7';
+		});
+		trigger.addEventListener('click', function() {
+			const id = getThumbnailId();
+			if (id) {
+				openCropModal(id);
+			}
+		});
+		trigger.appendChild(img);
+
+		const hint = document.createElement('p');
+		hint.textContent = 'Click it to crop again.';
+		hint.style.margin = '4px 0 0';
+		hint.style.color = '#646970';
+		hint.style.fontSize = '12px';
+
 		ui.preview.appendChild(label);
-		ui.preview.appendChild(img);
+		ui.preview.appendChild(trigger);
+		ui.preview.appendChild(hint);
 	}
 
 	function refreshButtons() {
@@ -325,17 +358,20 @@
 		modal = document.createElement('div');
 		modal.className = 'hkfn-cropb-overlay';
 		modal.innerHTML =
-			'<div class="hkfn-cropb-dialog" role="dialog" aria-label="Crop photo for grid">' +
+			'<div class="hkfn-cropb-dialog" role="dialog" aria-label="Crop the photo to a square">' +
 				'<div class="hkfn-cropb-head">' +
-					'<strong>Crop photo for grid cards</strong>' +
+					'<strong>Crop the photo to a square, with the person in the middle</strong>' +
 					'<button type="button" class="hkfn-cropb-close" aria-label="Close">&times;</button>' +
 				'</div>' +
-				'<div class="hkfn-cropb-body"><img class="hkfn-cropb-img" alt="Photo to crop"></div>' +
+				'<div class="hkfn-cropb-body">' +
+					// Cropper.js measures this wrapper, so it must carry no padding
+					'<div class="hkfn-cropb-stage"><img class="hkfn-cropb-img" alt="Photo to crop"></div>' +
+				'</div>' +
 				'<div class="hkfn-cropb-foot">' +
 					'<span class="hkfn-cropb-zoom">' +
 						'<button type="button" class="button hkfn-cropb-zoom-out" aria-label="Zoom out">&minus;</button>' +
 						'<button type="button" class="button hkfn-cropb-zoom-in" aria-label="Zoom in">+</button>' +
-						'<span class="hkfn-cropb-hint">Drag to reposition, scroll or pinch to zoom. Zoom out if the photo doesn&rsquo;t fit &mdash; the edges are filled with a soft blur.</span>' +
+						'<span class="hkfn-cropb-hint">Drag to reposition, scroll or pinch to zoom. If the photo doesn&rsquo;t fit, zoom out and the edges fill with a soft blur. The full photo still shows on the notice page.</span>' +
 					'</span>' +
 					'<span class="hkfn-cropb-actions">' +
 						'<button type="button" class="button hkfn-cropb-cancel">Cancel</button>' +

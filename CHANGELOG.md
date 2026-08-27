@@ -4,6 +4,45 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.3] – August 27, 2026
+
+### Changed
+- The person photo no longer opens the media library when clicked. Staff kept
+  clicking it, landing somewhere none of the photo tools live, and getting
+  lost. It is now a plain image, and "Replace photo…" and "Re-crop photo"
+  underneath it are the way in. Nothing changes before a photo is added.
+- Clearer wording in the crop window. The heading said "Crop photo for grid
+  cards", which meant nothing to the people using it. It now says what to do
+  and reassures them the original is untouched.
+- The same plain wording on the Person's Image field. "Grid and list pages" is
+  our language, not theirs, so it now names the funeral notices list.
+- The square preview under the field opens the crop window when clicked. It is
+  the thing staff look at when deciding a photo needs redoing, so it is now
+  also the way to redo it.
+
+### Fixed
+- Two faults in the photo crop tool.
+
+  The crop area sat 16px right of where it should, with no gap at all on its
+  right edge. Cropper.js sizes itself from its parent's `offsetWidth`, which
+  counts padding, so it built a crop area 32px wider and taller than the space
+  it was drawn into and the overflow was clipped off. The image now sits in an
+  unpadded wrapper inside the padded dialog body.
+
+  A photo uploaded and saved without cropping came out the wrong shape on grid
+  cards, and only came right after a re-crop and re-save. The `hkfn-grid-crop`
+  size was registered twice: square by the crop tool on `after_setup_theme`,
+  then 4:3 by a leftover Crop-Thumbnails line on `init`. The later one won, so
+  every uncropped upload was generated landscape. Cropping wrote the correct
+  square file directly, which is why re-cropping fixed it. The stale
+  registration is gone, and notices already carrying a landscape rendition now
+  fall back to the large image rather than showing it.
+- The plugin's `HKFN_VERSION` constant still read 3.1.1 after the 3.1.2
+  release. Updates were never affected, since the updater reads the version
+  from the plugin header, but the constant also cache-busts admin assets. It
+  now tracks the header.
+- The release workflow no longer runs on the deprecated Node 20 runtime.
+
 ## [3.1.2] – August 21, 2026
 
 ### Fixed

@@ -3,7 +3,7 @@
  * Plugin Name:       HumanKind Funeral Notices
  * Plugin URI:        https://humankindwebsites.com/plugins/funeral-notices/
  * Description:       Professional funeral notice management with modern responsive layouts, advanced search, and styling controls for funeral homes. Optional video hosting via your own Bunny Stream account.
- * Version:           3.1.2
+ * Version:           3.1.3
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            Gareth Bissland | Weave Digital Studio
@@ -26,7 +26,7 @@ namespace HumanKind\FuneralNotices;
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'HKFN_VERSION', '3.1.1' );
+define( 'HKFN_VERSION', '3.1.3' );
 define( 'HKFN_PLUGIN_FILE', __FILE__ );
 define( 'HKFN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKFN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

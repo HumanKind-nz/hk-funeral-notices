@@ -75,6 +75,9 @@ class ImageCropHandler {
 
         // Add custom image sizes to media library dropdown
         add_filter('image_size_names_choose', [$this, 'add_grid_crop_to_media_sizes']);
+
+        // Stop the person photo itself opening the media library
+        add_filter('admin_post_thumbnail_html', [$this, 'unlink_person_photo_thumbnail'], 10, 3);
     }
 
     /**
@@ -739,6 +742,49 @@ class ImageCropHandler {
     }
 
     /**
+     * Stop the person photo thumbnail opening the media library
+     *
+     * Core wraps the featured image in a link to the media library. Staff kept
+     * clicking the photo, landing somewhere none of the photo tools live, and
+     * getting lost. The photo becomes a plain image; "Replace photo…" and
+     * "Re-crop photo" underneath it are the way in.
+     *
+     * Runs on the AJAX re-render too (wp_ajax_get_post_thumbnail_html), so the
+     * photo stays unclickable after an upload swaps it out.
+     *
+     * @param string   $content      Featured image metabox markup
+     * @param int      $post_id      Post being edited
+     * @param int|null $thumbnail_id Attachment ID, null when no photo is set
+     * @return string
+     */
+    public function unlink_person_photo_thumbnail(string $content, int $post_id, $thumbnail_id): string {
+        // With no photo set the link reads "Set person photo" and is the only
+        // way in if our own upload button ever fails to load — leave it be.
+        if (!$thumbnail_id || get_post_type($post_id) !== 'funeral-notice') {
+            return $content;
+        }
+
+        // Unwrap the thumbnail, keeping the <img> that sits inside the link
+        $unwrapped = preg_replace(
+            '#<a\b[^>]*\bid=["\']set-post-thumbnail["\'][^>]*>(.*?)</a>#s',
+            '$1',
+            $content
+        );
+        if (is_string($unwrapped)) {
+            $content = $unwrapped;
+        }
+
+        // "Click the image to edit or update" is no longer true
+        $stripped = preg_replace(
+            '#<p\b[^>]*\bid=["\']set-post-thumbnail-desc["\'][^>]*>.*?</p>#s',
+            '',
+            $content
+        );
+
+        return is_string($stripped) ? $stripped : $content;
+    }
+
+    /**
      * Add grid crop size to media library size dropdown
      *
      * @param array $sizes Existing image sizes
@@ -785,6 +831,19 @@ class ImageCropHandler {
         }
 
         $metadata = wp_get_attachment_metadata($attachment_id);
+        if (!is_array($metadata)) {
+            $metadata = [];
+        }
+
+        // Photos uploaded while a stale 4:3 registration of this size name was
+        // in play carry a landscape rendition nobody chose. Skipping it falls
+        // through to the large image, which CSS centre-crops to the same
+        // result an uncropped upload gets today.
+        if (!empty($metadata['sizes'][self::GRID_CROP_SIZE])
+            && !self::rendition_matches_output_ratio($metadata['sizes'][self::GRID_CROP_SIZE])) {
+            unset($metadata['sizes'][self::GRID_CROP_SIZE]);
+        }
+
         foreach ([self::GRID_CROP_SIZE, self::LEGACY_GRID_CROP_SIZE] as $size) {
             if (!empty($metadata['sizes'][$size]['file'])) {
                 $url = wp_get_attachment_image_url($attachment_id, $size);
@@ -797,6 +856,25 @@ class ImageCropHandler {
         // No staff crop exists — a large rendition is plenty for a grid card
         $url = wp_get_attachment_image_url($attachment_id, 'large');
         return $url ?: wp_get_attachment_image_url($attachment_id, 'full');
+    }
+
+    /**
+     * Does a stored rendition match the aspect ratio the crop tool outputs?
+     *
+     * @param array $size Entry from attachment metadata['sizes']
+     * @return bool True when the rendition is the current output shape
+     */
+    private static function rendition_matches_output_ratio(array $size): bool {
+        $width = (int) ($size['width'] ?? 0);
+        $height = (int) ($size['height'] ?? 0);
+
+        if ($width < 1 || $height < 1) {
+            return false;
+        }
+
+        $target = self::GRID_WIDTH / self::GRID_HEIGHT;
+
+        return abs(($width / $height) - $target) / $target < 0.01;
     }
 
     /**
