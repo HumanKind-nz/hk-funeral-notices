@@ -31,10 +31,10 @@ class LoadMoreHandler {
         // Get parameters from POST
         $offset = isset($_POST['offset']) ? absint($_POST['offset']) : 0;
         $posts_per_load = isset($_POST['posts_per_load']) ? absint($_POST['posts_per_load']) : 9;
-        $layout = isset($_POST['layout']) ? sanitize_text_field($_POST['layout']) : 'modern';
+        $layout = isset($_POST['layout']) ? sanitize_text_field(wp_unslash($_POST['layout'])) : 'modern';
 
         // Get filter parameters
-        $filters = isset($_POST['filters']) ? $this->sanitize_filters($_POST['filters']) : [];
+        $filters = isset($_POST['filters']) ? $this->sanitize_filters($_POST['filters']) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitize_filters() unslashes the JSON form itself and sanitises every field.
 
         // Build query arguments
         $args = [

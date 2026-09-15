@@ -201,12 +201,12 @@ class Dashboard {
         if (!current_user_can('manage_options')) {
             // For funeral_staff and funeral_manager without manage_options,
             // redirect to All Funeral Notices page
-            wp_redirect(admin_url('edit.php?post_type=funeral-notice'));
+            wp_safe_redirect(admin_url('edit.php?post_type=funeral-notice'));
             exit;
         }
         
         // Handle form submissions
-        if (isset($_POST['submit']) && wp_verify_nonce($_POST['hkfn_nonce'], 'hkfn_dashboard_action')) {
+        if (isset($_POST['submit'], $_POST['hkfn_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hkfn_nonce'])), 'hkfn_dashboard_action')) {
             $this->handle_dashboard_form();
         }
 
@@ -235,11 +235,11 @@ class Dashboard {
                         <h3>Quick Statistics</h3>
                         <div class="hkfn-stats-grid">
                             <div class="hkfn-stat-card">
-                                <div class="stat-number"><?php echo wp_count_posts('funeral-notice')->publish; ?></div>
+                                <div class="stat-number"><?php echo (int) wp_count_posts('funeral-notice')->publish; ?></div>
                                 <div class="stat-label">Published Notices</div>
                             </div>
                             <div class="hkfn-stat-card">
-                                <div class="stat-number"><?php echo wp_count_posts('funeral-notice')->draft; ?></div>
+                                <div class="stat-number"><?php echo (int) wp_count_posts('funeral-notice')->draft; ?></div>
                                 <div class="stat-label">Draft Notices</div>
                             </div>
                         </div>
@@ -302,7 +302,7 @@ class Dashboard {
                 </div>
                 <div class="hkfn-header-banner">
                     <div class="hkfn-plugin-logo">
-                        <img src="<?php echo plugin_dir_url(__FILE__) . '../../assets/images/hkfn-logo.png'; ?>"
+                        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../../assets/images/hkfn-logo.png'); ?>"
                               alt="HumanKind Funeral Notices" 
                               class="hkfn-logo-image" />
                     </div>
@@ -481,7 +481,7 @@ class Dashboard {
      * Handle AJAX module toggle
      */
     public function handle_module_toggle(): void {
-        if (!wp_verify_nonce($_POST['nonce'], 'hkfn_admin_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_admin_nonce')) {
             wp_die('Security check failed');
         }
 
@@ -489,8 +489,8 @@ class Dashboard {
             wp_die('Insufficient permissions');
         }
 
-        $module_id = sanitize_text_field($_POST['module_id']);
-        $enabled = filter_var($_POST['enabled'], FILTER_VALIDATE_BOOLEAN);
+        $module_id = sanitize_text_field(wp_unslash($_POST['module_id'] ?? ''));
+        $enabled = filter_var(wp_unslash($_POST['enabled'] ?? ''), FILTER_VALIDATE_BOOLEAN);
 
         $enabled_modules = hkfn_get_option('enabled_modules', []);
         $enabled_modules[$module_id] = $enabled;
@@ -508,8 +508,8 @@ class Dashboard {
      */
     private function handle_dashboard_form(): void {
         // Handle any dashboard-specific form actions
-        if (isset($_POST['action'])) {
-            $action = sanitize_text_field($_POST['action']);
+        if (isset($_POST['action'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only called from render_dashboard() after wp_verify_nonce().
+            $action = sanitize_text_field(wp_unslash($_POST['action'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only called from render_dashboard() after wp_verify_nonce().
             
             switch ($action) {
                 case 'reset_settings':
@@ -525,7 +525,7 @@ class Dashboard {
      */
     public function render_migration_page(): void {
         // Handle form submission
-        if (isset($_POST['migrate_addresses']) && wp_verify_nonce($_POST['hkfn_migration_nonce'], 'hkfn_migrate_action')) {
+        if (isset($_POST['migrate_addresses'], $_POST['hkfn_migration_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hkfn_migration_nonce'])), 'hkfn_migrate_action')) {
             $this->run_address_migration();
         }
         
@@ -598,7 +598,7 @@ class Dashboard {
         
         foreach ($posts as $post) {
             echo '<div class="migration-item">';
-            echo '<strong>Processing:</strong> ' . esc_html($post->post_title) . ' (ID: ' . $post->ID . ')<br>';
+            echo '<strong>Processing:</strong> ' . esc_html($post->post_title) . ' (ID: ' . (int) $post->ID . ')<br>';
             
             try {
                 // Get the legacy ACFE Google Maps data
@@ -659,9 +659,9 @@ class Dashboard {
         }
         
         echo '<div class="notice notice-success"><p>';
-        echo '✅ Successfully migrated: <strong>' . $migrated_count . '</strong> posts<br>';
+        echo '✅ Successfully migrated: <strong>' . (int) $migrated_count . '</strong> posts<br>';
         if ($error_count > 0) {
-            echo '❌ Errors: <strong>' . $error_count . '</strong> posts<br>';
+            echo '❌ Errors: <strong>' . (int) $error_count . '</strong> posts<br>';
         }
         echo 'Migration completed!';
         echo '</p></div>';

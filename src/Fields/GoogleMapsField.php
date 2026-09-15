@@ -109,7 +109,7 @@ class GoogleMapsField extends \acf_field {
      */
     public function render_field_settings($field) {
         ?>
-        <tr class="field_option field_option_<?php echo $this->name; ?>">
+        <tr class="field_option field_option_<?php echo esc_attr($this->name); ?>">
             <td class="label">
                 <label for=""><?php esc_html_e("Map Center Latitude", 'acf'); ?></label>
             </td>
@@ -126,7 +126,7 @@ class GoogleMapsField extends \acf_field {
             </td>
         </tr>
         
-        <tr class="field_option field_option_<?php echo $this->name; ?>">
+        <tr class="field_option field_option_<?php echo esc_attr($this->name); ?>">
             <td class="label">
                 <label for=""><?php esc_html_e("Map Center Longitude", 'acf'); ?></label>
             </td>
@@ -143,7 +143,7 @@ class GoogleMapsField extends \acf_field {
             </td>
         </tr>
         
-        <tr class="field_option field_option_<?php echo $this->name; ?>">
+        <tr class="field_option field_option_<?php echo esc_attr($this->name); ?>">
             <td class="label">
                 <label for=""><?php esc_html_e("Default Zoom", 'acf'); ?></label>
             </td>
@@ -163,7 +163,7 @@ class GoogleMapsField extends \acf_field {
             </td>
         </tr>
         
-        <tr class="field_option field_option_<?php echo $this->name; ?>">
+        <tr class="field_option field_option_<?php echo esc_attr($this->name); ?>">
             <td class="label">
                 <label for=""><?php esc_html_e("Map Height", 'acf'); ?></label>
             </td>
@@ -203,7 +203,7 @@ class GoogleMapsField extends \acf_field {
             add_action('admin_notices', function() {
                 echo '<div class="notice notice-warning"><p>';
                 echo '<strong>HumanKind Funeral Notices:</strong> a Google Places API key is needed for address autocomplete. ';
-                echo '<a href="' . admin_url('admin.php?page=hk-funeral-notices-settings') . '">Add one under Settings, General, Advanced</a>';
+                echo '<a href="' . esc_url(admin_url('admin.php?page=hk-funeral-notices-settings')) . '">Add one under Settings, General, Advanced</a>';
                 echo '</p></div>';
             });
             return;

@@ -66,7 +66,7 @@ $mode = $args['mode'] ?? 'modern';
     <?php if ($mode === 'current'): ?>
         <!-- Current layout content -->
             <?php if ($service_sheet): ?>
-                <p><strong>Service Sheet:</strong> <a href="<?php echo esc_url($service_sheet['url']); ?>" target="_blank" rel="noopener"><?php echo hkfn_get_document_icon(); ?> Download Service Sheet</a></p>
+                <p><strong>Service Sheet:</strong> <a href="<?php echo esc_url($service_sheet['url']); ?>" target="_blank" rel="noopener"><?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download Service Sheet</a></p>
             <?php endif; ?>
             <?php if ($has_video): ?>
                 <p><strong>Memorial Video Slideshow:</strong> <a href="<?php echo esc_url($video_data['stream_url'] ?? ''); ?>" target="_blank" rel="noopener">📹 Watch Memorial Video</a></p>
@@ -74,7 +74,7 @@ $mode = $args['mode'] ?? 'modern';
             <?php if (!empty($additional_docs)): ?>
                 <?php foreach ($additional_docs as $doc): ?>
                     <?php if (!empty($doc['file'])): ?>
-                        <p><strong><?php echo esc_html($doc['title'] ?: 'Additional Document'); ?>:</strong> <a href="<?php echo esc_url($doc['file']['url']); ?>" target="_blank" rel="noopener"><?php echo hkfn_get_document_icon(); ?> Download</a></p>
+                        <p><strong><?php echo esc_html($doc['title'] ?: 'Additional Document'); ?>:</strong> <a href="<?php echo esc_url($doc['file']['url']); ?>" target="_blank" rel="noopener"><?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download</a></p>
                     <?php endif; ?>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -91,7 +91,7 @@ $mode = $args['mode'] ?? 'modern';
                            target="_blank"
                            rel="noopener"
                            class="firehawk-maps-button">
-                           <?php echo hkfn_get_document_icon(); ?> Download Service Sheet
+                           <?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download Service Sheet
                         </a>
                     </span>
                 </div>
@@ -119,7 +119,7 @@ $mode = $args['mode'] ?? 'modern';
                                    target="_blank"
                                    rel="noopener"
                                    class="firehawk-maps-button">
-                                   <?php echo hkfn_get_document_icon(); ?> Download
+                                   <?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download
                                 </a>
                             </span>
                         </div>
@@ -142,7 +142,7 @@ $mode = $args['mode'] ?? 'modern';
                            target="_blank"
                            rel="noopener"
                            class="hkfn-download-button hkfn-<?php echo esc_attr($mode); ?>-download-button">
-                           <?php echo hkfn_get_document_icon(); ?> Download Service Sheet
+                           <?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download Service Sheet
                         </a>
                     </div>
                 </div>
@@ -182,7 +182,7 @@ $mode = $args['mode'] ?? 'modern';
                                    target="_blank" 
                                    rel="noopener"
                                    class="hkfn-download-button hkfn-<?php echo esc_attr($mode); ?>-download-button">
-                                   <?php echo hkfn_get_document_icon(); ?> Download
+                                   <?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download
                                 </a>
                             </div>
                         </div>

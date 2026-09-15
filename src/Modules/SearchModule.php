@@ -252,11 +252,11 @@ class SearchModule extends BaseModule {
     public function handle_ajax_search(): void {
         check_ajax_referer('hkfn_search_nonce', 'nonce');
         
-        $search_term = sanitize_text_field($_POST['search_term'] ?? '');
-        $date_from = sanitize_text_field($_POST['date_from'] ?? '');
-        $date_to = sanitize_text_field($_POST['date_to'] ?? '');
-        $location = sanitize_text_field($_POST['location'] ?? '');
-        $page = (int) ($_POST['page'] ?? 1);
+        $search_term = sanitize_text_field(wp_unslash($_POST['search_term'] ?? ''));
+        $date_from = sanitize_text_field(wp_unslash($_POST['date_from'] ?? ''));
+        $date_to = sanitize_text_field(wp_unslash($_POST['date_to'] ?? ''));
+        $location = sanitize_text_field(wp_unslash($_POST['location'] ?? ''));
+        $page = isset($_POST['page']) ? (int) sanitize_text_field(wp_unslash($_POST['page'])) : 1;
         
         $settings = $this->get_settings();
         
@@ -393,7 +393,7 @@ class SearchModule extends BaseModule {
                                name="search" 
                                class="hkfn-search-input"
                                placeholder="<?php echo esc_attr($settings['search_placeholder']); ?>"
-                               value="<?php echo esc_attr($_GET['search'] ?? ''); ?>">
+                               value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['search'] ?? ''))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
                         <button type="submit" class="hkfn-search-submit">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
@@ -417,11 +417,11 @@ class SearchModule extends BaseModule {
                         <input type="hidden"
                                id="hkfn-date-from"
                                name="date_from"
-                               value="<?php echo esc_attr($_GET['date_from'] ?? ''); ?>">
+                               value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['date_from'] ?? ''))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
                         <input type="hidden"
                                id="hkfn-date-to"
                                name="date_to"
-                               value="<?php echo esc_attr($_GET['date_to'] ?? ''); ?>">
+                               value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['date_to'] ?? ''))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
 
                         <button type="button" class="hkfn-date-clear" aria-label="Clear date range" style="display: none;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -440,7 +440,7 @@ class SearchModule extends BaseModule {
                                name="location" 
                                class="hkfn-location-input"
                                placeholder="Enter location..."
-                               value="<?php echo esc_attr($_GET['location'] ?? ''); ?>">
+                               value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['location'] ?? ''))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
                     </div>
                     <?php endif; ?>
                     
@@ -486,8 +486,8 @@ class SearchModule extends BaseModule {
             'term' => $search_term,
             'results' => $result_count,
             'timestamp' => time(),
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? ''
+            'user_agent' => sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'] ?? '')),
+            'ip' => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''))
         ];
         
         // Keep only last 30 days of analytics

@@ -69,6 +69,7 @@ class FieldGroupMigration {
         ];
 
         foreach ($post_ids as $post_id) {
+            // phpcs:disable WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery -- Fixed literal LIKE prefixes with escaped underscores; no user input in the pattern.
             $rows = $wpdb->get_results($wpdb->prepare(
                 "SELECT meta_key, meta_value FROM {$wpdb->postmeta}
                  WHERE post_id = %d AND (meta_key LIKE 'wfn\_%%' OR meta_key LIKE '\_wfn\_%%')",
@@ -85,6 +86,7 @@ class FieldGroupMigration {
                 $post_id
             )));
 
+            // phpcs:enable WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery
             foreach ($rows as $row) {
                 $new_key = (strpos($row->meta_key, '_wfn_') === 0)
                     ? '_hkfn_' . substr($row->meta_key, 5)

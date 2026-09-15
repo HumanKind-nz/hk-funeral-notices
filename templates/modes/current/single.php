@@ -141,7 +141,7 @@ $post_content = get_the_content();
                                     data-title="<?php echo esc_attr($share['title']); ?>"
                                     data-message="<?php echo esc_attr(wp_unslash($share['message'])); ?>"
                                     aria-label="Share this funeral notice">
-                                <?php echo hkfn_get_share_icon('', 18); ?>
+                                <?php echo hkfn_get_share_icon('', 18); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?>
                                 <span>Share</span>
                             </button>
                         </div>
@@ -197,7 +197,7 @@ $post_content = get_the_content();
                         <a href="<?php echo esc_url($documents['service_sheet']['url']); ?>"
                            target="_blank"
                            class="hkfn-service-sheet-btn">
-                           <?php echo hkfn_get_document_icon(); ?> Download Service Sheet
+                           <?php echo hkfn_get_document_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> Download Service Sheet
                         </a>
                     </div>
                 <?php endif; ?>
@@ -208,7 +208,7 @@ $post_content = get_the_content();
                         <button type="button"
                                 class="hkfn-memorial-video-btn"
                                 data-video-modal="<?php echo esc_attr($documents['video_slideshow']['modal_id']); ?>">
-                                <?php echo hkfn_get_video_icon(); ?> View Slideshow
+                                <?php echo hkfn_get_video_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> View Slideshow
                         </button>
                     </div>
                 <?php endif; ?>
@@ -242,7 +242,7 @@ $post_content = get_the_content();
                             <a href="<?php echo esc_url($doc['url']); ?>"
                                target="_blank"
                                class="hkfn-document-link">
-                               <?php echo $icon_function(); ?> <?php echo esc_html($doc['title']); ?>
+                               <?php echo $icon_function(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> <?php echo esc_html($doc['title']); ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
@@ -276,7 +276,7 @@ $post_content = get_the_content();
 
                     <?php if ($streaming['embed_code']): ?>
                         <!-- StreamingDetector has generated the appropriate embed or button -->
-                        <?php echo $streaming['embed_code']; ?>
+                        <?php echo $streaming['embed_code']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup built by StreamingDetector from a validated video ID or URL. ?>
 
                     <?php elseif ($streaming['streaming_url']): ?>
                         <!-- Fallback: simple button for unrecognized services -->
@@ -285,7 +285,7 @@ $post_content = get_the_content();
                                target="_blank"
                                rel="noopener"
                                class="hkfn-stream-btn">
-                               <?php echo hkfn_get_stream_icon(); ?> View Funeral Stream
+                               <?php echo hkfn_get_stream_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?> View Funeral Stream
                             </a>
                         </div>
 

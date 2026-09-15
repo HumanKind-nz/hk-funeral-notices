@@ -88,7 +88,7 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
                             data-title="<?php echo esc_attr($share['title']); ?>"
                             data-message="<?php echo esc_attr(wp_unslash($share['message'])); ?>"
                             aria-label="Share this funeral notice">
-                        <?php echo hkfn_get_share_icon('', 18); ?>
+                        <?php echo hkfn_get_share_icon('', 18); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG from svg-icons.php, attributes escaped there. ?>
                         <span>Share</span>
                     </button>
                 </div>
@@ -164,7 +164,7 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
                     <?php if ($streaming['embed_code']): ?>
                         <!-- StreamingDetector has generated the appropriate embed or button -->
                         <div class="hkfn-elegant-stream-embed">
-                            <?php echo $streaming['embed_code']; ?>
+                            <?php echo $streaming['embed_code']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup built by StreamingDetector from a validated video ID or URL. ?>
                         </div>
 
                     <?php elseif ($streaming['streaming_url']): ?>
@@ -199,7 +199,7 @@ require_once __DIR__ . '/../../partials/svg-icons.php';
         <!-- Service Documents -->
         <?php 
         // Include service sheets partial
-        echo $template_manager->render_partial('service-sheets', get_the_ID(), ['mode' => 'elegant']);
+        echo $template_manager->render_partial('service-sheets', get_the_ID(), ['mode' => 'elegant']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Partial template, escaped within.
         ?>
 
         <!-- Closing section with formal actions -->

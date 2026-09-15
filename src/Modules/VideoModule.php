@@ -405,7 +405,7 @@ class VideoModule extends BaseModule {
     public function process_video_upload_background(): void {
         // Verify nonce
         $post_id = intval($_POST['post_id'] ?? 0);
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_upload_' . $post_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_upload_' . $post_id)) {
             wp_die('Security check failed');
         }
 
@@ -501,14 +501,14 @@ class VideoModule extends BaseModule {
 
         // Verify file exists before upload
         if (!file_exists($local_file_path)) {
-            throw new \Exception('Video file not found at local path: ' . $local_file_path . ' (converted from: ' . $upload_job['file_path'] . ')');
+            throw new \Exception('Video file not found at local path: ' . $local_file_path . ' (converted from: ' . $upload_job['file_path'] . ')'); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is logged and stored; rendered through esc_html() in the admin status table.
         }
 
         // Upload to Bunny Stream
         $upload_result = $this->bunny_service->upload_video($local_file_path, $metadata);
 
         if (!$upload_result['success']) {
-            throw new \Exception('Video hosting upload failed: ' . $upload_result['message']);
+            throw new \Exception('Video hosting upload failed: ' . $upload_result['message']); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is logged and stored; rendered through esc_html() in the admin status table.
         }
 
         $video_id = $upload_result['video_id'];
@@ -589,7 +589,7 @@ class VideoModule extends BaseModule {
             }
 
             if ($transcoding_status['overall_status'] === 'failed') {
-                throw new \Exception('Video transcoding failed: ' . implode(', ', $transcoding_status['errors']));
+                throw new \Exception('Video transcoding failed: ' . implode(', ', $transcoding_status['errors'])); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is logged and stored; rendered through esc_html() in the admin status table.
             }
         }
 
@@ -746,7 +746,7 @@ class VideoModule extends BaseModule {
                                            name="hkfn_module_settings[allowed_formats][]"
                                            value="<?php echo esc_attr($format); ?>"
                                            <?php checked(in_array($format, $settings['allowed_formats'])); ?>>
-                                    <?php echo strtoupper($format); ?>
+                                    <?php echo esc_html(strtoupper($format)); ?>
                                 </label>
                             <?php endforeach; ?>
                         </div>
@@ -971,7 +971,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         <tr>
             <td>
                 <strong><?php echo esc_html($post->post_title); ?></strong><br>
-                <small>ID: <?php echo $post->ID; ?></small>
+                <small>ID: <?php echo (int) $post->ID; ?></small>
             </td>
             <td>
                 <span class="hkfn-video-status hkfn-video-status-<?php echo esc_attr($video_status); ?>">
@@ -995,7 +995,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 <?php if (!empty($video_metadata['file_info'])): ?>
                     <small>
                         <?php echo esc_html($video_metadata['file_info']['filename']); ?><br>
-                        Size: <?php echo size_format($video_metadata['file_info']['filesize']); ?>
+                        Size: <?php echo esc_html(size_format($video_metadata['file_info']['filesize'])); ?>
                     </small>
                 <?php else: ?>
                     <span class="hkfn-text-muted">No info available</span>
@@ -1004,12 +1004,12 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
             <td>
                 <div class="hkfn-video-actions">
                     <?php if ($video_id && $video_status === 'ready'): ?>
-                        <button class="button button-small hkfn-preview-video" data-video-id="<?php echo esc_attr($video_id); ?>" data-post-id="<?php echo $post->ID; ?>">
+                        <button class="button button-small hkfn-preview-video" data-video-id="<?php echo esc_attr($video_id); ?>" data-post-id="<?php echo (int) $post->ID; ?>">
                             Preview
                         </button>
                     <?php endif; ?>
 
-                    <button class="button button-small button-secondary hkfn-delete-video" data-post-id="<?php echo $post->ID; ?>" data-video-id="<?php echo esc_attr($video_id); ?>">
+                    <button class="button button-small button-secondary hkfn-delete-video" data-post-id="<?php echo (int) $post->ID; ?>" data-video-id="<?php echo esc_attr($video_id); ?>">
                         Delete
                     </button>
                 </div>
@@ -1030,7 +1030,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Use same nonce as status since they're similar operations
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_status_' . $post_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_status_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1049,7 +1049,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_status_' . $post_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_status_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1072,7 +1072,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_retry_' . $post_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_retry_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1118,14 +1118,14 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     public function ajax_delete_video(): void {
         $post_id = intval($_POST['post_id'] ?? 0);
-        $video_id = sanitize_text_field($_POST['video_id'] ?? '');
+        $video_id = sanitize_text_field(wp_unslash($_POST['video_id'] ?? ''));
 
         if (!$post_id || !$video_id) {
             wp_send_json_error('Invalid parameters');
         }
 
         // Verify nonce with post ID
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_delete_' . $post_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_delete_' . $post_id)) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1802,7 +1802,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         global $post;
-        echo apply_filters('hkfn_memorial_video_modal', '', $post->ID);
+        echo apply_filters('hkfn_memorial_video_modal', '', $post->ID); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Modal markup from BunnyStreamService::get_modal_embed_code(), built by the plugin.
     }
 
     /**
@@ -1896,7 +1896,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1922,7 +1922,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1948,7 +1948,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
         }
 
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_video_maintenance')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_video_maintenance')) {
             wp_send_json_error('Security check failed');
         }
 
@@ -1997,7 +1997,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 </div>
 
                 <div class="hkfn-stat-item">
-                    <div class="hkfn-stat-value"><?php echo $stats['total_storage_mb']; ?>MB</div>
+                    <div class="hkfn-stat-value"><?php echo esc_html($stats['total_storage_mb']); ?>MB</div>
                     <div class="hkfn-stat-label">Total Storage</div>
                 </div>
             </div>
@@ -2010,7 +2010,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                 <div class="hkfn-maintenance-info">
                     <p><strong>Last Maintenance:</strong> <?php echo esc_html($last_maintenance['completed_at']); ?></p>
                     <?php if ($last_maintenance['total_errors'] > 0): ?>
-                        <p class="hkfn-text-warning">⚠️ <?php echo $last_maintenance['total_errors']; ?> errors during last maintenance</p>
+                        <p class="hkfn-text-warning">⚠️ <?php echo (int) $last_maintenance['total_errors']; ?> errors during last maintenance</p>
                     <?php else: ?>
                         <p class="hkfn-text-success">✅ Last maintenance completed without errors</p>
                     <?php endif; ?>
@@ -2086,7 +2086,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
                     type: 'POST',
                     data: {
                         action: ajaxAction,
-                        nonce: '<?php echo wp_create_nonce('hkfn_video_maintenance'); ?>'
+                        nonce: '<?php echo esc_js(wp_create_nonce('hkfn_video_maintenance')); ?>'
                     },
                     success: function(response) {
                         if (response.success) {
@@ -2213,7 +2213,7 @@ define('HKFN_BUNNYSTREAM_API_KEY', 'your_api_key');</code></pre>
      */
     public function ajax_manual_process_video(): void {
         // Verify nonce and permissions
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'hkfn_manual_video_process') || !current_user_can('manage_options')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'hkfn_manual_video_process') || !current_user_can('manage_options')) {
             wp_send_json_error('Security check failed');
         }
 

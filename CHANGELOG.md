@@ -4,6 +4,13 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.4] - 2026-09-15
+
+### Security
+- Every value printed by the four single-notice templates, the service sheets partial, the notices shortcode, the video module, the maps field, the admin columns and the dashboard is escaped for its context: URLs with `esc_url()`, attributes with `esc_attr()`, text with `esc_html()`, numbers cast to int, values inside inline scripts with `esc_js()`. Markup the plugin builds itself (icons, embeds from validated IDs, pagination, attachment images, inline CSS) is annotated with the reason it prints as-is. No change to what renders.
+- Every nonce and request value is unslashed before it is checked or sanitised, with a safe default where a missing field previously raised a PHP warning. The three admin redirects use `wp_safe_redirect()`. `rawurlencode()` replaces `urlencode()` in map and tribute links (space becomes `%20`; every target decodes it the same).
+- The WordPress security sniffs now run clean on the plugin.
+
 ## [3.1.3] – August 27, 2026
 
 ### Changed

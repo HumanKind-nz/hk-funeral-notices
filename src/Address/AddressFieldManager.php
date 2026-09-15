@@ -238,7 +238,7 @@ class AddressFieldManager {
         
         // Use formatted address as final fallback
         if (!empty($address_data['address'])) {
-            return "https://www.google.com/maps/place/" . urlencode($address_data['address']);
+            return "https://www.google.com/maps/place/" . rawurlencode($address_data['address']);
         }
         
         return '';

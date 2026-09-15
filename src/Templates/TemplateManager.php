@@ -587,7 +587,7 @@ class TemplateManager {
             return $this->address_manager->generate_maps_url($custom_address);
         } elseif ($location_type === 'existing' && !empty($location_name)) {
             // Use taxonomy location name for search
-            return 'https://maps.google.com/maps?q=' . urlencode($location_name);
+            return 'https://maps.google.com/maps?q=' . rawurlencode($location_name);
         }
         
         return '';
@@ -616,7 +616,7 @@ class TemplateManager {
         }
         
         // URL encode the query and generate Google Maps link
-        return 'https://maps.google.com/maps?q=' . urlencode($query);
+        return 'https://maps.google.com/maps?q=' . rawurlencode($query);
     }
 
     /**
@@ -683,19 +683,19 @@ class TemplateManager {
         if (preg_match('/\{[a-zA-Z_]+\}/', $base_url)) {
             // New placeholder system - replace placeholders in the URL
             $placeholders = [
-                '{firstname}' => urlencode($first_name),
-                '{lastname}' => urlencode($last_name),
-                '{fullname}' => urlencode($full_name),
-                '{first_name}' => urlencode($first_name), // Alternative format
-                '{last_name}' => urlencode($last_name),   // Alternative format
-                '{full_name}' => urlencode($full_name)    // Alternative format
+                '{firstname}' => rawurlencode($first_name),
+                '{lastname}' => rawurlencode($last_name),
+                '{fullname}' => rawurlencode($full_name),
+                '{first_name}' => rawurlencode($first_name), // Alternative format
+                '{last_name}' => rawurlencode($last_name),   // Alternative format
+                '{full_name}' => rawurlencode($full_name)    // Alternative format
             ];
 
             $url = str_replace(array_keys($placeholders), array_values($placeholders), $base_url);
         } else {
             // Legacy system - append as tribute parameter (backwards compatibility)
             $separator = strpos($base_url, '?') !== false ? '&' : '?';
-            $url = $base_url . $separator . 'tribute=' . urlencode($full_name);
+            $url = $base_url . $separator . 'tribute=' . rawurlencode($full_name);
         }
 
         /**

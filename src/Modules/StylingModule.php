@@ -368,20 +368,20 @@ class StylingModule extends BaseModule {
         
         // Generate CSS variables
         echo '<style id="hkfn-styling-variables">';
-        echo $this->generate_css_variables();
+        echo $this->generate_css_variables(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline CSS built by the plugin from validated settings; no HTML context.
         echo '</style>';
         
         // Output inline CSS if not optimized
         if (!$settings['css_optimization']) {
             echo '<style id="hkfn-custom-styling">';
-            echo $this->generate_custom_css();
+            echo $this->generate_custom_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline CSS built by the plugin from validated settings; no HTML context.
             echo '</style>';
         }
         
         // Output custom CSS
         if ($settings['enable_custom_css'] && !empty($settings['custom_css'])) {
             echo '<style id="hkfn-user-custom-css">';
-            echo wp_strip_all_tags($this->upgrade_legacy_css_selectors($settings['custom_css']));
+            echo wp_strip_all_tags($this->upgrade_legacy_css_selectors($settings['custom_css'])); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline CSS with tags stripped; no HTML context.
             echo '</style>';
         }
     }

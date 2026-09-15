@@ -87,7 +87,7 @@ class AdminColumns {
                     $display_name .= '<div class="row-actions">' . implode(' | ', $row_actions) . '</div>';
                 }
                 
-                echo $display_name;
+                echo $display_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Assembled above from esc_html() text and get_row_actions() links.
                 break;
                 
             case 'last_name':
@@ -141,7 +141,7 @@ class AdminColumns {
             $image = wp_get_attachment_image($thumbnail_id, [100, 100], false, [
                 'style' => 'width: 100px; height: 100px; object-fit: cover; border-radius: 4px;'
             ]);
-            echo $image;
+            echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() returns escaped markup.
         } else {
             // Show placeholder or default image
             echo '<div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>';
@@ -304,7 +304,7 @@ class AdminColumns {
         $privacy_indicator = $is_private ? ' (Private)' : '';
         $color = $is_private ? '#d4af37' : '#0073aa';
         
-        echo '<span style="color: ' . $color . ';">' . esc_html($service_name . $privacy_indicator) . '</span>';
+        echo '<span style="color: ' . esc_attr($color) . ';">' . esc_html($service_name . $privacy_indicator) . '</span>';
     }
 
     /**
@@ -325,7 +325,7 @@ class AdminColumns {
         }
         
         if ($doc_count > 0) {
-            echo '<span style="color: #0073aa;">' . $doc_count . ' file' . ($doc_count > 1 ? 's' : '') . '</span>';
+            echo '<span style="color: #0073aa;">' . (int) $doc_count . ' file' . ($doc_count > 1 ? 's' : '') . '</span>';
         } else {
             echo '—';
         }
@@ -351,7 +351,7 @@ class AdminColumns {
                 case 'processing':
                 case 'uploading':
                 case 'queued':
-                    echo '<span style="color: #f79e05;" title="Video processing: ' . $progress . '%">🔄 Processing</span>';
+                    echo '<span style="color: #f79e05;" title="Video processing: ' . (int) $progress . '%">🔄 Processing</span>';
                     break;
                 case 'failed':
                 case 'retrying':

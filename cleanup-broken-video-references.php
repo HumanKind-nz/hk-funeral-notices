@@ -16,6 +16,8 @@ if (!defined('ABSPATH')) {
     die('Direct access not allowed');
 }
 
+// phpcs:disable WordPress.Security.EscapeOutput, WordPress.Security.NonceVerification -- WP-CLI eval-file script, plain-text console output.
+
 echo "🧹 Cleanup Broken Video References\n";
 echo str_repeat('=', 70) . "\n\n";
 

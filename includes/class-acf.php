@@ -374,7 +374,7 @@ function hkfn_acf_pro_missing_notice() {
             <strong>HumanKind Funeral Notices:</strong> 
             This plugin requires <strong>Advanced Custom Fields PRO</strong> to function properly. 
             <a href="https://www.advancedcustomfields.com/pro/" target="_blank">Purchase ACF Pro</a> 
-            or <a href="<?php echo admin_url('plugins.php'); ?>">activate it</a> if already installed.
+            or <a href="<?php echo esc_url(admin_url('plugins.php')); ?>">activate it</a> if already installed.
         </p>
         <p><em>Required Pro features: Options pages, Group fields, Google Maps, and ACF Extended integration.</em></p>
     </div>
@@ -667,7 +667,7 @@ function hkfn_slug_exists($slug, $exclude_post_id) {
         $exclude_post_id
     );
     
-    return (bool) $wpdb->get_var($query);
+    return (bool) $wpdb->get_var($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
 }
 
 /**
@@ -756,7 +756,7 @@ function makePrintContentsSaySaved()
   {
   global $pagenow;
   if ( isset($pagenow) && $pagenow == 'post-new.php'
-	&& isset($_GET['post_type']) && $_GET['post_type'] === 'funeral-notice'){
+	&& isset($_GET['post_type']) && sanitize_key(wp_unslash($_GET['post_type'])) === 'funeral-notice'){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin screen detection, read only.
 	add_action('admin_print_footer_scripts','makePrintContentsSaySavedGutenberg');
 	add_filter(
 	  'gettext',
@@ -915,10 +915,10 @@ function render_funeral_notices_shortcode($atts = []) {
 	$show_search = $atts['show_search'] === 'yes';
 	
 	// Override with GET parameters if search form was submitted
-	$location_search = sanitize_text_field($_GET['hkfn_location_search'] ?? $atts['location'] ?? '');
-	$date_from = sanitize_text_field($_GET['hkfn_date_from'] ?? $atts['date_from']);
-	$date_to = sanitize_text_field($_GET['hkfn_date_to'] ?? $atts['date_to']);
-	$search_term = sanitize_text_field($_GET['hkfn_search'] ?? '');
+	$location_search = sanitize_text_field(wp_unslash($_GET['hkfn_location_search'] ?? $atts['location'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+	$date_from = sanitize_text_field(wp_unslash($_GET['hkfn_date_from'] ?? $atts['date_from'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+	$date_to = sanitize_text_field(wp_unslash($_GET['hkfn_date_to'] ?? $atts['date_to'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+	$search_term = sanitize_text_field(wp_unslash($_GET['hkfn_search'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
 
 	// Get current page for pagination
 	$paged = max(1, (int) (get_query_var('paged') ?: 1));
@@ -1095,7 +1095,7 @@ function render_modern_grid($query, $columns) {
 	wp_enqueue_style('hkfn-modern', plugin_dir_url(__FILE__) . '../assets/css/modern.css', [], HKFN_VERSION);
 	
 	$grid_class = "hkfn-modern-grid hkfn-cols-{$columns}";
-	echo "<div class=\"{$grid_class}\">";
+	echo '<div class="' . esc_attr($grid_class) . '">';
 
 	while ($query->have_posts()) {
 		$query->the_post();
@@ -1151,7 +1151,7 @@ function render_elegant_grid($query, $columns) {
 	wp_enqueue_style('hkfn-elegant', plugin_dir_url(__FILE__) . '../assets/css/elegant.css', [], HKFN_VERSION);
 	
 	$grid_class = "hkfn-elegant-grid hkfn-cols-{$columns}";
-	echo "<div class=\"{$grid_class}\">";
+	echo '<div class="' . esc_attr($grid_class) . '">';
 
 	while ($query->have_posts()) {
 		$query->the_post();
@@ -1235,7 +1235,7 @@ function render_funeral_notices_search_form($type, $location_search, $date_from,
 					<input type="text" 
 						   name="hkfn_location_search" 
 						   placeholder="Location, venue, or address..." 
-						   value="<?php echo esc_attr($_GET['hkfn_location_search'] ?? $location_search); ?>" />
+						   value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['hkfn_location_search'] ?? $location_search))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>" />
 				</div>
 				
 				<div class="hkfn-search-actions">
@@ -1256,7 +1256,7 @@ function render_funeral_notices_search_form($type, $location_search, $date_from,
  */
 function render_funeral_notices_pagination($query, $paged) {
 	echo '<div class="hkfn-pagination">';
-	echo paginate_links([
+	echo paginate_links([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links() returns escaped markup.
 		'base' => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
 		'format' => '?paged=%#%',
 		'current' => $paged,
@@ -1282,7 +1282,7 @@ function hkfn_custom_post_update_messages($messages) {
 		2  => __('Custom field updated.', 'weave-funeral-notices'),
 		3  => __('Custom field deleted.', 'weave-funeral-notices'),
 		4  => __('Funeral Notice updated.', 'weave-funeral-notices'),
-		5  => isset($_GET['revision']) ? sprintf(__('Funeral Notice restored to revision from %s', 'weave-funeral-notices'), wp_post_revision_title((int) $_GET['revision'], false)) : false,
+		5  => isset($_GET['revision']) ? sprintf(__('Funeral Notice restored to revision from %s', 'weave-funeral-notices'), wp_post_revision_title((int) $_GET['revision'], false)) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core post_updated_messages pattern.
 		6  => sprintf(__('Funeral Notice published. <a href="%s">View Funeral Notice</a>', 'weave-funeral-notices'), esc_url(get_permalink($post_ID))),
 		7  => __('Funeral Notice saved.', 'weave-funeral-notices'),
 		8  => sprintf(__('Funeral Notice submitted. <a target="_blank" href="%s">Preview Funeral Notice</a>', 'weave-funeral-notices'), esc_url(add_query_arg('preview', 'true', get_permalink($post_ID)))),

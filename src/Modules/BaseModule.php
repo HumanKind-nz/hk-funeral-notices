@@ -221,7 +221,7 @@ abstract class BaseModule implements ModuleInterface {
             return;
         }
         
-        if (!wp_verify_nonce($_POST['hkfn_module_' . $this->module_id . '_nonce'], 'hkfn_module_' . $this->module_id)) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hkfn_module_' . $this->module_id . '_nonce'])), 'hkfn_module_' . $this->module_id)) {
             wp_die('Security check failed');
         }
         
@@ -312,7 +312,7 @@ abstract class BaseModule implements ModuleInterface {
      * Displays success/error messages after form submission.
      */
     protected function render_admin_notices(): void {
-        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Notice flag after redirect, read only.
             ?>
             <div class="notice notice-success is-dismissible">
                 <p>Settings saved successfully!</p>
@@ -320,7 +320,7 @@ abstract class BaseModule implements ModuleInterface {
             <?php
         }
         
-        if (isset($_GET['settings-error'])) {
+        if (isset($_GET['settings-error'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Notice flag after redirect, read only.
             ?>
             <div class="notice notice-error is-dismissible">
                 <p>Error saving settings. Please try again.</p>
@@ -344,17 +344,17 @@ abstract class BaseModule implements ModuleInterface {
      * Override in child classes for custom processing.
      */
     public function handle_form_submission(): bool {
-        if (!isset($_POST['hkfn_module_settings'])) {
+        if (!isset($_POST['hkfn_module_settings'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only called from process_admin_form() after wp_verify_nonce() and current_user_can().
             return false;
         }
         
-        $settings = $_POST['hkfn_module_settings'];
+        $settings = $_POST['hkfn_module_settings']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Verified in process_admin_form(); each value is sanitised by update_settings().
         $success = $this->update_settings($settings);
         
         if ($success) {
-            wp_redirect(add_query_arg('settings-updated', 'true', $this->get_admin_url()));
+            wp_safe_redirect(add_query_arg('settings-updated', 'true', $this->get_admin_url()));
         } else {
-            wp_redirect(add_query_arg('settings-error', 'true', $this->get_admin_url()));
+            wp_safe_redirect(add_query_arg('settings-error', 'true', $this->get_admin_url()));
         }
         
         exit;

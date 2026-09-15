@@ -90,10 +90,10 @@ class FuneralNoticesShortcode {
         $show_search = $atts['show_search'] === 'yes';
         
         // Override with GET parameters if search form was submitted
-        $location_search = sanitize_text_field($_GET['hkfn_location_search'] ?? $atts['location'] ?? '');
-        $date_from = sanitize_text_field($_GET['hkfn_date_from'] ?? $atts['date_from']);
-        $date_to = sanitize_text_field($_GET['hkfn_date_to'] ?? $atts['date_to']);
-        $search_term = sanitize_text_field($_GET['hkfn_search'] ?? '');
+        $location_search = sanitize_text_field(wp_unslash($_GET['hkfn_location_search'] ?? $atts['location'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+        $date_from = sanitize_text_field(wp_unslash($_GET['hkfn_date_from'] ?? $atts['date_from'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+        $date_to = sanitize_text_field(wp_unslash($_GET['hkfn_date_to'] ?? $atts['date_to'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
+        $search_term = sanitize_text_field(wp_unslash($_GET['hkfn_search'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only.
 
         // Get current page for pagination
         $paged = max(1, (int) (get_query_var('paged') ?: 1));
@@ -631,7 +631,7 @@ class FuneralNoticesShortcode {
             echo '<h3 class="memorial">';
             echo '<a href="' . esc_url(get_permalink($post_id)) . '">' . esc_html($full_name) . '</a>';
             if (current_user_can('edit_post', $post_id)) {
-                echo '<span>  <a href="' . admin_url('post.php?post=' . $post_id . '&action=edit') . '">[edit]</a></span>';
+                echo '<span>  <a href="' . esc_url(admin_url('post.php?post=' . $post_id . '&action=edit')) . '">[edit]</a></span>';
             }
             echo '</h3>';
             
@@ -704,8 +704,8 @@ class FuneralNoticesShortcode {
         
         // Previous button
         if ($current_page > 1) {
-            $prev_url = str_replace('999999999', (string)($current_page - 1), esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $prev_url . '" class="hkfn-pagination-btn hkfn-pagination-prev">&laquo;</a></li>';
+            $prev_url = str_replace('999999999', (string)($current_page - 1), get_pagenum_link(999999999));
+            echo '<li><a href="' . esc_url($prev_url) . '" class="hkfn-pagination-btn hkfn-pagination-prev">&laquo;</a></li>';
         }
         
         // Page numbers with smart range
@@ -714,8 +714,8 @@ class FuneralNoticesShortcode {
         
         // Show first page if we're not showing it in range
         if ($start > 1) {
-            $first_url = str_replace('999999999', '1', esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $first_url . '" class="hkfn-pagination-btn">1</a></li>';
+            $first_url = str_replace('999999999', '1', get_pagenum_link(999999999));
+            echo '<li><a href="' . esc_url($first_url) . '" class="hkfn-pagination-btn">1</a></li>';
             if ($start > 2) {
                 echo '<li><span class="hkfn-pagination-dots">...</span></li>';
             }
@@ -724,10 +724,10 @@ class FuneralNoticesShortcode {
         // Page range
         for ($i = $start; $i <= $end; $i++) {
             if ($i == $current_page) {
-                echo '<li><span class="hkfn-pagination-btn hkfn-pagination-current">' . $i . '</span></li>';
+                echo '<li><span class="hkfn-pagination-btn hkfn-pagination-current">' . (int) $i . '</span></li>';
             } else {
-                $page_url = str_replace('999999999', (string)$i, esc_url(get_pagenum_link(999999999)));
-                echo '<li><a href="' . $page_url . '" class="hkfn-pagination-btn">' . $i . '</a></li>';
+                $page_url = str_replace('999999999', (string)$i, get_pagenum_link(999999999));
+                echo '<li><a href="' . esc_url($page_url) . '" class="hkfn-pagination-btn">' . (int) $i . '</a></li>';
             }
         }
         
@@ -736,14 +736,14 @@ class FuneralNoticesShortcode {
             if ($end < $total_pages - 1) {
                 echo '<li><span class="hkfn-pagination-dots">...</span></li>';
             }
-            $last_url = str_replace('999999999', (string)$total_pages, esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $last_url . '" class="hkfn-pagination-btn">' . $total_pages . '</a></li>';
+            $last_url = str_replace('999999999', (string)$total_pages, get_pagenum_link(999999999));
+            echo '<li><a href="' . esc_url($last_url) . '" class="hkfn-pagination-btn">' . (int) $total_pages . '</a></li>';
         }
         
         // Next button
         if ($current_page < $total_pages) {
-            $next_url = str_replace('999999999', (string)($current_page + 1), esc_url(get_pagenum_link(999999999)));
-            echo '<li><a href="' . $next_url . '" class="hkfn-pagination-btn hkfn-pagination-next">&raquo;</a></li>';
+            $next_url = str_replace('999999999', (string)($current_page + 1), get_pagenum_link(999999999));
+            echo '<li><a href="' . esc_url($next_url) . '" class="hkfn-pagination-btn hkfn-pagination-next">&raquo;</a></li>';
         }
         
         echo '</ul>';
@@ -824,11 +824,11 @@ class FuneralNoticesShortcode {
                             <input type="hidden"
                                    id="hkfn-date-from"
                                    name="hkfn_date_from"
-                                   value="<?php echo esc_attr($_GET['hkfn_date_from'] ?? $date_from); ?>">
+                                   value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['hkfn_date_from'] ?? $date_from))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
                             <input type="hidden"
                                    id="hkfn-date-to"
                                    name="hkfn_date_to"
-                                   value="<?php echo esc_attr($_GET['hkfn_date_to'] ?? $date_to); ?>">
+                                   value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['hkfn_date_to'] ?? $date_to))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public search form, read only. ?>">
 
                             <?php if ($date_from || $date_to): ?>
                             <button type="button" class="clear-btn hkfn-date-clear"
@@ -925,7 +925,7 @@ class FuneralNoticesShortcode {
         wp_enqueue_style('hkfn-enhancement-modern', plugin_dir_url(__FILE__) . '../../assets/css/layouts/modern-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-modern-grid hkfn-cols-{$columns}";
-        echo "<div class=\"{$grid_class}\">";
+        echo '<div class="' . esc_attr($grid_class) . '">';
 
         while ($query->have_posts()) {
             $query->the_post();
@@ -1029,7 +1029,7 @@ class FuneralNoticesShortcode {
         wp_enqueue_style('hkfn-enhancement-elegant', plugin_dir_url(__FILE__) . '../../assets/css/layouts/elegant-grid.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-elegant-grid hkfn-cols-{$columns}";
-        echo "<div class=\"{$grid_class}\">";
+        echo '<div class="' . esc_attr($grid_class) . '">';
 
         while ($query->have_posts()) {
             $query->the_post();
@@ -1126,7 +1126,7 @@ class FuneralNoticesShortcode {
         wp_enqueue_style('hkfn-enhancement-minimal', plugin_dir_url(__FILE__) . '../../assets/css/layouts/minimal.css', ['hkfn-enhancement-base'], HKFN_VERSION);
         
         $grid_class = "hkfn-enhancement-minimal-grid hkfn-cols-{$columns}";
-        echo "<div class=\"{$grid_class}\">";
+        echo '<div class="' . esc_attr($grid_class) . '">';
 
         while ($query->have_posts()) {
             $query->the_post();
