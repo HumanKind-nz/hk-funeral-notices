@@ -144,7 +144,7 @@ class AdminColumns {
             echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() returns escaped markup.
         } else {
             // Show placeholder or default image
-            echo '<div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>';
+            echo '<div class="hkfn-col-image-placeholder" style="background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>';
         }
     }
 
@@ -156,7 +156,7 @@ class AdminColumns {
         $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
-            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
+            $this->render_status_icon('lock', 'Hidden', '#d9534f', 'Date, time, and venue are hidden from public view', 'italic');
         } elseif ($date) {
             // Format as "Tues 27th May 2025"
             $day_of_week = date('D', strtotime($date));
@@ -177,7 +177,7 @@ class AdminColumns {
         $hide_datetime = $this->get_event_field($post_id, 'hide_datetime');
         
         if ($hide_datetime) {
-            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
+            $this->render_status_icon('lock', 'Hidden', '#d9534f', 'Date, time, and venue are hidden from public view', 'italic');
         } elseif ($time) {
             $formatted_time = date('g:i A', strtotime($time));
             echo esc_html($formatted_time);
@@ -198,7 +198,7 @@ class AdminColumns {
         $hide_datetime = $details_group['hide_datetime'] ?? false;
         
         if ($hide_datetime) {
-            echo '<span style="color: #d9534f; font-style: italic;" title="Date, time, and venue are hidden from public view">🔒 Hidden</span>';
+            $this->render_status_icon('lock', 'Hidden', '#d9534f', 'Date, time, and venue are hidden from public view', 'italic');
             return;
         }
 
@@ -342,7 +342,7 @@ class AdminColumns {
 
         // Show ready if status is ready AND (data exists OR video ID exists for reconstruction)
         if ($video_status === 'ready' && ($video_data || $video_id)) {
-            echo '<span style="color: #0073aa; font-weight: bold;" title="Memorial slideshow ready for viewing">🎥 Ready</span>';
+            $this->render_status_icon('video-alt3', 'Ready', '#0073aa', 'Memorial slideshow ready for viewing', 'bold');
         } elseif ($upload_status && isset($upload_status['status'])) {
             $status = $upload_status['status'];
             $progress = $upload_status['progress'] ?? 0;
@@ -351,14 +351,14 @@ class AdminColumns {
                 case 'processing':
                 case 'uploading':
                 case 'queued':
-                    echo '<span style="color: #f79e05;" title="Video processing: ' . (int) $progress . '%">🔄 Processing</span>';
+                    $this->render_status_icon('update', 'Processing', '#f79e05', 'Video processing: ' . (int) $progress . '%');
                     break;
                 case 'failed':
                 case 'retrying':
-                    echo '<span style="color: #dc3545;" title="Upload failed - check diagnostics">❌ Failed</span>';
+                    $this->render_status_icon('dismiss', 'Failed', '#dc3545', 'Upload failed - check diagnostics');
                     break;
                 default:
-                    echo '<span style="color: #6c757d;" title="Video upload in progress">⏳ Uploading</span>';
+                    $this->render_status_icon('clock', 'Uploading', '#6c757d', 'Video upload in progress');
                     break;
             }
         } else {
@@ -367,11 +367,35 @@ class AdminColumns {
             $video_field = $media_group['video_slideshow'] ?? null;
 
             if ($video_field) {
-                echo '<span style="color: #6c757d;" title="Video uploaded, waiting for processing">⏳ Pending</span>';
+                $this->render_status_icon('clock', 'Pending', '#6c757d', 'Video uploaded, waiting for processing');
             } else {
                 echo '—';
             }
         }
+    }
+
+    /**
+     * Render a status label with a Dashicon.
+     *
+     * Dashicons ship with WordPress admin, so nothing is fetched from an
+     * external CDN. Emoji are avoided here: sites that rewrite the emoji
+     * CDN can leave a broken image in the column.
+     */
+    private function render_status_icon(string $icon, string $label, string $colour, string $title, string $emphasis = ''): void {
+        $style = 'color: ' . $colour . ';';
+        if ($emphasis === 'italic') {
+            $style .= ' font-style: italic;';
+        } elseif ($emphasis === 'bold') {
+            $style .= ' font-weight: bold;';
+        }
+
+        printf(
+            '<span class="hkfn-col-status" style="%1$s" title="%2$s"><span class="dashicons dashicons-%3$s" aria-hidden="true"></span> %4$s</span>',
+            esc_attr( $style ),
+            esc_attr( $title ),
+            esc_attr( $icon ),
+            esc_html( $label )
+        );
     }
 
     /**
@@ -414,8 +438,8 @@ class AdminColumns {
                 .wp-list-table .column-slideshow { width: 90px; }
                 .wp-list-table .column-date { width: 90px; }
 
-                .wp-list-table .column-image img,
-                .wp-list-table .column-image div {
+                .wp-list-table td.column-image img,
+                .wp-list-table td.column-image .hkfn-col-image-placeholder {
                     margin: 5px 0;
                     width: 100px !important;
                     height: 100px !important;
@@ -424,6 +448,18 @@ class AdminColumns {
                 .wp-list-table .column-location {
                     font-size: 13px;
                     line-height: 1.4;
+                }
+
+                .wp-list-table .hkfn-col-status {
+                    white-space: nowrap;
+                }
+
+                .wp-list-table .hkfn-col-status .dashicons {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
+                    line-height: 1.2;
+                    vertical-align: text-bottom;
                 }
             </style>';
         }

@@ -4,6 +4,23 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.1.5] - 2026-09-22
+
+### Fixed
+- The funeral notices list screen no longer shows a broken image next to
+  "Hidden" in the Funeral Date, Funeral Time and Location columns, or next to
+  the Slideshow column's Ready, Processing, Failed, Uploading and Pending
+  labels. Those labels used emoji, and WordPress swaps emoji for an image
+  pulled from a CDN. On sites where something rewrites that CDN address, the
+  image never loads. The labels now use Dashicons, which ship with WordPress
+  admin, so nothing is fetched from outside the site.
+- The funeral notices list screen no longer has a tall empty gap above the
+  column headings on sites running Admin Columns Pro. Our sizing rule for the
+  Image column matched every `div` inside that column, including the two Admin
+  Columns Pro puts in the heading for drag-to-reorder and resize, and forced
+  each of them to 100 by 100 pixels. The rule is now scoped to the table body
+  and to our own "No Image" placeholder.
+
 ## [3.1.4] - 2026-09-15
 
 ### Security
