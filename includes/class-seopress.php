@@ -19,9 +19,10 @@ if ( ! defined( 'WPINC' ) ) {
 function sp_titles_robots($html) {
     // Get plugin settings
     $settings = hkfn_get_option('module_settings', []);
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'. The single_slug setting only
+    // changes the URL, so checking it here missed every site that renamed it.
+    if (is_singular('funeral-notice')) {
         $noindex_enabled = $settings['noindex_funeral_notices'] ?? false;
 
         // Only add noindex if enabled in settings (default is to allow indexing)
@@ -221,22 +222,53 @@ add_action('admin_head', 'hkfn_hide_seopress_taxonomy_fields');
 //  }
 //  add_filter('seopress_social_og_thumb', 'hkfn_social_og_thumb');
 
- /**
-* Remove funerals from XML sitemap
-*
-* @since 1.2.1
-*/
-add_filter('seopress_sitemaps_cpt', 'hkfn_exclude_funeral_notice_from_sitemap');
-
-function hkfn_exclude_funeral_notice_from_sitemap($post_types) {
-    // Check if 'funeral-notice' exists in the post types
-    if (isset($post_types['funeral-notice'])) {
-        // Remove 'funeral-notice' from the post types
-        unset($post_types['funeral-notice']);
+/**
+ * Include funeral notices in the SEOPress XML sitemap by default.
+ *
+ * Notices are indexable unless the "noindex funeral notices" setting is on,
+ * so they belong in the sitemap, where Google finds new notices faster. The
+ * old exclusion used the `seopress_sitemaps_cpt` hook, which SEOPress no
+ * longer has, so it did nothing. Instead we set the post type's include flag
+ * on the SEOPress option as it is read.
+ *
+ * Noindexed notices are always left out. A site can also opt out with:
+ *     add_filter( 'hkfn_include_notices_in_sitemap', '__return_false' );
+ *
+ * @since 3.2.0
+ *
+ * @param mixed $value The seopress_xml_sitemap_option_name option.
+ * @return mixed
+ */
+function hkfn_seopress_sitemap_include_notices($value) {
+    if (!is_array($value)) {
+        return $value;
     }
 
-    return $post_types;
+    $settings = hkfn_get_option('module_settings', []);
+    $include  = empty($settings['noindex_funeral_notices']);
+
+    /**
+     * Filters whether funeral notices are listed in the SEOPress XML sitemap.
+     *
+     * @since 3.2.0
+     *
+     * @param bool $include True to list notices. Defaults to true unless notices are set to noindex.
+     */
+    $include = (bool) apply_filters('hkfn_include_notices_in_sitemap', $include);
+
+    if (!empty($settings['noindex_funeral_notices'])) {
+        $include = false;
+    }
+
+    if ($include) {
+        $value['seopress_xml_sitemap_post_types_list']['funeral-notice']['include'] = '1';
+    } elseif (isset($value['seopress_xml_sitemap_post_types_list']['funeral-notice']['include'])) {
+        unset($value['seopress_xml_sitemap_post_types_list']['funeral-notice']['include']);
+    }
+
+    return $value;
 }
+add_filter('option_seopress_xml_sitemap_option_name', 'hkfn_seopress_sitemap_include_notices');
 
 /**
  * Remove SEOPress admin columns from funeral notice list table
@@ -507,9 +539,10 @@ function hkfn_funeral_notice_og_image($image) {
  */
 function hkfn_start_head_buffer() {
     $settings = hkfn_get_option('module_settings', []);
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'. The single_slug setting only
+    // changes the URL, so checking it here missed every site that renamed it.
+    if (is_singular('funeral-notice')) {
         ob_start('hkfn_filter_twitter_cards_from_head');
     }
 }
@@ -529,9 +562,10 @@ function hkfn_filter_twitter_cards_from_head($html) {
  */
 function hkfn_end_head_buffer() {
     $settings = hkfn_get_option('module_settings', []);
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'. The single_slug setting only
+    // changes the URL, so checking it here missed every site that renamed it.
+    if (is_singular('funeral-notice')) {
         if (ob_get_level() > 0) {
             ob_end_flush();
         }

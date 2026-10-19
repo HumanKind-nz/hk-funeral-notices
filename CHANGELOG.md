@@ -4,6 +4,25 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.2.0] - 2026-10-19
+
+### Changed
+- Funeral notices are now listed in the SEOPress XML sitemap by default, so
+  Google finds new notices sooner. Notices have been indexable by default for
+  a long time; leaving them out of the sitemap dates from an early launch
+  decision that no longer applies. The old exclusion relied on a SEOPress
+  hook (`seopress_sitemaps_cpt`) that SEOPress has since removed, so it had
+  stopped doing anything: notices were only missing because SEOPress never
+  ticked them. Notices are still left out when "Noindex funeral notices" is
+  on, and a site can opt out with
+  `add_filter( 'hkfn_include_notices_in_sitemap', '__return_false' );`.
+
+### Fixed
+- The "Noindex funeral notices" setting now works on sites that changed the
+  single notice URL slug. It checked the slug instead of the `funeral-notice`
+  post type, so on those sites notices stayed indexable whatever the setting
+  said.
+
 ## [3.1.5] - 2026-09-22
 
 ### Fixed
