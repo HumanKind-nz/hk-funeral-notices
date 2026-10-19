@@ -4,6 +4,23 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.2.1] - 2026-10-19
+
+### Changed
+- Funeral notice titles and the upcoming funerals page title and description
+  now end with the business name from SEOPress's Knowledge Graph setting
+  (SEOPress > Social Networks > Knowledge Graph) when one is set, instead of
+  the WordPress site title. Many sites pad the site title with keywords, which
+  made every notice title too long to show in Google, for example "Jane Smith
+  Funeral Notice | Funeral Directors North Shore Auckland, H Morris Funeral
+  Services". Sites without a Knowledge Graph name keep the site title. Override
+  per site with the `hkfn_seo_title_site_name` filter.
+
+### Fixed
+- Notice SEO titles, descriptions and social share images now apply on sites
+  that changed the single notice URL slug. Like the noindex setting fixed in
+  3.2.0, they checked the slug instead of the `funeral-notice` post type.
+
 ## [3.2.0] - 2026-10-19
 
 ### Changed

@@ -11,6 +11,38 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
+ * The business name used in funeral notice titles and descriptions.
+ *
+ * Uses the SEOPress Knowledge Graph name when one is set, because many sites
+ * pad the WordPress site title with keywords ("Funeral Directors North Shore
+ * Auckland, ...") and that made every notice title too long for Google.
+ * Falls back to the site title. Filterable per site.
+ *
+ * @since 3.2.1
+ *
+ * @return string
+ */
+function hkfn_seo_title_site_name() {
+    $name   = '';
+    $social = get_option('seopress_social_option_name');
+    if (is_array($social) && !empty($social['seopress_social_knowledge_name'])) {
+        $name = trim((string) $social['seopress_social_knowledge_name']);
+    }
+    if ('' === $name) {
+        $name = (string) get_bloginfo('name');
+    }
+
+    /**
+     * Filters the business name used in funeral notice titles and descriptions.
+     *
+     * @since 3.2.1
+     *
+     * @param string $name The name.
+     */
+    return (string) apply_filters('hkfn_seo_title_site_name', $name);
+}
+
+/**
 * No index single funeral notices (if enabled in settings)
 *
 * @since 1.2.0
@@ -47,7 +79,7 @@ function hkfn_notice_archive_title($html) {
          $funeral_location_name = $settings['location_name'] ?? '';
  
          // Define your custom title text - use site name as fallback
-         $site_name = get_bloginfo('name');
+         $site_name = hkfn_seo_title_site_name();
          $custom_title = !empty($funeral_location_name) 
              ? esc_html($funeral_location_name) . ' Upcoming Funerals | Funeral Times & Livestreams'
              : esc_html($site_name) . ' Upcoming Funerals | Funeral Times & Livestreams';
@@ -107,7 +139,7 @@ function sp_funeral_notice_archive_meta_description($html) {
          wp_reset_postdata();
  
          // Update the meta description - use site name as fallback
-         $site_name = get_bloginfo('name');
+         $site_name = hkfn_seo_title_site_name();
          $custom_description = !empty($funeral_location_name)
              ? "Explore " . $funeral_location_name . " upcoming funeral notices and streaming information. Find out when and where our funerals are. You can leave a tribute or view a livestream. Upcoming funeral notices for: " . trim(implode(', ', $post_names))
              : "Explore " . $site_name . " upcoming funeral notices and streaming information. Find out when and where funerals are taking place. You can leave a tribute or view a livestream. Upcoming funeral notices for: " . trim(implode(', ', $post_names));
@@ -307,9 +339,10 @@ function hkfn_funeral_notice_seo_title($title) {
         return $title;
     }
 
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'; single_slug only changes the URL.
+
+    if (is_singular('funeral-notice')) {
         global $post;
 
         // Get person details - handle both new group structure and old flat structure
@@ -328,7 +361,7 @@ function hkfn_funeral_notice_seo_title($title) {
         if ($first_name && $last_name) {
             $full_name = trim($first_name . ' ' . $last_name);
             $title_suffix = $settings['seo_title_suffix'] ?? '';
-            $site_name = get_bloginfo('name');
+            $site_name = hkfn_seo_title_site_name();
 
             // Build title: Firstname Lastname [Custom Text or 'Funeral Notice'] | Sitename
             $custom_text = !empty($title_suffix) ? $title_suffix : 'Funeral Notice';
@@ -341,7 +374,7 @@ function hkfn_funeral_notice_seo_title($title) {
 
         } else {
             // Fallback if no names found
-            $site_name = get_bloginfo('name');
+            $site_name = hkfn_seo_title_site_name();
             if ($site_name) {
                 $title = get_the_title($post->ID) . ' | ' . $site_name;
             } else {
@@ -365,9 +398,10 @@ function hkfn_funeral_notice_seo_description($description) {
         return $description;
     }
 
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'; single_slug only changes the URL.
+
+    if (is_singular('funeral-notice')) {
         global $post;
 
         // Get person details - handle both new group structure and old flat structure
@@ -508,9 +542,10 @@ function hkfn_funeral_notice_og_image($image) {
         return $image;
     }
 
-    $single_slug = $settings['single_slug'] ?? 'funeral-notice';
 
-    if (is_singular($single_slug)) {
+    // The post type is always 'funeral-notice'; single_slug only changes the URL.
+
+    if (is_singular('funeral-notice')) {
         global $post;
 
         // Check for custom social share image setting first
