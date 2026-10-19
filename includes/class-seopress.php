@@ -143,6 +143,12 @@ function sp_funeral_notice_archive_meta_description($html) {
          $custom_description = !empty($funeral_location_name)
              ? "Explore " . $funeral_location_name . " upcoming funeral notices and streaming information. Find out when and where our funerals are. You can leave a tribute or view a livestream. Upcoming funeral notices for: " . trim(implode(', ', $post_names))
              : "Explore " . $site_name . " upcoming funeral notices and streaming information. Find out when and where funerals are taking place. You can leave a tribute or view a livestream. Upcoming funeral notices for: " . trim(implode(', ', $post_names));
+         // Keep it to the meta description length; the name list can run long
+         $max_length = (int) ($settings['meta_description_length'] ?? 160);
+         if (mb_strlen($custom_description) > $max_length) {
+             $custom_description = mb_substr($custom_description, 0, $max_length - 3);
+             $custom_description = preg_replace('/[\s,]+\S*$/u', '', $custom_description) . '...';
+         }
          $html = esc_attr($custom_description);
      }
  
@@ -443,8 +449,13 @@ function hkfn_funeral_notice_seo_description($description) {
         }
         $location_name = $settings['location_name'] ?? '';
 
-        if ($first_name && $last_name) {
-            $full_name = trim($first_name . ' ' . $last_name);
+        // Older notices have no name fields, so fall back to the notice title
+        $full_name = trim($first_name . ' ' . $last_name);
+        if ($full_name === '') {
+            $full_name = trim(get_the_title($post->ID));
+        }
+
+        if ($full_name !== '') {
 
             // Start with tribute text if available (this is the main content)
             if ($tribute_text) {
@@ -462,8 +473,8 @@ function hkfn_funeral_notice_seo_description($description) {
                     $reserve_space = 60;
                     $available_space = $max_length - $reserve_space;
 
-                    if (strlen($clean_tribute) > $available_space) {
-                        $clean_tribute = substr($clean_tribute, 0, $available_space - 3) . '...';
+                    if (mb_strlen($clean_tribute) > $available_space) {
+                        $clean_tribute = mb_substr($clean_tribute, 0, $available_space - 3) . '...';
                     }
 
                     // Add service details
@@ -484,8 +495,8 @@ function hkfn_funeral_notice_seo_description($description) {
                     }
                 } else {
                     // No service details, use full space for tribute
-                    if (strlen($clean_tribute) > $max_length - 3) {
-                        $clean_tribute = substr($clean_tribute, 0, $max_length - 3) . '...';
+                    if (mb_strlen($clean_tribute) > $max_length - 3) {
+                        $clean_tribute = mb_substr($clean_tribute, 0, $max_length - 3) . '...';
                     }
                 }
 
@@ -520,8 +531,8 @@ function hkfn_funeral_notice_seo_description($description) {
 
                 // Ensure it doesn't exceed meta description length setting
                 $max_length = (int) ($settings['meta_description_length'] ?? 160);
-                if (strlen($description) > $max_length) {
-                    $description = substr($description, 0, $max_length - 3) . '...';
+                if (mb_strlen($description) > $max_length) {
+                    $description = mb_substr($description, 0, $max_length - 3) . '...';
                 }
             }
         }

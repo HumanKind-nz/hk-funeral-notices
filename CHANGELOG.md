@@ -4,6 +4,20 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.2.2] - 2026-10-19
+
+### Fixed
+- Notice meta descriptions no longer come out blank when the notice text has
+  a dash, macron or other non-ASCII character near the cut-off point. The
+  description was trimmed by bytes, which could split a character in half, and
+  WordPress then dropped the whole description as invalid text. Trimming now
+  counts characters.
+- Older notices with no first or last name fields now get a meta description,
+  using the notice title as the name, the same way their SEO title already did.
+- The upcoming funerals page description is now held to the meta description
+  length setting. It listed every upcoming name and could run past 250
+  characters.
+
 ## [3.2.1] - 2026-10-19
 
 ### Changed
