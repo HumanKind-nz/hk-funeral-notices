@@ -255,6 +255,9 @@ class TemplateManager {
         if (empty($custom_address) || empty($custom_address['address'])) {
             $custom_address = get_field('wfn_details_group_custom_address', $post_id) ?: [];
         }
+        // Older notices hold the venue as a line of text. Give it the full
+        // address structure so the display and map code can index it.
+        $custom_address = $this->address_manager->coerce_address_data($custom_address);
         
         // Backwards compatibility (v1) - check for old checkbox structure
         if (!$location_type) {
@@ -266,7 +269,7 @@ class TemplateManager {
                 $location_type = $old_other_address ? 'custom' : 'existing';
                 // For backwards compatibility, convert old simple address to AddressFieldManager format
                 if ($old_other_address && empty($custom_address['address'])) {
-                    $custom_address = ['address' => $old_other_address, 'source' => 'legacy'];
+                    $custom_address = $this->address_manager->coerce_address_data($old_other_address);
                 }
             } else {
                 $location_type = 'existing';

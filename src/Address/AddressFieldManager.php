@@ -189,6 +189,27 @@ class AddressFieldManager {
     }
     
     /**
+     * Accept address data in any stored shape
+     *
+     * Older notices store the venue as a line of text, and callers can fall
+     * back to reading that raw meta. Turn a string into the legacy structure
+     * and fill missing keys on a partial array, so display code can index it.
+     *
+     * @param mixed $address_data Address array, plain text address, or empty
+     * @return array Address data with every key present, or [] when empty
+     */
+    public function coerce_address_data($address_data): array {
+        if (is_string($address_data)) {
+            $address_data = trim($address_data);
+            return $address_data === '' ? [] : $this->convert_simple_address($address_data);
+        }
+        if (!is_array($address_data) || empty($address_data)) {
+            return [];
+        }
+        return array_merge($this->get_empty_address_data(), $address_data);
+    }
+
+    /**
      * Get empty address data structure
      * 
      * @return array
@@ -251,6 +272,7 @@ class AddressFieldManager {
      * @return string Formatted address for display
      */
     public function get_formatted_address($address_data): string {
+        $address_data = $this->coerce_address_data($address_data);
         if (empty($address_data)) {
             return '';
         }
@@ -279,6 +301,7 @@ class AddressFieldManager {
      * @return array Address components
      */
     public function get_address_components($address_data): array {
+        $address_data = $this->coerce_address_data($address_data);
         if (empty($address_data)) {
             return [];
         }
