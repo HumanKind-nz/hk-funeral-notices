@@ -33,12 +33,35 @@ class HKFN_Role_Integration {
     }
 
     /**
-     * Grant standard WordPress capabilities to funeral roles if they exist
+     * Make sure the Funeral Staff and Funeral Manager roles exist.
      *
-     * This ensures backward compatibility with existing sites using funeral_staff
-     * and funeral_manager roles while using standard WordPress capabilities.
+     * HK Funeral Suite created these roles up to 1.4. Its 2.x line hands
+     * them to this plugin, because staff sign in to add and remove funeral
+     * notices and that's what the roles are for now. Creating a missing
+     * role also restores access for anyone still assigned to it: WordPress
+     * keeps the role on each user even after remove_role().
+     *
+     * Starts from 'read'; grant_funeral_notice_capabilities() adds the rest.
+     */
+    public static function ensure_roles() {
+        if (!get_role('funeral_staff')) {
+            add_role('funeral_staff', __('Funeral Staff', 'weave-funeral-notices'), array('read' => true));
+        }
+        if (!get_role('funeral_manager')) {
+            add_role('funeral_manager', __('Funeral Manager', 'weave-funeral-notices'), array('read' => true));
+        }
+    }
+
+    /**
+     * Grant standard WordPress capabilities to the funeral roles
+     *
+     * Uses standard WordPress capabilities. ensure_roles() runs first, so
+     * funeral_staff and funeral_manager always exist; the legacy 'funeral'
+     * role is only updated if a site has it.
      */
     public static function grant_funeral_notice_capabilities() {
+        self::ensure_roles();
+
         // Grant capabilities to funeral_staff if it exists
         $staff_role = get_role('funeral_staff');
         if ($staff_role) {
