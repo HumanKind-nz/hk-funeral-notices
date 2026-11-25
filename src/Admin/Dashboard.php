@@ -32,6 +32,7 @@ class Dashboard {
     public function init(): void {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_menu', [$this, 'modify_menu_structure'], 999); // Run after menu is built
+        add_filter('weave_dashboard_owner_menu', [$this, 'owner_menu_notices_first'], 20);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('wp_ajax_hkfn_toggle_module', [$this, 'handle_module_toggle']);
         add_action('wp_ajax_hkfn_migrate_addresses', [$this, 'handle_address_migration']);
@@ -50,7 +51,7 @@ class Dashboard {
             'hk-funeral-notices',
             [$this, 'render_dashboard'],
             'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2ZmZiIgdmlld0JveD0iMCAwIDEyMiAxMDYiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik02LjQgMTguN2MwIDE1LjUgNi41IDI5LjUgMTcgMzkuNSAyLTEuNiA0LjItMyA2LjQtNC40YTQ2LjcgNDYuNyAwIDAgMS0xNS44LTM1aDYuNWE0MC40IDQwLjQgMCAwIDAgMjIgMzYgNTEuOCA1MS44IDAgMCAwLTE5LjEgMTEuOGMtMTAuNSA5LjktMTcgMjQtMTcgMzkuNEgwYzAtMTcuMSA3LjEtMzIuNiAxOC41LTQzLjZBNjAuNiA2MC42IDAgMCAxIDAgMTguN2g2LjRabTEwMS42IDBhNDYuNyA0Ni43IDAgMCAxLTQ3IDQ2LjkgNDAuMiA0MC4yIDAgMCAwLTI1IDguNkE0MC40IDQwLjQgMCAwIDAgMjAuNSAxMDZIMTRhNDYuNyA0Ni43IDAgMCAxIDQ3LTQ2LjggNDAuMiA0MC4yIDAgMCAwIDI1LTguNyA0MC4xIDQwLjEgMCAwIDAgMTUuNS0zMS44aDYuNVpNNjEgNzMuMmM1LjkgMCAxMS40IDEuNSAxNi4xIDQuMmguMUEzMi45IDMyLjkgMCAwIDEgOTQgMTA2aC02LjVhMjYuNSAyNi41IDAgMCAwLTUzIDBoLTYuNEEzMi44IDMyLjggMCAwIDEgNjEgNzMuMVptNjEtNTQuNWMwIDE3LjEtNy4xIDMyLjYtMTguNSA0My43QTYwLjYgNjAuNiAwIDAgMSAxMjIgMTA2aC02LjRhNTQuMyA1NC4zIDAgMCAwLTIyLTQzLjYgNTQuMyA1NC4zIDAgMCAwIDIyLTQzLjZoNi40Wm0tMzUuNCA0OEE0Ni43IDQ2LjcgMCAwIDEgMTA4IDEwNmgtNi40YTQwLjQgNDAuNCAwIDAgMC0yMi0zNmMyLjQtLjggNC44LTIgNy4xLTMuMVptLTUyLjEtNDhhMjYuNSAyNi41IDAgMCAwIDUzIDBoNi40YTMyLjggMzIuOCAwIDAgMS00OSAyOC42aC0uMUEzMi45IDMyLjkgMCAwIDEgMjggMTguN2g2LjVaTTYxIDBhMTcuMiAxNy4yIDAgMSAxIDAgMzQuNEExNy4yIDE3LjIgMCAwIDEgNjEgMFptMCA2LjRhMTAuOCAxMC44IDAgMSAwIDEwLjggMTAuOGMwLTYtNC45LTEwLjgtMTAuOC0xMC44WiIvPjwvc3ZnPgo=',
-            6
+            3 // Straight under Dashboard: notices are what funeral staff come in for
         );
 
         // Add New Funeral Notice submenu (first item)
@@ -84,6 +85,47 @@ class Dashboard {
             'hk-funeral-notices-settings',
             [$this, 'render_settings_page']
         );
+    }
+
+    /**
+     * Put HK Funeral Notices first in the Weave Dashboard Website Owner menu.
+     *
+     * That plugin builds its own ordered menu for owners (0.2.11 and later
+     * include this page), so the position given to add_menu_page() does not
+     * reach it. Moves the item to sit after Dashboard, and after Training when
+     * that is present. Without the Weave Dashboard plugin this never runs.
+     *
+     * @param array $items Owner menu items keyed by id, in display order.
+     * @return array
+     */
+    public function owner_menu_notices_first($items): array {
+        $items = (array) $items;
+        $key   = null;
+        foreach ($items as $id => $item) {
+            if (is_array($item) && ($item['slug'] ?? '') === 'hk-funeral-notices') {
+                $key = $id;
+                break;
+            }
+        }
+        if (null === $key) {
+            return $items;
+        }
+
+        $notices = $items[$key];
+        unset($items[$key]);
+        $after = isset($items['training']) ? 'training' : 'dashboard';
+
+        $out = [];
+        foreach ($items as $id => $item) {
+            $out[$id] = $item;
+            if ($id === $after) {
+                $out[$key] = $notices;
+            }
+        }
+        if (!isset($out[$key])) {
+            $out = [$key => $notices] + $out;
+        }
+        return $out;
     }
 
     /**

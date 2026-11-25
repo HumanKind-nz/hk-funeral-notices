@@ -4,6 +4,16 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.2.3] - 2026-11-25
+
+### Changed
+- HK Funeral Notices now sits straight under Dashboard in the admin sidebar
+  (menu position 3, was 6, below Posts). Notices are what funeral staff sign
+  in for, so they no longer have to look for them.
+- On sites with the Weave Dashboard plugin, notices also come first in the
+  tidy Website Owner menu (after Dashboard, and after Training when it is
+  shown), through its `weave_dashboard_owner_menu` filter.
+
 ## [3.2.2] - 2026-10-19
 
 ### Fixed
