@@ -323,16 +323,8 @@ class AddressFieldManager {
      * @return bool
      */
     public function is_api_key_configured(): bool {
-        // Check module settings first
-        $settings = hkfn_get_option('module_settings', []);
-        $api_key = $settings['google_places_api_key'] ?? '';
-        
-        // Debug logging removed for production
-        
-        // Fallback to ACF options for backwards compatibility
-        if (empty($api_key)) {
-            $api_key = get_field('hkfn_google_places_api_key', 'option') ?: '';
-        }
+        // Plugin setting, then the old ACF option, then the wp-config constant.
+        $api_key = hkfn_google_maps_key();
         
         $is_configured = !empty($api_key) && strlen($api_key) > 20;
         

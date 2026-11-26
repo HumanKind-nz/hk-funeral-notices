@@ -4,6 +4,18 @@ This changelog summarises the key improvements, fixes, and features added to the
 
 ---
 
+## [3.2.4] - 2026-11-26
+
+### Fixed
+- The `HKFN_GOOGLE_MAPS_KEY` constant now turns on address autocomplete.
+  Only ACF's own map field read the constant. The venue address field and
+  the "a Google Places API key is needed" warning only looked at the
+  settings screen, so a key set in wp-config.php or GridPane's
+  user-configs.php was ignored there (found on the Lychgate build). One
+  helper, `hkfn_google_maps_key()`, now serves all three, in this order:
+  the setting under Settings, General, Advanced, then the older ACF
+  option, then `HKFN_GOOGLE_MAPS_KEY` (or `WFN_GOOGLE_MAPS_KEY`).
+
 ## [3.2.3] - 2026-11-25
 
 ### Changed

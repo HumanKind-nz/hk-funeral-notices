@@ -402,12 +402,7 @@ if ( function_exists( 'acf_add_options_sub_page' ) ){
 // HKFN_GOOGLE_MAPS_KEY wp-config constant. No key is hardcoded — each site
 // supplies its own (Settings > Google Maps / Places API Key).
 function hkfn_acf_google_map_key() {
-	$settings = hkfn_get_option( 'module_settings', array() );
-	$key      = is_array( $settings ) ? ( $settings['google_places_api_key'] ?? '' ) : '';
-
-	if ( '' === $key ) {
-		$key = (string) hkfn_get_constant( 'GOOGLE_MAPS_KEY', '' );
-	}
+	$key = hkfn_google_maps_key();
 
 	if ( '' !== $key ) {
 		acf_update_setting( 'google_api_key', $key );

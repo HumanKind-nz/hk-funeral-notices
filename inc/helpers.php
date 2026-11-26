@@ -49,3 +49,29 @@ function hkfn_get_option( string $key, $default = false ) {
 	}
 	return get_option( 'wfn_' . $key, $default );
 }
+
+/**
+ * The site's Google Maps / Places API key, '' when none is set.
+ *
+ * One lookup for every consumer (the address autocomplete field, the
+ * address field manager and ACF's own map field), in this order:
+ * the plugin setting (Settings, General, Advanced), the older ACF
+ * options field, then HKFN_GOOGLE_MAPS_KEY (or WFN_GOOGLE_MAPS_KEY) in
+ * wp-config.php or GridPane's user-configs.php.
+ *
+ * @return string
+ */
+function hkfn_google_maps_key(): string {
+	$settings = hkfn_get_option( 'module_settings', array() );
+	$key      = is_array( $settings ) ? trim( (string) ( $settings['google_places_api_key'] ?? '' ) ) : '';
+
+	if ( '' === $key && function_exists( 'get_field' ) ) {
+		$key = trim( (string) ( get_field( 'hkfn_google_places_api_key', 'option' ) ?: '' ) );
+	}
+
+	if ( '' === $key ) {
+		$key = trim( (string) hkfn_get_constant( 'GOOGLE_MAPS_KEY', '' ) );
+	}
+
+	return $key;
+}

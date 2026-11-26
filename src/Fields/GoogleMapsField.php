@@ -189,14 +189,8 @@ class GoogleMapsField extends \acf_field {
      * Enqueue admin scripts and styles
      */
     public function input_admin_enqueue_scripts() {
-        // Get API key from module settings
-        $settings = hkfn_get_option('module_settings', []);
-        $api_key = $settings['google_places_api_key'] ?? '';
-        
-        // Fallback to ACF options for backwards compatibility
-        if (empty($api_key)) {
-            $api_key = get_field('hkfn_google_places_api_key', 'option') ?: '';
-        }
+        // Plugin setting, then the old ACF option, then the wp-config constant.
+        $api_key = hkfn_google_maps_key();
         
         if (!$api_key) {
             // Show admin notice if no API key
